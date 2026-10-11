@@ -376,9 +376,12 @@ const ProtectedRoute = ({ children, roleRequired, blockGuest }) => {
 
 /* مسار الدخول: يعرض النموذج لغير المسجّل، ويحوّل المسجّل الحقيقي إلى الرئيسية.
    مهم: الزائر (جلسة مؤقتة) لا يُعتبر مسجّلاً هنا — وإلا حُوِّل إلى "/" فوراً
-   فلم يستطع الدخول بحسابه أبداً، وخَلَق مع blockGuest في "/" حلقة توجيه. */
-const LoginRoute = ({ isAuthenticated, isGuest, children }) => {
-  if (isAuthenticated && !isGuest) {
+   فلم يستطع الدخول بحسابه أبداً، وخَلَق مع blockGuest في "/" حلقة توجيه.
+   كذلك الجلسة المجهولة من Firebase (تُنشأ تلقائياً عبر ensureFirebaseSession
+   لأجل إشعارات/قراءات Firestore) ليست تسجيل دخول حقيقي؛ لو حُسبت "مُسجّلاً"
+   لرُمي الزائر الجديد الذي يفتح /login مباشرةً إلى "/" فوراً. */
+const LoginRoute = ({ isAuthenticated, isGuest, isAnonymousSession, children }) => {
+  if (isAuthenticated && !isGuest && !isAnonymousSession) {
     return <Navigate to="/" replace />;
   }
 
@@ -407,6 +410,11 @@ function AppContent() {
   const isGuest = useStore(
     (s) => s.userRole === 'guest' || !!s.guestSession?.active
   );
+
+  // جلسة Firebase مجهولة (بلا بريد) — تُنشأ تلقائياً من ensureFirebaseSession
+  // لأجل الكتابة/القراءة في Firestore، وليست تسجيل دخول حقيقي. نفرّق بها حتى
+  // لا يُرمى الزائر الجديد من /login إلى "/".
+  const isAnonymousSession = !!user?.isAnonymous;
 
   // ربط زر الإغلاق العام (❌) بمُوجّه react-router — فيتنقل خطوة للخلف
   // داخلياً دون إعادة تحميل أو مغادرة الموقع.
@@ -2037,6 +2045,7 @@ function AppContent() {
                   <LoginRoute
                     isAuthenticated={isAuthenticated}
                     isGuest={isGuest}
+                    isAnonymousSession={isAnonymousSession}
                   >
                     <Login />
                   </LoginRoute>
