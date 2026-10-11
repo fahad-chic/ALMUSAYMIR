@@ -4,8 +4,9 @@ import { ArrowRight } from 'lucide-react';
 const HIDDEN_PATHS = new Set(['/', '/login', '/register', '/forgot-password', '/unauthorized']);
 
 /**
- * زر رجوع واحد ثابت داخل منطقة الترويسة.
- * يرجع صفحة واحدة للخلف فقط في كل ضغطة — بدون تذبذب أمام/خلف.
+ * زر رجوع ثابت.
+ * يستخدم فقط history.back() / navigate(-1) — بدون navigate(prev)
+ * حتى لا يُدفع مسار جديد في التاريخ ويحدث تذبذب (متجر ↔ حراج).
  */
 const BackButton = () => {
   const navigate = useNavigate();
@@ -19,28 +20,30 @@ const BackButton = () => {
 
     const path = location.pathname;
 
-    // استخدم history.state إن وُجد مسار سابق آمن
-    const prev =
-      (typeof window !== 'undefined' &&
-        (window.history.state?.usr?.prevPath || window.history.state?.prevPath)) ||
-      null;
+    // React Router v6 يخزّن idx في history.state — إن كان > 0 فهناك صفحة سابقة داخل التطبيق
+    const idx =
+      typeof window !== 'undefined' && window.history.state
+        ? window.history.state.idx
+        : undefined;
 
-    if (prev && typeof prev === 'string' && prev !== path && !HIDDEN_PATHS.has(prev)) {
-      navigate(prev);
+    if (typeof idx === 'number' && idx > 0) {
+      navigate(-1);
       return;
     }
 
-    // رجوع خطوة واحدة في تاريخ المتصفح
+    // احتياطي: طول التاريخ (قد يكون مضلّلاً إن فتح المستخدم الرابط مباشرة)
     if (typeof window !== 'undefined' && window.history.length > 1) {
       navigate(-1);
       return;
     }
 
-    // احتياطي حسب القسم
-    if (path.startsWith('/haraj') || path.startsWith('/ad/')) {
-      navigate('/haraj', { replace: true });
+    // لا يوجد تاريخ — وجهة آمنة حسب القسم
+    if (path.startsWith('/haraj') || path.startsWith('/ad/') || path.startsWith('/haraj/')) {
+      navigate(path === '/haraj' ? '/' : '/haraj', { replace: true });
     } else if (path.startsWith('/catalog/')) {
       navigate('/', { replace: true });
+    } else if (path.startsWith('/branch')) {
+      navigate('/branches', { replace: true });
     } else {
       navigate('/', { replace: true });
     }
