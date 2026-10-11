@@ -399,11 +399,10 @@ body.rooz-has-nav { padding-top: 0 !important; }
   border-radius: 999px;
   border: 1px solid var(--rz-line-gold);
   color: var(--rz-gold);
-  transition: transform 0.22s ease, background 0.22s ease;
+  transition: background 0.22s ease;
   flex-shrink: 0;
 }
 .rz-plus.is-open {
-  transform: rotate(180deg);
   background: rgba(184,164,122, 0.16);
 }
 
@@ -863,22 +862,24 @@ a { color: var(--rz-burgundy); }
    ============================================================ */
 @media (max-width: 900px) {
   .rz-topbar-inner {
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-      'logo actions'
-      'search search';
-    gap: 10px;
-    padding: 10px 12px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
   }
-  .rz-logo { grid-area: logo; }
-  .rz-actions { grid-area: actions; }
-  .rz-search { grid-area: search; max-width: none; }
-  .rz-search input { padding: 10px 14px !important; }
+  .rz-logo { flex: 0 0 auto; }
+  .rz-logo img { height: 30px; }
+  .rz-search { flex: 1 1 auto; min-width: 0; max-width: none; margin: 0; }
+  .rz-search input { padding: 8px 10px !important; font-size: 0.82rem; }
+  .rz-search-icon { display: none; }
+  .rz-actions { flex: 0 0 auto; gap: 0; }
+  .rz-icon-btn { width: 34px; height: 34px; }
   .rz-subbar-inner { overflow-x: auto; padding: 0 12px; }
   .rz-nav-link { padding: 8px 11px; font-size: 0.84rem; }
   .rz-footer-cols { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 }
 @media (max-width: 480px) {
   .rz-footer-cols { grid-template-columns: 1fr; }
-  .rz-logo img { height: 40px; }
+  .rz-logo img { height: 30px; }
 }

@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
-  Search, Heart, Bell, User, Menu, X, Plus, Home, Store,
+  Search, Heart, Bell, User, Menu, X, Plus, Minus, Home, Store,
   LayoutGrid, Tag, Sparkles, Info, Crown, LogOut, Bot,
 } from 'lucide-react';
 import { ROYAL_NAV, ROYAL_DRAWER } from '../data/royalMenu';
@@ -180,7 +180,7 @@ const RoyalHeader = ({
                     >
                       <span className="rz-group-icon"><ICON name={group.icon} size={18} /></span>
                       <span className="rz-group-label">{group.label}</span>
-                      <span className={`rz-plus ${isOpen ? 'is-open' : ''}`}><Plus size={15} /></span>
+                      <span className={`rz-plus ${isOpen ? 'is-open' : ''}`}>{isOpen ? <Minus size={15} /> : <Plus size={15} />}</span>
                     </button>
 
                     {isOpen && (
@@ -211,7 +211,7 @@ const RoyalHeader = ({
                   >
                     <span className="rz-group-icon"><Crown size={18} /></span>
                     <span className="rz-group-label">غرفة القيادة</span>
-                    <span className={`rz-plus ${openGroup === 'owner' ? 'is-open' : ''}`}><Plus size={15} /></span>
+                    <span className={`rz-plus ${openGroup === 'owner' ? 'is-open' : ''}`}>{openGroup === 'owner' ? <Minus size={15} /> : <Plus size={15} />}</span>
                   </button>
                   {openGroup === 'owner' && (
                     <div className="rz-sub">
