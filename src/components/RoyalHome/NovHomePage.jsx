@@ -152,26 +152,26 @@ const NovHomePage = () => {
 
         {/* ===== نقاط الثقة ===== */}
         <section className="rz-trust" aria-label="لماذا أناقة ROOZ">
-          <div className="rz-trust-item">
-            <span className="rz-trust-ico"><Truck size={20} /></span>
+          <button type="button" className="rz-trust-item" onClick={() => navigate('/faq')}>
+            <span className="rz-trust-ico"><Truck size={16} /></span>
             <h4>شحن سريع</h4>
             <p>لجميع مناطق المملكة</p>
-          </div>
-          <div className="rz-trust-item">
-            <span className="rz-trust-ico"><ShieldCheck size={20} /></span>
+          </button>
+          <button type="button" className="rz-trust-item" onClick={() => navigate('/terms')}>
+            <span className="rz-trust-ico"><ShieldCheck size={16} /></span>
             <h4>دفع آمن</h4>
             <p>حماية وتشفير كامل</p>
-          </div>
-          <div className="rz-trust-item">
-            <span className="rz-trust-ico"><BadgeCheck size={20} /></span>
+          </button>
+          <button type="button" className="rz-trust-item" onClick={() => navigate('/faq')}>
+            <span className="rz-trust-ico"><BadgeCheck size={16} /></span>
             <h4>إرجاع خلال 7 أيام</h4>
             <p>سياسة استبدال واضحة</p>
-          </div>
-          <div className="rz-trust-item">
-            <span className="rz-trust-ico"><Headphones size={20} /></span>
+          </button>
+          <button type="button" className="rz-trust-item" onClick={() => navigate('/contact')}>
+            <span className="rz-trust-ico"><Headphones size={16} /></span>
             <h4>دعم ومساندة</h4>
             <p>تواصل معنا في أي وقت</p>
-          </div>
+          </button>
         </section>
 
         {/* ===== اكتشفي ROOZ (تفاعلي) ===== */}
@@ -190,19 +190,19 @@ const NovHomePage = () => {
             </div>
             <div className="rz-discover-grid">
               <button type="button" className="rz-discover-card" onClick={() => navigate('/dashboard')}>
-                <ShoppingBag size={22} /><span>أريد التسوق</span>
+                <ShoppingBag size={18} /><span>أريد التسوق</span>
               </button>
               <button type="button" className="rz-discover-card" onClick={() => navigate('/advertisements')}>
-                <Flame size={22} /><span>أريد مشاهدة العروض</span>
+                <Flame size={18} /><span>أريد مشاهدة العروض</span>
               </button>
               <button type="button" className="rz-discover-card" onClick={() => navigate('/haraj')}>
-                <StoreIcon size={22} /><span>أريد تصفح الحراج</span>
+                <StoreIcon size={18} /><span>أريد تصفح الحراج</span>
               </button>
               <button type="button" className="rz-discover-card" onClick={() => navigate('/haraj/post')}>
-                <Plus size={22} /><span>أريد إضافة إعلان</span>
+                <Plus size={18} /><span>أريد إضافة إعلان</span>
               </button>
               <button type="button" className="rz-discover-card" onClick={() => navigate('/settings')}>
-                <Crown size={22} /><span>أريد الوصول إلى حسابي</span>
+                <Crown size={18} /><span>أريد الوصول إلى حسابي</span>
               </button>
             </div>
           </section>
@@ -291,7 +291,7 @@ const NovHomePage = () => {
                         : TILE_GRADIENTS[idx % TILE_GRADIENTS.length],
                   }}
                 >
-                  <Icon size={20} />
+                  <Icon size={16} />
                 </span>
                 <span className="nov-tile-body">
                   <h3>{section.title}</h3>
