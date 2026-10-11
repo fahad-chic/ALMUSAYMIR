@@ -28,6 +28,22 @@ BASE_URL=http://localhost:4173 npm run contrast:strict
 خيارات: `--base <url>`، `--strict`، `--max <n>` (عدد المخالفات المسموح، افتراضيًا 0)،
 `--json <path>`، ومتغيّر `WCAG_ROUTES` لتحديد المسارات.
 
+## صفحات الإدارة/المالك (owner-only)
+المسارات `(/admin, /owner-panel, /owner-private-room, /complaints)` لا تُعرض إلا
+لمالك موثّق حقيقي، لذا لا يمكن لـCI الوصول إليها دون بيانات اعتماد. لدعمها:
+
+1. صدّر حالة جلسة مالك حقيقية من المتصفح إلى ملف JSON (Playwright storageState)،
+   عبر تشغيل المتصفح بـ`page.context().storageState({ path: 'owner.json' })` — يدويًا فقط.
+2. شغّل: `WCAG_OWNER_STATE=owner.json BASE_URL=... npm run contrast`.
+
+عندئذٍ تُضاف مسارات المالك تلقائيًا. بدون `WCAG_OWNER_STATE` تُسجَّل هذه المسارات
+كـ`owner-auth-required` في قسم `skipped` بدل تخطّيها بصمت. هذا لا يغيّر تسجيل الدخول
+أو الصلاحيات إطلاقًا.
+
+## لا تُضِف أسرارًا في CI
+لا يُمرَّر أي `WCAG_OWNER_STATE` في CI افتراضيًا ولا تُخزَّن أي بيانات اعتماد، حفاظًا
+على قاعدة عدم إدخال الأسرار في المستودع.
+
 ## ما يُفحَص فعليًا
 - النصوص المباشرة، الحقول (`input/select/textarea`) و`placeholder`،
   والأيقونات داخل الأزرار/الروابط بلا نص.

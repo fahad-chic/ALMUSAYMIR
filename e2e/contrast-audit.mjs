@@ -45,9 +45,15 @@ const GUEST_ROUTES = [
   '/inbox', '/otp', '/users', '/settings', '/chat', '/ai-chat',
   '/catalog/wedding-dresses', '/haraj/catalog/wedding-dresses',
 ];
+// Owner-only pages. Their UI renders only for a signed-in owner, so CI cannot
+// reach them without real credentials. When WCAG_OWNER_STATE is provided (a
+// Playwright storage-state JSON exported from a real owner session), these
+// routes are added to the audit; otherwise they are reported as skipped.
+const OWNER_ROUTES = ['/admin', '/owner-panel', '/owner-private-room', '/complaints'];
+const OWNER_STATE = process.env.WCAG_OWNER_STATE || '';
 const ROUTES = process.env.WCAG_ROUTES
   ? process.env.WCAG_ROUTES.split(',').map((s) => s.trim()).filter(Boolean)
-  : [...ANON_ROUTES, ...GUEST_ROUTES];
+  : [...ANON_ROUTES, ...GUEST_ROUTES, ...(OWNER_STATE ? OWNER_ROUTES : [])];
 
 /**
  * Documented exceptions for cases that cannot be judged with certainty by a
@@ -281,14 +287,21 @@ let totalSuspects = 0;
 
 for (const route of ROUTES) {
   const anon = ANON_ROUTES.includes(route);
-  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 }, locale: 'ar' });
-  if (!anon) await ctx.addInitScript((s) => localStorage.setItem('chic-guest-session', s), JSON.stringify(guestStorage));
+  const owner = OWNER_ROUTES.includes(route);
+  const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 }, locale: 'ar', ...(owner && OWNER_STATE ? { storageState: OWNER_STATE } : {}) });
+  if (!anon && !owner) await ctx.addInitScript((s) => localStorage.setItem('chic-guest-session', s), JSON.stringify(guestStorage));
   const page = await ctx.newPage();
   let res = { checked: 0, violations: [], suspects: [], skipReasons: {} };
   try {
     const resp = await page.goto(BASE + route, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(1200);
     if (resp && resp.status() >= 400) { report.routes.push({ route, status: resp.status(), note: 'http-error' }); await ctx.close(); continue; }
+    if (owner && new URL(page.url()).pathname === '/login') {
+      report.routes.push({ route, note: 'owner-auth-required', detail: 'no WCAG_OWNER_STATE — skipped' });
+      report.skipped['owner-auth-required'] = (report.skipped['owner-auth-required'] || 0) + 1;
+      await ctx.close();
+      continue;
+    }
     const a = await page.evaluate(PAGE_AUDIT);
     const b = await stateAudit(page);
     res = {
