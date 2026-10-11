@@ -13,8 +13,9 @@ const FALLBACKS = [
  * زر إغلاق عام (❌) للصفحات الفرعية والنوافذ والتبويبات.
  * - عند تمرير onClose: يُغلَق العنصر النشط مباشرة (تبويب داخل لوحة، مودال...)
  *   دون أي تنقل — فيبقى المستخدم داخل نفس اللوحة.
- * - بدونه: يعيد «خطوة واحدة» للخلف عبر آخر مسار داخلي محفوظ (prevPath)،
- *   ومع غياب مسار سابق يذهب لوجهة آمنة حسب القسم — لا يعيد للرئيسية أبداً.
+ * - بدونه: يعيد «خطوة واحدة» للخلف عبر history.back() فقط
+ *   (بدون navigate(prev) حتى لا يحدث تذبذب متجر↔حراج).
+ *   ومع غياب مسار سابق يذهب لوجهة آمنة حسب القسم.
  */
 const CloseButton = ({
   onClose,
@@ -41,15 +42,9 @@ const CloseButton = ({
 
     const currentPath = resolvedPath;
 
-    // رجوع حقيقي خطوة بخطوة
+    // رجوع حقيقي خطوة بخطوة — فقط history.back() بدون push لمسار سابق
+    // (navigate(prev) كان يسبب تذبذب متجر↔حراج)
     if (window.history.length > 1) {
-      const prev = window.history.state?.prevPath || window.history.state?.usr?.prevPath;
-      if (prev && typeof prev === 'string' && prev !== currentPath && !HIDDEN_PATHS.has(prev)) {
-        const nav = window.__ROOZ_NAV__;
-        if (typeof nav === 'function') nav(prev, false);
-        else window.history.back();
-        return;
-      }
       window.history.back();
       return;
     }
