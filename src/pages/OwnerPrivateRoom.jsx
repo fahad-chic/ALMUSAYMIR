@@ -888,6 +888,14 @@ const OwnerPrivateRoom = () => {
       categoryLabel: 'المراقبة'
     },
     {
+      id: 'messages',
+      label: 'الرسائل الخاصة',
+      icon: MessageSquare,
+      category: 'monitor',
+      categoryLabel: 'المراقبة',
+      viewOnly: true
+    },
+    {
       id: 'permissions',
       label: 'الصلاحيات',
       icon: Key,
@@ -935,14 +943,6 @@ const OwnerPrivateRoom = () => {
       icon: Activity,
       category: 'viewOnly',
       categoryLabel: 'المشاهدة فقط',
-      viewOnly: true
-    },
-    {
-      id: 'messages',
-      label: 'الرسائل الخاصة',
-      icon: MessageSquare,
-      category: 'monitor',
-      categoryLabel: 'المراقبة',
       viewOnly: true
     },
     {
@@ -1085,13 +1085,15 @@ const OwnerPrivateRoom = () => {
         }
 
         .owner-console-room .gold-button {
-          background: linear-gradient(135deg, #1E293B, #1E293B);
-          color: #202A3A;
-          font-weight: 700;
+          background: linear-gradient(135deg, #FFFFFF, #F5EFE3);
+          color: #0F172A;
+          font-weight: 800;
+          border: 1px solid #B8A47A;
         }
 
         .owner-console-room .gold-button:hover {
-          background: linear-gradient(135deg, #1E293B, #1E293B);
+          background: linear-gradient(135deg, #FFF7ED, #F5EFE3);
+          color: #0F172A;
         }
 
         .owner-console-room .light-field {
@@ -1103,6 +1105,18 @@ const OwnerPrivateRoom = () => {
 
         .owner-console-room .light-field::placeholder {
           color: #1E293B;
+        }
+
+                .owner-console-room .icon-card,
+        .owner-console-room .icon-card span,
+        .owner-console-room .icon-card p,
+        .owner-console-room .royal-surface,
+        .owner-console-room .royal-surface p,
+        .owner-console-room .royal-surface h2,
+        .owner-console-room .royal-surface h3,
+        .owner-console-room .royal-surface h4 {
+          color: #0F172A;
+          font-weight: 800;
         }
 
         .owner-console-room .view-only-badge {
@@ -1121,43 +1135,52 @@ const OwnerPrivateRoom = () => {
           color: #E8E2D6 !important;
         }
 
+        /* حتى في الوضع الليلي: بطاقات الخيارات والصلاحيات تبقى فاتحة ونص أسود عريض */
         .owner-console-room.owner-dark .royal-surface {
           background:
-            linear-gradient(165deg, rgba(32,42,58,.96), rgba(32,42,58,.96)) !important;
-          border-color: rgba(30,41,59,.32) !important;
-          box-shadow: 0 10px 28px rgba(32,42,58,.35) !important;
+            linear-gradient(165deg, #FFFFFF, #F7F3EC) !important;
+          border-color: rgba(184,164,122,.40) !important;
+          box-shadow: 0 10px 28px rgba(32,42,58,.12) !important;
+          color: #0F172A !important;
         }
 
         .owner-console-room.owner-dark .royal-muted {
-          color: #1E293B !important;
+          color: #334155 !important;
+          font-weight: 700 !important;
         }
 
         .owner-console-room.owner-dark .royal-text {
-          color: #E8E2D6 !important;
+          color: #0F172A !important;
+          font-weight: 800 !important;
         }
 
         .owner-console-room.owner-dark .royal-border {
-          border-color: rgba(30,41,59,.28) !important;
+          border-color: rgba(184,164,122,.35) !important;
         }
 
         .owner-console-room.owner-dark .icon-card {
           background:
-            linear-gradient(145deg, rgba(32,42,58,.98), rgba(32,42,58,.94)) !important;
-          border: 1px solid rgba(30,41,59,.28) !important;
+            linear-gradient(145deg, #FFFFFF, #F7F3EC) !important;
+          border: 1px solid rgba(184,164,122,.40) !important;
+          color: #0F172A !important;
         }
 
         .owner-console-room.owner-dark .icon-card:hover {
-          border-color: rgba(30,41,59,.7) !important;
+          border-color: #B8A47A !important;
           background:
-            linear-gradient(145deg, rgba(32,42,58,.99), rgba(32,42,58,.96)) !important;
-          box-shadow: 0 12px 30px rgba(32,42,58,.4) !important;
+            linear-gradient(145deg, #FFFFFF, #FFF7ED) !important;
+          box-shadow: 0 12px 30px rgba(184,164,122,.22) !important;
+          color: #0F172A !important;
         }
 
         .owner-console-room.owner-dark .icon-card.active {
-          border-color: rgba(30,41,59,.85) !important;
+          border-color: #B8A47A !important;
+          background:
+            linear-gradient(145deg, #FFFFFF, #F5EFE3) !important;
           box-shadow:
-            0 0 0 1px rgba(30,41,59,.2),
-            0 12px 32px rgba(32,42,58,.4) !important;
+            0 0 0 1px rgba(184,164,122,.35),
+            0 12px 32px rgba(184,164,122,.18) !important;
+          color: #0F172A !important;
         }
 
         .owner-console-room.owner-dark input,
@@ -1564,7 +1587,7 @@ const OwnerPrivateRoom = () => {
             <PermissionsPanel
               users={users}
               ownerEmail={user?.email}
-              darkMode={darkMode}
+              darkMode={false}
             />
           )}
 
