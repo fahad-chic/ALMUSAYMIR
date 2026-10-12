@@ -88,13 +88,13 @@ const PERMISSION_ICONS = {
 
 // لون هدية الأيقونة حسب القسم — درجات بيج وذهبي دافئة متناسقة مع خلفية #E8E2D6
 const CATEGORY_CHIP = {
-  master: 'bg-[#1E293B]/15 text-[#1E293B] border-[#1E293B]/35',
-  users: 'bg-[#1E293B]/12 text-[#1E293B] border-[#1E293B]/30',
-  haraj: 'bg-[#202A3A]/12 text-[#202A3A] border-[#202A3A]/30',
-  catalog: 'bg-[#404040]/12 text-[#404040] border-[#404040]/30',
-  staff: 'bg-[#1E293B]/12 text-[#1E293B] border-[#1E293B]/30',
-  spy: 'bg-[#1E293B]/12 text-[#1E293B] border-[#1E293B]/30',
-  inline: 'bg-[#404040]/12 text-[#202A3A] border-[#404040]/30',
+  master: 'bg-[#FFF7ED] text-[#0F172A] border-[#FDBA74]',
+  users: 'bg-[#EFF6FF] text-[#0F172A] border-[#93C5FD]',
+  haraj: 'bg-[#F0FDF4] text-[#0F172A] border-[#86EFAC]',
+  catalog: 'bg-[#FDF4FF] text-[#0F172A] border-[#D8B4FE]',
+  staff: 'bg-[#FEF3C7] text-[#0F172A] border-[#FCD34D]',
+  spy: 'bg-[#EEF2FF] text-[#0F172A] border-[#A5B4FC]',
+  inline: 'bg-[#F8FAFC] text-[#0F172A] border-[#CBD5E1]',
 };
 
 // يطابق شكل الكتالوج الأصلي: cat.icon قد يكون اسم الأيقونة أو المعرف
@@ -124,25 +124,22 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
   const [notice, setNotice] = useState('');
   const [editingKey, setEditingKey] = useState(null);
 
-  // ألوان حسب الوضع (نهاري / ليلي)
-  const cardBg = darkMode
-    ? { background: 'linear-gradient(165deg, rgba(32,42,58,.96), rgba(32,42,58,.96))', borderColor: 'rgba(30,41,59,.32)' }
-    : { background: 'linear-gradient(165deg, rgba(232,226,214,.98), rgba(239,233,223,.96))', borderColor: 'rgba(30,41,59,.30)' };
-  const textMain = darkMode ? 'text-[#E8E2D6]' : 'text-[#202A3A]';
-  const textSub = darkMode ? 'text-[#1E293B]' : 'text-[#202A3A]';
-  const textMuted = darkMode ? 'text-[#1E293B]' : 'text-[#202A3A]';
-  const chipInactive = darkMode
-    ? 'bg-[#202A3A] text-[#E8E2D6] border-[#1E293B]/35 hover:bg-[#1E293B]/15'
-    : 'bg-[#E8E2D6] text-[#202A3A] border-[#1E293B]/30 hover:bg-[#1E293B]/10';
-  const rowBgOn = darkMode
-    ? 'bg-[#202A3A] border-[#1E293B]/45 shadow-sm shadow-black/20'
-    : 'bg-[#E8E2D6] border-[#1E293B]/45 shadow-sm shadow-[#1E293B]/10';
-  const rowBgOff = darkMode
-    ? 'bg-[#202A3A] border-[#1E293B]/20 hover:border-[#1E293B]/40'
-    : 'bg-[#E8E2D6] border-[#1E293B]/20 hover:border-[#1E293B]/35';
-  const noticeBg = darkMode
-    ? 'text-[#E8E2D6] bg-[#1E293B]/20 border-[#1E293B]/40'
-    : 'text-[#202A3A] bg-[#1E293B]/15 border-[#1E293B]/35';
+  // خلفية فاتحة دائماً + نص أسود عريض (لا أسود/كحلي للخيارات)
+  const cardBg = {
+    background: 'linear-gradient(165deg, #F7F3EC 0%, #EFE9DF 100%)',
+    borderColor: 'rgba(30,41,59,.22)',
+  };
+  const textMain = 'text-[#0F172A] font-extrabold';
+  const textSub = 'text-[#1E293B] font-bold';
+  const textMuted = 'text-[#334155] font-semibold';
+  const chipInactive =
+    'bg-[#FFFFFF] text-[#0F172A] border-[#CBD5E1] hover:bg-[#F8FAFC] font-extrabold';
+  const rowBgOn =
+    'bg-[#FFFFFF] border-[#B8A47A]/60 shadow-sm shadow-[#B8A47A]/15';
+  const rowBgOff =
+    'bg-[#FAF8F4] border-[#E2E8F0] hover:border-[#B8A47A]/50';
+  const noticeBg =
+    'text-[#0F172A] bg-[#FFFBEB] border-[#B8A47A]/50 font-extrabold';
 
   // فقط حسابات المالك المعتمدة — تنقية كاملة لأي بريد آخر
   const ownerCandidates = useMemo(() => {
@@ -366,7 +363,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                       onClick={() => setActiveCategory(cat.id)}
                       className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold border shrink-0 transition-all duration-200 ${
                         active
-                          ? 'bg-[#1E293B] text-[#202A3A] border-[#1E293B] shadow-md shadow-[#1E293B]/25'
+                          ? 'bg-[#FFFFFF] text-[#0F172A] border-[#B8A47A] shadow-md shadow-[#B8A47A]/25 ring-1 ring-[#B8A47A]/40'
                           : chipInactive
                       }`}
                     >
@@ -451,7 +448,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                               disabled={suspended || savingKey === 'bulk' || saving}
                               onClick={() => handleToggle(p.key, !on)}
                               className={`relative w-12 h-7 rounded-full transition-colors ${
-                                on ? 'bg-[#1E293B]' : 'bg-[#1E293B]'
+                                on ? 'bg-[#B8A47A]' : 'bg-[#CBD5E1]'
                               } ${suspended ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                               <span
