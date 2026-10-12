@@ -10,12 +10,10 @@ import {
   Mail,
   Smartphone,
   Plus,
+  Minus,
   X,
-  ArrowLeft,
   ShoppingBag,
   Sparkles,
-  Store,
-  Home,
   Store as StoreIcon,
   Flame,
   Truck,
@@ -27,41 +25,23 @@ import {
 
 import MarqueeBanner from './MarqueeBanner';
 import CommentsSection from './CommentsSection';
-import { MARQUEE_BANNERS, MARQUEE_BANNERS_2, ROYAL_SECTIONS } from './sectionsData';
+import { MARQUEE_BANNERS, MARQUEE_BANNERS_2 } from './sectionsData';
 import '../../styles/NovHome.css';
 
 const LOGO_SRC = '/assets/logo.png';
 
-const SECTION_ICONS = {
-  dresses: Sparkles,
-  'wedding-dresses': Crown,
-  'girls-dresses': Sparkles,
-  abayas: Store,
-  bags: ShoppingBag,
-  shoes: Sparkles,
-  'used-dresses': Sparkles,
-  perfumes: Sparkles,
-  'golden-mothers': Crown,
-  jewelry: Gem,
-  'home-products': Home,
-  haraj: ShoppingBag,
-};
-
-const TILE_GRADIENTS = [
-  'linear-gradient(140deg,#1E293B,#1E293B)',
-  'linear-gradient(140deg,#1E293B,#1E293B)',
-  'linear-gradient(140deg,#1E293B,#1E293B)',
-  'linear-gradient(140deg,#1E293B,#1E293B)',
-  'linear-gradient(140deg,#1E293B,#1E293B)',
-  'linear-gradient(140deg,#1E293B,#1E293B)',
-];
 
 const FAQ_ITEMS = [
   { q: 'كيف أتتبع طلبي؟', a: 'بعد تسجيل الدخول، افتح «ملفي الشخصي» ثم «طلباتي» لعرض حالة كل طلب ومراحل الشحن.' },
   { q: 'ما مدة الشحن؟', a: 'الشحن لجميع مناطق المملكة، ويستغرق عادة من 2 إلى 5 أيام عمل حسب المدينة.' },
-  { q: 'هل يمكنني الإرجاع؟', a: 'نعم، يمكن الاستبدال أو الإرجاع خلال 7 أيام من الاستلام بشرط سلامة المنتج.' },
+  { q: 'هل يمكنني الإرجاع؟', a: 'نعم، يمكن الاستبدال أو الإرجاع خلال 7 أيام من الاستلام بشرط سلامة المنتج والتغليف.' },
   { q: 'كيف أضيف إعلاناً في الحراج؟', a: 'افتح «الحراج» ثم اضغط «أضف إعلانك»، وأكمل الخطوات وأرفق الصور ثم انشر.' },
   { q: 'كيف أتواصل مع الدعم؟', a: 'من صفحة «تواصل معنا» أو عبر واتساب وأرقام التواصل الظاهرة في الموقع.' },
+  { q: 'هل الدفع آمن؟', a: 'نعم، جميع عمليات الدفع مشفّرة ومحمية وفق أعلى معايير الأمان المعتمدة.' },
+  { q: 'هل يمكنني استبدال المقاس؟', a: 'نعم، الاستبدال متاح خلال 7 أيام من الاستلام بشرط أن يكون المنتج بحالته الأصلية.' },
+  { q: 'كيف أثبت المتجر على هاتفي؟', a: 'من متصفح الجوال اختر «إضافة إلى الشاشة الرئيسية» ليظهر المتجر كتطبيق.' },
+  { q: 'هل الشحن يشمل جميع المناطق؟', a: 'نعم، نوصل لجميع مناطق المملكة العربية السعودية.' },
+  { q: 'ما طرق الدفع المتاحة؟', a: 'تتوفر عدة طرق دفع آمنة حسب ما يظهر عند إتمام الطلب.' },
 ];
 
 const NovHomePage = () => {
@@ -69,12 +49,8 @@ const NovHomePage = () => {
   const [showAddHelp, setShowAddHelp] = useState(false);
   const [email, setEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState('');
-  const [openId, setOpenId] = useState(null);
   const [discoverPicked, setDiscoverPicked] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
-
-  const catalogSections = ROYAL_SECTIONS.filter((s) => !s.isAction);
-  const openSection = catalogSections.find((s) => s.id === openId) || null;
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -84,14 +60,6 @@ const NovHomePage = () => {
     }
     setEmailStatus('تم الاشتراك بنجاح');
     setEmail('');
-  };
-
-  const openBranch = (branch) => {
-    if (branch?.catalogId) {
-      navigate(`/catalog/${branch.catalogId}`, {
-        state: { branchId: branch.id, branchName: branch.name },
-      });
-    }
   };
 
   return (
@@ -262,75 +230,7 @@ const NovHomePage = () => {
           </div>
         </section>
 
-        {/* ===== شبكة الأقسام ===== */}
-        <div className="nov-sec-head">
-          <h2>أقسام متجر أناقة ROOZ</h2>
-          <span className="nov-sec-count">{catalogSections.length} قسم</span>
-        </div>
-
-        <section className="nov-tiles">
-          {catalogSections.map((section, idx) => {
-            const Icon = SECTION_ICONS[section.id] || StoreIcon;
-            const isOpen = openId === section.id;
-            const branches = Array.isArray(section.branches) ? section.branches : [];
-            return (
-              <button
-                type="button"
-                key={section.id}
-                className="nov-tile"
-                data-open={isOpen}
-                onClick={() => setOpenId(isOpen ? null : section.id)}
-                aria-expanded={isOpen}
-              >
-                <span
-                  className="nov-tile-ico"
-                  style={{
-                    background:
-                      section.color
-                        ? `linear-gradient(140deg, ${section.color}, #1E293B)`
-                        : TILE_GRADIENTS[idx % TILE_GRADIENTS.length],
-                  }}
-                >
-                  <Icon size={16} />
-                </span>
-                <span className="nov-tile-body">
-                  <h3>{section.title}</h3>
-                  <span>{branches.length} فرع</span>
-                </span>
-                <span className="nov-tile-plus"><Plus size={14} /></span>
-              </button>
-            );
-          })}
-        </section>
-
-        {openSection && (
-          <div className="nov-branch-panel">
-            <div className="nov-branch-panel-head">
-              <h3>{openSection.title}</h3>
-              <button
-                type="button"
-                className="nov-branch-close"
-                onClick={() => setOpenId(null)}
-                aria-label="إغلاق"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="nov-branch-chips">
-              {(openSection.branches || []).map((branch) => (
-                <button
-                  type="button"
-                  key={branch.id}
-                  className="nov-branch-chip"
-                  onClick={() => openBranch(branch)}
-                >
-                  <span>{branch.name}</span>
-                  <ArrowLeft size={14} />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* أقسام المتجر نُقلت إلى قائمة الثلاث شرطات في الترويسة لتقصير الصفحة */}
 
         {/* ===== شريط حراج ===== */}
         <section className="nov-haraj">
@@ -350,35 +250,45 @@ const NovHomePage = () => {
 
         <CommentsSection />
 
-        {/* ===== الأسئلة الشائعة ===== */}
+        {/* ===== الأسئلة الشائعة — طيّ كامل بزر + / − ===== */}
         <section className="rz-faq" aria-label="الأسئلة الشائعة">
-          <div className="nov-sec-head">
-            <h2>الأسئلة الشائعة</h2>
-            <span className="nov-sec-count">مساعدة</span>
-          </div>
-          <div className="rz-faq-list">
-            {FAQ_ITEMS.map((item, i) => {
-              const isOpen = openFaq === i;
-              return (
-                <div className="rz-faq-item" key={item.q}>
-                  <button
-                    type="button"
-                    className="rz-faq-q"
-                    aria-expanded={isOpen}
-                    onClick={() => setOpenFaq(isOpen ? null : i)}
-                  >
-                    <span>{item.q}</span>
-                    <ChevronDown size={17} className={isOpen ? 'is-open' : ''} />
-                  </button>
-                  {isOpen && <div className="rz-faq-a">{item.a}</div>}
-                </div>
-              );
-            })}
-          </div>
+          <button
+            type="button"
+            className="rz-faq-toggle"
+            aria-expanded={faqSectionOpen}
+            onClick={() => setFaqSectionOpen((v) => !v)}
+          >
+            <span className="rz-faq-toggle-title">الأسئلة الشائعة</span>
+            <span className="rz-faq-toggle-badge">{FAQ_ITEMS.length} سؤال</span>
+            <span className="rz-faq-toggle-plus" aria-hidden="true">
+              {faqSectionOpen ? <Minus size={16} /> : <Plus size={16} />}
+            </span>
+          </button>
+          {faqSectionOpen && (
+            <div className="rz-faq-list">
+              {FAQ_ITEMS.map((item, i) => {
+                const isOpen = openFaq === i;
+                return (
+                  <div className="rz-faq-item" key={item.q}>
+                    <button
+                      type="button"
+                      className="rz-faq-q"
+                      aria-expanded={isOpen}
+                      onClick={() => setOpenFaq(isOpen ? null : i)}
+                    >
+                      <span>{item.q}</span>
+                      <ChevronDown size={16} className={isOpen ? 'is-open' : ''} />
+                    </button>
+                    {isOpen && <div className="rz-faq-a">{item.a}</div>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* ===== الفوتر الملكي ===== */}
-        <footer className="rz-footer" style={{ borderRadius: 20 }}>
+        <footer className="rz-footer rz-footer--compact" style={{ borderRadius: 16 }}>
           <div className="rz-footer-inner">
             <div className="rz-footer-top">
               <img src={LOGO_SRC} alt="شعار أناقة ROOZ" className="rz-footer-logo" loading="lazy" />
