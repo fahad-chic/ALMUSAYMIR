@@ -1,97 +1,397 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8"/>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-  <!-- viewport-fit=cover ضروري لتفعيل env(safe-area-inset-*) على iPhone
-       (Dynamic Island + شريط Safari السفلي) بلا تغطية المحتوى. -->
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
-
-  <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#1E293B"/>
-  <meta name="google-site-verification" content="gc-cSgckNw5k6r31nw4kwYFkJgRiPax2W0-CZNBohwY"/>
-  <meta name="description" content="أناقةROOZ: سوق متكامل يجمع بين حراج الإعلانات العام ومتجر المنتجات الحديثة بأسعار رخيصة للجميع. شحن سريع ومجاني للطلبات فوق 150 ريال."/>
-  <meta name="robots" content="index,follow"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="أناقةROOZ"/>
-  <meta name="application-name" content="أناقةROOZ"/>
-  <meta name="msapplication-TileColor" content="#1E293B"/>
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website"/>
-  <meta property="og:url" content="https://rooz-store.pages.dev"/>
-  <meta property="og:title" content="أناقةROOZ | حراج إعلانات ومتجر شامل"/>
-  <meta property="og:description" content="وجهتك الأولى للبيع والشراء! حراج عام شامل وأرقى المنتجات والأزياء بأسعار رخيصة للجميع. شحن سريع ومجاني للطلبات فوق 150 ريال."/>
-  <meta property="og:image" content="https://rooz-store.pages.dev/assets/og-image.jpg"/>
-  <meta property="og:image:width" content="1200"/>
-  <meta property="og:image:height" content="630"/>
-  <meta property="og:locale" content="ar_SA"/>
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="أناقةROOZ | حراج إعلانات ومتجر شامل"/>
-  <meta name="twitter:description" content="وجهتك الأولى للبيع والشراء! حراج عام شامل وأرقى المنتجات والأزياء بأسعار رخيصة للجميع."/>
-  <meta name="twitter:image" content="https://rooz-store.pages.dev/assets/og-image.jpg"/>
-
-  <!-- Icons -->
-  <link rel="icon" href="/favicon.ico" sizes="any"/>
-  <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64"/>
-  <link rel="icon" href="/icons/icon-192x192.png" type="image/png" sizes="192x192"/>
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-
-  <!-- Manifest -->
-  <link rel="manifest" href="/manifest.json"/>
-
-  <title>أناقةROOZ | فساتين وعبايات فاخرة في السعودية</title>
-  <link rel="canonical" href="https://rooz-store.pages.dev"/>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>نسبة الموقع والحسابات البنكية - أناقة ROOZ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
   <style>
-    *,*:before,*::after{box-sizing:border-box}
-    html{background:#E8E2D6}
-    body{margin:0;background:#E8E2D6;color:#202A3A;font-family:Tajawal,system-ui,sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-    #root{min-height:100vh;display:flex;align-items:center;justify-content:center}
-    /* شاشة تحميل ناعمة: أيقونة حرف R والتاج في المنتصف */
-    .rooz-boot{display:flex;flex-direction:column;align-items:center;gap:16px;opacity:0;animation:roozFadeIn .7s ease .05s forwards}
-    .rooz-boot img{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 8px 22px rgba(107,29,47,.22))}
-    .rooz-boot .rooz-boot-bar{width:132px;height:3px;border-radius:999px;background:rgba(107,29,47,.14);overflow:hidden;position:relative}
-    .rooz-boot .rooz-boot-bar::after{content:"";position:absolute;inset:0;width:40%;border-radius:999px;background:linear-gradient(90deg,#1E293B,#B8A47A);animation:roozSlide 1.15s ease-in-out infinite}
-    @keyframes roozFadeIn{to{opacity:1}}
-    @keyframes roozSlide{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
-    @media(prefers-reduced-motion:reduce){.rooz-boot{animation:none;opacity:1}.rooz-boot .rooz-boot-bar::after{animation:none;width:100%}}
-  </style>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" media="print" onload="this.media='all'"/>
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap"/></noscript>
+    :root {
+      --navy: #1E293B;
+      --navy-soft: #2A3A4F;
+      --beige: #E8E2D6;
+      --beige-dark: #D4C5A9;
+      --cream: #F7F3EB;
+      --text: #1E293B;
+      --radius: 16px;
+    }
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "ShoppingCenter",
-    "name": "أناقةROOZ",
-    "url": "https://rooz-store.pages.dev",
-    "logo": "https://rooz-store.pages.dev/assets/logo.png",
-    "description": "منصة متكاملة تجمع بين حراج الإعلانات العام ومتجر المنتجات والأزياء بأسعار تصفية في السعودية",
-    "telephone": "+966536667222",
-    "address": {
-      "@type": "PostalAddress",
-      "addressRegion": "حفر الباطن",
-      "addressCountry": "SA"
-    },
-    "openingHours": "Mo-Su 00:00-23:59",
-    "priceRange": "$$"
-  }
-  </script>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Tajawal', system-ui, sans-serif;
+      background: linear-gradient(160deg, #F7F3EB 0%, #E8E2D6 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ========== نسبة الموقع ========== */
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .section-title svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .commission-card {
+      background: var(--navy);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.2rem;
+      text-align: center;
+      box-shadow: 0 12px 32px rgba(30, 41, 59, 0.25);
+    }
+
+    .rates-row {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .rate-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-width: 110px;
+    }
+
+    .rate-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #E8E2D6;
+      opacity: 0.95;
+    }
+
+    .rate-value {
+      font-size: 1.85rem;
+      font-weight: 900;
+      color: #E8E2D6;              /* بيج واضح 100% */
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+    }
+
+    .rate-value .percent {
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .divider {
+      width: 1px;
+      background: rgba(232, 226, 214, 0.35);
+      align-self: stretch;
+    }
+
+    .commission-note {
+      font-size: 0.92rem;
+      font-weight: 700;             /* عريض */
+      color: #E8E2D6;               /* بيج واضح 100% */
+      line-height: 1.55;
+      opacity: 1;
+      border-top: 1px solid rgba(232, 226, 214, 0.25);
+      padding-top: 12px;
+      margin-top: 2px;
+    }
+
+    /* ========== الحسابات البنكية ========== */
+    .bank-section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .bank-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(30, 41, 59, 0.12);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 3px 12px rgba(30, 41, 59, 0.07);
+    }
+
+    .bank-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .bank-name {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .bank-icon {
+      width: 22px;
+      height: 22px;
+      background: var(--navy);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--beige);
+      font-size: 11px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;                     /* تقريب السطور أكثر */
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--cream);
+      border-radius: 8px;
+      padding: 4px 8px;             /* تصغير ارتفاع المربع أكثر */
+      width: fit-content;           /* العرض حسب النص فقط */
+      max-width: 100%;
+    }
+
+    .field-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #6B7280;
+      min-width: 32px;
+    }
+
+    .field-value {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: 0.2px;
+      direction: ltr;
+      text-align: left;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .copy-btn {
+      background: var(--navy);
+      color: #E8E2D6;
+      border: none;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .copy-btn:hover {
+      background: var(--navy-soft);
+    }
+
+    .copy-btn:active {
+      transform: scale(0.95);
+    }
+
+    .copy-btn.copied {
+      background: #059669;
+      color: white;
+    }
+
+    /* تنبيه النجاح */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--navy);
+      color: #E8E2D6;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: all 0.35s ease;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* زر رجوع */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1.5px solid rgba(30, 41, 59, 0.2);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--navy);
+      cursor: pointer;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+  </style>
 </head>
 <body>
-  <div id="root">
-    <div class="rooz-boot" role="status" aria-label="جاري التحميل">
-      <img src="/assets/emblem.png" alt="أناقة ROOZ" width="96" height="96"/>
-      <span class="rooz-boot-bar"></span>
-    </div>
+  <div class="container">
+
+    <!-- زر رجوع (اختياري) -->
+    <button class="back-btn" onclick="history.back()">
+      رجوع ←
+    </button>
+
+    <!-- ========== نسبة الموقع ========== -->
+    <section>
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        نسبة الموقع
+      </div>
+
+      <div class="commission-card">
+        <div class="rates-row">
+          <!-- السلع الجديدة -->
+          <div class="rate-item">
+            <div class="rate-label">السلع الجديدة</div>
+            <div class="rate-value">
+              <span>2</span><span class="percent">٪</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- السلع المستخدمة -->
+          <div class="rate-item">
+            <div class="rate-label">السلع المستخدمة</div>
+            <div class="rate-value">
+              <span>1</span><span class="percent">٪</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="commission-note">
+          وتعتبر هذه النسبة في ذمة المعلن عند بيع السلعة
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== الحسابات البنكية ========== -->
+    <section>
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <path d="M2 10h20"/>
+        </svg>
+        الحسابات البنكية
+      </div>
+
+      <div class="bank-section">
+
+        <!-- بنك الراجحي -->
+        <div class="bank-card">
+          <div class="bank-header">
+            <div class="bank-name">بنك الراجحي</div>
+            <div class="bank-icon">🏦</div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-row">
+              <span class="field-label">IBAN</span>
+              <span class="field-value" id="iban1">SA0980000509608010069017</span>
+              <button class="copy-btn" onclick="copyText('iban1', this)">نسخ</button>
+            </div>
+
+            <div class="field-row">
+              <span class="field-label">الحساب</span>
+              <span class="field-value" id="acc1">09608010069017</span>
+              <button class="copy-btn" onclick="copyText('acc1', this)">نسخ</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- بنك العربي -->
+        <div class="bank-card">
+          <div class="bank-header">
+            <div class="bank-name">بنك العربي</div>
+            <div class="bank-icon">🏛</div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-row">
+              <span class="field-label">IBAN</span>
+              <span class="field-value" id="iban2">SA9830400108088851870011</span>
+              <button class="copy-btn" onclick="copyText('iban2', this)">نسخ</button>
+            </div>
+
+            <div class="field-row">
+              <span class="field-label">الحساب</span>
+              <span class="field-value" id="acc2">0108088851870011</span>
+              <button class="copy-btn" onclick="copyText('acc2', this)">نسخ</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div>
-  <script type="module" src="/src/main.jsx"></script>
+
+  <!-- رسالة نسخ -->
+  <div class="toast" id="toast">تم النسخ ✓</div>
+
+  <script>
+    function copyText(id, btn) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.innerText;
+        btn.innerText = 'تم';
+        btn.classList.add('copied');
+
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+
+        setTimeout(() => {
+          btn.innerText = original;
+          btn.classList.remove('copied');
+          toast.classList.remove('show');
+        }, 1800);
+      }).catch(() => {
+        alert('تعذر النسخ، انسخ يدويًا');
+      });
+    }
+  </script>
 </body>
 </html>
