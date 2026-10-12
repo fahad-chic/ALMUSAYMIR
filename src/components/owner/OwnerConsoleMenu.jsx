@@ -125,8 +125,8 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           padding: 12px;
           border-radius: 20px;
           direction: rtl;
-          background: linear-gradient(170deg, ${C.ivory}, ${C.ivoryDeep});
-          border: 1.5px solid ${C.line};
+          background: linear-gradient(170deg, #FFFFFF, #F7F3EC);
+          border: 1.5px solid rgba(184,164,122,0.45);
           box-shadow:
             0 22px 54px rgba(32,42,58, 0.28),
             0 2px 0 rgba(255,255,255, 0.9) inset;
@@ -192,17 +192,17 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           width: 100%;
           padding: 9px 11px;
           border-radius: 14px;
-          border: 1px solid transparent;
-          background: transparent;
-          color: ${C.ink};
+          border: 1px solid rgba(226,232,240,0.9);
+          background: #FAF8F4;
+          color: #0F172A;
           cursor: pointer;
           text-align: start;
           transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
         }
         .ocm-item:hover,
         .ocm-item:focus-visible {
-          background: rgba(30,41,59, 0.16);
-          border-color: ${C.line};
+          background: #FFFFFF;
+          border-color: #B8A47A;
           outline: none;
           transform: translateX(-2px);
         }
@@ -221,8 +221,9 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
         .ocm-item-label {
           flex: 1 1 auto;
           font-size: 0.86rem;
-          font-weight: 700;
+          font-weight: 800;
           line-height: 1.35;
+          color: #0F172A;
         }
         .ocm-item-x {
           display: grid;
@@ -239,20 +240,21 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
         }
         .ocm-item-x:hover { background: #1E293B; border-color: #1E293B; color: #FFFFFF; }
 
-        /* الخيار المحدد — خلفية ذهبية وأيقونة معاكسة بارزة */
+        /* الخيار المحدد — خلفية فاتحة ذهبية ناعمة + نص أسود عريض */
         .ocm-item.is-active {
-          background: linear-gradient(140deg, #B8A47A, #1E293B 60%, #1E293B);
-          border-color: ${C.gold};
-          box-shadow: 0 8px 20px rgba(32,42,58, 0.22);
+          background: linear-gradient(140deg, #FFFFFF, #F5EFE3);
+          border-color: #B8A47A;
+          box-shadow: 0 6px 16px rgba(184,164,122, 0.22);
+          color: #0F172A;
         }
         .ocm-item.is-active .ocm-item-icon {
-          color: #FFFFFF;
-          background: ${C.goldDeep};
-          border-color: ${C.goldDeep};
+          color: #0F172A;
+          background: linear-gradient(150deg, #FFF7ED, #F5EFE3);
+          border-color: #B8A47A;
         }
-        .ocm-item.is-active .ocm-item-label { font-weight: 800; }
-        .ocm-item.is-active .ocm-item-x { background: ${C.goldDeep}; border-color: ${C.goldDeep}; color: #FFFFFF; }
-        .ocm-item.is-active .ocm-item-x:hover { background: #1E293B; border-color: #1E293B; }
+        .ocm-item.is-active .ocm-item-label { font-weight: 800; color: #0F172A; }
+        .ocm-item.is-active .ocm-item-x { background: #FFFFFF; border-color: #B8A47A; color: #0F172A; }
+        .ocm-item.is-active .ocm-item-x:hover { background: #FFF7ED; border-color: #B8A47A; color: #0F172A; }
         .ocm-item.is-excluded { opacity: 0.5; }
       `}</style>
 
