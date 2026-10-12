@@ -640,13 +640,13 @@ const BankCard = ({ bank }) => {
   return (
     <div
       style={{
-        background: 'linear-gradient(145deg, #E8E2D6 0%, #E8E2D6 100%)',
-        border: '1.5px solid #1E293B',
-        borderRadius: 14,
-        padding: '0.7rem 0.8rem',
+        background: 'linear-gradient(145deg, #FFFFFF 0%, #F7F3EB 100%)',
+        border: '1px solid rgba(30,41,59,0.15)',
+        borderRadius: 12,
+        padding: '0.5rem 0.65rem',
         position: 'relative',
         overflow: 'hidden',
-        marginBottom: 8,
+        marginBottom: 6,
       }}
     >
       <div
@@ -717,17 +717,19 @@ const BankCard = ({ bank }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'linear-gradient(135deg, #E8E2D6, #B8A47A)',
-            border: '1px solid #1E293B',
-            borderRadius: 10,
-            padding: '0.4rem 0.6rem',
-            gap: 8,
+            background: '#F7F3EB',
+            border: '1px solid rgba(30,41,59,0.12)',
+            borderRadius: 8,
+            padding: '0.28rem 0.5rem',
+            gap: 6,
+            width: 'fit-content',
+            maxWidth: '100%',
           }}
         >
           <span
             style={{
-              fontSize: '0.78rem',
-              fontWeight: 800,
+              fontSize: '0.72rem',
+              fontWeight: 700,
               color: '#202A3A',
               fontFamily: 'monospace',
               direction: 'ltr',
@@ -749,24 +751,19 @@ const BankCard = ({ bank }) => {
             }
             aria-label="نسخ رقم الآيبان"
             style={{
-              background: 'none',
+              background: '#1E293B',
+              color: '#E8E2D6',
               border: 'none',
+              borderRadius: 6,
               cursor: 'pointer',
-              padding: 4,
+              padding: '3px 8px',
               flexShrink: 0,
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              fontFamily: 'Tajawal, sans-serif',
             }}
           >
-            {copied === `${bank.id}-iban` ? (
-              <Check
-                size={14}
-                color={C.green}
-              />
-            ) : (
-              <Copy
-                size={14}
-                color={bank.color}
-              />
-            )}
+            {copied === `${bank.id}-iban` ? 'تم' : 'نسخ'}
           </button>
         </div>
       </div>
@@ -787,17 +784,19 @@ const BankCard = ({ bank }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'linear-gradient(135deg, #E8E2D6, #B8A47A)',
-            border: '1px solid #1E293B',
-            borderRadius: 10,
-            padding: '0.4rem 0.6rem',
-            gap: 8,
+            background: '#F7F3EB',
+            border: '1px solid rgba(30,41,59,0.12)',
+            borderRadius: 8,
+            padding: '0.28rem 0.5rem',
+            gap: 6,
+            width: 'fit-content',
+            maxWidth: '100%',
           }}
         >
           <span
             style={{
-              fontSize: '0.78rem',
-              fontWeight: 800,
+              fontSize: '0.72rem',
+              fontWeight: 700,
               color: '#202A3A',
               fontFamily: 'monospace',
               direction: 'ltr',
@@ -817,24 +816,19 @@ const BankCard = ({ bank }) => {
             }
             aria-label="نسخ رقم الحساب"
             style={{
-              background: 'none',
+              background: '#1E293B',
+              color: '#E8E2D6',
               border: 'none',
+              borderRadius: 6,
               cursor: 'pointer',
-              padding: 4,
+              padding: '3px 8px',
               flexShrink: 0,
+              fontSize: '0.7rem',
+              fontWeight: 700,
+              fontFamily: 'Tajawal, sans-serif',
             }}
           >
-            {copied === `${bank.id}-acc` ? (
-              <Check
-                size={14}
-                color={C.green}
-              />
-            ) : (
-              <Copy
-                size={14}
-                color={bank.color}
-              />
-            )}
+            {copied === `${bank.id}-acc` ? 'تم' : 'نسخ'}
           </button>
         </div>
       </div>
@@ -1817,12 +1811,12 @@ const RoyalHarajPage = () => {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: '1.15rem',
+                      fontSize: '1.35rem',
                       fontWeight: 900,
-                      color: '#202A3A',
+                      color: '#E8E2D6',
                     }}
                   >
-                    1%
+                    1٪
                   </p>
 
                   <p
@@ -1830,8 +1824,9 @@ const RoyalHarajPage = () => {
                       margin:
                         '0.25rem 0 0',
                       fontSize:
-                        '0.75rem',
-                      color: '#202A3A',
+                        '0.8rem',
+                      fontWeight: 700,
+                      color: '#E8E2D6',
                     }}
                   >
                     المستخدمة
@@ -1855,12 +1850,12 @@ const RoyalHarajPage = () => {
                   <p
                     style={{
                       margin: 0,
-                      fontSize: '1.15rem',
+                      fontSize: '1.35rem',
                       fontWeight: 900,
-                      color: C.gold,
+                      color: '#E8E2D6',
                     }}
                   >
-                    2%
+                    2٪
                   </p>
 
                   <p
@@ -1868,8 +1863,9 @@ const RoyalHarajPage = () => {
                       margin:
                         '0.25rem 0 0',
                       fontSize:
-                        '0.75rem',
-                      color: C.grayMid,
+                        '0.8rem',
+                      fontWeight: 700,
+                      color: '#E8E2D6',
                     }}
                   >
                     الجديدة
@@ -1880,8 +1876,9 @@ const RoyalHarajPage = () => {
               <p
                 style={{
                   margin: 0,
-                  fontSize: '0.8rem',
-                  color: C.grayMid,
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  color: '#E8E2D6',
                   fontFamily:
                     'Tajawal',
                 }}
