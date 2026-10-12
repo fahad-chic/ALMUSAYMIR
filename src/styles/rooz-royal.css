@@ -888,3 +888,74 @@ a { color: var(--rz-burgundy); }
   .rz-footer-cols { grid-template-columns: 1fr; }
   .rz-logo img { height: 30px; }
 }
+
+
+/* طيّ قسم الأسئلة الشائعة */
+.rz-faq-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--rz-line, rgba(30,41,59,.2));
+  background: #FFFFFF;
+  color: #0F172A;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: start;
+  box-shadow: var(--rz-shadow-sm, 0 4px 12px rgba(0,0,0,.06));
+}
+.rz-faq-toggle-title { flex: 1; }
+.rz-faq-toggle-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(30,41,59,.08);
+  color: #1E293B;
+}
+.rz-faq-toggle-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #0F172A;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+.rz-faq-list { margin-top: 8px; }
+
+/* فوتر مضغوط + محاذاة وسط */
+.rz-footer--compact .rz-footer-inner {
+  padding: 14px 12px 10px !important;
+  text-align: center;
+}
+.rz-footer--compact .rz-footer-top { margin-bottom: 8px !important; }
+.rz-footer--compact .rz-footer-logo { height: 36px !important; margin-bottom: 4px !important; }
+.rz-footer--compact .rz-footer-tag { font-size: 0.8rem !important; margin: 0 !important; line-height: 1.3 !important; }
+.rz-footer--compact .rz-footer-cols {
+  gap: 8px 10px !important;
+  text-align: center !important;
+  justify-items: center;
+}
+.rz-footer--compact .rz-footer-col h4 {
+  margin: 0 0 4px !important;
+  font-size: 0.78rem !important;
+  line-height: 1.25 !important;
+}
+.rz-footer--compact .rz-footer-col a {
+  padding: 1px 0 !important;
+  font-size: 0.7rem !important;
+  line-height: 1.35 !important;
+}
+.rz-footer--compact .rz-footer-bottom {
+  margin-top: 8px !important;
+  padding-top: 8px !important;
+  font-size: 0.65rem !important;
+  line-height: 1.4 !important;
+}
