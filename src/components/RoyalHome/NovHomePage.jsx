@@ -51,6 +51,7 @@ const NovHomePage = () => {
   const [emailStatus, setEmailStatus] = useState('');
   const [discoverPicked, setDiscoverPicked] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
+  const [faqSectionOpen, setFaqSectionOpen] = useState(false);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
