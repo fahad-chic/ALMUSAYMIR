@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Sparkles, Send, X, ShieldCheck, Info } from "lucide-react";
+import { CONTACT_INFO } from "../utils/constants";
 
 export default function AIChat() {
   const [open, setOpen] = useState(false);
