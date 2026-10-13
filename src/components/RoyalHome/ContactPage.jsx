@@ -1,6 +1,7 @@
 // src/components/RoyalHome/ContactPage.jsx
 
 import React, { useState } from 'react';
+import { CONTACT_INFO as CI, BANK_ACCOUNTS as CONST_BANKS } from '../../utils/constants';
 import { useNavigate } from 'react-router-dom';
 import {
   Phone,
@@ -16,33 +17,19 @@ import {
 } from 'lucide-react';
 
 const CONTACT_INFO = {
-  phones: ['00966536667222', '00966507882771'],
-  whatsapp: '966536667222',
-  email: 'kal6667222@gmail.com',
+  phones: [CI.PHONE_1_DISPLAY, CI.PHONE_2_DISPLAY],
+  whatsapp: CI.WHATSAPP,
+  email: CI.EMAIL,
   snapchat: {
-    username: 'pmp.u',
-    url: 'https://snapchat.com/t/HPkkIfUp',
+    username: CI.SNAPCHAT_USERNAME,
+    url: CI.SNAPCHAT,
   },
 };
 
-const BANK_ACCOUNTS = [
-  {
-    id: 'alrajhi',
-    name: 'بنك الراجحي',
-    icon: Landmark,
-    color: '#202A3A',
-    iban: 'SA0980000509608010069017',
-    account: '09608010069017',
-  },
-  {
-    id: 'arabank',
-    name: 'بنك العربي',
-    icon: Landmark,
-    color: '#1E293B',
-    iban: 'SA9830400108088851870011',
-    account: '0108088851870011',
-  },
-];
+const BANK_ACCOUNTS = CONST_BANKS.map((b) => ({
+  ...b,
+  icon: Landmark,
+}));
 
 const GOLD = '#1E293B';
 const GOLD_LIGHT = '#202A3A';
