@@ -3,7 +3,7 @@ import { Sparkles, Send, X, ShieldCheck, Info } from "lucide-react";
 
 export default function AIChat() {
   const [open, setOpen] = useState(false);
-  const WHATSAPP_NUMBER = import.meta.env.VITE_CONTACT_WHATSAPP_1 || '966536667222';
+  const WHATSAPP_NUMBER = CONTACT_INFO.WHATSAPP;
   const [messages, setMessages] = useState([
     {
       id: crypto.randomUUID(),
