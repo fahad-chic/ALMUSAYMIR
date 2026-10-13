@@ -18,6 +18,8 @@ const ICONS = {
 export default function CommissionAndBanks({
   showTitle = true,
   compact = false,
+  showRates = true,
+  showBanks = true,
 }) {
   const [copied, setCopied] = useState(null);
 
@@ -45,6 +47,7 @@ export default function CommissionAndBanks({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? 14 : 22 }}>
       {/* ===== نسبة الموقع ===== */}
+      {showRates && (
       <section>
         {showTitle && (
           <h2
@@ -162,8 +165,10 @@ export default function CommissionAndBanks({
           </p>
         </div>
       </section>
+      )}
 
       {/* ===== الحسابات البنكية ===== */}
+      {showBanks && (
       <section>
         {showTitle && (
           <h2
@@ -348,6 +353,7 @@ export default function CommissionAndBanks({
           })}
         </div>
       </section>
+      )}
     </div>
   );
 }
