@@ -48,6 +48,7 @@ import {
 } from 'firebase/firestore';
 
 import { db } from '../../firebase';
+import { BANK_ACCOUNTS as CONST_BANKS, COMMISSION_RATES } from '../../utils/constants';
 import { ensureFirebaseSession } from '../../utils/firebaseSession';
 import HarajUserRegistration from '../haraj/HarajUserRegistration';
 import HarajAuth from '../haraj/HarajAuth';
@@ -74,24 +75,11 @@ const C = {
 
 const LOGO_SRC = '/assets/logo.png';
 
-const BANK_ACCOUNTS = [
-  {
-    id: 'alrajhi',
-    name: 'بنك الراجحي',
-    icon: Building2,
-    color: '#202A3A',
-    iban: 'SA0980000509608010069017',
-    account: '09608010069017',
-  },
-  {
-    id: 'arabank',
-    name: 'بنك العربي',
-    icon: Landmark,
-    color: '#1E293B',
-    iban: 'SA9830400108088851870011',
-    account: '0108088851870011',
-  },
-];
+const BANK_ICONS = { alrajhi: Building2, arabank: Landmark };
+const BANK_ACCOUNTS = CONST_BANKS.map((b) => ({
+  ...b,
+  icon: BANK_ICONS[b.id] || Building2,
+}));
 
 const HARAJ_SECTIONS = [
   {
