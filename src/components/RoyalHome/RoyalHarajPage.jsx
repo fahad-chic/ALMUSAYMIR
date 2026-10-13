@@ -49,6 +49,7 @@ import {
 
 import { db } from '../../firebase';
 import { BANK_ACCOUNTS as CONST_BANKS, COMMISSION_RATES } from '../../utils/constants';
+import CommissionAndBanks from '../shared/CommissionAndBanks';
 import { ensureFirebaseSession } from '../../utils/firebaseSession';
 import HarajUserRegistration from '../haraj/HarajUserRegistration';
 import HarajAuth from '../haraj/HarajAuth';
@@ -1740,141 +1741,8 @@ const RoyalHarajPage = () => {
           )}
         </section>
 
-        <section
-          style={{ marginBottom: '0.85rem' }}
-        >
-          <div
-            style={{
-              background: `linear-gradient(145deg, #FFFFFF 0%, #E8E2D6 100%)`,
-              border: `1px solid ${C.gold}30`,
-              borderRadius: 20,
-              padding: '0.75rem 0.85rem',
-            }}
-          >
-            <h2
-              style={{
-                fontSize: '1rem',
-                fontWeight: 800,
-                color: '#202A3A',
-                marginBottom: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-              }}
-            >
-              <CreditCard
-                size={18}
-                color={C.gold}
-              />
-
-              نسبة الموقع
-            </h2>
-
-            <div
-              style={{
-                background: 'linear-gradient(145deg, #1E293B 0%, #1E293B 55%, #1E293B 100%)',
-                borderRadius: 12,
-                padding: '0.55rem 0.75rem',
-                border: '1.5px solid #1E293B',
-                boxShadow: '0 2px 8px rgba(30,41,59,0.25)',
-                display: 'inline-block',
-                width: '100%',
-                maxWidth: 320,
-                margin: '0 auto',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '1.5rem',
-                  marginBottom: '0.75rem',
-                }}
-              >
-                <div
-                  style={{
-                    textAlign: 'center',
-                    flex: 1,
-                  }}
-                >
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: '1.35rem',
-                      fontWeight: 900,
-                      color: '#E8E2D6',
-                    }}
-                  >
-                    1٪
-                  </p>
-
-                  <p
-                    style={{
-                      margin:
-                        '0.25rem 0 0',
-                      fontSize:
-                        '0.8rem',
-                      fontWeight: 700,
-                      color: '#E8E2D6',
-                    }}
-                  >
-                    المستخدمة
-                  </p>
-                </div>
-
-                <div
-                  style={{
-                    width: 1,
-                    background:
-                      C.grayLight,
-                  }}
-                />
-
-                <div
-                  style={{
-                    textAlign: 'center',
-                    flex: 1,
-                  }}
-                >
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: '1.35rem',
-                      fontWeight: 900,
-                      color: '#E8E2D6',
-                    }}
-                  >
-                    2٪
-                  </p>
-
-                  <p
-                    style={{
-                      margin:
-                        '0.25rem 0 0',
-                      fontSize:
-                        '0.8rem',
-                      fontWeight: 700,
-                      color: '#E8E2D6',
-                    }}
-                  >
-                    الجديدة
-                  </p>
-                </div>
-              </div>
-
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  color: '#E8E2D6',
-                  fontFamily:
-                    'Tajawal',
-                }}
-              >
-                وتعتبر هذه النسبة في ذمة المعلن عند بيع السلعة
-              </p>
-            </div>
-          </div>
+        <section style={{ marginBottom: '0.85rem' }}>
+          <CommissionAndBanks showBanks={false} />
         </section>
 
         <section
@@ -1954,41 +1822,8 @@ const RoyalHarajPage = () => {
           </p>
         </section>
 
-        <section
-          style={{ marginBottom: '0.85rem' }}
-        >
-          <h2
-            style={{
-              fontSize: '1rem',
-              fontWeight: 700,
-              color: C.cream,
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <CreditCard
-              size={18}
-              color={C.gold}
-            />
-
-            الحسابات البنكية
-          </h2>
-
-          <div
-            style={{
-              display: 'grid',
-              gap: '1rem',
-            }}
-          >
-            {BANK_ACCOUNTS.map((bank) => (
-              <BankCard
-                key={bank.id}
-                bank={bank}
-              />
-            ))}
-          </div>
+        <section style={{ marginBottom: '0.85rem' }}>
+          <CommissionAndBanks showRates={false} />
         </section>
 
         <footer
