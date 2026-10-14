@@ -189,31 +189,18 @@ export const Register = () => {
     try {
       const otpResult = await store.sendOtp(normalizedEmail, 'register');
 
+      // التحقق برمز الإيميل إجباري — لا يُنشأ حساب بدون نجاح إرسال OTP
       if (!otpResult?.success) {
         console.warn(
-          'OTP unavailable for register, using Firebase verification:',
+          'OTP unavailable for register — blocked for security:',
           otpResult?.error
         );
 
-        try {
-          await createAccount(
-            normalizedEmail,
-            normalizedName,
-            normalizedRegion
-          );
-
-          showSuccess(
-            'تم إنشاء الحساب بنجاح! أرسلنا لك رسالة تحقق على بريدك. جارٍ تحويلك...'
-          );
-
-          scheduleRedirect(1200);
-        } catch (err) {
-          handleAccountError(err);
-        } finally {
-          if (mountedRef.current) {
-            setLoading(false);
-          }
-        }
+        showError(
+          otpResult?.error
+            ? `تعذّر إرسال كود التحقق: ${otpResult.error}. تأكد من صحة بريدك وحاول مرة أخرى.`
+            : 'تعذّر إرسال كود التحقق إلى بريدك. لا يمكن إنشاء الحساب بدون رمز التحقق. حاول مرة أخرى بعد قليل.'
+        );
 
         return;
       }
