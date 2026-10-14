@@ -124,7 +124,7 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(32,42,58,0.75)',
+        background: 'rgba(var(--rz-ink-rgb), 0.75)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -137,12 +137,12 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
         style={{
           width: '100%',
           maxWidth: 440,
-          background: '#202A3A',
-          border: '1px solid rgba(30,41,59,0.3)',
+          background: 'var(--rz-ink)',
+          border: '1px solid rgba(var(--rz-primary-rgb), 0.3)',
           borderRadius: 16,
           padding: '1.75rem 1.5rem',
           position: 'relative',
-          boxShadow: '0 20px 60px rgba(32,42,58,0.5)',
+          boxShadow: '0 20px 60px rgba(var(--rz-ink-rgb), 0.5)',
         }}
       >
         <button
@@ -156,7 +156,7 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
             left: 12,
             background: 'transparent',
             border: 'none',
-            color: '#404040',
+            color: 'var(--rz-muted)',
             cursor: busy ? 'not-allowed' : 'pointer',
           }}
         >
@@ -170,20 +170,20 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
               height: 64,
               margin: '0 auto 12px',
               borderRadius: '50%',
-              background: 'rgba(30,41,59,0.12)',
+              background: 'rgba(var(--rz-primary-rgb), 0.12)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Mail size={30} color="#1E293B" />
+            <Mail size={30} color="var(--rz-primary)" />
           </div>
-          <h2 style={{ color: '#1E293B', fontSize: 22, fontWeight: 700, margin: '0 0 6px' }}>
+          <h2 style={{ color: 'var(--rz-primary)', fontSize: 22, fontWeight: 700, margin: '0 0 6px' }}>
             أدخل كود التحقق
           </h2>
           <p
             style={{
-              color: '#E8E2D6',
+              color: 'var(--rz-ivory)',
               fontSize: 17,
               fontWeight: 800,
               margin: '0 0 8px',
@@ -194,18 +194,18 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
             <br />
             نتمنى لك تسوّقاً ممتعاً
           </p>
-          <p style={{ color: '#404040', fontSize: 14, margin: '0 0 10px' }}>
+          <p style={{ color: 'var(--rz-muted)', fontSize: 14, margin: '0 0 10px' }}>
             أرسلنا كوداً من 6 أرقام إلى:
             <br />
-            <b style={{ color: '#E8E2D6', wordBreak: 'break-all' }}>{email}</b>
+            <b style={{ color: 'var(--rz-ivory)', wordBreak: 'break-all' }}>{email}</b>
           </p>
           <p
             style={{
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
               fontSize: 13,
               margin: '0 0 16px',
-              background: 'rgba(30,41,59,0.08)',
-              border: '1px solid rgba(30,41,59,0.2)',
+              background: 'rgba(var(--rz-primary-rgb), 0.08)',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.2)',
               borderRadius: 10,
               padding: '8px 10px',
               lineHeight: 1.7,
@@ -222,8 +222,8 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              background: 'rgba(30,41,59,0.15)',
-              color: '#E8E2D6',
+              background: 'rgba(var(--rz-primary-rgb), 0.15)',
+              color: 'var(--rz-ivory)',
               padding: '10px 12px',
               borderRadius: 10,
               marginBottom: 12,
@@ -239,8 +239,8 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              background: 'rgba(32,42,58,0.15)',
-              color: '#202A3A',
+              background: 'rgba(var(--rz-ink-rgb), 0.15)',
+              color: 'var(--rz-ink)',
               padding: '10px 12px',
               borderRadius: 10,
               marginBottom: 12,
@@ -279,9 +279,9 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
                   textAlign: 'center',
                   fontSize: 24,
                   fontWeight: 700,
-                  color: '#FFFFFF',
-                  background: '#202A3A',
-                  border: '1px solid rgba(30,41,59,0.4)',
+                  color: 'var(--rz-white)',
+                  background: 'var(--rz-ink)',
+                  border: '1px solid rgba(var(--rz-primary-rgb), 0.4)',
                   borderRadius: 10,
                   outline: 'none',
                 }}
@@ -297,9 +297,9 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
               padding: '13px',
               background:
                 busy || code.length !== 6
-                  ? '#202A3A'
-                  : 'linear-gradient(135deg, #1E293B, #1E293B)',
-              color: '#FFFFFF',
+                  ? 'var(--rz-ink)'
+                  : 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+              color: 'var(--rz-white)',
               border: 'none',
               borderRadius: 10,
               fontWeight: 700,
@@ -323,10 +323,10 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: 14, fontSize: 14, color: '#404040' }}>
+        <div style={{ textAlign: 'center', marginTop: 14, fontSize: 14, color: 'var(--rz-muted)' }}>
           {resendTimer > 0 ? (
             <span>
-              إعادة الإرسال بعد <b style={{ color: '#1E293B' }}>{resendTimer}</b> ثانية
+              إعادة الإرسال بعد <b style={{ color: 'var(--rz-primary)' }}>{resendTimer}</b> ثانية
             </span>
           ) : (
             <button
@@ -336,7 +336,7 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#1E293B',
+                color: 'var(--rz-primary)',
                 cursor: busy ? 'not-allowed' : 'pointer',
                 fontWeight: 700,
                 fontSize: 14,

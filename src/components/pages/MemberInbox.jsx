@@ -119,22 +119,22 @@ const MemberInbox = () => {
           alignItems: 'center',
           gap: 10,
           marginBottom: '1rem',
-          color: '#202A3A',
+          color: 'var(--rz-ink)',
           fontWeight: 900,
           fontSize: '1.35rem',
         }}
       >
-        <Mail size={24} style={{ color: '#1E293B' }} aria-hidden="true" />
+        <Mail size={24} style={{ color: 'var(--rz-primary)' }} aria-hidden="true" />
         بريد العضو الوارد
       </div>
 
       <div
         style={{
-          background: 'linear-gradient(160deg, #E8E2D6, #E8E2D6)',
-          border: '2px solid #1E293B',
+          background: 'linear-gradient(160deg, var(--rz-ivory), var(--rz-ivory))',
+          border: '2px solid var(--rz-primary)',
           borderRadius: 20,
           padding: '0.5rem',
-          boxShadow: '0 12px 40px rgba(32,42,58,0.18)',
+          boxShadow: '0 12px 40px rgba(var(--rz-ink-rgb), 0.18)',
         }}
       >
         <div
@@ -149,13 +149,13 @@ const MemberInbox = () => {
           }}
         >
           {loading && (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#1E293B', display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'center' }}>
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--rz-primary)', display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'center' }}>
               <Loader2 size={18} className="spin" aria-hidden="true" />
               جاري تحميل الرسائل...
             </div>
           )}
           {!loading && thread.length === 0 && (
-            <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#1E293B', fontWeight: 700, lineHeight: 2 }}>
+            <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--rz-primary)', fontWeight: 700, lineHeight: 2 }}>
               لا توجد رسائل بعد.
               <br />
               استخدم زرّ «مراسلة صاحب الموقع» لإرسال استفسار، وستظهر الردود هنا.
@@ -167,9 +167,9 @@ const MemberInbox = () => {
               style={{
                 alignSelf: isFromOwner(m) ? 'flex-start' : 'flex-end',
                 maxWidth: '78%',
-                background: isFromOwner(m) ? '#E8E2D6' : 'linear-gradient(135deg,#202A3A,#1E293B)',
-                color: isFromOwner(m) ? '#202A3A' : '#FFFFFF',
-                border: isFromOwner(m) ? '1px solid #1E293B' : 'none',
+                background: isFromOwner(m) ? 'var(--rz-ivory)' : 'linear-gradient(135deg,var(--rz-ink),var(--rz-primary))',
+                color: isFromOwner(m) ? 'var(--rz-ink)' : 'var(--rz-white)',
+                border: isFromOwner(m) ? '1px solid var(--rz-primary)' : 'none',
                 borderRadius: 14,
                 padding: '0.6rem 0.85rem',
                 fontSize: '0.92rem',
@@ -196,7 +196,7 @@ const MemberInbox = () => {
           ))}
         </div>
 
-        <div style={{ padding: '0.65rem', borderTop: '1px solid #E8E2D6' }}>
+        <div style={{ padding: '0.65rem', borderTop: '1px solid var(--rz-ivory)' }}>
           <textarea
             value={text}
             onChange={(e) => {
@@ -211,19 +211,19 @@ const MemberInbox = () => {
               boxSizing: 'border-box',
               resize: 'vertical',
               borderRadius: 12,
-              border: '1.5px solid #1E293B',
-              background: '#E8E2D6',
+              border: '1.5px solid var(--rz-primary)',
+              background: 'var(--rz-ivory)',
               padding: '0.6rem 0.8rem',
               fontFamily: 'Tajawal',
               fontSize: '0.95rem',
               fontWeight: 600,
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               outline: 'none',
               lineHeight: 1.8,
             }}
           />
           {sendError && (
-            <div style={{ fontSize: '0.78rem', color: '#1E293B', fontWeight: 800, marginTop: 4 }}>
+            <div style={{ fontSize: '0.78rem', color: 'var(--rz-primary)', fontWeight: 800, marginTop: 4 }}>
               {sendError}
             </div>
           )}
@@ -245,11 +245,11 @@ const MemberInbox = () => {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
-              color: '#FFFFFF',
+              color: 'var(--rz-white)',
               background: text.trim() && !sending
-                ? 'linear-gradient(135deg,#202A3A,#1E293B)'
-                : '#404040',
-              boxShadow: text.trim() && !sending ? '0 8px 20px rgba(32,42,58,0.3)' : 'none',
+                ? 'linear-gradient(135deg,var(--rz-ink),var(--rz-primary))'
+                : 'var(--rz-muted)',
+              boxShadow: text.trim() && !sending ? '0 8px 20px rgba(var(--rz-ink-rgb), 0.3)' : 'none',
             }}
           >
             <Send size={16} aria-hidden="true" />
@@ -258,7 +258,7 @@ const MemberInbox = () => {
         </div>
       </div>
 
-      <p style={{ textAlign: 'center', fontSize: '0.78rem', color: '#1E293B', fontWeight: 700, marginTop: '0.75rem' }}>
+      <p style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--rz-primary)', fontWeight: 700, marginTop: '0.75rem' }}>
         الرسائل خاصة بينك وبين صاحب الموقع.
       </p>
     </div>

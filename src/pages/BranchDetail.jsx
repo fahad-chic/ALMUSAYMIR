@@ -60,7 +60,7 @@ export const BranchDetail = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#1E293B' }}>
+      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--rz-primary)' }}>
         <p>جاري تحميل بيانات الفرع...</p>
       </div>
     );
@@ -68,18 +68,18 @@ export const BranchDetail = () => {
 
   if (!branch) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center', color: '#202A3A' }}>
+      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--rz-ink)' }}>
         <p>لم يتم العثور على الفرع</p>
         <button
           onClick={() => navigate('/branches')}
           style={{
             marginTop: '1rem',
             padding: '0.75rem 1.5rem',
-            background: '#1E293B',
+            background: 'var(--rz-primary)',
             border: 'none',
             borderRadius: '6px',
             cursor: 'pointer',
-            color: '#FFFFFF',
+            color: 'var(--rz-white)',
             fontWeight: 700
           }}
         >
@@ -157,9 +157,9 @@ export const BranchDetail = () => {
       <style>{`
         .branch-detail-container {
           padding: 2rem;
-          background: linear-gradient(135deg, #202A3A 0%, #202A3A 100%);
+          background: linear-gradient(135deg, var(--rz-ink) 0%, var(--rz-ink) 100%);
           min-height: calc(100vh - 70px);
-          color: #FFFFFF;
+          color: var(--rz-white);
           font-family: 'Tajawal', sans-serif;
         }
 
@@ -167,8 +167,8 @@ export const BranchDetail = () => {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          background: #1E293B;
-          color: #FFFFFF;
+          background: var(--rz-primary);
+          color: var(--rz-white);
           border: none;
           padding: 0.75rem 1.5rem;
           border-radius: 8px;
@@ -180,23 +180,23 @@ export const BranchDetail = () => {
         }
 
         .back-button:hover {
-          background: #1E293B;
+          background: var(--rz-primary);
           transform: translateY(-2px);
         }
 
         .detail-header {
-          background: #202A3A;
+          background: var(--rz-ink);
           border-radius: 12px;
           padding: 2rem;
           margin-bottom: 2rem;
-          box-shadow: 0 2px 12px rgba(255,255,255, 0.05);
-          border-left: 4px solid #1E293B;
+          box-shadow: 0 2px 12px rgba(var(--rz-white-rgb), 0.05);
+          border-left: 4px solid var(--rz-primary);
         }
 
         .detail-title {
           font-size: 2rem;
           font-weight: 700;
-          color: #1E293B;
+          color: var(--rz-primary);
           margin-bottom: 1rem;
         }
 
@@ -216,23 +216,23 @@ export const BranchDetail = () => {
         .meta-icon {
           width: 45px;
           height: 45px;
-          background: rgba(30,41,59, 0.15);
+          background: rgba(var(--rz-primary-rgb), 0.15);
           border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #1E293B;
+          color: var(--rz-primary);
           flex-shrink: 0;
         }
 
         .meta-content h4 {
-          color: #404040;
+          color: var(--rz-muted);
           font-size: 0.85rem;
           margin-bottom: 0.25rem;
         }
 
         .meta-content p {
-          color: #FFFFFF;
+          color: var(--rz-white);
           font-weight: 700;
           font-size: 1rem;
         }
@@ -245,31 +245,31 @@ export const BranchDetail = () => {
         }
 
         .stat-card {
-          background: #202A3A;
+          background: var(--rz-ink);
           padding: 1.5rem;
           border-radius: 12px;
-          box-shadow: 0 2px 12px rgba(255,255,255, 0.05);
-          border-top: 3px solid #1E293B;
+          box-shadow: 0 2px 12px rgba(var(--rz-white-rgb), 0.05);
+          border-top: 3px solid var(--rz-primary);
           text-align: center;
         }
 
         .stat-number {
           font-size: 2.5rem;
           font-weight: 700;
-          color: #1E293B;
+          color: var(--rz-primary);
           margin-bottom: 0.5rem;
         }
 
         .stat-name {
-          color: #404040;
+          color: var(--rz-muted);
           font-size: 0.9rem;
         }
 
         .progress-section {
-          background: #202A3A;
+          background: var(--rz-ink);
           padding: 2rem;
           border-radius: 12px;
-          box-shadow: 0 2px 12px rgb(255, 255, 255, 0.05);
+          box-shadow: 0 2px 12px rgba(var(--rz-white-rgb), 0.05);
           margin-bottom: 2rem;
         }
 
@@ -281,25 +281,25 @@ export const BranchDetail = () => {
 
         .progress-label-text {
           font-weight: 700;
-          color: #FFFFFF;
+          color: var(--rz-white);
         }
 
         .progress-label-value {
-          color: #1E293B;
+          color: var(--rz-primary);
           font-weight: 700;
         }
 
         .progress-bar {
           width: 100%;
           height: 12px;
-          background: #202A3A;
+          background: var(--rz-ink);
           border-radius: 6px;
           overflow: hidden;
         }
 
         .progress-fill {
           height: 100%;
-          background: linear-gradient(90deg, #1E293B, #B8A47A);
+          background: linear-gradient(90deg, var(--rz-primary), var(--rz-gold));
           border-radius: 6px;
           transition: width 0.3s ease;
         }
@@ -308,10 +308,10 @@ export const BranchDetail = () => {
           display: flex;
           gap: 1rem;
           justify-content: flex-end;
-          background: #202A3A;
+          background: var(--rz-ink);
           padding: 1.5rem;
           border-radius: 12px;
-          box-shadow: 0 2px 12px rgb(255, 255, 255, 0.05);
+          box-shadow: 0 2px 12px rgba(var(--rz-white-rgb), 0.05);
         }
 
         .action-btn {
@@ -328,32 +328,32 @@ export const BranchDetail = () => {
         }
 
         .action-btn-edit {
-          background: #1E293B;
-          color: #FFFFFF;
+          background: var(--rz-primary);
+          color: var(--rz-white);
         }
 
         .action-btn-edit:hover {
-          background: #1E293B;
+          background: var(--rz-primary);
           transform: translateY(-2px);
         }
 
         .action-btn-delete {
-          background: #1E293B;
+          background: var(--rz-primary);
           color: white;
         }
 
         .action-btn-delete:hover {
-          background: #1E293B;
+          background: var(--rz-primary);
           transform: translateY(-2px);
         }
 
         .action-btn-share {
-          background: #202A3A;
-          color: #FFFFFF;
+          background: var(--rz-ink);
+          color: var(--rz-white);
         }
 
         .action-btn-share:hover {
-          background: #202A3A;
+          background: var(--rz-ink);
           transform: translateY(-2px);
         }
 

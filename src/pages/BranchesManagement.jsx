@@ -122,24 +122,24 @@ export const BranchesManagement = () => {
           align-items: center;
           margin-bottom: 1rem;
           padding: 1rem 1.1rem;
-          background: #202A3A;
-          border: 1px solid rgba(30,41,59,0.25);
+          background: var(--rz-ink);
+          border: 1px solid rgba(var(--rz-primary-rgb), 0.25);
           border-radius: 16px;
-          box-shadow: 0 2px 12px rgba(255,255,255,0.05);
+          box-shadow: 0 2px 12px rgba(var(--rz-white-rgb), 0.05);
         }
 
         .management-title {
           font-size: 1.5rem;
           font-weight: 700;
-          color: #E8E2D6 !important;
+          color: var(--rz-ivory) !important;
         }
 
         .add-btn {
           display: flex;
           align-items: center;
           gap: 0.4rem;
-          background: linear-gradient(135deg, #1E293B, #1E293B);
-          color: #FFFFFF;
+          background: linear-gradient(135deg, var(--rz-primary), var(--rz-primary));
+          color: var(--rz-white);
           border: none;
           padding: 0.65rem 1rem;
           border-radius: 999px;
@@ -149,42 +149,42 @@ export const BranchesManagement = () => {
         }
 
         .table-wrapper {
-          background: #202A3A;
-          border: 1px solid rgba(30,41,59,0.25);
+          background: var(--rz-ink);
+          border: 1px solid rgba(var(--rz-primary-rgb), 0.25);
           border-radius: 16px;
           overflow-x: auto;
-          box-shadow: 0 2px 12px rgba(255,255,255,0.05);
+          box-shadow: 0 2px 12px rgba(var(--rz-white-rgb), 0.05);
         }
 
         table {
           width: 100%;
           border-collapse: collapse;
-          color: #FFFFFF;
+          color: var(--rz-white);
           min-width: 850px;
         }
 
         th {
-          background: #202A3A;
+          background: var(--rz-ink);
           padding: 0.9rem;
           font-size: 0.9rem;
-          color: #E8E2D6 !important;
+          color: var(--rz-ivory) !important;
           text-align: left;
         }
 
         td {
           padding: 0.8rem;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          border-bottom: 1px solid rgba(var(--rz-white-rgb), 0.05);
         }
 
         .branch-name {
           font-weight: 700;
-          color: #E8E2D6;
+          color: var(--rz-ivory);
         }
 
         .type-badge {
           display: inline-block;
-          background: rgba(30,41,59,0.15);
-          color: #E8E2D6;
+          background: rgba(var(--rz-primary-rgb), 0.15);
+          color: var(--rz-ivory);
           padding: 0.24rem 0.6rem;
           border-radius: 999px;
           font-size: 0.76rem;
@@ -199,9 +199,9 @@ export const BranchesManagement = () => {
           font-weight: 700;
         }
 
-        .status-active { background: rgba(32,42,58,0.2); color: #E8E2D6; }
-        .status-warning { background: rgba(30,41,59,0.2); color: #E8E2D6; }
-        .status-danger { background: rgba(30,41,59,0.2); color: #E8E2D6; }
+        .status-active { background: rgba(var(--rz-ink-rgb), 0.2); color: var(--rz-ivory); }
+        .status-warning { background: rgba(var(--rz-primary-rgb), 0.2); color: var(--rz-ivory); }
+        .status-danger { background: rgba(var(--rz-primary-rgb), 0.2); color: var(--rz-ivory); }
 
         .action-cell {
           display: flex;
@@ -221,15 +221,15 @@ export const BranchesManagement = () => {
           font-size: 0.8rem;
         }
 
-        .action-btn-edit { background: rgba(30,41,59,0.15); color: #E8E2D6; }
-        .action-btn-delete { background: rgba(30,41,59,0.16); color: #EFE9DF; }
-        .action-btn-share { background: rgba(255,255,255,0.08); color: #FFFFFF; }
-        .action-btn-copy { background: rgba(255,255,255,0.08); color: #FFFFFF; }
+        .action-btn-edit { background: rgba(var(--rz-primary-rgb), 0.15); color: var(--rz-ivory); }
+        .action-btn-delete { background: rgba(var(--rz-primary-rgb), 0.16); color: var(--rz-cream-4); }
+        .action-btn-share { background: rgba(var(--rz-white-rgb), 0.08); color: var(--rz-white); }
+        .action-btn-copy { background: rgba(var(--rz-white-rgb), 0.08); color: var(--rz-white); }
 
         .modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(32,42,58,0.6);
+          background: rgba(var(--rz-ink-rgb), 0.6);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -238,19 +238,19 @@ export const BranchesManagement = () => {
         }
 
         .modal {
-          background: #202A3A;
-          border: 1px solid rgba(30,41,59,0.25);
+          background: var(--rz-ink);
+          border: 1px solid rgba(var(--rz-primary-rgb), 0.25);
           border-radius: 16px;
           padding: 1.1rem;
           max-width: 500px;
           width: 100%;
-          box-shadow: 0 2px 12px rgba(255,255,255,0.05);
+          box-shadow: 0 2px 12px rgba(var(--rz-white-rgb), 0.05);
         }
 
         .modal-header {
           font-size: 1.2rem;
           font-weight: 700;
-          color: #E8E2D6;
+          color: var(--rz-ivory);
           margin-bottom: 0.9rem;
         }
 
@@ -262,16 +262,16 @@ export const BranchesManagement = () => {
         }
 
         label {
-          color: #E8E2D6;
+          color: var(--rz-ivory);
           font-size: 0.85rem;
         }
 
         input, select {
           padding: 0.6rem;
           border-radius: 8px;
-          border: 1px solid rgba(255,255,255,0.1);
-          background: #202A3A;
-          color: #FFFFFF;
+          border: 1px solid rgba(var(--rz-white-rgb), 0.1);
+          background: var(--rz-ink);
+          color: var(--rz-white);
           font-size: 0.9rem;
         }
 
@@ -290,13 +290,13 @@ export const BranchesManagement = () => {
         }
 
         .modal-btn-submit {
-          background: linear-gradient(135deg, #1E293B, #1E293B);
-          color: #FFFFFF;
+          background: linear-gradient(135deg, var(--rz-primary), var(--rz-primary));
+          color: var(--rz-white);
         }
 
         .modal-btn-cancel {
-          background: rgba(255,255,255,0.08);
-          color: #E8E2D6;
+          background: rgba(var(--rz-white-rgb), 0.08);
+          color: var(--rz-ivory);
         }
       `}</style>
 
@@ -324,7 +324,7 @@ export const BranchesManagement = () => {
           <tbody>
             {branches.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', color: '#E8E2D6', padding: '2rem' }}>
+                <td colSpan="6" style={{ textAlign: 'center', color: 'var(--rz-ivory)', padding: '2rem' }}>
                   لا توجد فروع
                 </td>
               </tr>
@@ -393,7 +393,7 @@ export const BranchesManagement = () => {
                 onClick={() => { setShowForm(false); setEditingBranch(null); }}
                 aria-label="إغلاق"
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
+                  background: 'rgba(var(--rz-white-rgb), 0.06)',
                   border: 'none',
                   borderRadius: 8,
                   width: 30,
@@ -403,7 +403,7 @@ export const BranchesManagement = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: '#E8E2D6',
+                  color: 'var(--rz-ivory)',
                 }}
               >
                 <X size={17} />

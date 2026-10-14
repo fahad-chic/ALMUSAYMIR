@@ -92,7 +92,7 @@ function AdminFallback() {
     {
       title: 'الطلبات',
       value: stats.orders,
-      colorTailwind: 'text-[#1E293B]',
+      colorTailwind: 'text-[var(--rz-primary)]',
       icon: ShoppingCart,
     },
     {

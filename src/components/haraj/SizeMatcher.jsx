@@ -10,11 +10,11 @@ import {
 } from '../../utils/dressMeta';
 
 const TONE_COLORS = {
-  great: '#404040',
-  good: '#1E293B',
-  ok: '#404040',
-  weak: '#1E293B',
-  neutral: '#404040',
+  great: 'var(--rz-muted)',
+  good: 'var(--rz-primary)',
+  ok: 'var(--rz-muted)',
+  weak: 'var(--rz-primary)',
+  neutral: 'var(--rz-muted)',
 };
 
 export default function SizeMatcher({ dress = {} }) {
@@ -29,12 +29,12 @@ export default function SizeMatcher({ dress = {} }) {
     <div
       className="rooz-size-matcher"
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E8E2D6',
+        background: 'var(--rz-white)',
+        border: '1px solid var(--rz-ivory)',
         borderRadius: 20,
         padding: 20,
         marginTop: 14,
-        boxShadow: '0 8px 30px rgba(32,42,58, 0.08)',
+        boxShadow: '0 8px 30px rgba(var(--rz-ink-rgb), 0.08)',
       }}
     >
       <h3
@@ -49,9 +49,9 @@ export default function SizeMatcher({ dress = {} }) {
           gap: 8,
         }}
       >
-        <Ruler size={20} color="#1E293B" /> حاسبة المقاسات الذكية
+        <Ruler size={20} color="var(--rz-primary)" /> حاسبة المقاسات الذكية
       </h3>
-      <p style={{ margin: '0 0 14px', textAlign: 'center', fontSize: 12, color: '#404040' }}>
+      <p style={{ margin: '0 0 14px', textAlign: 'center', fontSize: 12, color: 'var(--rz-muted)' }}>
         أدخلي مقاساتك بالسنتيمتر لتعرفي نسبة ملاءمة الفستان لكِ.
       </p>
 
@@ -64,8 +64,8 @@ export default function SizeMatcher({ dress = {} }) {
       >
         {SIZE_FIELDS.map((field) => (
           <label key={field.key} style={{ display: 'grid', gap: 6 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#202A3A' }}>
-              {field.label} <span style={{ color: '#404040', fontWeight: 500 }}>(سم)</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--rz-ink)' }}>
+              {field.label} <span style={{ color: 'var(--rz-muted)', fontWeight: 500 }}>(سم)</span>
             </span>
             <input
               type="number"
@@ -77,13 +77,13 @@ export default function SizeMatcher({ dress = {} }) {
               }
               placeholder={dress[field.key] ? `مقاس الفستان: ${dress[field.key]}` : '0'}
               style={{
-                border: '1px solid rgba(30,41,59, 0.22)',
+                border: '1px solid rgba(var(--rz-primary-rgb), 0.22)',
                 borderRadius: 12,
                 padding: '0.7rem 0.85rem',
                 fontSize: 15,
                 fontFamily: 'inherit',
-                color: '#202A3A',
-                background: '#E8E2D6',
+                color: 'var(--rz-ink)',
+                background: 'var(--rz-ivory)',
                 outline: 'none',
                 width: '100%',
                 boxSizing: 'border-box',
@@ -96,7 +96,7 @@ export default function SizeMatcher({ dress = {} }) {
       <div
         style={{
           marginTop: 16,
-          background: 'rgba(30,41,59, 0.06)',
+          background: 'rgba(var(--rz-primary-rgb), 0.06)',
           borderRadius: 14,
           padding: '14px 16px',
           display: 'flex',
@@ -107,7 +107,7 @@ export default function SizeMatcher({ dress = {} }) {
         }}
       >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 800 }}>
-          <Sparkles size={18} color="#1E293B" />
+          <Sparkles size={18} color="var(--rz-primary)" />
           {score == null ? 'أدخلي قياساً واحداً على الأقل' : verdict.label}
         </span>
         {score != null && (

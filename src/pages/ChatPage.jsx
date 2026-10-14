@@ -170,7 +170,7 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
 
   if (!isAuthenticated) {
     return (
-      <div style={{ textAlign: 'center', padding: 40, color: '#1E293B' }}>
+      <div style={{ textAlign: 'center', padding: 40, color: 'var(--rz-primary)' }}>
         يرجى تسجيل الدخول لعرض هذه المحادثة.
       </div>
     );
@@ -178,21 +178,21 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
 
   if (loading)
     return (
-      <p style={{ textAlign: 'center', padding: 40, color: '#1E293B' }}>
+      <p style={{ textAlign: 'center', padding: 40, color: 'var(--rz-primary)' }}>
         جاري تحميل المحادثة...
       </p>
     );
 
   if (!hasChatTarget) {
     return (
-      <div style={{ textAlign: 'center', padding: 60, color: '#1E293B', fontFamily: 'Tajawal, sans-serif' }}>
-        <p style={{ fontSize: 18, fontWeight: 700, color: '#202A3A' }}>لا توجد محادثة محددة</p>
+      <div style={{ textAlign: 'center', padding: 60, color: 'var(--rz-primary)', fontFamily: 'Tajawal, sans-serif' }}>
+        <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--rz-ink)' }}>لا توجد محادثة محددة</p>
         <p style={{ fontSize: 14 }}>افتح إعلاناً في حراج واضغط «مراسلة البائع» لبدء محادثة.</p>
         {typeof setCurrentPage === 'function' && (
           <button
             type="button"
             onClick={() => setCurrentPage('dashboard')}
-            style={{ marginTop: 16, padding: '10px 22px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#1E293B,#1E293B)', color: '#FFFFFF', fontWeight: 800, cursor: 'pointer' }}
+            style={{ marginTop: 16, padding: '10px 22px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,var(--rz-primary),var(--rz-primary))', color: 'var(--rz-white)', fontWeight: 800, cursor: 'pointer' }}
           >
             العودة للرئيسية
           </button>
@@ -209,10 +209,10 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
         height: '85vh',
         display: 'flex',
         flexDirection: 'column',
-        background: '#202A3A',
+        background: 'var(--rz-ink)',
         borderRadius: 16,
-        boxShadow: '0 4px 20px rgba(255,255,255,0.08)',
-        border: '1px solid rgba(30,41,59,0.25)',
+        boxShadow: '0 4px 20px rgba(var(--rz-white-rgb), 0.08)',
+        border: '1px solid rgba(var(--rz-primary-rgb), 0.25)',
         overflow: 'hidden',
         fontFamily: 'Tajawal'
       }}
@@ -223,8 +223,8 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: 15,
-          background: '#202A3A',
-          borderBottom: '1px solid rgba(30,41,59,0.25)'
+          background: 'var(--rz-ink)',
+          borderBottom: '1px solid rgba(var(--rz-primary-rgb), 0.25)'
         }}
       >
         <button
@@ -233,7 +233,7 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           style={{
             background: 'none',
             border: 'none',
-            color: '#1E293B',
+            color: 'var(--rz-primary)',
             fontWeight: 700,
             cursor: 'pointer',
             display: 'flex',
@@ -245,10 +245,10 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
         </button>
 
         <div style={{ textAlign: 'center' }}>
-          <h2 style={{ margin: 0, fontSize: 16, color: '#1E293B' }}>
+          <h2 style={{ margin: 0, fontSize: 16, color: 'var(--rz-primary)' }}>
             محادثة بخصوص: {adData?.title || 'إعلان'}
           </h2>
-          <p style={{ margin: 0, fontSize: 12, color: '#404040' }}>
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--rz-muted)' }}>
             مع: {partnerData?.name || partnerData?.displayName || partnerData?.email || 'المعلن'}
           </p>
         </div>
@@ -282,7 +282,7 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           aria-label={reportSent ? 'تم إرسال البلاغ' : 'إبلاغ الإدارة عن هذه المحادثة'}
           style={{ background: 'none', border: 'none', cursor: reportSent ? 'default' : 'pointer', opacity: reportSent ? 0.4 : 1 }}
         >
-          <ShieldCheck size={20} color={reportSent ? '#404040' : '#1E293B'} />
+          <ShieldCheck size={20} color={reportSent ? 'var(--rz-muted)' : 'var(--rz-primary)'} />
         </button>
       </div>
 
@@ -291,11 +291,11 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           flex: 1,
           overflowY: 'auto',
           padding: 20,
-          background: '#202A3A'
+          background: 'var(--rz-ink)'
         }}
       >
         {messages.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#404040', padding: 30 }}>
+          <p style={{ textAlign: 'center', color: 'var(--rz-muted)', padding: 30 }}>
             لا توجد رسائل بعد.
           </p>
         )}
@@ -316,12 +316,12 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
                 borderRadius: 12,
                 maxWidth: '70%',
                 background:
-                  m.senderId === user.uid ? '#1E293B' : '#202A3A',
-                color: m.senderId === user.uid ? '#FFFFFF' : '#D5D0C5',
+                  m.senderId === user.uid ? 'var(--rz-primary)' : 'var(--rz-ink)',
+                color: m.senderId === user.uid ? 'var(--rz-white)' : 'var(--rz-border)',
                 boxShadow:
                   m.senderId === user.uid
-                    ? '0 2px 8px rgba(30,41,59,0.4)'
-                    : '0 2px 8px rgba(32,42,58,0.3)'
+                    ? '0 2px 8px rgba(var(--rz-primary-rgb), 0.4)'
+                    : '0 2px 8px rgba(var(--rz-ink-rgb), 0.3)'
               }}
             >
               <p style={{ margin: 0, fontSize: 14 }}>{m.text || ''}</p>
@@ -346,8 +346,8 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           display: 'flex',
           gap: 10,
           padding: 15,
-          background: '#202A3A',
-          borderTop: '1px solid rgba(30,41,59,0.25)'
+          background: 'var(--rz-ink)',
+          borderTop: '1px solid rgba(var(--rz-primary-rgb), 0.25)'
         }}
       >
         <input
@@ -360,11 +360,11 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           disabled={sending || !chatId}
           style={{
             flex: 1,
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '1px solid rgba(var(--rz-white-rgb), 0.1)',
             borderRadius: 10,
             padding: '12px',
-            background: '#202A3A',
-            color: '#FFFFFF'
+            background: 'var(--rz-ink)',
+            color: 'var(--rz-white)'
           }}
         />
 
@@ -374,8 +374,8 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           disabled={sending || !message.trim() || !chatId}
           aria-label="إرسال الرسالة"
           style={{
-            background: '#1E293B',
-            color: '#FFFFFF',
+            background: 'var(--rz-primary)',
+            color: 'var(--rz-white)',
             border: 'none',
             borderRadius: 10,
             padding: '0 18px',
@@ -392,8 +392,8 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           onClick={handleCopyPhone}
           aria-label="نسخ رقم البائع"
           style={{
-            background: '#202A3A',
-            color: '#FFFFFF',
+            background: 'var(--rz-ink)',
+            color: 'var(--rz-white)',
             border: 'none',
             borderRadius: 10,
             padding: '0 14px',
@@ -408,8 +408,8 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
           onClick={handleShareAd}
           aria-label="مشاركة الإعلان"
           style={{
-            background: '#202A3A',
-            color: '#FFFFFF',
+            background: 'var(--rz-ink)',
+            color: 'var(--rz-white)',
             border: 'none',
             borderRadius: 10,
             padding: '0 14px',

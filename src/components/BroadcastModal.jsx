@@ -66,7 +66,7 @@ const BroadcastModal = ({ onClose }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(32,42,58, 0.72)',
+        background: 'rgba(var(--rz-ink-rgb), 0.72)',
         backdropFilter: 'blur(8px)',
         padding: '1rem',
         fontFamily: 'Tajawal',
@@ -79,10 +79,10 @@ const BroadcastModal = ({ onClose }) => {
         style={{
           width: '100%',
           maxWidth: 460,
-          background: 'linear-gradient(145deg, #E8E2D6 0%, #E8E2D6 100%)',
+          background: 'linear-gradient(145deg, var(--rz-ivory) 0%, var(--rz-ivory) 100%)',
           borderRadius: 20,
-          border: '1px solid rgba(30,41,59,0.35)',
-          boxShadow: '0 24px 60px rgba(32,42,58, 0.45)',
+          border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
+          boxShadow: '0 24px 60px rgba(var(--rz-ink-rgb), 0.45)',
           padding: '1.4rem',
         }}
       >
@@ -99,12 +99,12 @@ const BroadcastModal = ({ onClose }) => {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontSize: '1.05rem',
               fontWeight: 800,
             }}
           >
-            <Megaphone size={20} color="#1E293B" />
+            <Megaphone size={20} color="var(--rz-primary)" />
             رسالة البث
           </strong>
           <button
@@ -112,7 +112,7 @@ const BroadcastModal = ({ onClose }) => {
             onClick={onClose}
             aria-label="إغلاق"
             style={{
-              background: 'rgba(30,41,59,0.12)',
+              background: 'rgba(var(--rz-primary-rgb), 0.12)',
               border: 'none',
               borderRadius: 10,
               width: 34,
@@ -123,7 +123,7 @@ const BroadcastModal = ({ onClose }) => {
               cursor: 'pointer',
             }}
           >
-            <X size={18} color="#202A3A" />
+            <X size={18} color="var(--rz-ink)" />
           </button>
         </div>
 
@@ -135,13 +135,13 @@ const BroadcastModal = ({ onClose }) => {
           style={{
             width: '100%',
             boxSizing: 'border-box',
-            background: 'rgba(255,255,255,0.7)',
-            border: '1px solid rgba(30,41,59,0.35)',
+            background: 'rgba(var(--rz-white-rgb), 0.7)',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
             borderRadius: 12,
             padding: '0.85rem',
             fontSize: '0.95rem',
             lineHeight: '1.7',
-            color: '#202A3A',
+            color: 'var(--rz-ink)',
             fontFamily: 'inherit',
             outline: 'none',
             resize: 'vertical',
@@ -159,8 +159,8 @@ const BroadcastModal = ({ onClose }) => {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 8,
-            background: 'linear-gradient(135deg, #1E293B 0%, #1E293B 100%)',
-            color: '#FFFFFF',
+            background: 'linear-gradient(135deg, var(--rz-primary) 0%, var(--rz-primary) 100%)',
+            color: 'var(--rz-white)',
             border: 'none',
             borderRadius: 12,
             padding: '0.8rem',
@@ -181,7 +181,7 @@ const BroadcastModal = ({ onClose }) => {
               textAlign: 'center',
               fontSize: '0.85rem',
               fontWeight: 700,
-              color: status.includes('تم') ? '#202A3A' : '#1E293B',
+              color: status.includes('تم') ? 'var(--rz-ink)' : 'var(--rz-primary)',
             }}
           >
             {status}

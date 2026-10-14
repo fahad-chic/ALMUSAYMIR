@@ -2,9 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { CreditCard, Building2, Landmark } from 'lucide-react';
 import { BANK_ACCOUNTS, COMMISSION_RATES } from '../../utils/constants';
 
-const BEIGE = '#E8E2D6';
-const NAVY = '#1E293B';
-const CREAM = '#F7F3EB';
+const BEIGE = 'var(--rz-ivory)';
+const NAVY = 'var(--rz-primary)';
+const CREAM = 'var(--rz-cream)';
 
 const ICONS = {
   alrajhi: Building2,
@@ -70,11 +70,11 @@ export default function CommissionAndBanks({
 
         <div
           style={{
-            background: `linear-gradient(145deg, ${NAVY} 0%, #243044 100%)`,
+            background: `linear-gradient(145deg, ${NAVY} 0%, var(--rz-ink-2) 100%)`,
             borderRadius: 16,
             padding: compact ? '1.1rem 1rem' : '1.35rem 1.2rem',
             textAlign: 'center',
-            boxShadow: '0 12px 28px rgba(30,41,59,0.22)',
+            boxShadow: '0 12px 28px rgba(var(--rz-primary-rgb), 0.22)',
           }}
         >
           <div
@@ -116,7 +116,7 @@ export default function CommissionAndBanks({
             <div
               style={{
                 width: 1,
-                background: 'rgba(232,226,214,0.28)',
+                background: 'rgba(var(--rz-ivory-rgb), 0.28)',
                 alignSelf: 'stretch',
               }}
             />
@@ -153,7 +153,7 @@ export default function CommissionAndBanks({
             style={{
               margin: 0,
               paddingTop: 10,
-              borderTop: '1px solid rgba(232,226,214,0.22)',
+              borderTop: '1px solid rgba(var(--rz-ivory-rgb), 0.22)',
               fontSize: '0.88rem',
               fontWeight: 700,
               color: BEIGE,
@@ -196,11 +196,11 @@ export default function CommissionAndBanks({
               <div
                 key={bank.id}
                 style={{
-                  background: '#FFFFFF',
-                  border: '1px solid rgba(30,41,59,0.12)',
+                  background: 'var(--rz-white)',
+                  border: '1px solid rgba(var(--rz-primary-rgb), 0.12)',
                   borderRadius: 12,
                   padding: '10px 12px',
-                  boxShadow: '0 3px 12px rgba(30,41,59,0.06)',
+                  boxShadow: '0 3px 12px rgba(var(--rz-primary-rgb), 0.06)',
                 }}
               >
                 <div
@@ -254,7 +254,7 @@ export default function CommissionAndBanks({
                     style={{
                       fontSize: '0.68rem',
                       fontWeight: 600,
-                      color: '#6B7280',
+                      color: 'var(--rz-gray-500)',
                       minWidth: 32,
                     }}
                   >
@@ -310,7 +310,7 @@ export default function CommissionAndBanks({
                     style={{
                       fontSize: '0.68rem',
                       fontWeight: 600,
-                      color: '#6B7280',
+                      color: 'var(--rz-gray-500)',
                       minWidth: 32,
                     }}
                   >

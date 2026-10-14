@@ -10,14 +10,14 @@ import { Crown, X } from 'lucide-react'
 
 // لوحة الألوان: عاجي/ذهب — بلا أي خلفية زرقاء أو كحلية.
 const C = {
-  ivory: '#E8E2D6',
-  ivoryDeep: '#E8E2D6',
-  line: 'rgba(30,41,59, 0.45)',
-  lineSoft: 'rgba(30,41,59, 0.22)',
-  gold: '#1E293B',
-  goldDeep: '#202A3A',
-  ink: '#202A3A',
-  inkSoft: '#1E293B',
+  ivory: 'var(--rz-ivory)',
+  ivoryDeep: 'var(--rz-ivory)',
+  line: 'rgba(var(--rz-primary-rgb), 0.45)',
+  lineSoft: 'rgba(var(--rz-primary-rgb), 0.22)',
+  gold: 'var(--rz-primary)',
+  goldDeep: 'var(--rz-ink)',
+  ink: 'var(--rz-ink)',
+  inkSoft: 'var(--rz-primary)',
 }
 
 const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أدوات المالك' }) => {
@@ -78,10 +78,10 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           cursor: pointer;
           color: ${C.goldDeep};
           background:
-            radial-gradient(120% 120% at 30% 15%, #E8E2D6, ${C.ivoryDeep} 70%);
+            radial-gradient(120% 120% at 30% 15%, var(--rz-ivory), ${C.ivoryDeep} 70%);
           box-shadow:
             inset 0 0 0 1.5px ${C.line},
-            0 6px 18px rgba(32,42,58, 0.22);
+            0 6px 18px rgba(var(--rz-ink-rgb), 0.22);
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .ocm-trigger:hover,
@@ -89,16 +89,16 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           transform: translateY(-1px);
           box-shadow:
             inset 0 0 0 1.5px ${C.gold},
-            0 9px 22px rgba(32,42,58, 0.3);
+            0 9px 22px rgba(var(--rz-ink-rgb), 0.3);
           outline: none;
         }
         .ocm-trigger:active { transform: scale(0.96); }
         .ocm-trigger[aria-expanded="true"] {
-          color: #FFFFFF;
-          background: linear-gradient(150deg, #1E293B, ${C.gold} 65%, #1E293B);
+          color: var(--rz-white);
+          background: linear-gradient(150deg, var(--rz-primary), ${C.gold} 65%, var(--rz-primary));
           box-shadow:
-            inset 0 0 0 1.5px rgba(255,255,255, 0.5),
-            0 8px 20px rgba(32,42,58, 0.32);
+            inset 0 0 0 1.5px rgba(var(--rz-white-rgb), 0.5),
+            0 8px 20px rgba(var(--rz-ink-rgb), 0.32);
         }
         /* التاج الصغير أعلى الأيقونة — وسم «امتياز المالك» */
         .ocm-trigger-mark {
@@ -111,8 +111,8 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           height: 19px;
           border-radius: 50%;
           color: ${C.ink};
-          background: linear-gradient(140deg, #B8A47A, #1E293B 60%, #1E293B);
-          box-shadow: 0 2px 6px rgba(32,42,58, 0.35);
+          background: linear-gradient(140deg, var(--rz-gold), var(--rz-primary) 60%, var(--rz-primary));
+          box-shadow: 0 2px 6px rgba(var(--rz-ink-rgb), 0.35);
         }
 
         /* لوحة الخيارات — عاجية بحدود ذهبية واضحة ومحددة */
@@ -125,11 +125,11 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           padding: 12px;
           border-radius: 20px;
           direction: rtl;
-          background: linear-gradient(170deg, #FFFFFF, #F7F3EC);
-          border: 1.5px solid rgba(184,164,122,0.45);
+          background: linear-gradient(170deg, var(--rz-white), var(--rz-cream-2));
+          border: 1.5px solid rgba(var(--rz-gold-rgb), 0.45);
           box-shadow:
-            0 22px 54px rgba(32,42,58, 0.28),
-            0 2px 0 rgba(255,255,255, 0.9) inset;
+            0 22px 54px rgba(var(--rz-ink-rgb), 0.28),
+            0 2px 0 rgba(var(--rz-white-rgb), 0.9) inset;
           color: ${C.ink};
         }
         .ocm-head {
@@ -148,7 +148,7 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           flex: 0 0 32px;
           border-radius: 11px;
           color: ${C.ink};
-          background: linear-gradient(140deg, #B8A47A, #1E293B 60%, #1E293B);
+          background: linear-gradient(140deg, var(--rz-gold), var(--rz-primary) 60%, var(--rz-primary));
         }
         .ocm-head-text { margin-inline-end: auto; min-width: 0; }
         .ocm-head-title {
@@ -172,7 +172,7 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           flex: 0 0 30px;
           border-radius: 50%;
           border: 1.5px solid ${C.line};
-          background: #FFFFFF;
+          background: var(--rz-white);
           color: ${C.goldDeep};
           cursor: pointer;
           transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
@@ -180,7 +180,7 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
         .ocm-close:hover {
           background: ${C.goldDeep};
           border-color: ${C.goldDeep};
-          color: #FFFFFF;
+          color: var(--rz-white);
           transform: rotate(90deg);
         }
 
@@ -192,17 +192,17 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           width: 100%;
           padding: 9px 11px;
           border-radius: 14px;
-          border: 1px solid rgba(226,232,240,0.9);
-          background: #FAF8F4;
-          color: #0F172A;
+          border: 1px solid rgba(var(--rz-slate-200-rgb), 0.9);
+          background: var(--rz-cream-7);
+          color: var(--rz-slate);
           cursor: pointer;
           text-align: start;
           transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
         }
         .ocm-item:hover,
         .ocm-item:focus-visible {
-          background: #FFFFFF;
-          border-color: #B8A47A;
+          background: var(--rz-white);
+          border-color: var(--rz-gold);
           outline: none;
           transform: translateX(-2px);
         }
@@ -214,7 +214,7 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           flex: 0 0 36px;
           border-radius: 12px;
           color: ${C.goldDeep};
-          background: linear-gradient(150deg, #E8E2D6, #E8E2D6);
+          background: linear-gradient(150deg, var(--rz-ivory), var(--rz-ivory));
           border: 1px solid ${C.lineSoft};
           transition: color 0.18s ease, background 0.18s ease;
         }
@@ -223,7 +223,7 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           font-size: 0.86rem;
           font-weight: 800;
           line-height: 1.35;
-          color: #0F172A;
+          color: var(--rz-slate);
         }
         .ocm-item-x {
           display: grid;
@@ -233,28 +233,28 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
           flex: 0 0 28px;
           border-radius: 50%;
           border: 1.5px solid ${C.line};
-          background: #FFFFFF;
+          background: var(--rz-white);
           color: ${C.goldDeep};
           cursor: pointer;
           transition: background 0.18s ease, color 0.18s ease;
         }
-        .ocm-item-x:hover { background: #1E293B; border-color: #1E293B; color: #FFFFFF; }
+        .ocm-item-x:hover { background: var(--rz-primary); border-color: var(--rz-primary); color: var(--rz-white); }
 
         /* الخيار المحدد — خلفية فاتحة ذهبية ناعمة + نص أسود عريض */
         .ocm-item.is-active {
-          background: linear-gradient(140deg, #FFFFFF, #F5EFE3);
-          border-color: #B8A47A;
-          box-shadow: 0 6px 16px rgba(184,164,122, 0.22);
-          color: #0F172A;
+          background: linear-gradient(140deg, var(--rz-white), var(--rz-cream-3));
+          border-color: var(--rz-gold);
+          box-shadow: 0 6px 16px rgba(var(--rz-gold-rgb), 0.22);
+          color: var(--rz-slate);
         }
         .ocm-item.is-active .ocm-item-icon {
-          color: #0F172A;
-          background: linear-gradient(150deg, #FFF7ED, #F5EFE3);
-          border-color: #B8A47A;
+          color: var(--rz-slate);
+          background: linear-gradient(150deg, var(--rz-cream-5), var(--rz-cream-3));
+          border-color: var(--rz-gold);
         }
-        .ocm-item.is-active .ocm-item-label { font-weight: 800; color: #0F172A; }
-        .ocm-item.is-active .ocm-item-x { background: #FFFFFF; border-color: #B8A47A; color: #0F172A; }
-        .ocm-item.is-active .ocm-item-x:hover { background: #FFF7ED; border-color: #B8A47A; color: #0F172A; }
+        .ocm-item.is-active .ocm-item-label { font-weight: 800; color: var(--rz-slate); }
+        .ocm-item.is-active .ocm-item-x { background: var(--rz-white); border-color: var(--rz-gold); color: var(--rz-slate); }
+        .ocm-item.is-active .ocm-item-x:hover { background: var(--rz-cream-5); border-color: var(--rz-gold); color: var(--rz-slate); }
         .ocm-item.is-excluded { opacity: 0.5; }
       `}</style>
 

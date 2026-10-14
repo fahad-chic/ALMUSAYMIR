@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Ruler, ShoppingBag, Ban, Pencil, X } from 'lucide-react';
 import useStore from '../../store/useStore';
 
-const ProductIcon = ({ size = '4rem', color = '#1E293B' }) => (
+const ProductIcon = ({ size = '4rem', color = 'var(--rz-primary)' }) => (
   <ShoppingBag size={size === '4rem' ? 64 : 40} color={color} />
 );
 
@@ -25,7 +25,7 @@ const ProductCard = ({
             style={{
               position: 'fixed',
               inset: 0,
-              background: 'rgba(32,42,58, 0.72)',
+              background: 'rgba(var(--rz-ink-rgb), 0.72)',
               backdropFilter: 'blur(5px)',
               WebkitBackdropFilter: 'blur(5px)',
               display: 'flex',
@@ -40,15 +40,15 @@ const ProductCard = ({
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
-                background: '#E8E2D6',
-                border: '1px solid rgba(30,41,59, 0.35)',
+                background: 'var(--rz-ivory)',
+                border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
                 borderRadius: 18,
                 padding: '1.75rem 1.5rem',
                 maxWidth: 380,
                 width: '90%',
                 textAlign: 'center',
-                color: '#202A3A',
-                boxShadow: '0 20px 60px rgba(32,42,58, 0.28)',
+                color: 'var(--rz-ink)',
+                boxShadow: '0 20px 60px rgba(var(--rz-ink-rgb), 0.28)',
                 position: 'relative',
               }}
             >
@@ -60,7 +60,7 @@ const ProductCard = ({
                   position: 'absolute',
                   top: 10,
                   left: 10,
-                  background: 'rgba(32,42,58,0.06)',
+                  background: 'rgba(var(--rz-ink-rgb), 0.06)',
                   border: 'none',
                   borderRadius: 8,
                   width: 30,
@@ -69,19 +69,19 @@ const ProductCard = ({
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: '#1E293B',
+                  color: 'var(--rz-primary)',
                 }}
               >
                 <X size={16} />
               </button>
 
               <div style={{ fontSize: 40, marginBottom: 8 }}>
-                <Ban size={40} color="#1E293B" />
+                <Ban size={40} color="var(--rz-primary)" />
               </div>
 
               <h3
                 style={{
-                  color: '#1E293B',
+                  color: 'var(--rz-primary)',
                   fontSize: 18,
                   fontWeight: 700,
                   margin: '0 0 8px',
@@ -92,7 +92,7 @@ const ProductCard = ({
 
               <p
                 style={{
-                  color: '#1E293B',
+                  color: 'var(--rz-primary)',
                   fontSize: 14,
                   margin: '0 0 16px',
                   lineHeight: 1.6,
@@ -107,14 +107,14 @@ const ProductCard = ({
                 onClick={() => setGuestBlocked(false)}
                 style={{
                   padding: '10px 20px',
-                  background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-                  color: '#FFFFFF',
+                  background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                  color: 'var(--rz-white)',
                   border: 'none',
                   borderRadius: 10,
                   fontWeight: 700,
                   cursor: 'pointer',
                   fontFamily: 'inherit',
-                  boxShadow: '0 5px 15px rgba(30,41,59, 0.22)',
+                  boxShadow: '0 5px 15px rgba(var(--rz-primary-rgb), 0.22)',
                 }}
               >
                 حسناً
@@ -166,10 +166,10 @@ const ProductCard = ({
   };
 
   const whatsappButtonStyle = {
-    background: '#B8A47A',
-    border: '1px solid rgba(32,42,58, 0.10)',
+    background: 'var(--rz-gold)',
+    border: '1px solid rgba(var(--rz-ink-rgb), 0.10)',
     borderRadius: 8,
-    color: '#202A3A',
+    color: 'var(--rz-ink)',
     fontWeight: 800,
     cursor: 'pointer',
     display: 'flex',
@@ -178,7 +178,7 @@ const ProductCard = ({
     gap: '0.5rem',
     fontFamily: 'Tajawal',
     transition: 'all 0.3s ease',
-    boxShadow: '0 5px 14px rgba(30,41,59, 0.2)',
+    boxShadow: '0 5px 14px rgba(var(--rz-primary-rgb), 0.2)',
   };
 
   const whatsappIcon = (size = 20) => (
@@ -196,7 +196,7 @@ const ProductCard = ({
         alignItems: 'center',
         justifyContent: 'center',
         fontSize,
-        background: 'linear-gradient(145deg, #E8E2D6, #B8A47A)',
+        background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-gold))',
       }}
     >
       {product?.icon ? (
@@ -214,11 +214,11 @@ const ProductCard = ({
     return (
       <div
         style={{
-          background: '#FFFFFF',
+          background: 'var(--rz-white)',
           borderRadius: 8,
           overflow: 'hidden',
-          border: '1px solid rgba(32,42,58, 0.08)',
-          boxShadow: '0 2px 10px rgba(32,42,58, 0.05)',
+          border: '1px solid rgba(var(--rz-ink-rgb), 0.08)',
+          boxShadow: '0 2px 10px rgba(var(--rz-ink-rgb), 0.05)',
           transition: 'all 0.3s ease',
           position: 'relative',
         }}
@@ -227,7 +227,7 @@ const ProductCard = ({
           style={{
             position: 'relative',
             paddingTop: '100%',
-            background: '#E8E2D6',
+            background: 'var(--rz-ivory)',
           }}
         >
           {!imageError && product?.image ? (
@@ -253,13 +253,13 @@ const ProductCard = ({
               position: 'absolute',
               top: 12,
               right: 12,
-              background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-              color: '#FFFFFF',
+              background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+              color: 'var(--rz-white)',
               padding: '0.4rem 0.8rem',
               borderRadius: 12,
               fontWeight: 800,
               fontSize: '0.85rem',
-              boxShadow: '0 4px 12px rgba(32,42,58, 0.25)',
+              boxShadow: '0 4px 12px rgba(var(--rz-ink-rgb), 0.25)',
             }}
           >
             {formatPrice(product?.price)}
@@ -279,18 +279,18 @@ const ProductCard = ({
                 type="button"
                 onClick={() => onEdit(product)}
                 style={{
-                  background: 'rgba(30,41,59, 0.95)',
+                  background: 'rgba(var(--rz-primary-rgb), 0.95)',
                   border: 'none',
                   borderRadius: 8,
                   padding: '0.4rem 0.7rem',
                   cursor: 'pointer',
                   fontSize: '0.7rem',
-                  color: '#FFFFFF',
+                  color: 'var(--rz-white)',
                   fontFamily: 'Tajawal',
                 }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <Pencil size={12} color="#FFFFFF" />
+                  <Pencil size={12} color="var(--rz-white)" />
                   تعديل
                 </span>
               </button>
@@ -304,7 +304,7 @@ const ProductCard = ({
               margin: '0 0 0.5rem',
               fontSize: '1rem',
               fontWeight: 700,
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontFamily: 'Tajawal, sans-serif',
               wordBreak: 'break-word',
               overflowWrap: 'anywhere',
@@ -320,7 +320,7 @@ const ProductCard = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                color: '#404040',
+                color: 'var(--rz-muted)',
                 fontSize: '0.8rem',
                 marginBottom: '0.5rem',
               }}
@@ -334,7 +334,7 @@ const ProductCard = ({
             style={{
               margin: 0,
               fontSize: '0.8rem',
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
               lineHeight: 1.55,
               display: '-webkit-box',
               WebkitLineClamp: 3,
@@ -379,11 +379,11 @@ const ProductCard = ({
     return (
       <div
         style={{
-          background: '#FFFFFF',
+          background: 'var(--rz-white)',
           borderRadius: 8,
           overflow: 'hidden',
-          border: '1px solid rgba(32,42,58, 0.08)',
-          boxShadow: '0 2px 10px rgba(32,42,58, 0.05)',
+          border: '1px solid rgba(var(--rz-ink-rgb), 0.08)',
+          boxShadow: '0 2px 10px rgba(var(--rz-ink-rgb), 0.05)',
           display: 'flex',
           transition: 'all 0.3s ease',
         }}
@@ -392,7 +392,7 @@ const ProductCard = ({
           style={{
             width: '40%',
             minHeight: 200,
-            background: '#E8E2D6',
+            background: 'var(--rz-ivory)',
             position: 'relative',
           }}
         >
@@ -416,7 +416,7 @@ const ProductCard = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '4rem',
-                background: 'linear-gradient(145deg, #E8E2D6, #B8A47A)',
+                background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-gold))',
               }}
             >
               {product?.icon ? (
@@ -439,18 +439,18 @@ const ProductCard = ({
                 type="button"
                 onClick={() => onEdit(product)}
                 style={{
-                  background: 'rgba(30,41,59, 0.95)',
+                  background: 'rgba(var(--rz-primary-rgb), 0.95)',
                   border: 'none',
                   borderRadius: 8,
                   padding: '0.4rem 0.8rem',
                   cursor: 'pointer',
                   fontSize: '0.7rem',
-                  color: '#FFFFFF',
+                  color: 'var(--rz-white)',
                   fontFamily: 'Tajawal',
                 }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <Pencil size={12} color="#FFFFFF" />
+                  <Pencil size={12} color="var(--rz-white)" />
                   تعديل
                 </span>
               </button>
@@ -471,8 +471,8 @@ const ProductCard = ({
             <div
               style={{
                 display: 'inline-block',
-                background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-                color: '#FFFFFF',
+                background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                color: 'var(--rz-white)',
                 padding: '0.3rem 0.7rem',
                 borderRadius: 10,
                 fontWeight: 800,
@@ -488,7 +488,7 @@ const ProductCard = ({
                 margin: '0 0 0.5rem',
                 fontSize: '1.2rem',
                 fontWeight: 400,
-                color: '#202A3A',
+                color: 'var(--rz-ink)',
                 fontFamily: 'Tajawal, sans-serif',
                 wordBreak: 'break-word',
                 overflowWrap: 'anywhere',
@@ -512,7 +512,7 @@ const ProductCard = ({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.4rem',
-                    color: '#1E293B',
+                    color: 'var(--rz-primary)',
                     fontSize: '0.85rem',
                   }}
                 >
@@ -526,7 +526,7 @@ const ProductCard = ({
               style={{
                 margin: 0,
                 fontSize: '0.85rem',
-                color: '#1E293B',
+                color: 'var(--rz-primary)',
                 lineHeight: 1.5,
               }}
             >
@@ -574,10 +574,10 @@ const ProductCard = ({
             height: 160,
             borderRadius: '50%',
             overflow: 'hidden',
-            border: '4px solid rgba(30,41,59, 0.5)',
+            border: '4px solid rgba(var(--rz-primary-rgb), 0.5)',
             boxShadow:
-              '0 8px 32px rgba(30,41,59, 0.18), 0 0 20px rgba(30,41,59,0.16)',
-            background: '#E8E2D6',
+              '0 8px 32px rgba(var(--rz-primary-rgb), 0.18), 0 0 20px rgba(var(--rz-primary-rgb), 0.16)',
+            background: 'var(--rz-ivory)',
             position: 'relative',
           }}
         >
@@ -601,7 +601,7 @@ const ProductCard = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '4rem',
-                background: 'linear-gradient(145deg, #E8E2D6, #B8A47A)',
+                background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-gold))',
               }}
             >
               {product?.icon ? (
@@ -618,8 +618,8 @@ const ProductCard = ({
               bottom: 0,
               left: 0,
               right: 0,
-              background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-              color: '#FFFFFF',
+              background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+              color: 'var(--rz-white)',
               padding: '0.3rem',
               textAlign: 'center',
               fontWeight: 800,
@@ -641,17 +641,17 @@ const ProductCard = ({
                 type="button"
                 onClick={() => onEdit(product)}
                 style={{
-                  background: 'rgba(30,41,59, 0.95)',
+                  background: 'rgba(var(--rz-primary-rgb), 0.95)',
                   border: 'none',
                   borderRadius: 8,
                   padding: '0.3rem 0.6rem',
                   cursor: 'pointer',
                   fontSize: '0.65rem',
-                  color: '#FFFFFF',
+                  color: 'var(--rz-white)',
                   fontFamily: 'Tajawal',
                 }}
               >
-                <Pencil size={12} color="#FFFFFF" />
+                <Pencil size={12} color="var(--rz-white)" />
               </button>
             </div>
           )}
@@ -668,7 +668,7 @@ const ProductCard = ({
               margin: '0 0 0.3rem',
               fontSize: '0.95rem',
               fontWeight: 700,
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontFamily: 'Tajawal, sans-serif',
               wordBreak: 'break-word',
               overflowWrap: 'anywhere',
@@ -683,7 +683,7 @@ const ProductCard = ({
               style={{
                 margin: 0,
                 fontSize: '0.75rem',
-                color: '#404040',
+                color: 'var(--rz-muted)',
               }}
             >
               المقاس: {product.size}

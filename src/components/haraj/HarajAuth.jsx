@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { X, User, Phone } from 'lucide-react';
 import { db, auth } from '../../firebase/config';
 import { signInAnonymously } from 'firebase/auth';
+import { colorAlpha } from '../../utils/color';
 import {
   collection,
   addDoc,
@@ -31,18 +32,18 @@ async function findHarajUser(phone) {
 }
 
 const C = {
-  gold: '#1E293B',
-  goldLight: '#B8A47A',
-  goldDark: '#1E293B',
-  black: '#202A3A',
-  blackLight: '#202A3A',
-  gray: '#202A3A',
-  grayLight: '#202A3A',
-  grayMid: '#404040',
-  white: '#E8E2D6',
-  cream: '#E8E2D6',
-  green: '#202A3A',
-  red: '#1E293B',
+  gold: 'var(--rz-primary)',
+  goldLight: 'var(--rz-gold)',
+  goldDark: 'var(--rz-primary)',
+  black: 'var(--rz-ink)',
+  blackLight: 'var(--rz-ink)',
+  gray: 'var(--rz-ink)',
+  grayLight: 'var(--rz-ink)',
+  grayMid: 'var(--rz-muted)',
+  white: 'var(--rz-ivory)',
+  cream: 'var(--rz-ivory)',
+  green: 'var(--rz-ink)',
+  red: 'var(--rz-primary)',
 };
 
 export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount }) {
@@ -154,7 +155,7 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(32,42,58,0.85)',
+        background: 'rgba(var(--rz-ink-rgb), 0.85)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -170,8 +171,8 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
           padding: 30,
           maxWidth: 400,
           width: '100%',
-          border: `1px solid ${C.gold}40`,
-          boxShadow: `0 20px 60px rgba(32,42,58,0.5)`,
+          border: `1px solid colorAlpha(C.gold, 0.25)`,
+          boxShadow: `0 20px 60px rgba(var(--rz-ink-rgb), 0.5)`,
           position: 'relative',
         }}
         onClick={e => e.stopPropagation()}
@@ -184,7 +185,7 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
             left: 15,
             background: 'transparent',
             border: 'none',
-            color: '#B8A47A',
+            color: 'var(--rz-gold)',
             cursor: 'pointer',
             padding: 8,
           }}
@@ -204,7 +205,7 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
             {mode === 'register' && 'إنشاء حساب جديد'}
           </h2>
           <p style={{ 
-            color: '#B8A47A', 
+            color: 'var(--rz-gold)', 
             marginTop: 8,
             fontSize: 14,
           }}>
@@ -216,9 +217,9 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
 
         {error && (
           <div style={{
-            background: 'rgba(30,41,59, 0.12)',
-            border: '1px solid rgba(30,41,59, 0.4)',
-            color: '#E8E2D6',
+            background: 'rgba(var(--rz-primary-rgb), 0.12)',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.4)',
+            color: 'var(--rz-ivory)',
             borderRadius: 10,
             padding: '10px 14px',
             fontSize: 14,
@@ -235,7 +236,7 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
             <button
               onClick={() => setMode('login')}
               style={{
-                background: `linear-gradient(135deg, ${C.green} 0%, #202A3A 100%)`,
+                background: `linear-gradient(135deg, ${C.green} 0%, var(--rz-ink) 100%)`,
                 border: 'none',
                 borderRadius: 12,
                 padding: 16,
@@ -286,7 +287,7 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
                 border: `1px solid ${C.grayLight}`,
                 borderRadius: 12,
                 padding: 12,
-                color: '#B8A47A',
+                color: 'var(--rz-gold)',
                 fontSize: 14,
                 cursor: 'pointer',
                 fontFamily: 'Tajawal',
@@ -308,8 +309,8 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
                 width: '100%',
                 padding: 14,
                 borderRadius: 12,
-                background: 'rgba(255,255,255,0.08)',
-                border: `1px solid ${C.gold}40`,
+                background: 'rgba(var(--rz-white-rgb), 0.08)',
+                border: `1px solid colorAlpha(C.gold, 0.25)`,
                 color: C.white,
                 fontSize: 16,
                 fontFamily: 'Tajawal',
@@ -319,7 +320,7 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
               onClick={handleLogin}
               disabled={loading}
               style={{
-                background: `linear-gradient(135deg, ${C.green} 0%, #202A3A 100%)`,
+                background: `linear-gradient(135deg, ${C.green} 0%, var(--rz-ink) 100%)`,
                 border: 'none',
                 borderRadius: 12,
                 padding: 16,
@@ -359,8 +360,8 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
                 width: '100%',
                 padding: 14,
                 borderRadius: 12,
-                background: 'rgba(255,255,255,0.08)',
-                border: `1px solid ${C.gold}40`,
+                background: 'rgba(var(--rz-white-rgb), 0.08)',
+                border: `1px solid colorAlpha(C.gold, 0.25)`,
                 color: C.white,
                 fontSize: 16,
                 fontFamily: 'Tajawal',
@@ -375,8 +376,8 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
                 width: '100%',
                 padding: 14,
                 borderRadius: 12,
-                background: 'rgba(255,255,255,0.08)',
-                border: `1px solid ${C.gold}40`,
+                background: 'rgba(var(--rz-white-rgb), 0.08)',
+                border: `1px solid colorAlpha(C.gold, 0.25)`,
                 color: C.white,
                 fontSize: 16,
                 fontFamily: 'Tajawal',

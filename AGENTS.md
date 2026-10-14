@@ -62,3 +62,13 @@
 - بيانات القائمة الملكية: `src/data/royalMenu.js` (كل مسار فيها موجود فعلاً في `App.jsx` — لا روابط ميتة).
 - الصفحة الرئيسية: `src/components/RoyalHome/NovHomePage.jsx` — هيرو ملكي + نقاط ثقة (rz-trust) + «اكتشفي ROOZ» (rz-discover) + FAQ (rz-faq) + فوتر ملكي (rz-footer).
 - عند تعديل الهوية مستقبلاً: عدّل `rooz-royal.css` فقط؛ لا تعدّل ملفات الصفحات لهذا الغرض.
+
+## توحيد الألوان (theme.css) — المصدر الوحيد
+- **ملف الألوان الوحيد**: `src/styles/theme.css` — كل ألوان الموقع كمتغيّرات داخل `:root` فقط.
+  - يُستورد **أخيراً** في `src/main.jsx` (بعد `rooz-royal.css` و`rooz-pearl.css`).
+  - **لتغيير اللون الأساسي**: عدّل سطراً واحداً: `--rz-primary-rgb: R, G, B;` فيتبدّل الموقع كامل.
+  - رموز الأساس: `--rz-primary(-rgb)`, `--rz-ink(-rgb)`, `--rz-gold(-rgb)`, `--rz-ivory(-rgb)`, `--rz-muted(-rgb)`, `--rz-success(-rgb)`, `--rz-error(-rgb)`, والظلال `--rz-shadow*`.
+- **قاعدة صارمة**: لا تكتب ألواناً ثابتة (hex/rgb/rgba) في أي ملف آخر — استخدم `var(--rz-*)`.
+- لدمج لون مع شفافية داخل JSX استخدم `colorAlpha(color, 0.13)` من `src/utils/color.js` بدل `${color}20`.
+- كتل `:root` القديمة أُزيلت من `contour-theme.css`, `nova-theme.css`, `rooz-pearl.css`, `rooz-royal.css`, `global.css`, `index.css`؛ جسر التوافق (`--co-*`, `--nv-*`, `--ch-*`, `--rh-*`, `--rzp-*`, والمتغيّرات القديمة) موجود في `theme.css` بقيم مطابقة تماماً للأصل (بلا أي تغيير بصري).
+- عند تعديل الهوية مستقبلاً: عدّل `theme.css` فقط.

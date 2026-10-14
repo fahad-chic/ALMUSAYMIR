@@ -46,12 +46,12 @@ export default function EscrowPanel({
     <div
       className="rooz-escrow"
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E8E2D6',
+        background: 'var(--rz-white)',
+        border: '1px solid var(--rz-ivory)',
         borderRadius: 20,
         padding: 20,
         marginTop: 14,
-        boxShadow: '0 8px 30px rgba(32,42,58, 0.08)',
+        boxShadow: '0 8px 30px rgba(var(--rz-ink-rgb), 0.08)',
       }}
     >
       <h3
@@ -66,14 +66,14 @@ export default function EscrowPanel({
           gap: 8,
         }}
       >
-        <ShieldCheck size={20} color="#1E293B" /> الوساطة الآمنة
+        <ShieldCheck size={20} color="var(--rz-primary)" /> الوساطة الآمنة
       </h3>
       <p
         style={{
           margin: '0 0 14px',
           textAlign: 'center',
           fontSize: 12,
-          color: '#404040',
+          color: 'var(--rz-muted)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -94,13 +94,13 @@ export default function EscrowPanel({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                background: active ? 'rgba(64,64,64, 0.08)' : '#E8E2D6',
-                border: `1px solid ${active ? 'rgba(64,64,64, 0.35)' : '#E8E2D6'}`,
+                background: active ? 'rgba(var(--rz-muted-rgb), 0.08)' : 'var(--rz-ivory)',
+                border: `1px solid ${active ? 'rgba(var(--rz-muted-rgb), 0.35)' : 'var(--rz-ivory)'}`,
                 borderRadius: 12,
                 padding: '9px 12px',
                 fontSize: 13.5,
                 fontWeight: 700,
-                color: active ? '#404040' : '#404040',
+                color: active ? 'var(--rz-muted)' : 'var(--rz-muted)',
               }}
             >
               <Icon size={17} />
@@ -117,7 +117,7 @@ export default function EscrowPanel({
 
       <div
         style={{
-          background: 'rgba(30,41,59, 0.06)',
+          background: 'rgba(var(--rz-primary-rgb), 0.06)',
           borderRadius: 12,
           padding: '10px 14px',
           fontSize: 13,
@@ -131,11 +131,11 @@ export default function EscrowPanel({
           <span>قيمة الفستان</span>
           <span>{price.toLocaleString()} ريال</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#1E293B' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--rz-primary)' }}>
           <span>عمولة الموقع ({rate}%) — تُستقطع تلقائياً</span>
           <span>{commission.toLocaleString()} ريال</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed rgba(30,41,59,.25)', paddingTop: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dashed rgba(var(--rz-primary-rgb), .25)', paddingTop: 4 }}>
           <span>الصافي للبائع</span>
           <span>{(price - commission).toLocaleString()} ريال</span>
         </div>
@@ -156,8 +156,8 @@ export default function EscrowPanel({
                 }}
                 style={{
                   flex: 1,
-                  background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-                  color: '#E8E2D6',
+                  background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                  color: 'var(--rz-ivory)',
                   border: 'none',
                   borderRadius: 12,
                   padding: '0.85rem',
@@ -173,9 +173,9 @@ export default function EscrowPanel({
                 onClick={() => setConfirming(false)}
                 style={{
                   flex: 1,
-                  background: '#FFFFFF',
-                  color: '#202A3A',
-                  border: '1px solid #E8E2D6',
+                  background: 'var(--rz-white)',
+                  color: 'var(--rz-ink)',
+                  border: '1px solid var(--rz-ivory)',
                   borderRadius: 12,
                   padding: '0.85rem',
                   fontWeight: 800,
@@ -193,8 +193,8 @@ export default function EscrowPanel({
             onClick={() => setConfirming(true)}
             style={{
               width: '100%',
-              background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-              color: '#E8E2D6',
+              background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+              color: 'var(--rz-ivory)',
               border: 'none',
               borderRadius: 12,
               padding: '0.9rem',
@@ -208,7 +208,7 @@ export default function EscrowPanel({
           </button>
         )
       ) : (
-        <p style={{ margin: 0, textAlign: 'center', fontSize: 13, color: '#404040', fontWeight: 700 }}>
+        <p style={{ margin: 0, textAlign: 'center', fontSize: 13, color: 'var(--rz-muted)', fontWeight: 700 }}>
           {status === 'released'
             ? 'تمت العملية بنجاح وحُوّل المبلغ للبائع ✓'
             : status === 'none'

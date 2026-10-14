@@ -156,7 +156,7 @@ const LoadingScreen = () => (
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
-      color: '#1E293B',
+      color: 'var(--rz-primary)',
       fontSize: '1.5rem',
       fontFamily: 'Tajawal',
       direction: 'rtl',
@@ -219,11 +219,11 @@ const UnauthorizedPage = () => {
           maxWidth: 460,
           width: '100%',
           textAlign: 'center',
-          background: 'linear-gradient(160deg, #E8E2D6, #E8E2D6)',
-          border: '2px solid #1E293B',
+          background: 'linear-gradient(160deg, var(--rz-ivory), var(--rz-ivory))',
+          border: '2px solid var(--rz-primary)',
           borderRadius: 20,
           padding: '2.2rem 1.6rem',
-          boxShadow: '0 18px 50px rgba(32,42,58,0.22)',
+          boxShadow: '0 18px 50px rgba(var(--rz-ink-rgb), 0.22)',
         }}
       >
         <div
@@ -235,8 +235,8 @@ const UnauthorizedPage = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-            boxShadow: '0 8px 22px rgba(30,41,59,0.35)',
+            background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+            boxShadow: '0 8px 22px rgba(var(--rz-primary-rgb), 0.35)',
             fontSize: 30,
           }}
         >
@@ -246,7 +246,7 @@ const UnauthorizedPage = () => {
         <h1
           style={{
             margin: '0 0 10px',
-            color: '#1E293B',
+            color: 'var(--rz-primary)',
             fontWeight: 900,
             fontSize: '1.4rem',
           }}
@@ -257,7 +257,7 @@ const UnauthorizedPage = () => {
         <p
           style={{
             margin: 0,
-            color: '#202A3A',
+            color: 'var(--rz-ink)',
             fontWeight: 600,
             lineHeight: 1.9,
             fontSize: '0.95rem',
@@ -1312,8 +1312,8 @@ function AppContent() {
         background:
           location.pathname === '/login'
             ? 'transparent'
-            : 'linear-gradient(180deg, #E8E2D6 0%, #E8E2D6 55%, #E8E2D6 100%)',
-        color: '#202A3A',
+            : 'linear-gradient(180deg, var(--rz-ivory) 0%, var(--rz-ivory) 55%, var(--rz-ivory) 100%)',
+        color: 'var(--rz-ink)',
         fontFamily: 'Tajawal',
         position: 'relative',
       }}
@@ -1350,7 +1350,7 @@ function AppContent() {
             width: "100%",
             height: "100%",
             background:
-              "rgba(32,42,58,0.5)",
+              "rgba(var(--rz-ink-rgb), 0.5)",
             display: "flex",
             justifyContent:
               "center",
@@ -1370,15 +1370,15 @@ function AppContent() {
             aria-modal="true"
             aria-label="نموذج دخول الزائر"
             style={{
-              background: "#FFFFFF",
+              background: "var(--rz-white)",
               padding: "25px",
               borderRadius: "12px",
               width: "90%",
               maxWidth: "380px",
               textAlign: "center",
               boxShadow:
-                "0 0 15px rgba(32,42,58,0.2)",
-              color: "#202A3A",
+                "0 0 15px rgba(var(--rz-ink-rgb), 0.2)",
+              color: "var(--rz-ink)",
             }}
             onClick={(event) =>
               event.stopPropagation()
@@ -1390,7 +1390,7 @@ function AppContent() {
                 onClick={closeWelcomeModal}
                 aria-label="إغلاق"
                 style={{
-                  background: 'rgba(32,42,58,0.06)',
+                  background: 'rgba(var(--rz-ink-rgb), 0.06)',
                   border: 'none',
                   borderRadius: 8,
                   width: 30,
@@ -1400,7 +1400,7 @@ function AppContent() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: '#202A3A',
+                  color: 'var(--rz-ink)',
                 }}
               >
                 <X size={16} />
@@ -1440,7 +1440,7 @@ function AppContent() {
                 padding: "12px",
                 borderRadius: "8px",
                 border:
-                  "1px solid #D5D0C5",
+                  "1px solid var(--rz-border)",
                 marginBottom: "15px",
                 fontSize: "16px",
               }}
@@ -1453,8 +1453,8 @@ function AppContent() {
               style={{
                 width: "100%",
                 padding: "12px",
-                background: "#202A3A",
-                color: "#FFFFFF",
+                background: "var(--rz-ink)",
+                color: "var(--rz-white)",
                 borderRadius: "8px",
                 border: "none",
                 marginBottom: "10px",
@@ -1472,8 +1472,8 @@ function AppContent() {
               style={{
                 width: "100%",
                 padding: "12px",
-                background: "#1E293B",
-                color: "#FFFFFF",
+                background: "var(--rz-primary)",
+                color: "var(--rz-white)",
                 borderRadius: "8px",
                 border: "none",
                 marginBottom: "10px",
@@ -1518,9 +1518,9 @@ function AppContent() {
         }
 
 @keyframes roozCrown3D {
-  0%   { transform: perspective(600px) rotateY(0deg) scale(1); filter: drop-shadow(0 0 4px rgba(30,41,59,0.9)); }
-  50%  { transform: perspective(600px) rotateY(360deg) scale(1.12); filter: drop-shadow(0 0 14px rgba(30,41,59,1)); }
-  100% { transform: perspective(600px) rotateY(720deg) scale(1); filter: drop-shadow(0 0 4px rgba(30,41,59,0.9)); }
+  0%   { transform: perspective(600px) rotateY(0deg) scale(1); filter: drop-shadow(0 0 4px rgba(var(--rz-primary-rgb), 0.9)); }
+  50%  { transform: perspective(600px) rotateY(360deg) scale(1.12); filter: drop-shadow(0 0 14px rgba(var(--rz-primary-rgb), 1)); }
+  100% { transform: perspective(600px) rotateY(720deg) scale(1); filter: drop-shadow(0 0 4px rgba(var(--rz-primary-rgb), 0.9)); }
 }
 
 @keyframes roozStar3D {
@@ -1582,17 +1582,17 @@ function AppContent() {
               maxWidth: 420,
               marginInline: 'auto',
               background:
-                'linear-gradient(150deg, #202A3A, #202A3A)',
+                'linear-gradient(150deg, var(--rz-ink), var(--rz-ink))',
               border:
-                '1px solid rgba(30,41,59, 0.55)',
+                '1px solid rgba(var(--rz-primary-rgb), 0.55)',
               borderRadius: 16,
               padding:
                 '18px 20px',
               fontFamily:
                 'Tajawal, sans-serif',
-              color: '#E8E2D6',
+              color: 'var(--rz-ivory)',
               boxShadow:
-                '0 18px 50px rgba(32,42,58,0.65)',
+                '0 18px 50px rgba(var(--rz-ink-rgb), 0.65)',
             }}
           >
             <div
@@ -1605,11 +1605,11 @@ function AppContent() {
             >
               <Clock
                 size={30}
-                color="#B8A47A"
+                color="var(--rz-gold)"
               />
               <strong
                 style={{
-                  color: '#E8E2D6',
+                  color: 'var(--rz-ivory)',
                   fontSize: 15,
                   fontWeight: 900,
                 }}
@@ -1624,7 +1624,7 @@ function AppContent() {
                 fontSize: 14,
                 lineHeight: 1.7,
                 textAlign: 'right',
-                color: '#E8E2D6',
+                color: 'var(--rz-ivory)',
               }}
             >
               صديقنا العزيز: نفيدك بأن دخولك
@@ -1639,7 +1639,7 @@ function AppContent() {
                   display: 'block',
                   marginTop: 8,
                   fontSize: 12,
-                  color: '#B8A47A',
+                  color: 'var(--rz-gold)',
                 }}
               >
                 سيتم إخراجك تلقائياً عند انتهاء الوقت.
@@ -1675,15 +1675,15 @@ function AppContent() {
               background:
                 guestRemaining <=
                 10000
-                  ? 'linear-gradient(90deg, rgba(30,41,59,0.97), rgba(30,41,59,0.92))'
-                  : 'linear-gradient(90deg, #202A3A, #1E293B)',
-              color: '#FFFFFF',
+                  ? 'linear-gradient(90deg, rgba(var(--rz-primary-rgb), 0.97), rgba(var(--rz-primary-rgb), 0.92))'
+                  : 'linear-gradient(90deg, var(--rz-ink), var(--rz-primary))',
+              color: 'var(--rz-white)',
               padding: '0 1rem',
               textAlign: 'center',
               fontWeight: 800,
               fontSize: '0.9rem',
               boxShadow:
-                '0 2px 10px rgba(32,42,58,0.3)',
+                '0 2px 10px rgba(var(--rz-ink-rgb), 0.3)',
               fontFamily:
                 'Tajawal',
               boxSizing: 'border-box',
@@ -1721,7 +1721,7 @@ function AppContent() {
               position: 'fixed',
               inset: 0,
               background:
-                'rgba(32,42,58,0.8)',
+                'rgba(var(--rz-ink-rgb), 0.8)',
               display: 'flex',
               alignItems: 'center',
               justifyContent:
@@ -1734,18 +1734,18 @@ function AppContent() {
           >
             <div
               style={{
-                background: '#202A3A',
+                background: 'var(--rz-ink)',
                 border:
-                  '1px solid rgba(30,41,59,0.4)',
+                  '1px solid rgba(var(--rz-primary-rgb), 0.4)',
                 borderRadius: 16,
                 padding:
                   '2rem 1.5rem',
                 maxWidth: 420,
                 width: '100%',
                 textAlign: 'center',
-                color: '#E8E2D6',
+                color: 'var(--rz-ivory)',
                 boxShadow:
-                  '0 20px 60px rgba(32,42,58,0.6)',
+                  '0 20px 60px rgba(var(--rz-ink-rgb), 0.6)',
               }}
             >
               <div
@@ -1759,13 +1759,13 @@ function AppContent() {
               >
                 <Clock
                   size={48}
-                  color="#1E293B"
+                  color="var(--rz-primary)"
                 />
               </div>
 
               <h2
                 style={{
-                  color: '#1E293B',
+                  color: 'var(--rz-primary)',
                   fontSize: 22,
                   fontWeight: 700,
                   marginBottom: 12,
@@ -1776,7 +1776,7 @@ function AppContent() {
 
               <p
                 style={{
-                  color: '#D5D0C5',
+                  color: 'var(--rz-border)',
                   fontSize: 15,
                   marginBottom: 20,
                   lineHeight: 1.6,
@@ -1811,8 +1811,8 @@ function AppContent() {
                   width: '100%',
                   padding: '13px',
                   background:
-                    'linear-gradient(135deg, #1E293B, #1E293B)',
-                  color: '#FFFFFF',
+                    'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                  color: 'var(--rz-white)',
                   border: 'none',
                   borderRadius: 10,
                   fontWeight: 700,
@@ -1843,9 +1843,9 @@ function AppContent() {
                   padding: '13px',
                   background:
                     'transparent',
-                  color: '#1E293B',
+                  color: 'var(--rz-primary)',
                   border:
-                    '1px solid rgba(30,41,59,0.4)',
+                    '1px solid rgba(var(--rz-primary-rgb), 0.4)',
                   borderRadius: 10,
                   fontWeight: 700,
                   fontSize: 15,
@@ -1962,10 +1962,10 @@ function AppContent() {
               height: '60px',
               overflow: 'hidden',
               display: 'block',
-              background: 'linear-gradient(90deg, #202A3A 0%, #202A3A 40%, #202A3A 60%, #202A3A 100%)',
-              borderTop: '2px solid #1E293B',
-              borderBottom: '2px solid #1E293B',
-              boxShadow: '0 12px 32px rgba(32,42,58,0.6), 0 0 22px rgba(30,41,59,0.25)',
+              background: 'linear-gradient(90deg, var(--rz-ink) 0%, var(--rz-ink) 40%, var(--rz-ink) 60%, var(--rz-ink) 100%)',
+              borderTop: '2px solid var(--rz-primary)',
+              borderBottom: '2px solid var(--rz-primary)',
+              boxShadow: '0 12px 32px rgba(var(--rz-ink-rgb), 0.6), 0 0 22px rgba(var(--rz-primary-rgb), 0.25)',
               zIndex: 80,
               flexShrink: 0,
             }}
@@ -2005,13 +2005,13 @@ function AppContent() {
                     fontFamily: 'Tajawal, "Noto Sans Arabic", Tahoma, sans-serif',
                     fontSize: 'clamp(1.15rem, 2.5vw, 1.55rem)',
                     fontWeight: 900,
-                    WebkitTextStroke: '0.4px rgba(227,200,120,0.5)',
+                    WebkitTextStroke: '0.4px rgba(var(--rz-champagne-rgb), 0.5)',
                     lineHeight: '60px',
                     direction: 'rtl',
                     unicodeBidi: 'isolate',
-                    color: '#E3C878',
-                    WebkitTextFillColor: '#E3C878',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.45)',
+                    color: 'var(--rz-champagne)',
+                    WebkitTextFillColor: 'var(--rz-champagne)',
+                    textShadow: '0 1px 2px rgba(var(--rz-black-rgb), 0.45)',
                   }}
                 >
                   {ownerWelcomeBanner?.msg || OWNER_WELCOME_MESSAGE}

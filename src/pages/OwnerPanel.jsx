@@ -149,10 +149,10 @@ export default function OwnerPanel() {
               position: 'static',
               width: 40,
               height: 40,
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(30,41,59,0.45)',
-              color: '#E8E2D6',
-              boxShadow: '0 0 12px rgba(30,41,59,0.25)',
+              background: 'rgba(var(--rz-white-rgb), 0.08)',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.45)',
+              color: 'var(--rz-ivory)',
+              boxShadow: '0 0 12px rgba(var(--rz-primary-rgb), 0.25)',
               top: 0,
             }}
           />
@@ -166,7 +166,7 @@ export default function OwnerPanel() {
         <h2 style={sectionTitle}>بثّ فوري (شريط + صوت)</h2>
 
         <div style={card}>
-          <p style={{ marginBottom: 8, color: '#D5D0C5' }}>
+          <p style={{ marginBottom: 8, color: 'var(--rz-border)' }}>
             أرسل إعلاناً فورياً سيظهر كشريط متحرك مع صوت للجميع في الموقع.
           </p>
 
@@ -286,9 +286,9 @@ export default function OwnerPanel() {
 const page = {
   padding: '2rem',
   fontFamily: "Tajawal, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-  background: 'linear-gradient(135deg,#202A3A,#202A3A)',
+  background: 'linear-gradient(135deg,var(--rz-ink),var(--rz-ink))',
   minHeight: '100vh',
-  color: '#E8E2D6',
+  color: 'var(--rz-ivory)',
   boxSizing: 'border-box',
 };
 
@@ -307,14 +307,14 @@ const headerActions = {
 };
 
 const title = {
-  color: '#E8E2D6',
+  color: 'var(--rz-ivory)',
   fontSize: 28,
   fontWeight: 800,
-  textShadow: '0 0 10px rgba(30,41,59,0.45)',
+  textShadow: '0 0 10px rgba(var(--rz-primary-rgb), 0.45)',
 };
 
 const subtitle = {
-  color: '#D5D0C5',
+  color: 'var(--rz-border)',
   marginBottom: 16,
   fontSize: 14,
 };
@@ -333,20 +333,20 @@ const sectionHeader = {
 };
 
 const sectionTitle = {
-  color: '#E8E2D6',
+  color: 'var(--rz-ivory)',
   fontSize: 22,
   fontWeight: 800,
   marginBottom: 10,
-  textShadow: '0 0 10px rgba(30,41,59,0.35)',
+  textShadow: '0 0 10px rgba(var(--rz-primary-rgb), 0.35)',
 };
 
 const card = {
-  background: 'rgba(255,255,255,0.08)',
+  background: 'rgba(var(--rz-white-rgb), 0.08)',
   padding: '1rem',
   borderRadius: 14,
-  border: '1px solid rgba(30,41,59,0.35)',
+  border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
   marginBottom: 12,
-  boxShadow: '0 0 18px rgba(30,41,59,0.25)',
+  boxShadow: '0 0 18px rgba(var(--rz-primary-rgb), 0.25)',
   backdropFilter: 'blur(10px)',
 };
 
@@ -363,8 +363,8 @@ const actions = {
 };
 
 const btnBan = {
-  background: '#1E293B',
-  color: '#FFFFFF',
+  background: 'var(--rz-primary)',
+  color: 'var(--rz-white)',
   padding: '8px 12px',
   borderRadius: 10,
   border: 'none',
@@ -373,8 +373,8 @@ const btnBan = {
 };
 
 const btnBurgundy = {
-  background: '#1E293B',
-  color: '#FFFFFF',
+  background: 'var(--rz-primary)',
+  color: 'var(--rz-white)',
   padding: '8px 12px',
   borderRadius: 10,
   border: 'none',
@@ -383,8 +383,8 @@ const btnBurgundy = {
 };
 
 const btnGray = {
-  background: '#404040',
-  color: '#FFFFFF',
+  background: 'var(--rz-muted)',
+  color: 'var(--rz-white)',
   padding: '8px 12px',
   borderRadius: 10,
   border: 'none',
@@ -393,25 +393,25 @@ const btnGray = {
 };
 
 const btnGlass = {
-  background: 'rgba(255,255,255,0.12)',
-  border: '1px solid rgba(30,41,59,0.35)',
-  color: '#E8E2D6',
+  background: 'rgba(var(--rz-white-rgb), 0.12)',
+  border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
+  color: 'var(--rz-ivory)',
   padding: '8px 12px',
   borderRadius: 10,
   cursor: 'pointer',
   fontWeight: 700,
-  boxShadow: '0 0 12px rgba(30,41,59,0.25)',
+  boxShadow: '0 0 12px rgba(var(--rz-primary-rgb), 0.25)',
 };
 
 const btnRoyal = {
-  background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-  color: '#FFFFFF',
+  background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+  color: 'var(--rz-white)',
   padding: '10px 14px',
   borderRadius: 12,
-  border: '1px solid rgba(239,233,223,0.45)',
+  border: '1px solid rgba(var(--rz-cream-4-rgb), 0.45)',
   cursor: 'pointer',
   fontWeight: 900,
-  boxShadow: '0 0 25px rgba(30,41,59,0.45)',
+  boxShadow: '0 0 25px rgba(var(--rz-primary-rgb), 0.45)',
 };
 
 const btnDisabled = {
@@ -429,43 +429,43 @@ const denied = {
 const loadingBox = {
   padding: '2rem',
   textAlign: 'center',
-  color: '#E8E2D6',
+  color: 'var(--rz-ivory)',
   fontSize: 20,
 };
 
 const alertError = {
-  background: 'rgba(30,41,59,0.18)',
-  border: '1px solid rgba(30,41,59,0.45)',
-  color: '#E8E2D6',
+  background: 'rgba(var(--rz-primary-rgb), 0.18)',
+  border: '1px solid rgba(var(--rz-primary-rgb), 0.45)',
+  color: 'var(--rz-ivory)',
   padding: '10px 12px',
   borderRadius: 12,
   marginTop: 10,
   marginBottom: 10,
-  boxShadow: '0 0 12px rgba(30,41,59,0.35)',
+  boxShadow: '0 0 12px rgba(var(--rz-primary-rgb), 0.35)',
 };
 
 const alertOk = {
-  background: 'rgba(32,42,58,0.18)',
-  border: '1px solid rgba(32,42,58,0.45)',
-  color: '#E8E2D6',
+  background: 'rgba(var(--rz-ink-rgb), 0.18)',
+  border: '1px solid rgba(var(--rz-ink-rgb), 0.45)',
+  color: 'var(--rz-ivory)',
   padding: '10px 12px',
   borderRadius: 12,
   marginTop: 10,
   marginBottom: 10,
-  boxShadow: '0 0 12px rgba(32,42,58,0.35)',
+  boxShadow: '0 0 12px rgba(var(--rz-ink-rgb), 0.35)',
 };
 
 const emptyBox = {
   padding: '0.8rem',
-  color: '#D5D0C5',
+  color: 'var(--rz-border)',
   fontStyle: 'italic',
 };
 
 const textarea = {
   width: '100%',
-  background: 'rgba(255,255,255,0.06)',
-  color: '#FFFFFF',
-  border: '1px solid rgba(30,41,59,0.35)',
+  background: 'rgba(var(--rz-white-rgb), 0.06)',
+  color: 'var(--rz-white)',
+  border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
   borderRadius: 10,
   padding: '10px 12px',
   outline: 'none',
@@ -475,9 +475,9 @@ const textarea = {
 };
 
 const searchInput = {
-  background: 'rgba(255,255,255,0.06)',
-  color: '#FFFFFF',
-  border: '1px solid rgba(30,41,59,0.35)',
+  background: 'rgba(var(--rz-white-rgb), 0.06)',
+  color: 'var(--rz-white)',
+  border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
   borderRadius: 10,
   padding: '8px 12px',
   outline: 'none',

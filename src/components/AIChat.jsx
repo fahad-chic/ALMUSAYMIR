@@ -228,7 +228,7 @@ export default function AIChat() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`فتح مساعد ${AI_NAME}`}
-        className="fixed bottom-5 left-5 bg-gradient-to-br from-[#B8A47A] via-[#1E293B] to-[#1E293B] text-[#202A3A] p-4 rounded-full shadow-2xl z-50 hover:scale-110 transition-all duration-300 border border-[#E8E2D6]/60"
+        className="fixed bottom-5 left-5 bg-gradient-to-br from-[var(--rz-gold)] via-[var(--rz-primary)] to-[var(--rz-primary)] text-[var(--rz-ink)] p-4 rounded-full shadow-2xl z-50 hover:scale-110 transition-all duration-300 border border-[var(--rz-ivory)]/60"
       >
         <Sparkles size={24} />
       </button>
@@ -237,12 +237,12 @@ export default function AIChat() {
       {open && (
         <div
           dir="rtl"
-          className="fixed bottom-20 left-5 w-[calc(100vw-2.5rem)] max-w-80 h-[520px] bg-[#E8E2D6] border-2 border-[#1E293B] rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+          className="fixed bottom-20 left-5 w-[calc(100vw-2.5rem)] max-w-80 h-[520px] bg-[var(--rz-ivory)] border-2 border-[var(--rz-primary)] rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
         >
 
           {/* الهيدر */}
-          <div className="bg-gradient-to-r from-[#202A3A] via-[#202A3A] to-[#1E293B] p-3 rounded-t-2xl flex justify-between items-center border-b border-[#1E293B]/60">
-            <h3 className="font-bold text-[#E8E2D6] flex items-center gap-2">
+          <div className="bg-gradient-to-r from-[var(--rz-ink)] via-[var(--rz-ink)] to-[var(--rz-primary)] p-3 rounded-t-2xl flex justify-between items-center border-b border-[var(--rz-primary)]/60">
+            <h3 className="font-bold text-[var(--rz-ivory)] flex items-center gap-2">
               <Sparkles size={16} /> {AI_NAME}
             </h3>
             <button
@@ -251,33 +251,33 @@ export default function AIChat() {
               aria-label="إغلاق المحادثة"
               className="hover:bg-white/20 p-1 rounded-full transition"
             >
-              <X size={18} className="text-[#E8E2D6]" />
+              <X size={18} className="text-[var(--rz-ivory)]" />
             </button>
           </div>
 
           {/* رسالة الأمان */}
-          <div className="p-2 bg-[#E8E2D6] text-[10px] text-[#202A3A] flex items-start gap-2 border-b border-[#1E293B]/40">
-            <ShieldCheck size={14} className="text-[#1E293B] shrink-0" />
+          <div className="p-2 bg-[var(--rz-ivory)] text-[10px] text-[var(--rz-ink)] flex items-start gap-2 border-b border-[var(--rz-primary)]/40">
+            <ShieldCheck size={14} className="text-[var(--rz-primary)] shrink-0" />
             <p>
               تخضع جميع بيانات المستخدمين والزائرين والرسائل الخاصة والمعاملات الداخلية لحماية صارمة 
               وتشفير عالمي متقدم 
-              <span className="text-[#1E293B] font-bold">(تشفير بموجب بروتوكولات عالمية محمية وسرية ومتعددة الطبقات)</span>.
+              <span className="text-[var(--rz-primary)] font-bold">(تشفير بموجب بروتوكولات عالمية محمية وسرية ومتعددة الطبقات)</span>.
               <br />
-              <span className="text-[#1E293B] italic">
+              <span className="text-[var(--rz-primary)] italic">
                 All user and visitor data is fully encrypted and cannot be accessed by any unauthorized party.
               </span>
             </p>
           </div>
 
           {/* الرسائل */}
-          <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2 bg-gradient-to-b from-[#E8E2D6] to-[#E8E2D6]">
+          <div ref={chatRef} className="flex-1 overflow-y-auto p-3 space-y-2 bg-gradient-to-b from-[var(--rz-ivory)] to-[var(--rz-ivory)]">
             {messages.map((m) => (
               <div
                 key={m.id}
                 className={`p-3 rounded-lg text-sm whitespace-pre-wrap break-words ${
                   m.role === "user"
-                    ? "bg-gradient-to-r from-[#1E293B] to-[#1E293B] text-[#E8E2D6] ml-10 shadow-md"
-                    : "bg-[#E8E2D6] text-[#202A3A] mr-10 border border-[#1E293B]/30 shadow-sm"
+                    ? "bg-gradient-to-r from-[var(--rz-primary)] to-[var(--rz-primary)] text-[var(--rz-ivory)] ml-10 shadow-md"
+                    : "bg-[var(--rz-ivory)] text-[var(--rz-ink)] mr-10 border border-[var(--rz-primary)]/30 shadow-sm"
                 }`}
               >
                 {m.text}
@@ -285,14 +285,14 @@ export default function AIChat() {
             ))}
 
             {loading && (
-              <p className="text-xs text-[#1E293B] text-center">
+              <p className="text-xs text-[var(--rz-primary)] text-center">
                 {AI_NAME} تكتب...
               </p>
             )}
           </div>
 
           {/* صندوق الإرسال */}
-          <div className="p-2 flex gap-2 border-t border-[#1E293B]/40 bg-[#E8E2D6]">
+          <div className="p-2 flex gap-2 border-t border-[var(--rz-primary)]/40 bg-[var(--rz-ivory)]">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -304,14 +304,14 @@ export default function AIChat() {
               }}
               placeholder="اسألني عن أي منتج أو مقاس أو أي سؤال في الدنيا"
               disabled={loading}
-              className="flex-1 bg-[#E8E2D6] text-[#202A3A] placeholder:text-[#1E293B] p-2 rounded-lg text-sm outline-none border border-[#1E293B]/30 focus:border-[#1E293B] disabled:opacity-60"
+              className="flex-1 bg-[var(--rz-ivory)] text-[var(--rz-ink)] placeholder:text-[var(--rz-primary)] p-2 rounded-lg text-sm outline-none border border-[var(--rz-primary)]/30 focus:border-[var(--rz-primary)] disabled:opacity-60"
             />
             <button
               type="button"
               onClick={sendMessage}
               disabled={loading || !input.trim()}
               aria-label="إرسال الرسالة"
-              className="bg-gradient-to-br from-[#1E293B] to-[#1E293B] text-[#202A3A] p-2 rounded-lg hover:brightness-110 disabled:opacity-50 transition shadow-md"
+              className="bg-gradient-to-br from-[var(--rz-primary)] to-[var(--rz-primary)] text-[var(--rz-ink)] p-2 rounded-lg hover:brightness-110 disabled:opacity-50 transition shadow-md"
             >
               <Send size={16} />
             </button>

@@ -9,9 +9,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(145deg, #E8E2D6, #E8E2D6);
-  border: 1.5px solid rgba(30,41,59, 0.35);
-  color: #202A3A;
+  background: linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory));
+  border: 1.5px solid rgba(var(--rz-primary-rgb), 0.35);
+  color: var(--rz-ink);
   border-radius: 12px;
   padding: 0.5rem 0.75rem;
   font-family: inherit;
@@ -19,14 +19,14 @@
   font-size: 0.8rem;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 3px 12px rgba(30,41,59, 0.12);
+  box-shadow: 0 3px 12px rgba(var(--rz-primary-rgb), 0.12);
   transition: all 0.2s ease;
 }
 
 .rooz-smart-trigger:hover {
-  background: linear-gradient(145deg, #1E293B, #1E293B);
-  color: #FFFFFF;
-  border-color: #1E293B;
+  background: linear-gradient(145deg, var(--rz-primary), var(--rz-primary));
+  color: var(--rz-white);
+  border-color: var(--rz-primary);
 }
 
 .rooz-smart-panel {
@@ -36,10 +36,10 @@
   width: min(94vw, 560px);
   max-height: min(74vh, 620px);
   overflow-y: auto;
-  background: rgba(232,226,214, 0.99);
-  border: 1.5px solid rgba(30,41,59, 0.28);
+  background: rgba(var(--rz-ivory-rgb), 0.99);
+  border: 1.5px solid rgba(var(--rz-primary-rgb), 0.28);
   border-radius: 18px;
-  box-shadow: 0 22px 60px rgba(32,42,58, 0.24);
+  box-shadow: 0 22px 60px rgba(var(--rz-ink-rgb), 0.24);
   padding: 0.85rem;
   z-index: 4200;
   backdrop-filter: blur(14px);
@@ -58,9 +58,9 @@
   gap: 8px;
   font-weight: 900;
   font-size: 0.85rem;
-  color: #1E293B;
+  color: var(--rz-primary);
   padding: 0.35rem 0.4rem 0.7rem;
-  border-bottom: 1px solid rgba(30,41,59, 0.16);
+  border-bottom: 1px solid rgba(var(--rz-primary-rgb), 0.16);
   margin-bottom: 0.5rem;
 }
 
@@ -89,15 +89,15 @@
   font-family: inherit;
   font-weight: 800;
   font-size: 0.85rem;
-  color: #202A3A;
+  color: var(--rz-ink);
   padding: 0.55rem 0.6rem;
   border-radius: 10px;
   transition: background 0.18s ease, color 0.18s ease;
 }
 
 .rooz-smart-label:hover {
-  background: rgba(30,41,59, 0.10);
-  color: #1E293B;
+  background: rgba(var(--rz-primary-rgb), 0.10);
+  color: var(--rz-primary);
 }
 
 .rooz-smart-plus {
@@ -107,22 +107,22 @@
   height: 30px;
   flex: 0 0 30px;
   border-radius: 9px;
-  background: rgba(30,41,59, 0.10);
-  border: 1px solid rgba(30,41,59, 0.25);
-  color: #1E293B;
+  background: rgba(var(--rz-primary-rgb), 0.10);
+  border: 1px solid rgba(var(--rz-primary-rgb), 0.25);
+  color: var(--rz-primary);
   cursor: pointer;
   transition: all 0.18s ease;
 }
 
 .rooz-smart-plus:hover {
-  background: #1E293B;
-  color: #FFFFFF;
+  background: var(--rz-primary);
+  color: var(--rz-white);
 }
 
 .rooz-smart-sub {
   margin: 2px 0 6px;
   padding-inline-start: 12px;
-  border-inline-start: 2px solid rgba(30,41,59, 0.35);
+  border-inline-start: 2px solid rgba(var(--rz-primary-rgb), 0.35);
 }
 
 .rooz-smart-label--sub { font-size: 0.8rem; font-weight: 700; padding-block: 0.45rem; }
@@ -130,10 +130,10 @@
 .rooz-smart-leaf {
   margin: 2px 0 6px;
   padding-inline-start: 12px;
-  border-inline-start: 2px solid rgba(184,164,122, 0.55);
+  border-inline-start: 2px solid rgba(var(--rz-gold-rgb), 0.55);
 }
 
-.rooz-smart-label--leaf { font-size: 0.76rem; font-weight: 600; color: #404040; padding-block: 0.4rem; }
+.rooz-smart-label--leaf { font-size: 0.76rem; font-weight: 600; color: var(--rz-muted); padding-block: 0.4rem; }
 
 .rooz-smart-links {
   display: flex;
@@ -141,13 +141,13 @@
   gap: 6px;
   margin-top: 0.6rem;
   padding-top: 0.6rem;
-  border-top: 1px solid rgba(30,41,59, 0.16);
+  border-top: 1px solid rgba(var(--rz-primary-rgb), 0.16);
 }
 
 .rooz-smart-link {
-  background: rgba(30,41,59, 0.08);
-  border: 1px solid rgba(30,41,59, 0.2);
-  color: #1E293B;
+  background: rgba(var(--rz-primary-rgb), 0.08);
+  border: 1px solid rgba(var(--rz-primary-rgb), 0.2);
+  color: var(--rz-primary);
   border-radius: 999px;
   padding: 0.4rem 0.85rem;
   font-family: inherit;
@@ -158,8 +158,8 @@
 }
 
 .rooz-smart-link:hover {
-  background: #1E293B;
-  color: #FFFFFF;
+  background: var(--rz-primary);
+  color: var(--rz-white);
 }
 
 /* نسخة الجوال داخل الدرج */

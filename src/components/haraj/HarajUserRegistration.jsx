@@ -123,7 +123,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(32,42,58, 0.85)',
+      background: 'rgba(var(--rz-ink-rgb), 0.85)',
       backdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
@@ -132,8 +132,8 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
       padding: '1rem',
     }}>
       <div style={{
-        background: 'linear-gradient(180deg, #202A3A 0%, #202A3A 100%)',
-        border: '1px solid rgba(30,41,59, 0.3)',
+        background: 'linear-gradient(180deg, var(--rz-ink) 0%, var(--rz-ink) 100%)',
+        border: '1px solid rgba(var(--rz-primary-rgb), 0.3)',
         borderRadius: 24,
         width: '100%',
         maxWidth: 480,
@@ -143,7 +143,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
       }}>
         {/* Header */}
         <div style={{
-          background: 'linear-gradient(135deg, #1E293B 0%, #1E293B 100%)',
+          background: 'linear-gradient(135deg, var(--rz-primary) 0%, var(--rz-primary) 100%)',
           padding: '1.5rem',
           textAlign: 'center',
           borderRadius: '24px 24px 0 0',
@@ -154,7 +154,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               position: 'absolute',
               top: '1rem',
               left: '1rem',
-              background: 'rgba(32,42,58, 0.2)',
+              background: 'rgba(var(--rz-ink-rgb), 0.2)',
               border: 'none',
               borderRadius: '50%',
               width: 32,
@@ -171,21 +171,21 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
           <div style={{
             width: 64,
             height: 64,
-            background: 'rgba(32,42,58, 0.2)',
+            background: 'rgba(var(--rz-ink-rgb), 0.2)',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1rem',
           }}>
-            <Crown size={32} color="#202A3A" />
+            <Crown size={32} color="var(--rz-ink)" />
           </div>
 
           <h2 style={{
             margin: 0,
             fontSize: '1.25rem',
             fontWeight: 800,
-            color: '#202A3A',
+            color: 'var(--rz-ink)',
             fontFamily: 'Tajawal, sans-serif',
           }}>
             تسجيل مستخدم الحراج
@@ -193,7 +193,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
           <p style={{
             margin: '0.5rem 0 0',
             fontSize: '0.85rem',
-            color: 'rgba(32,42,58, 0.7)',
+            color: 'rgba(var(--rz-ink-rgb), 0.7)',
             fontFamily: 'Tajawal, sans-serif',
           }}>
             للتواصل مع المعلن بالشكل الصحيح
@@ -210,11 +210,11 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               gap: '0.5rem',
               fontSize: '0.9rem',
               fontWeight: 600,
-              color: '#E8E2D6',
+              color: 'var(--rz-ivory)',
               marginBottom: '0.5rem',
               fontFamily: 'Tajawal',
             }}>
-              <User size={16} color="#1E293B" />
+              <User size={16} color="var(--rz-primary)" />
               الاسم الحقيقي *
             </label>
             <input
@@ -225,11 +225,11 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               placeholder="أدخل اسمك الحقيقي"
               style={{
                 width: '100%',
-                background: 'rgba(32,42,58, 0.3)',
-                border: errors.name ? '1px solid #1E293B' : '1px solid rgba(30,41,59, 0.2)',
+                background: 'rgba(var(--rz-ink-rgb), 0.3)',
+                border: errors.name ? '1px solid var(--rz-primary)' : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                 borderRadius: 12,
                 padding: '0.85rem 1rem',
-                color: '#E8E2D6',
+                color: 'var(--rz-ivory)',
                 fontSize: '0.95rem',
                 fontFamily: 'Tajawal',
                 outline: 'none',
@@ -237,7 +237,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               }}
             />
             {errors.name && (
-              <p style={{ color: '#B3261E', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>{errors.name}</p>
+              <p style={{ color: 'var(--rz-error)', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>{errors.name}</p>
             )}
           </div>
 
@@ -249,11 +249,11 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               gap: '0.5rem',
               fontSize: '0.9rem',
               fontWeight: 600,
-              color: '#E8E2D6',
+              color: 'var(--rz-ivory)',
               marginBottom: '0.5rem',
               fontFamily: 'Tajawal',
             }}>
-              <Phone size={16} color="#1E293B" />
+              <Phone size={16} color="var(--rz-primary)" />
               رقم الهاتف الحقيقي *
             </label>
             <input
@@ -265,11 +265,11 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               dir="ltr"
               style={{
                 width: '100%',
-                background: 'rgba(32,42,58, 0.3)',
-                border: errors.phone ? '1px solid #1E293B' : '1px solid rgba(30,41,59, 0.2)',
+                background: 'rgba(var(--rz-ink-rgb), 0.3)',
+                border: errors.phone ? '1px solid var(--rz-primary)' : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                 borderRadius: 12,
                 padding: '0.85rem 1rem',
-                color: '#E8E2D6',
+                color: 'var(--rz-ivory)',
                 fontSize: '0.95rem',
                 fontFamily: 'Tajawal',
                 outline: 'none',
@@ -278,7 +278,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               }}
             />
             {errors.phone && (
-              <p style={{ color: '#B3261E', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>{errors.phone}</p>
+              <p style={{ color: 'var(--rz-error)', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>{errors.phone}</p>
             )}
           </div>
 
@@ -290,11 +290,11 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               gap: '0.5rem',
               fontSize: '0.9rem',
               fontWeight: 600,
-              color: '#E8E2D6',
+              color: 'var(--rz-ivory)',
               marginBottom: '0.5rem',
               fontFamily: 'Tajawal',
             }}>
-              <Mail size={16} color="#1E293B" />
+              <Mail size={16} color="var(--rz-primary)" />
               البريد الإلكتروني *
             </label>
             <input
@@ -306,11 +306,11 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               dir="ltr"
               style={{
                 width: '100%',
-                background: 'rgba(32,42,58, 0.3)',
-                border: errors.email ? '1px solid #1E293B' : '1px solid rgba(30,41,59, 0.2)',
+                background: 'rgba(var(--rz-ink-rgb), 0.3)',
+                border: errors.email ? '1px solid var(--rz-primary)' : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                 borderRadius: 12,
                 padding: '0.85rem 1rem',
-                color: '#E8E2D6',
+                color: 'var(--rz-ivory)',
                 fontSize: '0.95rem',
                 fontFamily: 'Tajawal',
                 outline: 'none',
@@ -319,7 +319,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               }}
             />
             {errors.email && (
-              <p style={{ color: '#B3261E', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>{errors.email}</p>
+              <p style={{ color: 'var(--rz-error)', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>{errors.email}</p>
             )}
           </div>
 
@@ -331,11 +331,11 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               gap: '0.5rem',
               fontSize: '0.9rem',
               fontWeight: 600,
-              color: '#E8E2D6',
+              color: 'var(--rz-ivory)',
               marginBottom: '0.5rem',
               fontFamily: 'Tajawal',
             }}>
-              <MapPin size={16} color="#1E293B" />
+              <MapPin size={16} color="var(--rz-primary)" />
               المنطقة *
             </label>
             <select
@@ -344,11 +344,11 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               onChange={handleChange}
               style={{
                 width: '100%',
-                background: 'rgba(32,42,58, 0.3)',
-                border: errors.region ? '1px solid #1E293B' : '1px solid rgba(30,41,59, 0.2)',
+                background: 'rgba(var(--rz-ink-rgb), 0.3)',
+                border: errors.region ? '1px solid var(--rz-primary)' : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                 borderRadius: 12,
                 padding: '0.85rem 1rem',
-                color: formData.region ? '#E8E2D6' : '#404040',
+                color: formData.region ? 'var(--rz-ivory)' : 'var(--rz-muted)',
                 fontSize: '0.95rem',
                 fontFamily: 'Tajawal',
                 outline: 'none',
@@ -366,7 +366,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
               ))}
             </select>
             {errors.region && (
-              <p style={{ color: '#B3261E', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>{errors.region}</p>
+              <p style={{ color: 'var(--rz-error)', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>{errors.region}</p>
             )}
           </div>
 
@@ -378,7 +378,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
             cursor: 'pointer',
             marginBottom: '1.5rem',
             padding: '1rem',
-            background: 'rgba(32,42,58, 0.2)',
+            background: 'rgba(var(--rz-ink-rgb), 0.2)',
             borderRadius: 12,
           }}>
             <div
@@ -387,8 +387,8 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
                 width: 24,
                 height: 24,
                 borderRadius: 6,
-                background: agreed ? 'linear-gradient(135deg, #202A3A 0%, #202A3A 100%)' : 'transparent',
-                border: agreed ? 'none' : '2px solid rgba(30,41,59, 0.4)',
+                background: agreed ? 'linear-gradient(135deg, var(--rz-ink) 0%, var(--rz-ink) 100%)' : 'transparent',
+                border: agreed ? 'none' : '2px solid rgba(var(--rz-primary-rgb), 0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -400,7 +400,7 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
             </div>
             <span style={{
               fontSize: '0.85rem',
-              color: '#404040',
+              color: 'var(--rz-muted)',
               fontFamily: 'Tajawal, sans-serif',
               lineHeight: 1.6,
             }}>
@@ -415,15 +415,15 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
             style={{
               width: '100%',
               background: agreed 
-                ? 'linear-gradient(135deg, #1E293B 0%, #1E293B 100%)'
-                : 'rgba(30,41,59, 0.2)',
+                ? 'linear-gradient(135deg, var(--rz-primary) 0%, var(--rz-primary) 100%)'
+                : 'rgba(var(--rz-primary-rgb), 0.2)',
               border: 'none',
               borderRadius: 12,
               padding: '1rem',
               cursor: agreed ? 'pointer' : 'not-allowed',
               fontSize: '1rem',
               fontWeight: 700,
-              color: agreed ? '#FFFFFF' : '#404040',
+              color: agreed ? 'var(--rz-white)' : 'var(--rz-muted)',
               fontFamily: 'Tajawal, sans-serif',
               transition: 'all 0.2s ease',
               display: 'flex',

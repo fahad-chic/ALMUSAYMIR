@@ -61,14 +61,14 @@ const OwnerTextEdit = ({ textKey, defaultValue }) => {
           width: 26,
           height: 26,
           borderRadius: 8,
-          border: '1.5px solid rgba(30,41,59,0.85)',
-          background: 'linear-gradient(135deg, #202A3A, #202A3A)',
-          color: '#FFFFFF',
+          border: '1.5px solid rgba(var(--rz-primary-rgb), 0.85)',
+          background: 'linear-gradient(135deg, var(--rz-ink), var(--rz-ink))',
+          color: 'var(--rz-white)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          boxShadow: '0 3px 10px rgba(32,42,58,0.35)',
+          boxShadow: '0 3px 10px rgba(var(--rz-ink-rgb), 0.35)',
         }}
       >
         <Pencil size={12} strokeWidth={2.4} />
@@ -85,7 +85,7 @@ const OwnerTextEdit = ({ textKey, defaultValue }) => {
             position: 'fixed',
             inset: 0,
             zIndex: 1700,
-            background: 'rgba(32,42,58,0.55)',
+            background: 'rgba(var(--rz-ink-rgb), 0.55)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
@@ -102,17 +102,17 @@ const OwnerTextEdit = ({ textKey, defaultValue }) => {
             aria-label="تعديل النص"
             style={{
               width: 'min(430px, 100%)',
-              background: 'linear-gradient(160deg, #E8E2D6, #E8E2D6)',
-              border: '2px solid #1E293B',
+              background: 'linear-gradient(160deg, var(--rz-ivory), var(--rz-ivory))',
+              border: '2px solid var(--rz-primary)',
               borderRadius: 18,
-              boxShadow: '0 22px 55px rgba(32,42,58,0.35)',
+              boxShadow: '0 22px 55px rgba(var(--rz-ink-rgb), 0.35)',
               overflow: 'hidden',
             }}
           >
             <div
               style={{
-                background: 'linear-gradient(120deg, #202A3A, #202A3A)',
-                color: '#B8A47A',
+                background: 'linear-gradient(120deg, var(--rz-ink), var(--rz-ink))',
+                color: 'var(--rz-gold)',
                 padding: '12px 16px',
                 display: 'flex',
                 alignItems: 'center',
@@ -142,7 +142,7 @@ const OwnerTextEdit = ({ textKey, defaultValue }) => {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#B8A47A',
+                  color: 'var(--rz-gold)',
                   cursor: saving ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   padding: 2,
@@ -166,13 +166,13 @@ const OwnerTextEdit = ({ textKey, defaultValue }) => {
                   boxSizing: 'border-box',
                   resize: 'vertical',
                   borderRadius: 12,
-                  border: '1.5px solid #1E293B',
-                  background: '#E8E2D6',
+                  border: '1.5px solid var(--rz-primary)',
+                  background: 'var(--rz-ivory)',
                   padding: '10px 12px',
                   fontFamily: 'Tajawal',
                   fontSize: '0.92rem',
                   fontWeight: 600,
-                  color: '#202A3A',
+                  color: 'var(--rz-ink)',
                   outline: 'none',
                   lineHeight: 1.8,
                   opacity: saving ? 0.7 : 1
@@ -197,9 +197,9 @@ const OwnerTextEdit = ({ textKey, defaultValue }) => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 7,
-                  color: '#FFFFFF',
-                  background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-                  boxShadow: '0 6px 16px rgba(30,41,59,0.35)',
+                  color: 'var(--rz-white)',
+                  background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                  boxShadow: '0 6px 16px rgba(var(--rz-primary-rgb), 0.35)',
                   opacity: saving || !value.trim() ? 0.6 : 1,
                 }}
               >
