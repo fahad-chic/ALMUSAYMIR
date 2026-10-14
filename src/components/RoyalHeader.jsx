@@ -9,7 +9,7 @@ import {
   Search, Heart, Bell, User, Menu, X, Plus, Minus, Home, Store,
   LayoutGrid, Tag, Sparkles, Info, Crown, LogOut, Bot,
 } from 'lucide-react';
-import { ROYAL_NAV, ROYAL_DRAWER } from '../data/royalMenu';
+import { ROYAL_NAV, ROYAL_DRAWER, STORE_HOME_PATH } from '../data/royalMenu';
 import '../styles/rooz-royal.css';
 
 const NAV_ICONS = {
@@ -107,7 +107,7 @@ const RoyalHeader = ({
 
           <div className="rz-actions">
             <button type="button" className="rz-icon-btn" aria-label="المفضلة" title="المفضلة"
-              onClick={() => go('/dashboard')}>
+              onClick={() => go('/settings')}>
               <Heart size={19} />
             </button>
             <button type="button" className="rz-icon-btn" aria-label="الإشعارات" title="الإشعارات"
@@ -140,15 +140,20 @@ const RoyalHeader = ({
           </button>
 
           <nav aria-label="التنقل الرئيسي" style={{ display: 'flex', gap: 2, overflowX: 'auto' }}>
-            {ROYAL_NAV.map((item) => (
+            {ROYAL_NAV.map((item) => {
+              const isActive =
+                location.pathname === item.path ||
+                (item.id === 'store' && location.pathname.startsWith('/catalog'));
+              return (
               <Link
                 key={item.id}
                 to={item.path}
-                className={`rz-nav-link ${location.pathname === item.path ? 'is-active' : ''}`}
+                className={`rz-nav-link ${isActive ? 'is-active' : ''}`}
               >
                 {item.label}
               </Link>
-            ))}
+              );
+            })}
           </nav>
 
           <span className="rz-subbar-spacer" />
