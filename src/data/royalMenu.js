@@ -3,11 +3,15 @@
 // قائمة التنقل الملكية (+ الذكية) — أناقة ROOZ
 // هيكل هرمي: كل مجموعة رئيسية لها فروع تُفتح بزر (+).
 // ملاحظة: كل مسار هنا حقيقي وموجود في App.jsx — لا اختراع مسارات.
+// المتجر = صفحات الكتالوج للزوار (/catalog/...) وليس /dashboard (لوحة المالك).
 // ============================================================
+
+/** المسار الافتراضي لدخول متجر المنتجات */
+export const STORE_HOME_PATH = '/catalog/party-dresses';
 
 export const ROYAL_NAV = [
   { id: 'home', label: 'الرئيسية', path: '/', icon: 'home' },
-  { id: 'store', label: 'المتجر', path: '/dashboard', icon: 'store' },
+  { id: 'store', label: 'متجر أناقةROOZ', path: STORE_HOME_PATH, icon: 'store' },
   { id: 'catalogs', label: 'الكتالوجات', path: '/branches', icon: 'grid' },
   { id: 'haraj', label: 'الحراج', path: '/haraj', icon: 'tag' },
   { id: 'offers', label: 'العروض', path: '/advertisements', icon: 'sparkles' },
@@ -17,10 +21,10 @@ export const ROYAL_NAV = [
 export const ROYAL_DRAWER = [
   {
     id: 'store',
-    label: 'المتجر',
+    label: 'متجر أناقةROOZ',
     icon: 'store',
     items: [
-      { label: 'جميع المنتجات', path: '/dashboard' },
+      { label: 'جميع المنتجات', path: STORE_HOME_PATH },
       { label: 'الكتالوجات', path: '/branches' },
       { label: 'العروض', path: '/advertisements' },
     ],
@@ -64,7 +68,7 @@ export const ROYAL_DRAWER = [
       { label: 'رسائلي', path: '/chat' },
       { label: 'صندوق الوارد', path: '/inbox' },
       { label: 'إشعاراتي', path: '/notifications' },
-      { label: 'المفضلة', path: '/dashboard' },
+      { label: 'المفضلة', path: '/settings' },
     ],
   },
   {
