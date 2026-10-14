@@ -4,6 +4,7 @@
 // هيرو عريض + شريط مزايا + شبكة أقسام تفاعلية + شريط حراج.
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { STORE_HOME_PATH } from '../../data/royalMenu';
 import {
   Crown,
   Gem,
@@ -101,7 +102,7 @@ const NovHomePage = () => {
                 <button
                   type="button"
                   className="nov-btn nov-btn-primary"
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate(STORE_HOME_PATH)}
                 >
                   <ShoppingBag size={16} />
                   تصفّح المتجر
@@ -158,7 +159,7 @@ const NovHomePage = () => {
               </button>
             </div>
             <div className="rz-discover-grid">
-              <button type="button" className="rz-discover-card" onClick={() => navigate('/dashboard')}>
+              <button type="button" className="rz-discover-card" onClick={() => navigate(STORE_HOME_PATH)}>
                 <ShoppingBag size={18} /><span>أريد التسوق</span>
               </button>
               <button type="button" className="rz-discover-card" onClick={() => navigate('/advertisements')}>
@@ -298,8 +299,8 @@ const NovHomePage = () => {
 
             <div className="rz-footer-cols">
               <div className="rz-footer-col">
-                <h4>المتجر</h4>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }}>جميع المنتجات</a>
+                <h4>متجر أناقةROOZ</h4>
+                <a href="/" onClick={(e) => { e.preventDefault(); navigate(STORE_HOME_PATH); }}>جميع المنتجات</a>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>الكتالوجات</a>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/advertisements'); }}>العروض</a>
               </div>
