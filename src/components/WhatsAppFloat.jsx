@@ -36,11 +36,11 @@ const WhatsAppFloat = () => {
             display: 'flex',
             alignItems: 'center',
             gap: 10,
-            background: 'linear-gradient(145deg, #E8E2D6, #E8E2D6)',
-            border: '1px solid rgba(30,41,59, 0.35)',
+            background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
             borderRadius: 14,
             padding: '10px 14px',
-            boxShadow: '0 10px 30px rgba(32,42,58, 0.25)',
+            boxShadow: '0 10px 30px rgba(var(--rz-ink-rgb), 0.25)',
             textDecoration: 'none',
             maxWidth: 240,
           }}
@@ -50,13 +50,13 @@ const WhatsAppFloat = () => {
               fontFamily: 'Tajawal',
               fontSize: 13,
               fontWeight: 700,
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               lineHeight: 1.5,
             }}
           >
             تحتاج مساعدة؟
             <br />
-            <span style={{ fontWeight: 400, color: '#1E293B' }}>
+            <span style={{ fontWeight: 400, color: 'var(--rz-primary)' }}>
               راسلنا واتساب وسنرد عليك بسرعة
             </span>
           </span>
@@ -73,7 +73,7 @@ const WhatsAppFloat = () => {
               cursor: 'pointer',
               padding: 4,
               display: 'flex',
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
             }}
           >
             <X size={14} />
@@ -93,15 +93,15 @@ const WhatsAppFloat = () => {
           width: 56,
           height: 56,
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #202A3A 0%, #1E293B 100%)',
+          background: 'linear-gradient(135deg, var(--rz-ink) 0%, var(--rz-primary) 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 8px 24px rgba(30,41,59, 0.45)',
+          boxShadow: '0 8px 24px rgba(var(--rz-primary-rgb), 0.45)',
           textDecoration: 'none',
         }}
       >
-        <MessageCircle size={28} color="#FFFFFF" fill="#FFFFFF" />
+        <MessageCircle size={28} color="var(--rz-white)" fill="var(--rz-white)" />
       </a>
     </div>
   );

@@ -54,7 +54,7 @@ const ContactOwnerModal = ({ onClose }) => {
         position: 'fixed',
         inset: 0,
         zIndex: 1600,
-        background: 'rgba(32,42,58,0.55)',
+        background: 'rgba(var(--rz-ink-rgb), 0.55)',
         backdropFilter: 'blur(4px)',
         display: 'flex',
         alignItems: 'center',
@@ -70,17 +70,17 @@ const ContactOwnerModal = ({ onClose }) => {
         aria-label="مراسلة صاحب الموقع"
         style={{
           width: 'min(440px, 100%)',
-          background: 'linear-gradient(160deg, #E8E2D6, #E8E2D6)',
-          border: '2px solid #1E293B',
+          background: 'linear-gradient(160deg, var(--rz-ivory), var(--rz-ivory))',
+          border: '2px solid var(--rz-primary)',
           borderRadius: 20,
-          boxShadow: '0 24px 60px rgba(32,42,58,0.35)',
+          boxShadow: '0 24px 60px rgba(var(--rz-ink-rgb), 0.35)',
           overflow: 'hidden',
         }}
       >
         <div
           style={{
-            background: 'linear-gradient(120deg, #202A3A, #202A3A)',
-            color: '#B8A47A',
+            background: 'linear-gradient(120deg, var(--rz-ink), var(--rz-ink))',
+            color: 'var(--rz-gold)',
             padding: '14px 18px',
             display: 'flex',
             alignItems: 'center',
@@ -95,7 +95,7 @@ const ContactOwnerModal = ({ onClose }) => {
             type="button"
             onClick={onClose}
             aria-label="إغلاق"
-            style={{ background: 'none', border: 'none', color: '#B8A47A', cursor: 'pointer', display: 'flex', padding: 4 }}
+            style={{ background: 'none', border: 'none', color: 'var(--rz-gold)', cursor: 'pointer', display: 'flex', padding: 4 }}
           >
             <X size={19} />
           </button>
@@ -103,7 +103,7 @@ const ContactOwnerModal = ({ onClose }) => {
 
         <div style={{ padding: '18px' }}>
           {status === 'sent' ? (
-            <div style={{ textAlign: 'center', padding: '1.2rem 0', color: '#202A3A', fontWeight: 800 }}>
+            <div style={{ textAlign: 'center', padding: '1.2rem 0', color: 'var(--rz-ink)', fontWeight: 800 }}>
               <CheckCircle2 size={40} style={{ margin: '0 auto 8px' }} aria-hidden="true" />
               وصلت رسالتك لصاحب الموقع — سيتم الرد عليك قريباً بإذن الله
             </div>
@@ -120,21 +120,21 @@ const ContactOwnerModal = ({ onClose }) => {
                   boxSizing: 'border-box',
                   resize: 'vertical',
                   borderRadius: 12,
-                  border: '1.5px solid #1E293B',
-                  background: '#E8E2D6',
+                  border: '1.5px solid var(--rz-primary)',
+                  background: 'var(--rz-ivory)',
                   padding: '12px 14px',
                   fontFamily: 'Tajawal',
                   fontSize: '0.95rem',
                   fontWeight: 600,
-                  color: '#202A3A',
+                  color: 'var(--rz-ink)',
                   outline: 'none',
                   lineHeight: 1.8,
                 }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-                <span style={{ fontSize: '0.75rem', color: '#1E293B', fontWeight: 700 }}>{text.length}/1000</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--rz-primary)', fontWeight: 700 }}>{text.length}/1000</span>
                 {status === 'error' && (
-                  <span style={{ fontSize: '0.78rem', color: '#1E293B', fontWeight: 800 }}>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--rz-primary)', fontWeight: 800 }}>
                     تعذر الإرسال — حاول مرة أخرى
                   </span>
                 )}
@@ -157,11 +157,11 @@ const ContactOwnerModal = ({ onClose }) => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 8,
-                  color: text.trim() ? '#FFFFFF' : '#1E293B',
+                  color: text.trim() ? 'var(--rz-white)' : 'var(--rz-primary)',
                   background: text.trim()
-                    ? 'linear-gradient(135deg, #202A3A, #1E293B)'
-                    : '#404040',
-                  boxShadow: text.trim() ? '0 8px 20px rgba(32,42,58,0.35)' : 'none',
+                    ? 'linear-gradient(135deg, var(--rz-ink), var(--rz-primary))'
+                    : 'var(--rz-muted)',
+                  boxShadow: text.trim() ? '0 8px 20px rgba(var(--rz-ink-rgb), 0.35)' : 'none',
                 }}
               >
                 <Send size={17} aria-hidden="true" />

@@ -161,10 +161,10 @@ const CommentsSection = () => {
         marginBottom: '0.5rem',
         padding: '0.85rem 0.9rem',
         boxSizing: 'border-box',
-        background: 'linear-gradient(145deg, #E8E2D6 0%, #E8E2D6 52%, #E8E2D6 100%)',
-        border: '1px solid rgba(30,41,59, 0.22)',
+        background: 'linear-gradient(145deg, var(--rz-ivory) 0%, var(--rz-ivory) 52%, var(--rz-ivory) 100%)',
+        border: '1px solid rgba(var(--rz-primary-rgb), 0.22)',
         borderRadius: 18,
-        boxShadow: '0 10px 28px rgba(30,41,59, 0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
+        boxShadow: '0 10px 28px rgba(var(--rz-primary-rgb), 0.08), inset 0 1px 0 rgba(var(--rz-white-rgb), 0.8)',
         fontFamily: 'Tajawal, Arial, sans-serif',
       }}
     >
@@ -187,9 +187,9 @@ const CommentsSection = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(145deg, #1E293B 0%, #1E293B 100%)',
-              color: '#E8E2D6',
-              boxShadow: '0 4px 12px rgba(30,41,59, 0.2)',
+              background: 'linear-gradient(145deg, var(--rz-primary) 0%, var(--rz-primary) 100%)',
+              color: 'var(--rz-ivory)',
+              boxShadow: '0 4px 12px rgba(var(--rz-primary-rgb), 0.2)',
             }}
           >
             <MessageCircle size={17} strokeWidth={2.3} />
@@ -199,7 +199,7 @@ const CommentsSection = () => {
               id="comments-title"
               style={{
                 margin: 0,
-                color: '#202A3A',
+                color: 'var(--rz-ink)',
                 fontSize: '0.95rem',
                 fontWeight: 800,
                 lineHeight: 1.3,
@@ -216,7 +216,7 @@ const CommentsSection = () => {
                 padding: 0,
                 border: 'none',
                 background: 'transparent',
-                color: approvedComments.length > 0 && !isLoading ? '#1E293B' : '#1E293B',
+                color: approvedComments.length > 0 && !isLoading ? 'var(--rz-primary)' : 'var(--rz-primary)',
                 fontSize: '0.68rem',
                 fontWeight: 700,
                 cursor: approvedComments.length > 0 && !isLoading ? 'pointer' : 'default',
@@ -244,18 +244,18 @@ const CommentsSection = () => {
             gap: 5,
             padding: '0.38rem 0.7rem',
             borderRadius: 999,
-            border: '1.8px solid #1E293B',
-            background: 'linear-gradient(145deg, #E8E2D6, #E8E2D6)',
-            color: '#202A3A',
+            border: '1.8px solid var(--rz-primary)',
+            background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
+            color: 'var(--rz-ink)',
             fontSize: '0.72rem',
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(30,41,59, 0.15)',
+            boxShadow: '0 2px 8px rgba(var(--rz-primary-rgb), 0.15)',
             fontFamily: 'inherit',
             whiteSpace: 'nowrap',
           }}
         >
-          <Sparkles size={13} color="#1E293B" />
+          <Sparkles size={13} color="var(--rz-primary)" />
           أضف تعليقك هنا
         </button>
       </div>
@@ -270,13 +270,13 @@ const CommentsSection = () => {
             overflow: 'hidden',
             height: 42,
             borderRadius: 11,
-            background: 'linear-gradient(90deg, #202A3A 0%, #202A3A 40%, #202A3A 100%)',
-            border: '1px solid rgba(30,41,59, 0.35)',
+            background: 'linear-gradient(90deg, var(--rz-ink) 0%, var(--rz-ink) 40%, var(--rz-ink) 100%)',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             padding: '0 12px',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+            boxShadow: 'inset 0 1px 0 rgba(var(--rz-white-rgb), 0.08)',
           }}
         >
           <div
@@ -292,8 +292,8 @@ const CommentsSection = () => {
             <span
               style={{
                 flexShrink: 0,
-                background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-                color: '#FFFFFF',
+                background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                color: 'var(--rz-white)',
                 fontSize: '0.65rem',
                 fontWeight: 800,
                 padding: '2px 7px',
@@ -304,7 +304,7 @@ const CommentsSection = () => {
             </span>
             <span
               style={{
-                color: '#E8E2D6',
+                color: 'var(--rz-ivory)',
                 fontSize: '0.78rem',
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
@@ -323,7 +323,7 @@ const CommentsSection = () => {
           style={{
             textAlign: 'center',
             padding: '0.9rem 0.5rem',
-            color: '#1E293B',
+            color: 'var(--rz-primary)',
             fontSize: '0.78rem',
           }}
         >
@@ -338,9 +338,9 @@ const CommentsSection = () => {
             marginTop: '0.5rem',
             padding: '0.5rem 0.7rem',
             borderRadius: 8,
-            background: 'rgba(30,41,59, 0.06)',
-            border: '1px solid rgba(30,41,59, 0.15)',
-            color: '#1E293B',
+            background: 'rgba(var(--rz-primary-rgb), 0.06)',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.15)',
+            color: 'var(--rz-primary)',
             fontSize: '0.75rem',
           }}
         >
@@ -358,7 +358,7 @@ const CommentsSection = () => {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(32,42,58, 0.62)',
+            background: 'rgba(var(--rz-ink-rgb), 0.62)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -369,15 +369,15 @@ const CommentsSection = () => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(145deg, #E8E2D6, #E8E2D6)',
-              border: '1.5px solid rgba(30,41,59, 0.45)',
+              background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
+              border: '1.5px solid rgba(var(--rz-primary-rgb), 0.45)',
               borderRadius: 18,
               padding: '1.1rem',
               maxWidth: 420,
               width: '100%',
               maxHeight: '82vh',
               overflowY: 'auto',
-              boxShadow: '0 22px 50px rgba(32,42,58, 0.35)',
+              boxShadow: '0 22px 50px rgba(var(--rz-ink-rgb), 0.35)',
               fontFamily: 'Tajawal, sans-serif',
             }}
           >
@@ -394,7 +394,7 @@ const CommentsSection = () => {
                 id="all-comments-title"
                 style={{
                   margin: 0,
-                  color: '#202A3A',
+                  color: 'var(--rz-ink)',
                   fontSize: '1rem',
                   fontWeight: 800,
                 }}
@@ -405,7 +405,7 @@ const CommentsSection = () => {
                 type="button"
                 onClick={() => setShowAllComments(false)}
                 style={{
-                  background: 'rgba(32,42,58,0.06)',
+                  background: 'rgba(var(--rz-ink-rgb), 0.06)',
                   border: 'none',
                   borderRadius: 8,
                   width: 30,
@@ -414,7 +414,7 @@ const CommentsSection = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: '#202A3A',
+                  color: 'var(--rz-ink)',
                 }}
               >
                 <X size={17} />
@@ -430,8 +430,8 @@ const CommentsSection = () => {
                   style={{
                     width: '100%',
                     textAlign: 'right',
-                    background: '#E8E2D6',
-                    border: '1px solid rgba(30,41,59, 0.28)',
+                    background: 'var(--rz-ivory)',
+                    border: '1px solid rgba(var(--rz-primary-rgb), 0.28)',
                     borderRadius: 11,
                     padding: '0.75rem',
                     cursor: 'pointer',
@@ -449,7 +449,7 @@ const CommentsSection = () => {
                   >
                     <span
                       style={{
-                        color: '#202A3A',
+                        color: 'var(--rz-ink)',
                         fontSize: '0.82rem',
                         fontWeight: 800,
                       }}
@@ -458,7 +458,7 @@ const CommentsSection = () => {
                     </span>
                     <span
                       style={{
-                        color: '#1E293B',
+                        color: 'var(--rz-primary)',
                         fontSize: '0.65rem',
                         fontWeight: 700,
                       }}
@@ -469,7 +469,7 @@ const CommentsSection = () => {
                   {comment.city && (
                     <div
                       style={{
-                        color: '#1E293B',
+                        color: 'var(--rz-primary)',
                         fontSize: '0.68rem',
                         marginBottom: 4,
                       }}
@@ -480,7 +480,7 @@ const CommentsSection = () => {
                   <p
                     style={{
                       margin: 0,
-                      color: '#202A3A',
+                      color: 'var(--rz-ink)',
                       fontSize: '0.78rem',
                       lineHeight: 1.65,
                       display: '-webkit-box',
@@ -507,7 +507,7 @@ const CommentsSection = () => {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(32,42,58, 0.62)',
+            background: 'rgba(var(--rz-ink-rgb), 0.62)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -518,23 +518,23 @@ const CommentsSection = () => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(145deg, #E8E2D6, #E8E2D6)',
-              border: '1.5px solid rgba(30,41,59, 0.45)',
+              background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
+              border: '1.5px solid rgba(var(--rz-primary-rgb), 0.45)',
               borderRadius: 18,
               padding: '1.25rem 1.1rem',
               maxWidth: 360,
               width: '100%',
-              boxShadow: '0 22px 50px rgba(32,42,58, 0.35)',
+              boxShadow: '0 22px 50px rgba(var(--rz-ink-rgb), 0.35)',
               fontFamily: 'Tajawal, sans-serif',
             }}
           >
             {submitSuccess ? (
               <div style={{ textAlign: 'center' }}>
-                <CheckCircle2 size={42} color="#202A3A" style={{ marginBottom: 10 }} />
-                <h3 style={{ margin: '0 0 8px', fontSize: '1.05rem', fontWeight: 800, color: '#202A3A' }}>
+                <CheckCircle2 size={42} color="var(--rz-ink)" style={{ marginBottom: 10 }} />
+                <h3 style={{ margin: '0 0 8px', fontSize: '1.05rem', fontWeight: 800, color: 'var(--rz-ink)' }}>
                   تم الإرسال بنجاح
                 </h3>
-                <p style={{ margin: 0, fontSize: '0.82rem', color: '#202A3A', lineHeight: 1.65 }}>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--rz-ink)', lineHeight: 1.65 }}>
                   شكراً لك، نفيدكم بأنه تم إرسال تعليقك للإدارة المختصة وسوف يتم مراجعة تعليقك ثم يتم إضافة التعليق بعد المراجعة.
                 </p>
                 <button
@@ -543,8 +543,8 @@ const CommentsSection = () => {
                   style={{
                     marginTop: 16,
                     width: '100%',
-                    background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-                    color: '#FFFFFF',
+                    background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                    color: 'var(--rz-white)',
                     border: 'none',
                     borderRadius: 10,
                     padding: '0.55rem',
@@ -560,7 +560,7 @@ const CommentsSection = () => {
             ) : (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 800, color: '#202A3A' }}>
+                  <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 800, color: 'var(--rz-ink)' }}>
                     ✔️ أكتب رأيك عن تجربتك
                   </h3>
                   <button
@@ -570,7 +570,7 @@ const CommentsSection = () => {
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#1E293B',
+                      color: 'var(--rz-primary)',
                       padding: 4,
                     }}
                   >
@@ -580,7 +580,7 @@ const CommentsSection = () => {
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
                   <div style={{ position: 'relative' }}>
-                    <User size={14} style={{ position: 'absolute', right: 10, top: 11, color: '#1E293B' }} />
+                    <User size={14} style={{ position: 'absolute', right: 10, top: 11, color: 'var(--rz-primary)' }} />
                     <input
                       type="text"
                       required
@@ -592,8 +592,8 @@ const CommentsSection = () => {
                         boxSizing: 'border-box',
                         padding: '0.55rem 2rem 0.55rem 0.7rem',
                         borderRadius: 9,
-                        border: '1px solid rgba(30,41,59, 0.35)',
-                        background: '#FFFFFF',
+                        border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
+                        background: 'var(--rz-white)',
                         fontSize: '0.82rem',
                         fontFamily: 'inherit',
                         outline: 'none',
@@ -602,7 +602,7 @@ const CommentsSection = () => {
                   </div>
 
                   <div style={{ position: 'relative' }}>
-                    <Mail size={14} style={{ position: 'absolute', right: 10, top: 11, color: '#1E293B' }} />
+                    <Mail size={14} style={{ position: 'absolute', right: 10, top: 11, color: 'var(--rz-primary)' }} />
                     <input
                       type="email"
                       placeholder="الإيميل (اختياري)"
@@ -613,8 +613,8 @@ const CommentsSection = () => {
                         boxSizing: 'border-box',
                         padding: '0.55rem 2rem 0.55rem 0.7rem',
                         borderRadius: 9,
-                        border: '1px solid rgba(30,41,59, 0.35)',
-                        background: '#FFFFFF',
+                        border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
+                        background: 'var(--rz-white)',
                         fontSize: '0.82rem',
                         fontFamily: 'inherit',
                         outline: 'none',
@@ -623,7 +623,7 @@ const CommentsSection = () => {
                   </div>
 
                   <div style={{ position: 'relative' }}>
-                    <MapPin size={14} style={{ position: 'absolute', right: 10, top: 11, color: '#1E293B' }} />
+                    <MapPin size={14} style={{ position: 'absolute', right: 10, top: 11, color: 'var(--rz-primary)' }} />
                     <input
                       type="text"
                       placeholder="المدينة"
@@ -634,8 +634,8 @@ const CommentsSection = () => {
                         boxSizing: 'border-box',
                         padding: '0.55rem 2rem 0.55rem 0.7rem',
                         borderRadius: 9,
-                        border: '1px solid rgba(30,41,59, 0.35)',
-                        background: '#FFFFFF',
+                        border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
+                        background: 'var(--rz-white)',
                         fontSize: '0.82rem',
                         fontFamily: 'inherit',
                         outline: 'none',
@@ -655,8 +655,8 @@ const CommentsSection = () => {
                       boxSizing: 'border-box',
                       padding: '0.55rem 0.7rem',
                       borderRadius: 9,
-                      border: '1px solid rgba(30,41,59, 0.35)',
-                      background: '#FFFFFF',
+                      border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
+                      background: 'var(--rz-white)',
                       fontSize: '0.82rem',
                       fontFamily: 'inherit',
                       outline: 'none',
@@ -672,12 +672,12 @@ const CommentsSection = () => {
                       width: '100%',
                       background:
                         form.name.trim() && form.text.trim() && !isSubmitting
-                          ? 'linear-gradient(135deg, #1E293B, #1E293B)'
-                          : '#E8E2D6',
+                          ? 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))'
+                          : 'var(--rz-ivory)',
                       color:
                         form.name.trim() && form.text.trim() && !isSubmitting
-                          ? '#FFFFFF'
-                          : '#202A3A',
+                          ? 'var(--rz-white)'
+                          : 'var(--rz-ink)',
                       border: 'none',
                       borderRadius: 10,
                       padding: '0.6rem',
@@ -710,7 +710,7 @@ const CommentsSection = () => {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(32,42,58, 0.62)',
+            background: 'rgba(var(--rz-ink-rgb), 0.62)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -721,14 +721,14 @@ const CommentsSection = () => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(145deg, #E8E2D6, #E8E2D6)',
-              border: '1.5px solid rgba(30,41,59, 0.45)',
+              background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
+              border: '1.5px solid rgba(var(--rz-primary-rgb), 0.45)',
               borderRadius: 16,
               padding: '1.15rem 1rem',
               maxWidth: 340,
               width: '100%',
               position: 'relative',
-              boxShadow: '0 20px 45px rgba(32,42,58, 0.35)',
+              boxShadow: '0 20px 45px rgba(var(--rz-ink-rgb), 0.35)',
             }}
           >
             <button
@@ -738,7 +738,7 @@ const CommentsSection = () => {
                 position: 'absolute',
                 top: 10,
                 left: 10,
-                background: 'rgba(32,42,58,0.06)',
+                background: 'rgba(var(--rz-ink-rgb), 0.06)',
                 border: 'none',
                 borderRadius: 8,
                 width: 28,
@@ -747,23 +747,23 @@ const CommentsSection = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                color: '#202A3A',
+                color: 'var(--rz-ink)',
               }}
             >
               <X size={16} />
             </button>
 
             <div style={{ marginBottom: 8 }}>
-              <span style={{ fontWeight: 800, color: '#202A3A', fontSize: '0.9rem' }}>
+              <span style={{ fontWeight: 800, color: 'var(--rz-ink)', fontSize: '0.9rem' }}>
                 {selectedComment.name}
               </span>
               {selectedComment.city && (
-                <span style={{ color: '#1E293B', fontSize: '0.75rem', marginRight: 6 }}>
+                <span style={{ color: 'var(--rz-primary)', fontSize: '0.75rem', marginRight: 6 }}>
                   • {selectedComment.city}
                 </span>
               )}
             </div>
-            <p style={{ margin: 0, color: '#202A3A', fontSize: '0.88rem', lineHeight: 1.7 }}>
+            <p style={{ margin: 0, color: 'var(--rz-ink)', fontSize: '0.88rem', lineHeight: 1.7 }}>
               {selectedComment.text}
             </p>
           </div>

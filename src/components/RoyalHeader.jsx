@@ -166,7 +166,7 @@ const RoyalHeader = ({
           <button type="button" className="rz-drawer-overlay" aria-label="إغلاق القائمة" tabIndex={-1} onClick={closeDrawer} />
           <aside className="rz-drawer" role="dialog" aria-modal="true" aria-label="قائمة التنقل الكاملة">
             <div className="rz-drawer-head">
-              <span className="rz-drawer-title"><Crown size={18} color="#B8A47A" /> أناقة ROOZ</span>
+              <span className="rz-drawer-title"><Crown size={18} color="var(--rz-gold)" /> أناقة ROOZ</span>
               <button type="button" className="rz-drawer-close" onClick={closeDrawer} aria-label="إغلاق">
                 <X size={18} />
               </button>

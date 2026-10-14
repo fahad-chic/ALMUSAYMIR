@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { colorAlpha } from '../../utils/color';
 import {
   Crown,
   Plus,
@@ -58,19 +59,19 @@ import OwnerEditBadge from '../OwnerEditBadge';
 import '../../styles/RoyalHome.css';
 
 const C = {
-  gold: '#1E293B',
-  goldLight: '#1E293B',
-  goldDark: '#1E293B',
-  black: '#202A3A',
-  blackLight: '#202A3A',
-  darkBg: '#E8E2D6',
-  gray: '#E8E2D6',
-  grayLight: '#E8E2D6',
-  grayMid: '#404040',
-  white: '#FFFFFF',
-  cream: '#202A3A',
-  green: '#202A3A',
-  red: '#1E293B',
+  gold: 'var(--rz-primary)',
+  goldLight: 'var(--rz-primary)',
+  goldDark: 'var(--rz-primary)',
+  black: 'var(--rz-ink)',
+  blackLight: 'var(--rz-ink)',
+  darkBg: 'var(--rz-ivory)',
+  gray: 'var(--rz-ivory)',
+  grayLight: 'var(--rz-ivory)',
+  grayMid: 'var(--rz-muted)',
+  white: 'var(--rz-white)',
+  cream: 'var(--rz-ink)',
+  green: 'var(--rz-ink)',
+  red: 'var(--rz-primary)',
 };
 
 
@@ -87,97 +88,97 @@ const HARAJ_SECTIONS = [
     id: 'electronics',
     name: 'أجهزة كهربائية',
     icon: Zap,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'bedrooms',
     name: 'غرف نوم',
     icon: BedDouble,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'cars',
     name: 'سيارات',
     icon: Car,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'watches',
     name: 'ساعات',
     icon: Watch,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'bags',
     name: 'شنط',
     icon: ShoppingBag,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'clothes',
     name: 'ملابس',
     icon: Shirt,
-    color: '#202A3A',
+    color: 'var(--rz-ink)',
   },
   {
     id: 'realestate',
     name: 'عقارات',
     icon: House,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'jobs',
     name: 'وظائف',
     icon: BriefcaseBusiness,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'furniture',
     name: 'أثاث',
     icon: Armchair,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'homeware',
     name: 'مستلزمات',
     icon: Home,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'mobiles',
     name: 'جوالات',
     icon: Smartphone,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'laptops',
     name: 'حواسب',
     icon: Laptop,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'kids',
     name: 'أطفال',
     icon: Baby,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'women',
     name: 'نسائي',
     icon: UserRound,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'men',
     name: 'رجالي',
     icon: UserRound,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'other',
     name: 'أخرى',
     icon: Package,
-    color: '#404040',
+    color: 'var(--rz-muted)',
   },
 ];
 
@@ -215,9 +216,9 @@ const AdCard = ({
       : ad.condition || ad.desc_condition || '';
 
   const getConditionColor = () => {
-    if (conditionText === 'جديد') return '#1E293B';
-    if (conditionText === 'ممتازة') return '#404040';
-    return '#1E293B';
+    if (conditionText === 'جديد') return 'var(--rz-primary)';
+    if (conditionText === 'ممتازة') return 'var(--rz-muted)';
+    return 'var(--rz-primary)';
   };
 
   const imageSource = ad.images?.[0] || ad.image;
@@ -296,17 +297,17 @@ const AdCard = ({
       onMouseLeave={() => setIsHovered(false)}
       style={{
         position: 'relative',
-        background: '#FFFFFF',
+        background: 'var(--rz-white)',
         borderRadius: 8,
         overflow: 'hidden',
         border: `1px solid ${
-          isHovered ? 'rgba(30,41,59, 0.28)' : 'rgba(32,42,58, 0.08)'
+          isHovered ? 'rgba(var(--rz-primary-rgb), 0.28)' : 'rgba(var(--rz-ink-rgb), 0.08)'
         }`,
         transition: 'all 0.3s ease',
         transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
         boxShadow: isHovered
-          ? '0 10px 28px rgba(32,42,58, 0.10)'
-          : '0 2px 10px rgba(32,42,58, 0.05)',
+          ? '0 10px 28px rgba(var(--rz-ink-rgb), 0.10)'
+          : '0 2px 10px rgba(var(--rz-ink-rgb), 0.05)',
         cursor: 'pointer',
         opacity: isRegistered ? 1 : 0.95,
         display: 'flex',
@@ -323,7 +324,7 @@ const AdCard = ({
           minWidth: 104,
           maxWidth: 165,
           flexShrink: 0,
-          background: '#E8E2D6',
+          background: 'var(--rz-ivory)',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -351,7 +352,7 @@ const AdCard = ({
               justifyContent: 'center',
             }}
           >
-            <ShoppingBag size={38} color="#1E293B" strokeWidth={1.5} />
+            <ShoppingBag size={38} color="var(--rz-primary)" strokeWidth={1.5} />
           </div>
         )}
 
@@ -362,7 +363,7 @@ const AdCard = ({
               top: 8,
               right: 8,
               background: getConditionColor(),
-              color: '#FFFFFF',
+              color: 'var(--rz-white)',
               padding: '2px 8px',
               borderRadius: 8,
               fontSize: '10px',
@@ -392,7 +393,7 @@ const AdCard = ({
               margin: '0 0 6px',
               fontSize: '1.02rem',
               fontWeight: 800,
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontFamily: 'Tajawal, sans-serif',
               lineHeight: 1.35,
               display: '-webkit-box',
@@ -412,7 +413,7 @@ const AdCard = ({
               gap: '0.45rem',
               fontSize: '0.76rem',
               fontWeight: 400,
-              color: '#404040',
+              color: 'var(--rz-muted)',
               fontFamily: 'Tajawal, sans-serif',
             }}
           >
@@ -447,7 +448,7 @@ const AdCard = ({
             style={{
               fontSize: '1.05rem',
               fontWeight: 800,
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
               fontFamily: 'Tajawal, sans-serif',
               whiteSpace: 'nowrap',
             }}
@@ -468,13 +469,13 @@ const AdCard = ({
                 width: 34,
                 height: 34,
                 borderRadius: 8,
-                background: '#FFFFFF',
-                border: '1px solid rgba(30,41,59, 0.35)',
-                color: '#1E293B',
+                background: 'var(--rz-white)',
+                border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
+                color: 'var(--rz-primary)',
                 cursor: 'pointer',
               }}
             >
-              <Phone size={15} color="#1E293B" aria-hidden="true" />
+              <Phone size={15} color="var(--rz-primary)" aria-hidden="true" />
             </button>
 
             <button
@@ -484,19 +485,19 @@ const AdCard = ({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 5,
-                background: '#B8A47A',
-                border: '1px solid rgba(32,42,58, 0.10)',
+                background: 'var(--rz-gold)',
+                border: '1px solid rgba(var(--rz-ink-rgb), 0.10)',
                 borderRadius: 8,
                 padding: '0.45rem 1.05rem',
                 cursor: 'pointer',
-                color: '#202A3A',
+                color: 'var(--rz-ink)',
                 fontSize: '0.82rem',
                 fontWeight: 800,
                 fontFamily: 'Tajawal, sans-serif',
                 whiteSpace: 'nowrap',
               }}
             >
-              <MessageCircle size={14} color="#202A3A" aria-hidden="true" />
+              <MessageCircle size={14} color="var(--rz-ink)" aria-hidden="true" />
               تواصل
             </button>
           </div>
@@ -521,10 +522,10 @@ const SectionCard = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        background: '#FFFFFF',
+        background: 'var(--rz-white)',
         border: `2px solid ${
           isHovered
-            ? `${section.color}80`
+            ? colorAlpha(section.color, 0.5)
             : C.grayLight
         }`,
         borderRadius: 14,
@@ -540,8 +541,8 @@ const SectionCard = ({
           ? 'translateY(-3px)'
           : 'translateY(0)',
         boxShadow: isHovered
-          ? `0 8px 20px ${section.color}20`
-          : '0 2px 6px rgba(32,42,58,0.2)',
+          ? `0 8px 20px ${colorAlpha(section.color, 0.13)}`
+          : '0 2px 6px rgba(var(--rz-ink-rgb), 0.2)',
         width: '100%',
         height: '70px',
         boxSizing: 'border-box',
@@ -554,7 +555,7 @@ const SectionCard = ({
           width: '32px',
           height: '32px',
           borderRadius: '10px',
-          background: `${section.color}25`,
+          background: colorAlpha(section.color, 0.15),
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -575,7 +576,7 @@ const SectionCard = ({
         style={{
           fontSize: '11px',
           fontWeight: 700,
-          color: '#202A3A',
+          color: 'var(--rz-ink)',
           fontFamily: 'Tajawal, sans-serif',
           textAlign: 'center',
           lineHeight: 1.2,
@@ -629,8 +630,8 @@ const BankCard = ({ bank }) => {
   return (
     <div
       style={{
-        background: 'linear-gradient(145deg, #FFFFFF 0%, #F7F3EB 100%)',
-        border: '1px solid rgba(30,41,59,0.15)',
+        background: 'linear-gradient(145deg, var(--rz-white) 0%, var(--rz-cream) 100%)',
+        border: '1px solid rgba(var(--rz-primary-rgb), 0.15)',
         borderRadius: 12,
         padding: '0.5rem 0.65rem',
         position: 'relative',
@@ -645,7 +646,7 @@ const BankCard = ({ bank }) => {
           right: -30,
           width: 120,
           height: 120,
-          background: `${bank.color}10`,
+          background: colorAlpha(bank.color, 0.06),
           borderRadius: '50%',
         }}
       />
@@ -663,7 +664,7 @@ const BankCard = ({ bank }) => {
           style={{
             width: 36,
             height: 36,
-            background: `${bank.color}20`,
+            background: colorAlpha(bank.color, 0.13),
             borderRadius: 14,
             display: 'flex',
             alignItems: 'center',
@@ -682,7 +683,7 @@ const BankCard = ({ bank }) => {
             margin: 0,
             fontSize: '0.95rem',
             fontWeight: 900,
-            color: '#202A3A',
+            color: 'var(--rz-ink)',
             fontFamily: 'Tajawal, sans-serif',
           }}
         >
@@ -695,7 +696,7 @@ const BankCard = ({ bank }) => {
           style={{
             margin: '0 0 0.25rem',
             fontSize: '0.7rem',
-            color: '#404040',
+            color: 'var(--rz-muted)',
           }}
         >
           IBAN
@@ -706,8 +707,8 @@ const BankCard = ({ bank }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: '#F7F3EB',
-            border: '1px solid rgba(30,41,59,0.12)',
+            background: 'var(--rz-cream)',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.12)',
             borderRadius: 8,
             padding: '0.28rem 0.5rem',
             gap: 6,
@@ -719,7 +720,7 @@ const BankCard = ({ bank }) => {
             style={{
               fontSize: '0.72rem',
               fontWeight: 700,
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontFamily: 'monospace',
               direction: 'ltr',
               overflow: 'hidden',
@@ -740,8 +741,8 @@ const BankCard = ({ bank }) => {
             }
             aria-label="نسخ رقم الآيبان"
             style={{
-              background: '#1E293B',
-              color: '#E8E2D6',
+              background: 'var(--rz-primary)',
+              color: 'var(--rz-ivory)',
               border: 'none',
               borderRadius: 6,
               cursor: 'pointer',
@@ -762,7 +763,7 @@ const BankCard = ({ bank }) => {
           style={{
             margin: '0 0 0.25rem',
             fontSize: '0.7rem',
-            color: '#404040',
+            color: 'var(--rz-muted)',
           }}
         >
           رقم الحساب
@@ -773,8 +774,8 @@ const BankCard = ({ bank }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: '#F7F3EB',
-            border: '1px solid rgba(30,41,59,0.12)',
+            background: 'var(--rz-cream)',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.12)',
             borderRadius: 8,
             padding: '0.28rem 0.5rem',
             gap: 6,
@@ -786,7 +787,7 @@ const BankCard = ({ bank }) => {
             style={{
               fontSize: '0.72rem',
               fontWeight: 700,
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontFamily: 'monospace',
               direction: 'ltr',
               whiteSpace: 'nowrap',
@@ -805,8 +806,8 @@ const BankCard = ({ bank }) => {
             }
             aria-label="نسخ رقم الحساب"
             style={{
-              background: '#1E293B',
-              color: '#E8E2D6',
+              background: 'var(--rz-primary)',
+              color: 'var(--rz-ivory)',
               border: 'none',
               borderRadius: 6,
               cursor: 'pointer',
@@ -1201,17 +1202,17 @@ const RoyalHarajPage = () => {
 
         /* لافتة «أعلن الآن» — تتغلب على قاعدة الأزرار الذهبية العامة */
         .haraj-page .haraj-cta-banner {
-          background: linear-gradient(120deg, #1E293B 0%, #1E293B 55%, #1E293B 100%) !important;
+          background: linear-gradient(120deg, var(--rz-primary) 0%, var(--rz-primary) 55%, var(--rz-primary) 100%) !important;
           border: none !important;
-          box-shadow: 0 10px 28px rgba(30,41,59, 0.35), inset 0 1px 0 rgba(255,255,255, 0.25) !important;
+          box-shadow: 0 10px 28px rgba(var(--rz-primary-rgb), 0.35), inset 0 1px 0 rgba(var(--rz-white-rgb), 0.25) !important;
           font-weight: 800 !important;
         }
       `}</style>
 
       <header
         style={{
-          background: `linear-gradient(180deg, ${C.darkBg} 0%, #E8E2D6 100%)`,
-          borderBottom: `1px solid ${C.gold}30`,
+          background: `linear-gradient(180deg, ${C.darkBg} 0%, var(--rz-ivory) 100%)`,
+          borderBottom: `1px solid colorAlpha(C.gold, 0.19)`,
           padding: '1.1rem 1rem 1.25rem',
           position: 'sticky',
           top: 'var(--rooz-top-offset, 0px)',
@@ -1247,10 +1248,10 @@ const RoyalHarajPage = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: `0 4px 15px ${C.gold}40`,
+                  boxShadow: `0 4px 15px colorAlpha(C.gold, 0.25)`,
                 }}
               >
-                <ShoppingBag size={22} color="#FFFFFF" />
+                <ShoppingBag size={22} color="var(--rz-white)" />
               </div>
               <div style={{ minWidth: 0 }}>
                 <h1
@@ -1258,7 +1259,7 @@ const RoyalHarajPage = () => {
                     margin: 0,
                     fontSize: 'clamp(1.1rem, 3.4vw, 1.6rem)',
                     fontWeight: 800,
-                    color: '#202A3A',
+                    color: 'var(--rz-ink)',
                     fontFamily: 'Tajawal, sans-serif',
                     lineHeight: 1.25,
                   }}
@@ -1270,7 +1271,7 @@ const RoyalHarajPage = () => {
                     margin: '4px 0 0',
                     fontSize: 'clamp(0.74rem, 2.4vw, 0.9rem)',
                     fontWeight: 400,
-                    color: '#404040',
+                    color: 'var(--rz-muted)',
                     fontFamily: 'Tajawal, sans-serif',
                     lineHeight: 1.5,
                   }}
@@ -1295,20 +1296,20 @@ const RoyalHarajPage = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 7,
-                background: '#1E293B',
+                background: 'var(--rz-primary)',
                 border: 'none',
                 borderRadius: 8,
                 padding: '0.7rem 1.15rem',
                 cursor: 'pointer',
-                color: '#FFFFFF',
+                color: 'var(--rz-white)',
                 fontSize: '0.88rem',
                 fontWeight: 800,
                 fontFamily: 'Tajawal, sans-serif',
-                boxShadow: '0 8px 22px rgba(30,41,59, 0.28)',
+                boxShadow: '0 8px 22px rgba(var(--rz-primary-rgb), 0.28)',
                 whiteSpace: 'nowrap',
               }}
             >
-              <Plus size={17} color="#FFFFFF" aria-hidden="true" />
+              <Plus size={17} color="var(--rz-white)" aria-hidden="true" />
               أضف إعلانك الآن
             </button>
           </div>
@@ -1333,7 +1334,7 @@ const RoyalHarajPage = () => {
           style={{
             position: 'relative',
             overflow: 'hidden',
-            background: '#1E293B',
+            background: 'var(--rz-primary)',
             borderRadius: 8,
             padding: '1.4rem 1.5rem',
             display: 'flex',
@@ -1342,7 +1343,7 @@ const RoyalHarajPage = () => {
             gap: '1.25rem',
             direction: 'rtl',
             flexWrap: 'wrap',
-            boxShadow: '0 12px 30px rgba(30,41,59, 0.22)',
+            boxShadow: '0 12px 30px rgba(var(--rz-primary-rgb), 0.22)',
           }}
         >
           <span
@@ -1354,7 +1355,7 @@ const RoyalHarajPage = () => {
               width: 110,
               height: 110,
               borderRadius: '50%',
-              border: '2px solid rgba(184,164,122, 0.55)',
+              border: '2px solid rgba(var(--rz-gold-rgb), 0.55)',
             }}
           />
           <span
@@ -1366,13 +1367,13 @@ const RoyalHarajPage = () => {
               width: 96,
               height: 96,
               borderRadius: '50%',
-              border: '2px solid rgba(184,164,122, 0.45)',
+              border: '2px solid rgba(var(--rz-gold-rgb), 0.45)',
             }}
           />
           <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
             <div
               style={{
-                color: '#FFFFFF',
+                color: 'var(--rz-white)',
                 fontSize: 'clamp(1.05rem, 3vw, 1.35rem)',
                 fontWeight: 800,
                 fontFamily: 'Tajawal, sans-serif',
@@ -1383,7 +1384,7 @@ const RoyalHarajPage = () => {
             </div>
             <div
               style={{
-                color: '#B8A47A',
+                color: 'var(--rz-gold)',
                 fontSize: 'clamp(0.78rem, 2.4vw, 0.9rem)',
                 fontWeight: 400,
                 fontFamily: 'Tajawal, sans-serif',
@@ -1400,12 +1401,12 @@ const RoyalHarajPage = () => {
             style={{
               position: 'relative',
               flexShrink: 0,
-              background: '#E8E2D6',
+              background: 'var(--rz-ivory)',
               border: 'none',
               borderRadius: 8,
               padding: '0.8rem 1.4rem',
               cursor: 'pointer',
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontSize: '0.9rem',
               fontWeight: 800,
               fontFamily: 'Tajawal, sans-serif',
@@ -1429,8 +1430,8 @@ const RoyalHarajPage = () => {
         {!harajUser && (
           <div
             style={{
-              background: `linear-gradient(145deg, rgba(232,226,214,0.95) 0%, rgba(232,226,214,0.9) 100%)`,
-              border: `1px solid ${C.gold}30`,
+              background: `linear-gradient(145deg, rgba(var(--rz-ivory-rgb), 0.95) 0%, rgba(var(--rz-ivory-rgb), 0.9) 100%)`,
+              border: `1px solid colorAlpha(C.gold, 0.19)`,
               borderRadius: 12,
               padding: '1rem',
               marginBottom: '0.75rem',
@@ -1516,13 +1517,13 @@ const RoyalHarajPage = () => {
             aria-label="البحث عن سلعة"
             style={{
               width: '100%',
-              background: `linear-gradient(145deg, #FFFFFF 0%, #E8E2D6 100%)`,
-              border: `1px solid #1E293B`,
+              background: `linear-gradient(145deg, var(--rz-white) 0%, var(--rz-ivory) 100%)`,
+              border: `1px solid var(--rz-primary)`,
               borderRadius: 14,
               padding:
                 '0.85rem 1rem 0.85rem 3rem',
-              color: '#202A3A',
-              caretColor: '#202A3A',
+              color: 'var(--rz-ink)',
+              caretColor: 'var(--rz-ink)',
               fontSize: '0.9rem',
               fontFamily:
                 'Tajawal',
@@ -1544,11 +1545,11 @@ const RoyalHarajPage = () => {
             aria-label="اختر القسم"
             style={{
               width: '100%',
-              background: '#FFFFFF',
-              border: `1px solid #1E293B`,
+              background: 'var(--rz-white)',
+              border: `1px solid var(--rz-primary)`,
               borderRadius: 14,
               padding: '0.75rem 1rem',
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontSize: '0.9rem',
               fontFamily:
                 'Tajawal',
@@ -1561,7 +1562,7 @@ const RoyalHarajPage = () => {
               <option
                 key={category}
                 value={category}
-                style={{ color: '#202A3A', background: '#FFFFFF' }}
+                style={{ color: 'var(--rz-ink)', background: 'var(--rz-white)' }}
               >
                 {category}
               </option>
@@ -1578,8 +1579,8 @@ const RoyalHarajPage = () => {
             style={{
               width: '100%',
               marginBottom: sectionsOpen ? '0.75rem' : 0,
-              background: 'linear-gradient(145deg, #E8E2D6, #E8E2D6)',
-              border: '1.5px solid #1E293B',
+              background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
+              border: '1.5px solid var(--rz-primary)',
               borderRadius: 14,
               padding: '0.85rem 1rem',
               cursor: 'pointer',
@@ -1587,19 +1588,19 @@ const RoyalHarajPage = () => {
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: '0.5rem',
-              color: '#202A3A',
+              color: 'var(--rz-ink)',
               fontSize: '0.95rem',
               fontWeight: 900,
               fontFamily: 'Tajawal, sans-serif',
-              boxShadow: '0 2px 10px rgba(30,41,59,0.15)',
+              boxShadow: '0 2px 10px rgba(var(--rz-primary-rgb), 0.15)',
             }}
           >
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <Crown size={18} color="#1E293B" />
+              <Crown size={18} color="var(--rz-primary)" />
               أقسام الحراج
               <span style={{
-                background: '#1E293B',
-                color: '#FFFFFF',
+                background: 'var(--rz-primary)',
+                color: 'var(--rz-white)',
                 fontSize: '0.7rem',
                 fontWeight: 900,
                 padding: '2px 8px',
@@ -1614,7 +1615,7 @@ const RoyalHarajPage = () => {
 
           {sectionsOpen && (
             <>
-              <p style={{ margin: '0 0 0.75rem', fontSize: '0.78rem', color: '#404040', fontWeight: 600 }}>
+              <p style={{ margin: '0 0 0.75rem', fontSize: '0.78rem', color: 'var(--rz-muted)', fontWeight: 600 }}>
                 اختر قسماً لتصفية الإعلانات حسب النوع
               </p>
               <div className="sections-grid">
@@ -1677,10 +1678,10 @@ const RoyalHarajPage = () => {
               style={{
                 textAlign: 'center',
                 padding: '2rem 1rem',
-                background: `linear-gradient(145deg, #FFFFFF 0%, #E8E2D6 100%)`,
+                background: `linear-gradient(145deg, var(--rz-white) 0%, var(--rz-ivory) 100%)`,
                 border: `1px solid ${C.grayLight}`,
                 borderRadius: 16,
-                color: '#404040',
+                color: 'var(--rz-muted)',
                 fontFamily:
                   'Tajawal',
               }}
@@ -1717,17 +1718,17 @@ const RoyalHarajPage = () => {
               style={{
                 width: '100%',
                 marginTop: '1.5rem',
-                background: `linear-gradient(135deg, ${C.gold} 0%, #1E293B 100%)`,
+                background: `linear-gradient(135deg, ${C.gold} 0%, var(--rz-primary) 100%)`,
                 border: `1px solid ${C.gold}`,
                 borderRadius: 14,
                 padding: '1rem',
                 cursor: 'pointer',
-                color: '#FFFFFF',
+                color: 'var(--rz-white)',
                 fontSize: '0.9rem',
                 fontWeight: 800,
                 fontFamily:
                   'Tajawal, sans-serif',
-                boxShadow: '0 6px 18px rgba(30,41,59,0.25)',
+                boxShadow: '0 6px 18px rgba(var(--rz-primary-rgb), 0.25)',
               }}
             >
               عرض المزيد من الإعلانات (
@@ -1749,9 +1750,9 @@ const RoyalHarajPage = () => {
           style={{
             marginBottom: '0.85rem',
             padding: '0.75rem 0.85rem',
-            background: `linear-gradient(135deg, ${C.darkBg} 0%, rgba(30,41,59,0.1) 100%)`,
+            background: `linear-gradient(135deg, ${C.darkBg} 0%, rgba(var(--rz-primary-rgb), 0.1) 100%)`,
             borderRadius: '16px',
-            border: `1px solid ${C.gold}40`,
+            border: `1px solid colorAlpha(C.gold, 0.25)`,
           }}
         >
           <div
@@ -1856,13 +1857,13 @@ const RoyalHarajPage = () => {
             left: '50%',
             transform:
               'translateX(-50%)',
-            background: `linear-gradient(135deg, ${C.green} 0%, #202A3A 100%)`,
+            background: `linear-gradient(135deg, ${C.green} 0%, var(--rz-ink) 100%)`,
             borderRadius: 50,
             padding: '0.6rem 1.25rem',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            boxShadow: `0 8px 30px ${C.green}40`,
+            boxShadow: `0 8px 30px colorAlpha(C.green, 0.25)`,
             zIndex: 100,
             maxWidth: '90%',
           }}
@@ -1900,8 +1901,8 @@ const RoyalHarajPage = () => {
             aria-label="تسجيل الخروج"
             style={{
               marginInlineStart: '0.5rem',
-              background: 'rgba(32,42,58,0.25)',
-              border: '1px solid rgba(255,255,255,0.4)',
+              background: 'rgba(var(--rz-ink-rgb), 0.25)',
+              border: '1px solid rgba(var(--rz-white-rgb), 0.4)',
               color: 'white',
               borderRadius: 999,
               padding: '0.35rem 0.9rem',

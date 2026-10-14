@@ -186,9 +186,9 @@ export default function WantedDressPage() {
       dir="rtl"
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #E8E2D6 0%, #E8E2D6 55%, #E8E2D6 100%)',
+        background: 'linear-gradient(180deg, var(--rz-ivory) 0%, var(--rz-ivory) 55%, var(--rz-ivory) 100%)',
         fontFamily: 'Tajawal, sans-serif',
-        color: '#202A3A',
+        color: 'var(--rz-ink)',
         padding: '1.25rem',
       }}
     >
@@ -202,16 +202,16 @@ export default function WantedDressPage() {
               borderRadius: '50%',
               display: 'grid',
               placeItems: 'center',
-              background: 'linear-gradient(135deg, #B8A47A, #1E293B)',
-              boxShadow: '0 10px 24px rgba(30,41,59, 0.28)',
+              background: 'linear-gradient(135deg, var(--rz-gold), var(--rz-primary))',
+              boxShadow: '0 10px 24px rgba(var(--rz-primary-rgb), 0.28)',
             }}
           >
-            <Heart size={30} color="#E8E2D6" />
+            <Heart size={30} color="var(--rz-ivory)" />
           </div>
-          <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(1.3rem, 4vw, 1.8rem)', fontWeight: 900, color: '#1E293B' }}>
+          <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(1.3rem, 4vw, 1.8rem)', fontWeight: 900, color: 'var(--rz-primary)' }}>
             طلب فستان
           </h1>
-          <p style={{ margin: 0, color: '#404040', fontWeight: 600 }}>
+          <p style={{ margin: 0, color: 'var(--rz-muted)', fontWeight: 600 }}>
             انشري مواصفات الفستان الذي تبحثين عنه، وسيصل تنبيه للمعلنين الذين يملكون فساتين مطابقة.
           </p>
         </header>
@@ -219,9 +219,9 @@ export default function WantedDressPage() {
         {done && (
           <div
             style={{
-              background: 'rgba(64,64,64, 0.10)',
-              border: '1px solid rgba(64,64,64, 0.35)',
-              color: '#404040',
+              background: 'rgba(var(--rz-muted-rgb), 0.10)',
+              border: '1px solid rgba(var(--rz-muted-rgb), 0.35)',
+              color: 'var(--rz-muted)',
               borderRadius: 14,
               padding: '12px 16px',
               marginBottom: 14,
@@ -237,11 +237,11 @@ export default function WantedDressPage() {
 
         <div
           style={{
-            background: '#FFFFFF',
-            border: '1px solid #E8E2D6',
+            background: 'var(--rz-white)',
+            border: '1px solid var(--rz-ivory)',
             borderRadius: 22,
             padding: '1.5rem',
-            boxShadow: '0 10px 34px rgba(32,42,58, 0.07)',
+            boxShadow: '0 10px 34px rgba(var(--rz-ink-rgb), 0.07)',
             display: 'grid',
             gap: 14,
           }}
@@ -302,7 +302,7 @@ export default function WantedDressPage() {
           </Field>
 
           <div>
-            <span style={{ fontSize: 13.5, fontWeight: 800, color: '#202A3A' }}>
+            <span style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--rz-ink)' }}>
               المقاسات (سم) — اختياري
             </span>
             <div
@@ -339,7 +339,7 @@ export default function WantedDressPage() {
           </Field>
 
           {errors.submit && (
-            <p style={{ margin: 0, color: '#1E293B', fontWeight: 700, fontSize: 13 }}>{errors.submit}</p>
+            <p style={{ margin: 0, color: 'var(--rz-primary)', fontWeight: 700, fontSize: 13 }}>{errors.submit}</p>
           )}
 
           <button
@@ -348,8 +348,8 @@ export default function WantedDressPage() {
             disabled={submitting}
             style={{
               width: '100%',
-              background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-              color: '#E8E2D6',
+              background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+              color: 'var(--rz-ivory)',
               border: 'none',
               borderRadius: 12,
               padding: '0.95rem',
@@ -375,7 +375,7 @@ export default function WantedDressPage() {
               style={{
                 fontSize: 16,
                 fontWeight: 900,
-                color: '#1E293B',
+                color: 'var(--rz-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
@@ -389,19 +389,19 @@ export default function WantedDressPage() {
                 <div
                   key={r.id}
                   style={{
-                    background: '#FFFFFF',
-                    border: '1px solid #E8E2D6',
+                    background: 'var(--rz-white)',
+                    border: '1px solid var(--rz-ivory)',
                     borderRadius: 14,
                     padding: '12px 14px',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                     <strong style={{ fontSize: 14.5 }}>{r.title}</strong>
-                    <span style={{ fontSize: 13, color: '#1E293B', fontWeight: 800 }}>
+                    <span style={{ fontSize: 13, color: 'var(--rz-primary)', fontWeight: 800 }}>
                       {Number(r.budget || 0).toLocaleString()} ريال
                     </span>
                   </div>
-                  <div style={{ marginTop: 4, fontSize: 12.5, color: '#404040', fontWeight: 600 }}>
+                  <div style={{ marginTop: 4, fontSize: 12.5, color: 'var(--rz-muted)', fontWeight: 600 }}>
                     {r.color} · {r.userName || 'مشترية'}
                   </div>
                 </div>
@@ -416,11 +416,11 @@ export default function WantedDressPage() {
 
 const inputStyle = (hasError) => ({
   width: '100%',
-  background: '#E8E2D6',
-  border: hasError ? '1px solid #1E293B' : '1px solid rgba(30,41,59, 0.22)',
+  background: 'var(--rz-ivory)',
+  border: hasError ? '1px solid var(--rz-primary)' : '1px solid rgba(var(--rz-primary-rgb), 0.22)',
   borderRadius: 12,
   padding: '0.8rem 1rem',
-  color: '#202A3A',
+  color: 'var(--rz-ink)',
   fontSize: 15,
   fontFamily: 'inherit',
   outline: 'none',
@@ -430,9 +430,9 @@ const inputStyle = (hasError) => ({
 function Field({ label, error, children }) {
   return (
     <label style={{ display: 'grid', gap: 6 }}>
-      <span style={{ fontSize: 13.5, fontWeight: 800, color: '#202A3A' }}>{label}</span>
+      <span style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--rz-ink)' }}>{label}</span>
       {children}
-      {error && <span style={{ fontSize: 12, color: '#1E293B', fontWeight: 700 }}>{error}</span>}
+      {error && <span style={{ fontSize: 12, color: 'var(--rz-primary)', fontWeight: 700 }}>{error}</span>}
     </label>
   );
 }

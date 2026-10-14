@@ -181,13 +181,13 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
       {/* قواعد مشتركة يستخدمها RoyalHeader — أُبقيت بعد إزالة كتلة .navbar الميتة
           التي لم يكن أي صنف منها مُصيَّراً في JSX (نُقلت الترويسة إلى RoyalHeader). */}
       <style>{`
-        .user-name { font-weight: 800; color: #202A3A; }
+        .user-name { font-weight: 800; color: var(--rz-ink); }
         .nav-overlay {
           position: fixed;
           inset: 0;
           width: 100vw;
           height: 100dvh;
-          background: rgba(32,42,58, 0.48);
+          background: rgba(var(--rz-ink-rgb), 0.48);
           z-index: 2500;
           border: none;
           cursor: pointer;
@@ -231,7 +231,7 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(32,42,58,0.55)',
+            background: 'rgba(var(--rz-ink-rgb), 0.55)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -242,22 +242,22 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(145deg, #E8E2D6, #E8E2D6)',
-              border: '1px solid rgba(30,41,59,0.45)',
+              background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.45)',
               borderRadius: 18,
               padding: '1.5rem 1.25rem',
               maxWidth: 370,
               width: '100%',
               textAlign: 'center',
-              boxShadow: '0 22px 55px rgba(32,42,58,0.35)',
+              boxShadow: '0 22px 55px rgba(var(--rz-ink-rgb), 0.35)',
               fontFamily: 'Tajawal, sans-serif',
             }}
           >
-            <Crown size={30} color="#1E293B" style={{ marginBottom: 10 }} />
-            <h3 style={{ margin: '0 0 0.45rem', fontSize: '1.15rem', fontWeight: 800, color: '#202A3A' }}>
+            <Crown size={30} color="var(--rz-primary)" style={{ marginBottom: 10 }} />
+            <h3 style={{ margin: '0 0 0.45rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--rz-ink)' }}>
               أهلاً بكم في أناقة ROOZ
             </h3>
-            <p style={{ margin: '0 0 1.1rem', fontSize: '0.88rem', color: '#202A3A', lineHeight: 1.65 }}>
+            <p style={{ margin: '0 0 1.1rem', fontSize: '0.88rem', color: 'var(--rz-ink)', lineHeight: 1.65 }}>
               نورت المنصة. هنا تجدون الفخامة والثقة في كل تفصيلة.
               <br />
               استمتعوا بتجربة راقية تليق بذوقكم.
@@ -266,8 +266,8 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
               type="button"
               onClick={() => setShowElegantWelcome(false)}
               style={{
-                background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-                color: '#FFFFFF',
+                background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                color: 'var(--rz-white)',
                 border: 'none',
                 borderRadius: 11,
                 padding: '0.55rem 1.5rem',
@@ -291,7 +291,7 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(32,42,58,0.55)',
+            background: 'rgba(var(--rz-ink-rgb), 0.55)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -302,8 +302,8 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(145deg, #E8E2D6, #E8E2D6)',
-              border: '1px solid rgba(30,41,59,0.45)',
+              background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.45)',
               borderRadius: 18,
               padding: '1.35rem 1.15rem',
               maxWidth: 440,
@@ -311,12 +311,12 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
               maxHeight: '85vh',
               overflowY: 'auto',
               textAlign: 'right',
-              boxShadow: '0 22px 55px rgba(32,42,58,0.35)',
+              boxShadow: '0 22px 55px rgba(var(--rz-ink-rgb), 0.35)',
               fontFamily: 'Tajawal, sans-serif',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0, fontSize: '1.08rem', fontWeight: 800, color: '#202A3A' }}>
+              <h3 style={{ margin: 0, fontSize: '1.08rem', fontWeight: 800, color: 'var(--rz-ink)' }}>
                 {infoModal === 'why' && 'لماذا أناقة ROOZ؟'}
                 {infoModal === 'contest' && 'المسابقة الكبرى'}
                 {infoModal === 'statement' && 'بيان الموقع الرسمي'}
@@ -326,8 +326,8 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
                 type="button"
                 onClick={() => setInfoModal(null)}
                 style={{
-                  background: 'rgba(30,41,59,0.12)',
-                  border: '1px solid rgba(30,41,59,0.35)',
+                  background: 'rgba(var(--rz-primary-rgb), 0.12)',
+                  border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
                   borderRadius: '50%',
                   width: 32,
                   height: 32,
@@ -335,7 +335,7 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: '#202A3A',
+                  color: 'var(--rz-ink)',
                 }}
               >
                 <X size={16} />
@@ -344,74 +344,74 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
 
             {infoModal === 'why' && (
               <div style={{ display: 'grid', gap: 11 }}>
-                <div style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 12, padding: '0.85rem' }}>
+                <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 12, padding: '0.85rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <ShieldCheck size={17} color="#1E293B" />
-                    <strong style={{ color: '#1E293B' }}>موثوق وآمن</strong>
+                    <ShieldCheck size={17} color="var(--rz-primary)" />
+                    <strong style={{ color: 'var(--rz-primary)' }}>موثوق وآمن</strong>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.86rem', color: '#202A3A' }}>نراجع الإعلانات ونضمن بيئة آمنة للتعامل</p>
+                  <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--rz-ink)' }}>نراجع الإعلانات ونضمن بيئة آمنة للتعامل</p>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 12, padding: '0.85rem' }}>
+                <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 12, padding: '0.85rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <Gem size={17} color="#1E293B" />
-                    <strong style={{ color: '#1E293B' }}>جودة عالية</strong>
+                    <Gem size={17} color="var(--rz-primary)" />
+                    <strong style={{ color: 'var(--rz-primary)' }}>جودة عالية</strong>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.86rem', color: '#202A3A' }}>إعلانات راقية لأناس راقين مثلك</p>
+                  <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--rz-ink)' }}>إعلانات راقية لأناس راقين مثلك</p>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 12, padding: '0.85rem' }}>
+                <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 12, padding: '0.85rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <MonitorSmartphone size={17} color="#1E293B" />
-                    <strong style={{ color: '#1E293B' }}>سهولة الاستخدام</strong>
+                    <MonitorSmartphone size={17} color="var(--rz-primary)" />
+                    <strong style={{ color: 'var(--rz-primary)' }}>سهولة الاستخدام</strong>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.86rem', color: '#202A3A' }}>واجهة بسيطة وتجربة سلسة</p>
+                  <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--rz-ink)' }}>واجهة بسيطة وتجربة سلسة</p>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 12, padding: '0.85rem' }}>
+                <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 12, padding: '0.85rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <Headphones size={17} color="#1E293B" />
-                    <strong style={{ color: '#1E293B' }}>دعم على مدار الساعة</strong>
+                    <Headphones size={17} color="var(--rz-primary)" />
+                    <strong style={{ color: 'var(--rz-primary)' }}>دعم على مدار الساعة</strong>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.86rem', color: '#202A3A' }}>فريق الدعم جاهز لمساعدتك دائماً</p>
+                  <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--rz-ink)' }}>فريق الدعم جاهز لمساعدتك دائماً</p>
                 </div>
               </div>
             )}
 
             {infoModal === 'contest' && (
               <div style={{ textAlign: 'center' }}>
-                <Crown size={28} color="#1E293B" style={{ marginBottom: 8 }} />
-                <p style={{ fontSize: '1.02rem', color: '#1E293B', lineHeight: 1.7, margin: 0 }}>
-                  ستُقام مسابقة كبرى قريباً على <strong style={{ color: '#1E293B' }}>3 أطقم ذهب عيار 21</strong> وهدايا أخرى قيّمة.
+                <Crown size={28} color="var(--rz-primary)" style={{ marginBottom: 8 }} />
+                <p style={{ fontSize: '1.02rem', color: 'var(--rz-primary)', lineHeight: 1.7, margin: 0 }}>
+                  ستُقام مسابقة كبرى قريباً على <strong style={{ color: 'var(--rz-primary)' }}>3 أطقم ذهب عيار 21</strong> وهدايا أخرى قيّمة.
                   <br /><br />
-                  <span style={{ fontWeight: 700, color: '#1E293B' }}>انتظرونا</span>
+                  <span style={{ fontWeight: 700, color: 'var(--rz-primary)' }}>انتظرونا</span>
                 </p>
               </div>
             )}
 
             {infoModal === 'statement' && (
-              <p style={{ fontSize: '0.88rem', lineHeight: 1.9, color: '#202A3A', margin: 0 }}>
-                منصة «أناقة ROOZ» تعمل تحت <strong style={{ color: '#1E293B' }}>حماية قانونية ومحاماة معتمدة</strong>.
+              <p style={{ fontSize: '0.88rem', lineHeight: 1.9, color: 'var(--rz-ink)', margin: 0 }}>
+                منصة «أناقة ROOZ» تعمل تحت <strong style={{ color: 'var(--rz-primary)' }}>حماية قانونية ومحاماة معتمدة</strong>.
                 خصوصية جميع المستخدمين مصانة بالكامل، وجميع البيانات محمية بتشفير كامل.
-                نلتزم بالاحترام المتبادل، وأعضاؤنا بالنسبة لصاحب الموقع <strong style={{ color: '#1E293B' }}>خط أحمر</strong> —
+                نلتزم بالاحترام المتبادل، وأعضاؤنا بالنسبة لصاحب الموقع <strong style={{ color: 'var(--rz-primary)' }}>خط أحمر</strong> —
                 لا يُقبل أي إساءة أو ضرر لأي شخص داخل المنصة، ومن يتجاوز ذلك يُحال للجهات المختصة.
               </p>
             )}
 
             {infoModal === 'journey' && (
               <div style={{ display: 'grid', gap: 9 }}>
-                <div style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 11, padding: '0.75rem' }}>
-                  <strong style={{ color: '#1E293B' }}>01 اكتشف</strong>
-                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: '#202A3A' }}>استعرض الأقسام واختر الفئة المناسبة.</p>
+                <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 11, padding: '0.75rem' }}>
+                  <strong style={{ color: 'var(--rz-primary)' }}>01 اكتشف</strong>
+                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: 'var(--rz-ink)' }}>استعرض الأقسام واختر الفئة المناسبة.</p>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 11, padding: '0.75rem' }}>
-                  <strong style={{ color: '#1E293B' }}>02 اختر</strong>
-                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: '#202A3A' }}>تصفح المنتجات وابحث عن القطعة المناسبة.</p>
+                <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 11, padding: '0.75rem' }}>
+                  <strong style={{ color: 'var(--rz-primary)' }}>02 اختر</strong>
+                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: 'var(--rz-ink)' }}>تصفح المنتجات وابحث عن القطعة المناسبة.</p>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 11, padding: '0.75rem' }}>
-                  <strong style={{ color: '#1E293B' }}>03 تواصل</strong>
-                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: '#202A3A' }}>تواصل مع البائع أو الجهة المناسبة عند الحاجة.</p>
+                <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 11, padding: '0.75rem' }}>
+                  <strong style={{ color: 'var(--rz-primary)' }}>03 تواصل</strong>
+                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: 'var(--rz-ink)' }}>تواصل مع البائع أو الجهة المناسبة عند الحاجة.</p>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.65)', borderRadius: 11, padding: '0.75rem' }}>
-                  <strong style={{ color: '#1E293B' }}>04 استمتع</strong>
-                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: '#202A3A' }}>استكمل تجربتك داخل أناقة ROOZ بكل سهولة.</p>
+                <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 11, padding: '0.75rem' }}>
+                  <strong style={{ color: 'var(--rz-primary)' }}>04 استمتع</strong>
+                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: 'var(--rz-ink)' }}>استكمل تجربتك داخل أناقة ROOZ بكل سهولة.</p>
                 </div>
               </div>
             )}

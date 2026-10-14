@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { colorAlpha } from '../../utils/color';
 import {
   ArrowRight,
   Plus,
@@ -336,11 +337,11 @@ const CatalogPage = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            background: 'rgba(30,41,59, 0.12)',
-            border: '1px solid rgba(30,41,59, 0.35)',
+            background: 'rgba(var(--rz-primary-rgb), 0.12)',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
             borderRadius: 12,
             padding: '0.45rem 0.9rem',
-            color: '#1E293B',
+            color: 'var(--rz-primary)',
             fontSize: '0.85rem',
             cursor: 'pointer',
             marginBottom: '0.75rem',
@@ -356,15 +357,16 @@ const CatalogPage = () => {
         <div
           style={{
             background:
-              'linear-gradient(145deg, rgba(232,226,214, 0.98), rgba(232,226,214, 0.92))',
-            border: `1px solid rgba(30,41,59, 0.35)`,
+              'linear-gradient(145deg, rgba(var(--rz-ivory-rgb), 0.98), rgba(var(--rz-ivory-rgb), 0.92))',
+            border: `1px solid rgba(var(--rz-primary-rgb), 0.35)`,
             borderRadius: 20,
             padding: '1.5rem',
             textAlign: 'center',
             overflowX: 'hidden',
-            boxShadow: `0 8px 32px ${
-              catalogInfo?.sectionColor || '#1E293B'
-            }20`,
+            boxShadow: `0 8px 32px ${colorAlpha(
+              catalogInfo?.sectionColor || 'var(--rz-primary)',
+              0.13
+            )}`,
           }}
         >
           <h1
@@ -372,7 +374,7 @@ const CatalogPage = () => {
               margin: 0,
               fontSize: '2rem',
               fontWeight: 900,
-              background: 'linear-gradient(180deg, #1E293B, #1E293B)',
+              background: 'linear-gradient(180deg, var(--rz-primary), var(--rz-primary))',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontFamily: 'Tajawal',
@@ -385,7 +387,7 @@ const CatalogPage = () => {
             <p
               style={{
                 margin: '0.5rem 0 0',
-                color: '#1E293B',
+                color: 'var(--rz-primary)',
                 fontSize: '0.9rem',
                 fontFamily: 'Tajawal',
               }}
@@ -401,14 +403,14 @@ const CatalogPage = () => {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.6rem',
-                background: 'rgba(30,41,59, 0.10)',
-                border: '1px solid rgba(30,41,59, 0.28)',
+                background: 'rgba(var(--rz-primary-rgb), 0.10)',
+                border: '1px solid rgba(var(--rz-primary-rgb), 0.28)',
                 borderRadius: 999,
                 padding: '0.4rem 0.5rem 0.4rem 0.9rem',
                 fontFamily: 'Tajawal',
               }}
             >
-              <span style={{ color: '#1E293B', fontSize: '0.85rem', fontWeight: 800 }}>
+              <span style={{ color: 'var(--rz-primary)', fontSize: '0.85rem', fontWeight: 800 }}>
                 {activeSubName ? `${activeSubName} — ` : ''}
                 المقاس: {activeSize}
               </span>
@@ -416,8 +418,8 @@ const CatalogPage = () => {
                 type="button"
                 onClick={() => navigate(`/catalog/${catalogId}`, { replace: true })}
                 style={{
-                  background: '#1E293B',
-                  color: '#E8E2D6',
+                  background: 'var(--rz-primary)',
+                  color: 'var(--rz-ivory)',
                   border: 'none',
                   borderRadius: 999,
                   padding: '0.25rem 0.7rem',
@@ -445,7 +447,7 @@ const CatalogPage = () => {
           flexWrap: 'wrap',
           gap: '1rem',
           marginBottom: '2rem',
-          background: 'rgba(232,226,214, 0.85)',
+          background: 'rgba(var(--rz-ivory-rgb), 0.85)',
           padding: '1rem',
           borderRadius: 16,
         }}
@@ -461,7 +463,7 @@ const CatalogPage = () => {
         >
           <span
             style={{
-              color: '#404040',
+              color: 'var(--rz-muted)',
               fontSize: '0.85rem',
               marginLeft: '0.5rem',
               fontFamily: 'Tajawal',
@@ -474,7 +476,7 @@ const CatalogPage = () => {
             style={{
               display: 'flex',
               gap: '0.3rem',
-              background: 'rgba(255,255,255,0.05)',
+              background: 'rgba(var(--rz-white-rgb), 0.05)',
               padding: '0.3rem',
               borderRadius: 12,
               flexWrap: 'wrap',
@@ -493,13 +495,13 @@ const CatalogPage = () => {
                     padding: '0.5rem 0.8rem',
                     background:
                       cardStyle === key
-                        ? 'rgba(30,41,59, 0.3)'
+                        ? 'rgba(var(--rz-primary-rgb), 0.3)'
                         : 'transparent',
                     border: 'none',
                     borderRadius: 8,
                     cursor: 'pointer',
                     color:
-                      cardStyle === key ? '#1E293B' : '#404040',
+                      cardStyle === key ? 'var(--rz-primary)' : 'var(--rz-muted)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.3rem',
@@ -518,7 +520,7 @@ const CatalogPage = () => {
         {/* عدد المنتجات */}
         <p
           style={{
-            color: '#404040',
+            color: 'var(--rz-muted)',
             fontSize: '0.9rem',
             fontFamily: 'Tajawal',
             margin: 0,
@@ -544,10 +546,10 @@ const CatalogPage = () => {
                 alignItems: 'center',
                 gap: '0.5rem',
                 padding: '0.6rem 1rem',
-                background: 'rgba(30,41,59, 0.2)',
-                border: '1px solid rgba(30,41,59, 0.4)',
+                background: 'rgba(var(--rz-primary-rgb), 0.2)',
+                border: '1px solid rgba(var(--rz-primary-rgb), 0.4)',
                 borderRadius: 12,
-                color: '#1E293B',
+                color: 'var(--rz-primary)',
                 fontWeight: 600,
                 fontSize: '0.85rem',
                 cursor: 'pointer',
@@ -569,10 +571,10 @@ const CatalogPage = () => {
                 gap: '0.5rem',
                 padding: '0.6rem 1.2rem',
                 background:
-                  'linear-gradient(135deg, #1E293B, #1E293B)',
+                  'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
                 border: 'none',
                 borderRadius: 12,
-                color: '#FFFFFF',
+                color: 'var(--rz-white)',
                 fontWeight: 700,
                 fontSize: '0.9rem',
                 cursor: 'pointer',
@@ -592,7 +594,7 @@ const CatalogPage = () => {
           style={{
             textAlign: 'center',
             padding: '4rem',
-            color: '#404040',
+            color: 'var(--rz-muted)',
             fontFamily: 'Tajawal',
           }}
         >
@@ -605,10 +607,10 @@ const CatalogPage = () => {
             margin: '0 auto',
             textAlign: 'center',
             padding: '4rem',
-            color: '#404040',
-            background: 'rgba(255,255,255,0.02)',
+            color: 'var(--rz-muted)',
+            background: 'rgba(var(--rz-white-rgb), 0.02)',
             borderRadius: 16,
-            border: '2px dashed rgba(255,255,255,0.1)',
+            border: '2px dashed rgba(var(--rz-white-rgb), 0.1)',
           }}
         >
           <p
@@ -638,10 +640,10 @@ const CatalogPage = () => {
                 marginTop: '1rem',
                 padding: '0.75rem 1.5rem',
                 background:
-                  'linear-gradient(135deg, #1E293B, #1E293B)',
+                  'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
                 border: 'none',
                 borderRadius: 12,
-                color: '#FFFFFF',
+                color: 'var(--rz-white)',
                 fontWeight: 700,
                 cursor: 'pointer',
                 fontFamily: 'Tajawal',
@@ -745,7 +747,7 @@ const DisplaySettingsModal = ({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(32,42,58,0.85)',
+        background: 'rgba(var(--rz-ink-rgb), 0.85)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -758,8 +760,8 @@ const DisplaySettingsModal = ({
         dir="rtl"
         style={{
           background:
-            'linear-gradient(145deg, #202A3A, #202A3A)',
-          border: '2px solid #1E293B',
+            'linear-gradient(145deg, var(--rz-ink), var(--rz-ink))',
+          border: '2px solid var(--rz-primary)',
           borderRadius: 24,
           padding: '2rem',
           maxWidth: 500,
@@ -773,7 +775,7 @@ const DisplaySettingsModal = ({
           <h2
             style={{
               margin: 0,
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
               fontSize: '1.3rem',
               fontFamily: 'Tajawal',
               display: 'flex',
@@ -795,11 +797,11 @@ const DisplaySettingsModal = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(30,41,59,0.15)',
-              border: '1px solid rgba(30,41,59,0.4)',
+              background: 'rgba(var(--rz-primary-rgb), 0.15)',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.4)',
               borderRadius: 10,
               cursor: 'pointer',
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
             }}
           >
             <X size={18} />
@@ -810,7 +812,7 @@ const DisplaySettingsModal = ({
           <label
             style={{
               display: 'block',
-              color: '#404040',
+              color: 'var(--rz-muted)',
               marginBottom: '0.5rem',
               fontFamily: 'Tajawal',
             }}
@@ -844,17 +846,17 @@ const DisplaySettingsModal = ({
                       padding: '0.75rem',
                       background:
                         localSettings.displayStyle === key
-                          ? 'rgba(30,41,59, 0.3)'
-                          : 'rgba(255,255,255,0.05)',
+                          ? 'rgba(var(--rz-primary-rgb), 0.3)'
+                          : 'rgba(var(--rz-white-rgb), 0.05)',
                       border:
                         localSettings.displayStyle === key
-                          ? '2px solid #1E293B'
-                          : '1px solid rgba(255,255,255,0.2)',
+                          ? '2px solid var(--rz-primary)'
+                          : '1px solid rgba(var(--rz-white-rgb), 0.2)',
                       borderRadius: 12,
                       color:
                         localSettings.displayStyle === key
-                          ? '#1E293B'
-                          : '#404040',
+                          ? 'var(--rz-primary)'
+                          : 'var(--rz-muted)',
                       cursor: 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
@@ -886,7 +888,7 @@ const DisplaySettingsModal = ({
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              color: '#FFFFFF',
+              color: 'var(--rz-white)',
               cursor: 'pointer',
               fontFamily: 'Tajawal',
             }}
@@ -913,7 +915,7 @@ const DisplaySettingsModal = ({
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              color: '#FFFFFF',
+              color: 'var(--rz-white)',
               cursor: 'pointer',
               fontFamily: 'Tajawal',
             }}
@@ -949,10 +951,10 @@ const DisplaySettingsModal = ({
               flex: 1,
               padding: '0.85rem',
               background:
-                'linear-gradient(135deg, #1E293B, #1E293B)',
+                'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
               border: 'none',
               borderRadius: 12,
-              color: '#FFFFFF',
+              color: 'var(--rz-white)',
               fontWeight: 700,
               fontSize: '1rem',
               cursor: 'pointer',
@@ -974,9 +976,9 @@ const DisplaySettingsModal = ({
               flex: 1,
               padding: '0.85rem',
               background: 'transparent',
-              border: '1px solid #202A3A',
+              border: '1px solid var(--rz-ink)',
               borderRadius: 12,
-              color: '#404040',
+              color: 'var(--rz-muted)',
               fontWeight: 600,
               fontSize: '1rem',
               cursor: 'pointer',
@@ -1094,10 +1096,10 @@ const AddProductModal = ({
   const inputStyle = {
     width: '100%',
     padding: '0.85rem',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'rgba(var(--rz-white-rgb), 0.05)',
+    border: '1px solid rgba(var(--rz-white-rgb), 0.2)',
     borderRadius: 12,
-    color: '#FFFFFF',
+    color: 'var(--rz-white)',
     fontSize: '1rem',
     fontFamily: 'Tajawal',
     boxSizing: 'border-box',
@@ -1108,7 +1110,7 @@ const AddProductModal = ({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(32,42,58,0.85)',
+        background: 'rgba(var(--rz-ink-rgb), 0.85)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -1121,8 +1123,8 @@ const AddProductModal = ({
         dir="rtl"
         style={{
           background:
-            'linear-gradient(145deg, #202A3A, #202A3A)',
-          border: '2px solid #1E293B',
+            'linear-gradient(145deg, var(--rz-ink), var(--rz-ink))',
+          border: '2px solid var(--rz-primary)',
           borderRadius: 24,
           padding: '2rem',
           maxWidth: 550,
@@ -1136,7 +1138,7 @@ const AddProductModal = ({
           <h2
             style={{
               margin: 0,
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
               fontSize: '1.3rem',
               fontFamily: 'Tajawal',
             }}
@@ -1156,11 +1158,11 @@ const AddProductModal = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(30,41,59,0.15)',
-              border: '1px solid rgba(30,41,59,0.4)',
+              background: 'rgba(var(--rz-primary-rgb), 0.15)',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.4)',
               borderRadius: 10,
               cursor: 'pointer',
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
             }}
           >
             <X size={18} />
@@ -1170,12 +1172,12 @@ const AddProductModal = ({
         {catalogName && (
           <div
             style={{
-              background: 'rgba(30,41,59, 0.1)',
+              background: 'rgba(var(--rz-primary-rgb), 0.1)',
               padding: '0.75rem',
               borderRadius: 10,
               marginBottom: '1rem',
               textAlign: 'center',
-              color: '#1E293B',
+              color: 'var(--rz-primary)',
               fontFamily: 'Tajawal, sans-serif',
               fontSize: '0.9rem',
             }}
@@ -1189,7 +1191,7 @@ const AddProductModal = ({
             <label
               style={{
                 display: 'block',
-                color: '#404040',
+                color: 'var(--rz-muted)',
                 marginBottom: '0.3rem',
                 fontFamily: 'Tajawal',
               }}
@@ -1224,7 +1226,7 @@ const AddProductModal = ({
               <label
                 style={{
                   display: 'block',
-                  color: '#404040',
+                  color: 'var(--rz-muted)',
                   marginBottom: '0.3rem',
                   fontFamily: 'Tajawal',
                 }}
@@ -1253,7 +1255,7 @@ const AddProductModal = ({
               <label
                 style={{
                   display: 'block',
-                  color: '#404040',
+                  color: 'var(--rz-muted)',
                   marginBottom: '0.3rem',
                   fontFamily: 'Tajawal',
                 }}
@@ -1280,7 +1282,7 @@ const AddProductModal = ({
             <label
               style={{
                 display: 'block',
-                color: '#404040',
+                color: 'var(--rz-muted)',
                 marginBottom: '0.3rem',
                 fontFamily: 'Tajawal',
               }}
@@ -1306,7 +1308,7 @@ const AddProductModal = ({
             <label
               style={{
                 display: 'block',
-                color: '#404040',
+                color: 'var(--rz-muted)',
                 marginBottom: '0.3rem',
                 fontFamily: 'Tajawal',
               }}
@@ -1335,7 +1337,7 @@ const AddProductModal = ({
             <label
               style={{
                 display: 'block',
-                color: '#404040',
+                color: 'var(--rz-muted)',
                 marginBottom: '0.3rem',
                 fontFamily: 'Tajawal',
               }}
@@ -1370,11 +1372,11 @@ const AddProductModal = ({
                 flex: 1,
                 padding: '0.85rem',
                 background: saving
-                  ? 'rgba(30,41,59,0.5)'
-                  : 'linear-gradient(135deg, #1E293B, #1E293B)',
+                  ? 'rgba(var(--rz-primary-rgb), 0.5)'
+                  : 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
                 border: 'none',
                 borderRadius: 12,
-                color: '#FFFFFF',
+                color: 'var(--rz-white)',
                 fontWeight: 700,
                 fontSize: '1rem',
                 cursor: saving ? 'not-allowed' : 'pointer',
@@ -1396,9 +1398,9 @@ const AddProductModal = ({
                 flex: 1,
                 padding: '0.85rem',
                 background: 'transparent',
-                border: '1px solid #202A3A',
+                border: '1px solid var(--rz-ink)',
                 borderRadius: 12,
-                color: '#404040',
+                color: 'var(--rz-muted)',
                 fontWeight: 600,
                 fontSize: '1rem',
                 cursor: saving ? 'not-allowed' : 'pointer',

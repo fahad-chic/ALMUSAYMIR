@@ -57,12 +57,12 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
     <div
       className="rooz-auction"
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E8E2D6',
+        background: 'var(--rz-white)',
+        border: '1px solid var(--rz-ivory)',
         borderRadius: 20,
         padding: 20,
         marginTop: 14,
-        boxShadow: '0 8px 30px rgba(32,42,58, 0.08)',
+        boxShadow: '0 8px 30px rgba(var(--rz-ink-rgb), 0.08)',
       }}
     >
       <h3
@@ -77,7 +77,7 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
           gap: 8,
         }}
       >
-        <Gavel size={20} color="#1E293B" /> حراج المزاد العلني
+        <Gavel size={20} color="var(--rz-primary)" /> حراج المزاد العلني
       </h3>
 
       <div
@@ -88,21 +88,21 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
           textAlign: 'center',
         }}
       >
-        <div style={{ background: 'rgba(30,41,59, 0.06)', borderRadius: 14, padding: 12 }}>
-          <div style={{ fontSize: 12, color: '#404040', fontWeight: 700 }}>أعلى مزايدة</div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#1E293B' }}>
+        <div style={{ background: 'rgba(var(--rz-primary-rgb), 0.06)', borderRadius: 14, padding: 12 }}>
+          <div style={{ fontSize: 12, color: 'var(--rz-muted)', fontWeight: 700 }}>أعلى مزايدة</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--rz-primary)' }}>
             {highest.toLocaleString()} <span style={{ fontSize: 13 }}>ريال</span>
           </div>
         </div>
-        <div style={{ background: 'rgba(30,41,59, 0.06)', borderRadius: 14, padding: 12 }}>
-          <div style={{ fontSize: 12, color: '#404040', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ background: 'rgba(var(--rz-primary-rgb), 0.06)', borderRadius: 14, padding: 12 }}>
+          <div style={{ fontSize: 12, color: 'var(--rz-muted)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
             <Timer size={13} /> الوقت المتبقي
           </div>
           <div
             style={{
               fontSize: 22,
               fontWeight: 900,
-              color: ended ? '#1E293B' : '#202A3A',
+              color: ended ? 'var(--rz-primary)' : 'var(--rz-ink)',
               fontVariantNumeric: 'tabular-nums',
             }}
           >
@@ -111,12 +111,12 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
         </div>
       </div>
 
-      <p style={{ margin: '12px 0 6px', fontSize: 12, color: '#404040', textAlign: 'center' }}>
+      <p style={{ margin: '12px 0 6px', fontSize: 12, color: 'var(--rz-muted)', textAlign: 'center' }}>
         مدة المزاد {AUCTION_DURATION_HOURS} ساعة من وقت النشر — {bids.length} مزايدة.
       </p>
 
       {isTopBidder && !ended && (
-        <p style={{ margin: '0 0 8px', textAlign: 'center', fontSize: 13, fontWeight: 800, color: '#404040' }}>
+        <p style={{ margin: '0 0 8px', textAlign: 'center', fontSize: 13, fontWeight: 800, color: 'var(--rz-muted)' }}>
           أنت صاحب أعلى مزايدة حالياً ✓
         </p>
       )}
@@ -135,13 +135,13 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
             placeholder={`أعلى من ${highest.toLocaleString()}`}
             style={{
               flex: 1,
-              border: '1px solid rgba(30,41,59, 0.22)',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.22)',
               borderRadius: 12,
               padding: '0.8rem 1rem',
               fontSize: 15,
               fontFamily: 'inherit',
-              background: '#E8E2D6',
-              color: '#202A3A',
+              background: 'var(--rz-ivory)',
+              color: 'var(--rz-ink)',
               outline: 'none',
             }}
           />
@@ -150,8 +150,8 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
             onClick={submit}
             disabled={disabled}
             style={{
-              background: 'linear-gradient(135deg, #1E293B, #1E293B)',
-              color: '#E8E2D6',
+              background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+              color: 'var(--rz-ivory)',
               border: 'none',
               borderRadius: 12,
               padding: '0 20px',
@@ -169,13 +169,13 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
           </button>
         </div>
       ) : (
-        <p style={{ margin: '6px 0 0', textAlign: 'center', fontWeight: 800, color: '#1E293B' }}>
+        <p style={{ margin: '6px 0 0', textAlign: 'center', fontWeight: 800, color: 'var(--rz-primary)' }}>
           انتهى المزاد — الفائز بأعلى مزايدة
         </p>
       )}
 
       {error && (
-        <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#B3261E', textAlign: 'center' }}>{error}</p>
+        <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rz-error)', textAlign: 'center' }}>{error}</p>
       )}
 
       {bids.length > 0 && (
@@ -199,8 +199,8 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  background: '#E8E2D6',
-                  border: '1px solid #E8E2D6',
+                  background: 'var(--rz-ivory)',
+                  border: '1px solid var(--rz-ivory)',
                   borderRadius: 10,
                   padding: '7px 12px',
                   fontSize: 13,
@@ -208,7 +208,7 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
                 }}
               >
                 <span>{bid.bidderName || 'مزايد'}</span>
-                <span style={{ color: '#1E293B' }}>{Number(bid.amount || 0).toLocaleString()} ريال</span>
+                <span style={{ color: 'var(--rz-primary)' }}>{Number(bid.amount || 0).toLocaleString()} ريال</span>
               </li>
             ))}
         </ul>

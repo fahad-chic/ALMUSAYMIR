@@ -441,7 +441,7 @@ const page = {
   minHeight: '100vh',
   width: '100%',
   background:
-    'radial-gradient(circle at top, rgba(30,41,59,0.10), transparent 40%), linear-gradient(135deg, #E8E2D6 0%, #E8E2D6 50%, #E8E2D6 100%)',
+    'radial-gradient(circle at top, rgba(var(--rz-primary-rgb), 0.10), transparent 40%), linear-gradient(135deg, var(--rz-ivory) 0%, var(--rz-ivory) 50%, var(--rz-ivory) 100%)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -451,14 +451,14 @@ const page = {
 };
 
 const card = {
-  background: '#FFFFFF',
+  background: 'var(--rz-white)',
   padding: '30px 26px',
   borderRadius: 22,
   width: '100%',
   maxWidth: 430,
-  border: '1px solid rgba(32,42,58,0.08)',
+  border: '1px solid rgba(var(--rz-ink-rgb), 0.08)',
   boxShadow:
-    '0 22px 60px rgba(32,42,58,0.12), inset 0 1px 0 rgba(255,255,255,0.6)',
+    '0 22px 60px rgba(var(--rz-ink-rgb), 0.12), inset 0 1px 0 rgba(var(--rz-white-rgb), 0.6)',
   textAlign: 'center',
   boxSizing: 'border-box',
 };
@@ -472,15 +472,15 @@ const brandMark = {
   alignItems: 'center',
   justifyContent: 'center',
   background:
-    'linear-gradient(145deg, #1E293B 0%, #1E293B 55%, #1E293B 100%)',
-  color: '#FFFFFF',
+    'linear-gradient(145deg, var(--rz-primary) 0%, var(--rz-primary) 55%, var(--rz-primary) 100%)',
+  color: 'var(--rz-white)',
   fontSize: 25,
   fontWeight: 900,
-  boxShadow: '0 8px 24px rgba(30,41,59,0.2)',
+  boxShadow: '0 8px 24px rgba(var(--rz-primary-rgb), 0.2)',
 };
 
 const title = {
-  color: '#202A3A',
+  color: 'var(--rz-ink)',
   fontSize: 26,
   fontWeight: 900,
   margin: '0 0 6px',
@@ -488,13 +488,13 @@ const title = {
 };
 
 const subtitle = {
-  color: '#404040',
+  color: 'var(--rz-muted)',
   fontSize: 13,
   margin: '0 0 22px',
 };
 
 const label = {
-  color: '#202A3A',
+  color: 'var(--rz-ink)',
   fontSize: 14,
   fontWeight: 700,
   textAlign: 'right',
@@ -512,7 +512,7 @@ const inputIcon = {
   top: '50%',
   left: 13,
   transform: 'translateY(-50%)',
-  color: '#1E293B',
+  color: 'var(--rz-primary)',
   zIndex: 1,
   pointerEvents: 'none',
 };
@@ -522,10 +522,10 @@ const input = {
   minHeight: 48,
   padding: '12px 14px 12px 42px',
   borderRadius: 12,
-  border: '1px solid rgba(32,42,58,0.14)',
+  border: '1px solid rgba(var(--rz-ink-rgb), 0.14)',
   outline: 'none',
-  background: '#E8E2D6',
-  color: '#202A3A',
+  background: 'var(--rz-ivory)',
+  color: 'var(--rz-ink)',
   fontSize: 15,
   fontFamily: 'Tajawal, Tajawal, sans-serif',
   boxSizing: 'border-box',
@@ -537,16 +537,16 @@ const submitBtn = {
   minHeight: 50,
   padding: '13px 14px',
   background:
-    'linear-gradient(135deg, #1E293B 0%, #1E293B 48%, #1E293B 100%)',
-  color: '#FFFFFF',
-  border: '1px solid rgba(239,233,223,0.45)',
+    'linear-gradient(135deg, var(--rz-primary) 0%, var(--rz-primary) 48%, var(--rz-primary) 100%)',
+  color: 'var(--rz-white)',
+  border: '1px solid rgba(var(--rz-cream-4-rgb), 0.45)',
   borderRadius: 12,
   fontWeight: 800,
   cursor: 'pointer',
   marginTop: 5,
   fontSize: 15,
   fontFamily: 'Tajawal, Tajawal, sans-serif',
-  boxShadow: '0 8px 24px rgba(30,41,59,0.16)',
+  boxShadow: '0 8px 24px rgba(var(--rz-primary-rgb), 0.16)',
   transition: 'transform 160ms ease, opacity 160ms ease',
 };
 
@@ -567,28 +567,28 @@ const spinner = {
   width: 15,
   height: 15,
   borderRadius: '50%',
-  border: '2px solid rgba(32,42,58,0.25)',
-  borderTopColor: '#202A3A',
+  border: '2px solid rgba(var(--rz-ink-rgb), 0.25)',
+  borderTopColor: 'var(--rz-ink)',
   display: 'inline-block',
   animation: 'roozRegisterSpin 700ms linear infinite',
 };
 
 const switchForm = {
   margin: '21px 0 0',
-  color: '#404040',
+  color: 'var(--rz-muted)',
   fontSize: 14,
 };
 
 const link = {
-  color: '#1E293B',
+  color: 'var(--rz-primary)',
   fontWeight: 800,
   textDecoration: 'none',
 };
 
 const alertError = {
-  background: '#EFE9DF',
-  border: '1px solid rgba(30,41,59,0.25)',
-  color: '#1E293B',
+  background: 'var(--rz-cream-4)',
+  border: '1px solid rgba(var(--rz-primary-rgb), 0.25)',
+  color: 'var(--rz-primary)',
   padding: '11px 12px',
   borderRadius: 11,
   marginBottom: 17,
@@ -601,9 +601,9 @@ const alertError = {
 };
 
 const alertSuccess = {
-  background: '#E8E2D6',
-  border: '1px solid rgba(32,42,58,0.25)',
-  color: '#202A3A',
+  background: 'var(--rz-ivory)',
+  border: '1px solid rgba(var(--rz-ink-rgb), 0.25)',
+  color: 'var(--rz-ink)',
   padding: '11px 12px',
   borderRadius: 11,
   marginBottom: 17,

@@ -63,14 +63,14 @@ export const BANK_ACCOUNTS = Object.freeze([
     name: CONTACT_INFO.BANK_RAJHI_NAME,
     iban: CONTACT_INFO.BANK_RAJHI,
     account: CONTACT_INFO.BANK_RAJHI_ACCOUNT,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
   {
     id: 'arabank',
     name: CONTACT_INFO.BANK_ARABI_NAME,
     iban: CONTACT_INFO.BANK_ARABI,
     account: CONTACT_INFO.BANK_ARABI_ACCOUNT,
-    color: '#1E293B',
+    color: 'var(--rz-primary)',
   },
 ]);
 

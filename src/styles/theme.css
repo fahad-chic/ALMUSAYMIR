@@ -1,0 +1,272 @@
+/* ============================================================
+   ROOZ THEME — ملف الألوان الوحيد للموقع (Single Source of Truth)
+   ------------------------------------------------------------
+   كل ألوان الموقع (الصفحات، الأزرار، الأيقونات، المربعات، اللافتات...)
+   معرّفة هنا كمتغيّرات CSS داخل :root فقط. بقية الملفات تقرأ منها،
+   فتصبح تغيير هوية الموقع كاملة ممكنًا من هذا الملف وحده.
+
+   يُستورد هذا الملف **أخيراً** في src/main.jsx ليتقدّم على أي هوية سابقة.
+
+   ── كيف أغيّر اللون الأساسي من مكان واحد؟ ──
+      عدّل سطرًا واحدًا فقط:
+          --rz-primary-rgb: 30, 41, 59;     ← الصيغة: R, G, B
+      فيتبدّل اللون الأساسي في الموقع كامل (أزرار، ترويسة، روابط، أيقونات…).
+   ============================================================ */
+
+:root {
+  /* ============================================================
+     1) الهوية الأساسية (Master brand)
+     ============================================================ */
+  --rz-primary-rgb: 30, 41, 59;              /* ← غيّر هذا السطر فقط */
+  --rz-primary: rgb(var(--rz-primary-rgb));
+
+  --rz-burgundy-rgb: var(--rz-primary-rgb);  /* عنابي = الأساسي (توافق قديم) */
+  --rz-burgundy: rgb(var(--rz-burgundy-rgb));
+  --rz-burgundy-deep: var(--rz-burgundy);
+
+  /* ============================================================
+     2) الألوان الجوهرية (Core palette)
+     ============================================================ */
+  --rz-ink-rgb: 32, 42, 58;                  /* نص داكن  #202A3A */
+  --rz-ink: rgb(var(--rz-ink-rgb));
+  --rz-dark: var(--rz-ink);
+
+  --rz-ivory-rgb: 232, 226, 214;             /* خلفية عاجية #E8E2D6 */
+  --rz-ivory: rgb(var(--rz-ivory-rgb));
+  --rz-white: #FFFFFF;
+  --rz-white-rgb: 255, 255, 255;
+
+  --rz-muted-rgb: 64, 64, 64;                /* نص ثانوي #404040 */
+  --rz-muted: rgb(var(--rz-muted-rgb));
+
+  --rz-slate-rgb: 15, 23, 42;                /* كحلي عميق #0F172A */
+  --rz-slate: rgb(var(--rz-slate-rgb));
+
+  --rz-gold-rgb: 184, 164, 122;              /* ذهبي #B8A47A */
+  --rz-gold: rgb(var(--rz-gold-rgb));
+  --rz-gold-soft: var(--rz-gold);
+  --rz-gold-ink-rgb: 107, 90, 56;            /* #6B5A38 نص على ذهبي فاتح */
+  --rz-gold-ink: rgb(var(--rz-gold-ink-rgb));
+
+  --rz-silver-rgb: 213, 208, 197;            /* رمادي فضي #D5D0C5 */
+  --rz-silver: rgb(var(--rz-silver-rgb));
+
+  --rz-sand-rgb: 241, 236, 227;              /* حقل إدخال #F1ECE3 */
+  --rz-sand: rgb(var(--rz-sand-rgb));
+
+  /* أسطح كريمية فاتحة (صفحات المالك) */
+  --rz-cream-rgb: 247, 243, 235;
+  --rz-cream: rgb(var(--rz-cream-rgb));      /* #F7F3EB */
+  --rz-cream-2: #F7F3EC;
+  --rz-cream-3: #F5EFE3;
+  --rz-cream-4: #EFE9DF;
+  --rz-cream-4-rgb: 239, 233, 223;
+  --rz-cream-5: #FFF7ED;
+  --rz-cream-6: #F4F0E8;
+  --rz-cream-6-rgb: 244, 240, 232;
+  --rz-cream-7: #FAF8F4;
+  --rz-cream-8: #F8FAFC;
+
+  /* حالات: نجاح / خطأ */
+  --rz-success-rgb: 31, 122, 77;
+  --rz-success: rgb(var(--rz-success-rgb));  /* #1F7A4D */
+  --rz-success-bg: #E7F3EA;
+  --rz-success-line: #A8D3BA;
+
+  --rz-error-rgb: 179, 38, 30;
+  --rz-error: rgb(var(--rz-error-rgb));      /* #B3261E */
+  --rz-error-bg: #FBEAE7;
+  --rz-error-line: #E7B4AD;
+
+  /* حالات إضافية (تحذير/معلومة) — مشتقّة من الأساسي */
+  --rz-warning: var(--rz-primary);
+  --rz-warning-rgb: var(--rz-primary-rgb);
+  --rz-info: var(--rz-primary);
+  --rz-info-rgb: var(--rz-primary-rgb);
+
+  /* محايدات وحدود عامة */
+  --rz-black: #000000;
+  --rz-black-rgb: 0, 0, 0;
+  --rz-border: #D5D0C5;
+
+  /* رماديات/أسطح إضافية مستخدمة في صفحات المالك واللوحات */
+  --rz-slate-700: #334155;
+  --rz-slate-300: #CBD5E1;
+  --rz-slate-200: #E2E8F0;
+  --rz-slate-200-rgb: 226, 232, 240;
+  --rz-gray-500: #6B7280;
+  --rz-ink-2: #243044;
+  --rz-pearl-0: #EDE7DD;
+  --rz-pearl-1-rgb: 200, 195, 182;
+  --rz-pearl-2: #E1DBCF;
+  --rz-pearl-shadow-rgb: 50, 66, 88;
+  --rz-champagne: #E3C878;
+  --rz-champagne-rgb: 227, 200, 120;
+  --rz-gold-deep-rgb: 166, 124, 46;
+  --rz-gold-shadow-rgb: 150, 138, 108;
+  --rz-shadow-warm-rgb: 120, 112, 96;
+
+  /* ألوان شرائح الصلاحيات (رموز الأدوار) */
+  --rz-role-active-bg: #FFFBEB;
+  --rz-role-staff-bg: #FEF3C7;
+  --rz-role-staff-line: #FCD34D;
+  --rz-role-catalog-bg: #FDF4FF;
+  --rz-role-catalog-line: #D8B4FE;
+  --rz-role-master-bg: var(--rz-cream-5);
+  --rz-role-master-line: #FDBA74;
+  --rz-role-haraj-bg: #F0FDF4;
+  --rz-role-haraj-line: #86EFAC;
+  --rz-role-users-bg: #EFF6FF;
+  --rz-role-users-line: #93C5FD;
+  --rz-role-spy-bg: #EEF2FF;
+  --rz-role-spy-line: #A5B4FC;
+
+  /* ============================================================
+     3) ظلال وحدود وأبعاد
+     ============================================================ */
+  --rz-line: rgba(var(--rz-primary-rgb), 0.14);
+  --rz-line-soft: rgba(var(--rz-ink-rgb), 0.08);
+  --rz-line-gold: rgba(var(--rz-gold-rgb), 0.42);
+  --rz-glass: rgba(var(--rz-white-rgb), 0.08);
+  --rz-glass-strong: rgba(var(--rz-white-rgb), 0.16);
+
+  --rz-shadow-sm: 0 4px 16px -10px rgba(var(--rz-primary-rgb), 0.30);
+  --rz-shadow: 0 12px 34px -18px rgba(var(--rz-primary-rgb), 0.38);
+  --rz-shadow-lg: 0 26px 60px -28px rgba(var(--rz-primary-rgb), 0.48);
+
+  --rz-radius: 16px;
+  --rz-radius-sm: 12px;
+  --rz-radius-xs: 9px;
+  --rz-header-h: 66px;
+
+  --rz-font: 'Tajawal', system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+
+  /* ============================================================
+     4) جسر التوافق مع الهويات القديمة
+     القيم هنا مُطابِقة تماماً للقيم الفعلية قبل التوحيد (بلا أي تغيير بصري).
+     ============================================================ */
+  /* contour-theme */
+  --co-bg: var(--rz-ivory);
+  --co-surface: var(--rz-white);
+  --co-ink: var(--rz-ink);
+  --co-ink-2: var(--rz-ink);
+  --co-muted: var(--rz-muted);
+  --co-line: var(--rz-ivory);
+  --co-primary: var(--rz-primary);
+  --co-primary-deep: var(--rz-primary);
+  --co-primary-soft: var(--rz-ivory);
+  --co-accent: var(--rz-primary);
+  --co-dark: var(--rz-ink);
+  --co-radius: 14px;
+  --co-radius-sm: 10px;
+  --co-font: var(--rz-font);
+  --co-shadow: 0 6px 22px -12px rgba(var(--rz-ink-rgb), 0.28);
+  --co-shadow-lg: 0 18px 44px -22px rgba(var(--rz-ink-rgb), 0.4);
+
+  /* nova-theme */
+  --nv-void: var(--rz-primary);
+  --nv-surface: var(--rz-white);
+  --nv-elevated: var(--rz-white);
+  --nv-panel: var(--rz-white);
+  --nv-ivory: var(--rz-ivory);
+  --nv-ivory-2: var(--rz-ivory);
+  --nv-ivory-3: var(--rz-ivory);
+  --nv-copper: var(--rz-primary);
+  --nv-copper-bright: var(--rz-gold);
+  --nv-copper-deep: var(--rz-primary);
+  --nv-copper-glow: rgba(var(--rz-primary-rgb), 0.28);
+  --nv-ink: var(--rz-ink);
+  --nv-ink-2: var(--rz-ink);
+  --nv-mist: var(--rz-muted);
+  --nv-line: var(--rz-line-gold);
+  --nv-line-soft: var(--rz-line);
+  --nv-success: var(--rz-ink);
+  --nv-danger: var(--rz-primary);
+  --nv-radius: var(--rz-radius);
+  --nv-radius-sm: var(--rz-radius-sm);
+  --nv-radius-xs: var(--rz-radius-xs);
+  --nv-font: var(--rz-font);
+  --nv-shadow: var(--rz-shadow-sm);
+  --nv-shadow-lg: var(--rz-shadow);
+
+  /* chic-home */
+  --ch-bg-0: var(--rz-white);
+  --ch-bg-1: var(--rz-ivory);
+  --ch-bg-2: var(--rz-ivory);
+  --ch-card: var(--rz-white);
+  --ch-ink: var(--rz-ink);
+  --ch-ink-2: var(--rz-ink);
+  --ch-ink-soft: var(--rz-muted);
+  --ch-gold: var(--rz-gold);
+  --ch-gold-deep: var(--rz-gold);
+  --ch-gold-bright: var(--rz-gold);
+  --ch-gold-soft: var(--rz-ivory);
+  --ch-gold-line: var(--rz-line-gold);
+  --ch-gold-glow: rgba(var(--rz-primary-rgb), 0.35);
+  --ch-gold-shine: var(--rz-gold);
+  --ch-font: var(--rz-font);
+
+  /* royal-home */
+  --rh-cream-0: var(--rz-white);
+  --rh-gold: var(--rz-gold);
+  --rh-gold-deep: var(--rz-gold);
+  --rh-brown: var(--rz-ink);
+  --rh-font: var(--rz-font);
+
+  /* pearl */
+  --rzp-pearl: var(--rz-cream-6);
+  --rzp-ivory: var(--rz-ivory);
+  --rzp-silver: var(--rz-silver);
+  --rzp-champagne: var(--rz-gold);
+  --rzp-ink: var(--rz-muted);
+  --rzp-ink-2: var(--rz-muted);
+  --rzp-green: var(--rz-muted);
+  --rzp-line: var(--rz-silver);
+  --rzp-line-2: #E3DDD1;
+
+  /* المتغيّرات القديمة (index/global) */
+  --nav-height: 56px;
+  --primary-dark: var(--rz-ink);
+  --secondary-gold: var(--rz-primary);
+  --gold-primary: var(--rz-primary);
+  --gold-dark: var(--rz-primary);
+  --gold-soft: var(--rz-ink);
+  --gold-bright: var(--rz-primary);
+  --gold-deep: var(--rz-primary);
+  --gold-glow: rgba(var(--rz-primary-rgb), 0.12);
+  --white: var(--rz-white);
+  --cream: var(--rz-ivory);
+  --cream-light: var(--rz-ivory);
+  --cream-deep: var(--rz-ivory);
+  --light-gray: var(--rz-ivory);
+  --dark-gray: var(--rz-ink);
+  --brown-dark: var(--rz-ink);
+  --brown-soft: var(--rz-ink);
+  --border-gray: rgba(var(--rz-primary-rgb), 0.22);
+  --border-gold: rgba(var(--rz-primary-rgb), 0.42);
+  --border-subtle: rgba(var(--rz-ink-rgb), 0.08);
+  --success: var(--rz-ink);
+  --danger: var(--rz-primary);
+  --warning: var(--rz-primary);
+  --info: var(--rz-primary);
+  --bg-deep: var(--rz-ivory);
+  --bg-mid: var(--rz-ivory);
+  --bg-card: rgba(var(--rz-ivory-rgb), 0.94);
+  --text-primary: var(--rz-ink);
+  --text-secondary: var(--rz-ink);
+  --text-muted: var(--rz-muted);
+  --state-error: var(--rz-error);
+  --state-error-bg: var(--rz-error-bg);
+  --state-success: var(--rz-success);
+  --state-success-bg: var(--rz-success-bg);
+  --shadow-gold: 0 8px 32px rgba(var(--rz-primary-rgb), 0.14);
+  --shadow-card: 0 4px 20px rgba(var(--rz-ink-rgb), 0.10);
+  --font-family: var(--rz-font);
+  --transition: 0.22s ease;
+
+  /* الأبعاد القديمة */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+}

@@ -820,10 +820,10 @@ const OwnerPrivateRoom = () => {
 
   if (loading) {
     return (
-      <div dir="rtl" lang="ar" className="min-h-screen bg-[#E8E2D6] flex items-center justify-center">
+      <div dir="rtl" lang="ar" className="min-h-screen bg-[var(--rz-ivory)] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-14 h-14 border-4 border-[#1E293B]/30 border-t-[#1E293B] rounded-full mx-auto mb-4" />
-          <p className="text-[#202A3A] font-bold">
+          <div className="animate-spin w-14 h-14 border-4 border-[var(--rz-primary)]/30 border-t-[var(--rz-primary)] rounded-full mx-auto mb-4" />
+          <p className="text-[var(--rz-ink)] font-bold">
             جاري تحميل غرفة صاحب موقع أناقة ROOZ...
           </p>
         </div>
@@ -990,17 +990,17 @@ const OwnerPrivateRoom = () => {
       dir="rtl"
       lang="ar"
       className={`min-h-screen owner-console-room ${darkMode ? 'owner-dark' : ''}`}
-      style={darkMode ? { background: '#202A3A', color: '#E8E2D6' } : { background: '#E8E2D6', color: '#202A3A' }}
+      style={darkMode ? { background: 'var(--rz-ink)', color: 'var(--rz-ivory)' } : { background: 'var(--rz-ivory)', color: 'var(--rz-ink)' }}
     >
       <style>{`
         .owner-console-room {
           direction: rtl;
           text-align: start;
           background:
-            radial-gradient(circle at top right, rgba(30,41,59,.16), transparent 32%),
-            radial-gradient(circle at bottom left, rgba(30,41,59,.10), transparent 30%),
-            linear-gradient(160deg, #E8E2D6 0%, #E8E2D6 55%, #E8E2D6 100%);
-          color: #202A3A;
+            radial-gradient(circle at top right, rgba(var(--rz-primary-rgb), .16), transparent 32%),
+            radial-gradient(circle at bottom left, rgba(var(--rz-primary-rgb), .10), transparent 30%),
+            linear-gradient(160deg, var(--rz-ivory) 0%, var(--rz-ivory) 55%, var(--rz-ivory) 100%);
+          color: var(--rz-ink);
         }
 
         .owner-console-room [dir="ltr"] {
@@ -1011,21 +1011,21 @@ const OwnerPrivateRoom = () => {
 
         .owner-console-room .royal-surface {
           background:
-            linear-gradient(165deg, rgba(232,226,214,.96), rgba(239,233,223,.96));
-          border-color: rgba(30,41,59,.28);
-          box-shadow: 0 10px 28px rgba(32,42,58,.08);
+            linear-gradient(165deg, rgba(var(--rz-ivory-rgb), .96), rgba(var(--rz-cream-4-rgb), .96));
+          border-color: rgba(var(--rz-primary-rgb), .28);
+          box-shadow: 0 10px 28px rgba(var(--rz-ink-rgb), .08);
         }
 
         .owner-console-room .royal-muted {
-          color: #202A3A;
+          color: var(--rz-ink);
         }
 
         .owner-console-room .royal-text {
-          color: #202A3A;
+          color: var(--rz-ink);
         }
 
         .owner-console-room .royal-border {
-          border-color: rgba(30,41,59,.28);
+          border-color: rgba(var(--rz-primary-rgb), .28);
         }
 
         .owner-console-room .icon-card {
@@ -1034,8 +1034,8 @@ const OwnerPrivateRoom = () => {
           max-width: 100%;
           overflow: visible;
           background:
-            linear-gradient(145deg, rgba(232,226,214,.98), rgba(239,233,223,.92));
-          border: 1px solid rgba(30,41,59,.26);
+            linear-gradient(145deg, rgba(var(--rz-ivory-rgb), .98), rgba(var(--rz-cream-4-rgb), .92));
+          border: 1px solid rgba(var(--rz-primary-rgb), .26);
           transition:
             transform .2s ease,
             border-color .2s ease,
@@ -1045,17 +1045,17 @@ const OwnerPrivateRoom = () => {
 
         .owner-console-room .icon-card:hover {
           transform: translateY(-2px);
-          border-color: rgba(30,41,59,.72);
+          border-color: rgba(var(--rz-primary-rgb), .72);
           background:
-            linear-gradient(145deg, rgba(232,226,214,.99), rgba(239,233,223,.96));
-          box-shadow: 0 12px 30px rgba(32,42,58,.12);
+            linear-gradient(145deg, rgba(var(--rz-ivory-rgb), .99), rgba(var(--rz-cream-4-rgb), .96));
+          box-shadow: 0 12px 30px rgba(var(--rz-ink-rgb), .12);
         }
 
         .owner-console-room .icon-card.active {
-          border-color: rgba(30,41,59,.9);
+          border-color: rgba(var(--rz-primary-rgb), .9);
           box-shadow:
-            0 0 0 1px rgba(30,41,59,.14),
-            0 12px 32px rgba(32,42,58,.12);
+            0 0 0 1px rgba(var(--rz-primary-rgb), .14),
+            0 12px 32px rgba(var(--rz-ink-rgb), .12);
         }
 
         .owner-console-room button {
@@ -1066,7 +1066,7 @@ const OwnerPrivateRoom = () => {
         .owner-console-room textarea,
         .owner-console-room select {
           color-scheme: light;
-          color: #202A3A;
+          color: var(--rz-ink);
           font-weight: 600;
         }
 
@@ -1076,35 +1076,35 @@ const OwnerPrivateRoom = () => {
         }
 
         .owner-console-room ::-webkit-scrollbar-track {
-          background: rgba(30,41,59,.08);
+          background: rgba(var(--rz-primary-rgb), .08);
         }
 
         .owner-console-room ::-webkit-scrollbar-thumb {
-          background: rgba(30,41,59,.45);
+          background: rgba(var(--rz-primary-rgb), .45);
           border-radius: 999px;
         }
 
         .owner-console-room .gold-button {
-          background: linear-gradient(135deg, #FFFFFF, #F5EFE3);
-          color: #0F172A;
+          background: linear-gradient(135deg, var(--rz-white), var(--rz-cream-3));
+          color: var(--rz-slate);
           font-weight: 800;
-          border: 1px solid #B8A47A;
+          border: 1px solid var(--rz-gold);
         }
 
         .owner-console-room .gold-button:hover {
-          background: linear-gradient(135deg, #FFF7ED, #F5EFE3);
-          color: #0F172A;
+          background: linear-gradient(135deg, var(--rz-cream-5), var(--rz-cream-3));
+          color: var(--rz-slate);
         }
 
         .owner-console-room .light-field {
-          background: rgba(232,226,214,.92);
-          color: #202A3A;
-          border-color: rgba(30,41,59,.25);
+          background: rgba(var(--rz-ivory-rgb), .92);
+          color: var(--rz-ink);
+          border-color: rgba(var(--rz-primary-rgb), .25);
           font-weight: 600;
         }
 
         .owner-console-room .light-field::placeholder {
-          color: #1E293B;
+          color: var(--rz-primary);
         }
 
                 .owner-console-room .icon-card,
@@ -1115,108 +1115,108 @@ const OwnerPrivateRoom = () => {
         .owner-console-room .royal-surface h2,
         .owner-console-room .royal-surface h3,
         .owner-console-room .royal-surface h4 {
-          color: #0F172A;
+          color: var(--rz-slate);
           font-weight: 800;
         }
 
         .owner-console-room .view-only-badge {
-          background: rgba(30,41,59,.10);
-          color: #202A3A;
-          border-color: rgba(30,41,59,.25);
+          background: rgba(var(--rz-primary-rgb), .10);
+          color: var(--rz-ink);
+          border-color: rgba(var(--rz-primary-rgb), .25);
           font-weight: 700;
         }
 
         /* ===== وضع الليل ===== */
         .owner-console-room.owner-dark {
           background:
-            radial-gradient(circle at top right, rgba(30,41,59,.12), transparent 36%),
-            radial-gradient(circle at bottom left, rgba(30,41,59,.08), transparent 32%),
-            linear-gradient(160deg, #202A3A 0%, #202A3A 50%, #202A3A 100%) !important;
-          color: #E8E2D6 !important;
+            radial-gradient(circle at top right, rgba(var(--rz-primary-rgb), .12), transparent 36%),
+            radial-gradient(circle at bottom left, rgba(var(--rz-primary-rgb), .08), transparent 32%),
+            linear-gradient(160deg, var(--rz-ink) 0%, var(--rz-ink) 50%, var(--rz-ink) 100%) !important;
+          color: var(--rz-ivory) !important;
         }
 
         /* حتى في الوضع الليلي: بطاقات الخيارات والصلاحيات تبقى فاتحة ونص أسود عريض */
         .owner-console-room.owner-dark .royal-surface {
           background:
-            linear-gradient(165deg, #FFFFFF, #F7F3EC) !important;
-          border-color: rgba(184,164,122,.40) !important;
-          box-shadow: 0 10px 28px rgba(32,42,58,.12) !important;
-          color: #0F172A !important;
+            linear-gradient(165deg, var(--rz-white), var(--rz-cream-2)) !important;
+          border-color: rgba(var(--rz-gold-rgb), .40) !important;
+          box-shadow: 0 10px 28px rgba(var(--rz-ink-rgb), .12) !important;
+          color: var(--rz-slate) !important;
         }
 
         .owner-console-room.owner-dark .royal-muted {
-          color: #334155 !important;
+          color: var(--rz-slate-700) !important;
           font-weight: 700 !important;
         }
 
         .owner-console-room.owner-dark .royal-text {
-          color: #0F172A !important;
+          color: var(--rz-slate) !important;
           font-weight: 800 !important;
         }
 
         .owner-console-room.owner-dark .royal-border {
-          border-color: rgba(184,164,122,.35) !important;
+          border-color: rgba(var(--rz-gold-rgb), .35) !important;
         }
 
         .owner-console-room.owner-dark .icon-card {
           background:
-            linear-gradient(145deg, #FFFFFF, #F7F3EC) !important;
-          border: 1px solid rgba(184,164,122,.40) !important;
-          color: #0F172A !important;
+            linear-gradient(145deg, var(--rz-white), var(--rz-cream-2)) !important;
+          border: 1px solid rgba(var(--rz-gold-rgb), .40) !important;
+          color: var(--rz-slate) !important;
         }
 
         .owner-console-room.owner-dark .icon-card:hover {
-          border-color: #B8A47A !important;
+          border-color: var(--rz-gold) !important;
           background:
-            linear-gradient(145deg, #FFFFFF, #FFF7ED) !important;
-          box-shadow: 0 12px 30px rgba(184,164,122,.22) !important;
-          color: #0F172A !important;
+            linear-gradient(145deg, var(--rz-white), var(--rz-cream-5)) !important;
+          box-shadow: 0 12px 30px rgba(var(--rz-gold-rgb), .22) !important;
+          color: var(--rz-slate) !important;
         }
 
         .owner-console-room.owner-dark .icon-card.active {
-          border-color: #B8A47A !important;
+          border-color: var(--rz-gold) !important;
           background:
-            linear-gradient(145deg, #FFFFFF, #F5EFE3) !important;
+            linear-gradient(145deg, var(--rz-white), var(--rz-cream-3)) !important;
           box-shadow:
-            0 0 0 1px rgba(184,164,122,.35),
-            0 12px 32px rgba(184,164,122,.18) !important;
-          color: #0F172A !important;
+            0 0 0 1px rgba(var(--rz-gold-rgb), .35),
+            0 12px 32px rgba(var(--rz-gold-rgb), .18) !important;
+          color: var(--rz-slate) !important;
         }
 
         .owner-console-room.owner-dark input,
         .owner-console-room.owner-dark textarea,
         .owner-console-room.owner-dark select {
           color-scheme: dark;
-          color: #E8E2D6 !important;
+          color: var(--rz-ivory) !important;
         }
 
         .owner-console-room.owner-dark ::-webkit-scrollbar-track {
-          background: rgba(32,42,58,.25);
+          background: rgba(var(--rz-ink-rgb), .25);
         }
 
         .owner-console-room.owner-dark ::-webkit-scrollbar-thumb {
-          background: rgba(30,41,59,.45);
+          background: rgba(var(--rz-primary-rgb), .45);
         }
 
         .owner-console-room.owner-dark .gold-button {
-          background: linear-gradient(135deg, #1E293B, #1E293B);
-          color: #202A3A;
+          background: linear-gradient(135deg, var(--rz-primary), var(--rz-primary));
+          color: var(--rz-ink);
         }
 
         .owner-console-room.owner-dark .light-field {
-          background: rgba(32,42,58,.92) !important;
-          color: #E8E2D6 !important;
-          border-color: rgba(30,41,59,.35) !important;
+          background: rgba(var(--rz-ink-rgb), .92) !important;
+          color: var(--rz-ivory) !important;
+          border-color: rgba(var(--rz-primary-rgb), .35) !important;
         }
 
         .owner-console-room.owner-dark .light-field::placeholder {
-          color: #1E293B !important;
+          color: var(--rz-primary) !important;
         }
 
         .owner-console-room.owner-dark .view-only-badge {
-          background: rgba(30,41,59,.15) !important;
-          color: #E8E2D6 !important;
-          border-color: rgba(30,41,59,.3) !important;
+          background: rgba(var(--rz-primary-rgb), .15) !important;
+          color: var(--rz-ivory) !important;
+          border-color: rgba(var(--rz-primary-rgb), .3) !important;
         }
       `}</style>
 
@@ -1226,12 +1226,12 @@ const OwnerPrivateRoom = () => {
           style={{
             background:
               toast.type === 'error'
-                ? '#E8E2D6'
-                : '#E8E2D6',
+                ? 'var(--rz-ivory)'
+                : 'var(--rz-ivory)',
             borderColor:
               toast.type === 'error'
-                ? 'rgba(30,41,59,.30)'
-                : 'rgba(30,41,59,.35)'
+                ? 'rgba(var(--rz-primary-rgb), .30)'
+                : 'rgba(var(--rz-primary-rgb), .35)'
           }}
           role="status"
           aria-live="polite"
@@ -1242,12 +1242,12 @@ const OwnerPrivateRoom = () => {
               style={{
                 background:
                   toast.type === 'error'
-                    ? 'rgba(30,41,59,.10)'
-                    : 'rgba(30,41,59,.10)',
+                    ? 'rgba(var(--rz-primary-rgb), .10)'
+                    : 'rgba(var(--rz-primary-rgb), .10)',
                 color:
                   toast.type === 'error'
-                    ? '#1E293B'
-                    : '#1E293B'
+                    ? 'var(--rz-primary)'
+                    : 'var(--rz-primary)'
               }}
             >
               {toast.type === 'error'
@@ -1255,14 +1255,14 @@ const OwnerPrivateRoom = () => {
                 : <Check size={18} />}
             </div>
 
-            <p className="font-bold text-sm text-[#202A3A]">
+            <p className="font-bold text-sm text-[var(--rz-ink)]">
               {toast.message}
             </p>
 
             <button
               type="button"
               onClick={() => setToast(null)}
-              className="mr-auto p-1.5 rounded-lg hover:bg-[#1E293B]/10 text-[#202A3A]"
+              className="mr-auto p-1.5 rounded-lg hover:bg-[var(--rz-primary)]/10 text-[var(--rz-ink)]"
               aria-label="إغلاق"
             >
               <X size={16} />
@@ -1287,7 +1287,7 @@ const OwnerPrivateRoom = () => {
             <div className="min-w-0">
               <h1 className="text-base md:text-xl font-bold flex items-center gap-2 royal-text">
                 <Crown
-                  className="text-[#1E293B] flex-shrink-0"
+                  className="text-[var(--rz-primary)] flex-shrink-0"
                   size={24}
                 />
                 غرفة صاحب موقع أناقة ROOZ
@@ -1313,7 +1313,7 @@ const OwnerPrivateRoom = () => {
             <button
               type="button"
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg relative royal-text border border-transparent hover:border-[#1E293B]/20 transition-colors"
+              className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg relative royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
               title="الإشعارات"
               aria-label="الإشعارات"
               aria-expanded={showNotifications}
@@ -1321,7 +1321,7 @@ const OwnerPrivateRoom = () => {
               <Bell size={20} />
 
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-[#1E293B] rounded-full text-[10px] text-white flex items-center justify-center font-bold">
+                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-[var(--rz-primary)] rounded-full text-[10px] text-white flex items-center justify-center font-bold">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -1334,7 +1334,7 @@ const OwnerPrivateRoom = () => {
                   showToast('تم حفظ التعديل بنجاح')
                 )
               }
-              className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg royal-text border border-transparent hover:border-[#1E293B]/20 transition-colors"
+              className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
               title="تحديث البيانات"
               aria-label="تحديث البيانات"
             >
@@ -1344,7 +1344,7 @@ const OwnerPrivateRoom = () => {
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg royal-text border border-transparent hover:border-[#1E293B]/20 transition-colors"
+              className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
               title={darkMode ? 'الوضع النهاري' : 'وضع الليل'}
               aria-label={darkMode ? 'الوضع النهاري' : 'وضع الليل'}
             >
@@ -1359,9 +1359,9 @@ const OwnerPrivateRoom = () => {
                 position: 'static',
                 width: 38,
                 height: 38,
-                background: darkMode ? 'rgba(32,42,58,0.85)' : 'rgba(232,226,214,0.65)',
-                border: '1px solid rgba(30,41,59,0.3)',
-                color: darkMode ? '#E8E2D6' : '#202A3A',
+                background: darkMode ? 'rgba(var(--rz-ink-rgb), 0.85)' : 'rgba(var(--rz-ivory-rgb), 0.65)',
+                border: '1px solid rgba(var(--rz-primary-rgb), 0.3)',
+                color: darkMode ? 'var(--rz-ivory)' : 'var(--rz-ink)',
                 boxShadow: 'none',
                 top: 0
               }}
@@ -1370,7 +1370,7 @@ const OwnerPrivateRoom = () => {
             <button
               type="button"
               onClick={handleLogout}
-              className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg text-[#1E293B] border border-transparent hover:border-[#1E293B]/20 transition-colors"
+              className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)] border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
               title="تسجيل الخروج"
               aria-label="تسجيل الخروج"
             >
@@ -1384,12 +1384,12 @@ const OwnerPrivateRoom = () => {
         {sidebarOpen && (
           <>
             <div
-              className="fixed inset-0 bg-[#202A3A]/25 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-[var(--rz-ink)]/25 backdrop-blur-sm z-40 md:hidden"
               onClick={() => setSidebarOpen(false)}
               aria-hidden="true"
             />
 
-            <aside className="fixed inset-y-0 right-0 w-80 max-w-[90vw] bg-[#E8E2D6]/98 backdrop-blur-xl md:static md:w-72 md:max-w-none md:border-l royal-border p-3 md:p-4 md:min-h-screen z-50 overflow-y-auto shadow-2xl md:shadow-none">
+            <aside className="fixed inset-y-0 right-0 w-80 max-w-[90vw] bg-[var(--rz-ivory)]/98 backdrop-blur-xl md:static md:w-72 md:max-w-none md:border-l royal-border p-3 md:p-4 md:min-h-screen z-50 overflow-y-auto shadow-2xl md:shadow-none">
               <div className="flex items-center justify-between mb-4 md:hidden">
                 <div>
                   <span className="font-bold royal-text block">
@@ -1403,7 +1403,7 @@ const OwnerPrivateRoom = () => {
                 <button
                   type="button"
                   onClick={() => setSidebarOpen(false)}
-                  className="p-2 hover:bg-[#1E293B]/10 rounded-lg royal-text"
+                  className="p-2 hover:bg-[var(--rz-primary)]/10 rounded-lg royal-text"
                   aria-label="إغلاق القائمة"
                 >
                   <X size={18} />
@@ -1419,7 +1419,7 @@ const OwnerPrivateRoom = () => {
                       <div className="flex items-center gap-2 px-2 mb-2">
                         <GroupIcon
                           size={15}
-                          className="text-[#1E293B]"
+                          className="text-[var(--rz-primary)]"
                         />
                         <span className="text-xs font-bold royal-muted">
                           {group.title}
@@ -1448,8 +1448,8 @@ const OwnerPrivateRoom = () => {
                               <span
                                 className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
                                   active
-                                    ? 'bg-[#1E293B]/15 border-[#1E293B]/40 text-[#1E293B]'
-                                    : 'bg-[#1E293B]/5 border-[#1E293B]/15 text-[#1E293B]'
+                                    ? 'bg-[var(--rz-primary)]/15 border-[var(--rz-primary)]/40 text-[var(--rz-primary)]'
+                                    : 'bg-[var(--rz-primary)]/5 border-[var(--rz-primary)]/15 text-[var(--rz-primary)]'
                                 }`}
                               >
                                 <TabIcon size={20} />
@@ -1487,7 +1487,7 @@ const OwnerPrivateRoom = () => {
 
                   return (
                     <>
-                      <div className="w-12 h-12 rounded-xl bg-[#1E293B]/10 border border-[#1E293B]/30 flex items-center justify-center text-[#1E293B]">
+                      <div className="w-12 h-12 rounded-xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/30 flex items-center justify-center text-[var(--rz-primary)]">
                         <CurrentIcon size={24} />
                       </div>
 
@@ -1509,7 +1509,7 @@ const OwnerPrivateRoom = () => {
               <button
                 type="button"
                 onClick={goBackOneStep}
-                className="px-3.5 py-2.5 rounded-xl border border-[#1E293B]/40 bg-[#1E293B]/10 text-[#202A3A] hover:bg-[#1E293B]/20 text-xs font-bold flex items-center gap-2 shadow-sm"
+                className="px-3.5 py-2.5 rounded-xl border border-[var(--rz-primary)]/40 bg-[var(--rz-primary)]/10 text-[var(--rz-ink)] hover:bg-[var(--rz-primary)]/20 text-xs font-bold flex items-center gap-2 shadow-sm"
                 aria-label="رجوع خطوة واحدة داخل الغرفة"
                 title={activeTab === 'center' ? 'أنت في المركز الرئيسي' : 'رجوع للقسم السابق'}
               >
@@ -1524,7 +1524,7 @@ const OwnerPrivateRoom = () => {
               <div className="flex flex-col md:flex-row gap-3">
                 <div className="flex-1 relative min-w-0">
                   <Search
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1E293B]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--rz-primary)]"
                     size={19}
                   />
 
@@ -1535,7 +1535,7 @@ const OwnerPrivateRoom = () => {
                     onChange={(e) =>
                       setSearchTerm(e.target.value)
                     }
-                    className="w-full light-field border rounded-xl pl-4 pr-10 py-3 text-sm focus:border-[#1E293B]/60 focus:outline-none transition-all font-semibold"
+                    className="w-full light-field border rounded-xl pl-4 pr-10 py-3 text-sm focus:border-[var(--rz-primary)]/60 focus:outline-none transition-all font-semibold"
                   />
                 </div>
 
@@ -1544,7 +1544,7 @@ const OwnerPrivateRoom = () => {
                   onChange={(e) =>
                     setFilterType(e.target.value)
                   }
-                  className="md:w-48 light-field border rounded-xl px-4 py-3 text-sm focus:border-[#1E293B]/60 focus:outline-none font-semibold"
+                  className="md:w-48 light-field border rounded-xl px-4 py-3 text-sm focus:border-[var(--rz-primary)]/60 focus:outline-none font-semibold"
                   aria-label="تصفية النتائج"
                 >
                   <option value="all">الكل</option>
@@ -1683,15 +1683,15 @@ const OwnerPrivateRoom = () => {
         <>
           <div
             className="fixed inset-0 z-40"
-            style={{ background: 'rgba(32,42,58,0.16)' }}
+            style={{ background: 'rgba(var(--rz-ink-rgb), 0.16)' }}
             onClick={() => setShowNotifications(false)}
             aria-hidden="true"
           />
 
-          <div className="fixed top-20 left-3 right-3 sm:left-auto sm:right-4 sm:w-96 bg-[#E8E2D6]/98 backdrop-blur-xl rounded-2xl border border-[#1E293B]/30 shadow-2xl z-50 max-h-[75vh] overflow-hidden">
-            <div className="p-4 border-b border-[#1E293B]/15 flex items-center justify-between">
+          <div className="fixed top-20 left-3 right-3 sm:left-auto sm:right-4 sm:w-96 bg-[var(--rz-ivory)]/98 backdrop-blur-xl rounded-2xl border border-[var(--rz-primary)]/30 shadow-2xl z-50 max-h-[75vh] overflow-hidden">
+            <div className="p-4 border-b border-[var(--rz-primary)]/15 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-lg bg-[#1E293B]/10 flex items-center justify-center text-[#1E293B]">
+                <div className="w-9 h-9 rounded-lg bg-[var(--rz-primary)]/10 flex items-center justify-center text-[var(--rz-primary)]">
                   <Bell size={18} />
                 </div>
 
@@ -1708,14 +1708,14 @@ const OwnerPrivateRoom = () => {
               <button
                 type="button"
                 onClick={() => setShowNotifications(false)}
-                className="p-2 rounded-lg hover:bg-[#1E293B]/10 royal-text"
+                className="p-2 rounded-lg hover:bg-[var(--rz-primary)]/10 royal-text"
                 aria-label="إغلاق الإشعارات"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="divide-y divide-[#1E293B]/10 overflow-y-auto max-h-[calc(75vh-76px)]">
+            <div className="divide-y divide-[var(--rz-primary)]/10 overflow-y-auto max-h-[calc(75vh-76px)]">
               {notifications.slice(0, 10).map(notif => (
                 <button
                   key={notif.id}
@@ -1724,7 +1724,7 @@ const OwnerPrivateRoom = () => {
                   onClick={() => setShowNotifications(false)}
                 >
                   <div className="flex gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#1E293B]/10 text-[#1E293B] flex items-center justify-center flex-shrink-0">
+                    <div className="w-9 h-9 rounded-lg bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] flex items-center justify-center flex-shrink-0">
                       <Bell size={16} />
                     </div>
 
@@ -1737,7 +1737,7 @@ const OwnerPrivateRoom = () => {
                         {notif.body || notif.message || '—'}
                       </span>
 
-                      <span className="block text-[11px] text-[#404040] mt-2 font-medium">
+                      <span className="block text-[11px] text-[var(--rz-muted)] mt-2 font-medium">
                         {formatDate(
                           notif.timestamp ||
                           notif.createdAt
@@ -1774,12 +1774,12 @@ const StatCard = ({
   color
 }) => {
   const colors = {
-    gold: 'bg-[#1E293B]/10 text-[#1E293B] border-[#1E293B]/25',
-    red: 'bg-[#1E293B]/10 text-[#1E293B] border-[#1E293B]/25',
-    yellow: 'bg-[#1E293B]/10 text-[#1E293B] border-[#1E293B]/25',
-    green: 'bg-[#202A3A]/10 text-[#202A3A] border-[#202A3A]/25',
-    purple: 'bg-[#404040]/10 text-[#404040] border-[#404040]/25',
-    orange: 'bg-[#1E293B]/10 text-[#1E293B] border-[#1E293B]/25'
+    gold: 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] border-[var(--rz-primary)]/25',
+    red: 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] border-[var(--rz-primary)]/25',
+    yellow: 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] border-[var(--rz-primary)]/25',
+    green: 'bg-[var(--rz-ink)]/10 text-[var(--rz-ink)] border-[var(--rz-ink)]/25',
+    purple: 'bg-[var(--rz-muted)]/10 text-[var(--rz-muted)] border-[var(--rz-muted)]/25',
+    orange: 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] border-[var(--rz-primary)]/25'
   }
 
   return (
@@ -1795,7 +1795,7 @@ const StatCard = ({
         </span>
       </div>
 
-      <p className="text-xl md:text-2xl font-bold text-[#202A3A]">
+      <p className="text-xl md:text-2xl font-bold text-[var(--rz-ink)]">
         {formatNumber(value)}
       </p>
     </div>
@@ -1893,8 +1893,8 @@ const CenterPanel = ({
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-[#1E293B]/10 border border-[#1E293B]/25 flex items-center justify-center">
-          <Crown size={30} className="text-[#1E293B]" />
+        <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/25 flex items-center justify-center">
+          <Crown size={30} className="text-[var(--rz-primary)]" />
         </div>
 
         <h2 className="text-xl font-bold royal-text">
@@ -1929,7 +1929,7 @@ const CenterPanel = ({
                 className="icon-card rounded-xl p-2.5 text-right relative group min-w-0 w-full"
                 title={item.description}
               >
-                <div className="w-9 h-9 rounded-lg bg-[#1E293B]/10 border border-[#1E293B]/20 text-[#1E293B] flex items-center justify-center mb-1.5 flex-shrink-0">
+                <div className="w-9 h-9 rounded-lg bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/20 text-[var(--rz-primary)] flex items-center justify-center mb-1.5 flex-shrink-0">
                   <Icon size={18} />
                 </div>
 
@@ -1996,7 +1996,7 @@ const OverviewPanel = ({ stats, onTab }) => (
         <h3 className="font-bold flex items-center gap-2 royal-text">
           <TrendingUp
             size={18}
-            className="text-[#1E293B]"
+            className="text-[var(--rz-primary)]"
           />
           نظرة عامة
         </h3>
@@ -2004,7 +2004,7 @@ const OverviewPanel = ({ stats, onTab }) => (
         <button
           type="button"
           onClick={() => onTab('users')}
-          className="text-xs text-[#1E293B] hover:text-[#1E293B] hover:underline font-bold"
+          className="text-xs text-[var(--rz-primary)] hover:text-[var(--rz-primary)] hover:underline font-bold"
         >
           تفاصيل المستخدمين
         </button>
@@ -2049,7 +2049,7 @@ const LiveActivityPanel = ({
     <div className="royal-surface rounded-2xl p-4 md:p-6 border royal-border">
       <h3 className="text-lg font-bold mb-4 flex items-center gap-2 royal-text">
         <Activity
-          className="text-[#202A3A]"
+          className="text-[var(--rz-ink)]"
           size={20}
         />
         النشاط اللحظي
@@ -2087,7 +2087,7 @@ const LiveActivityPanel = ({
         <h3 className="font-bold flex items-center gap-2 royal-text">
           <Flag
             size={18}
-            className="text-[#1E293B]"
+            className="text-[var(--rz-primary)]"
           />
           أحدث البلاغات
         </h3>
@@ -2095,7 +2095,7 @@ const LiveActivityPanel = ({
         <button
           type="button"
           onClick={() => onTab('reports')}
-          className="text-xs text-[#1E293B] hover:underline font-bold"
+          className="text-xs text-[var(--rz-primary)] hover:underline font-bold"
         >
           عرض الكل
         </button>
@@ -2107,16 +2107,16 @@ const LiveActivityPanel = ({
             key={report.id}
             type="button"
             onClick={() => onTab('reports')}
-            className="w-full flex items-center justify-between gap-3 p-3 bg-[#1E293B]/5 hover:bg-[#1E293B]/10 rounded-xl text-right transition-colors border border-transparent hover:border-[#1E293B]/10"
+            className="w-full flex items-center justify-between gap-3 p-3 bg-[var(--rz-primary)]/5 hover:bg-[var(--rz-primary)]/10 rounded-xl text-right transition-colors border border-transparent hover:border-[var(--rz-primary)]/10"
           >
             <div className="min-w-0">
               <span
                 className={`inline-block px-2 py-0.5 rounded-full text-[10px] mb-1 font-bold ${
                   report.status === 'pending'
-                    ? 'bg-[#1E293B]/10 text-[#1E293B]'
+                    ? 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
                     : report.status === 'resolved'
-                      ? 'bg-[#202A3A]/10 text-[#202A3A]'
-                      : 'bg-[#1E293B]/10 text-[#1E293B]'
+                      ? 'bg-[var(--rz-ink)]/10 text-[var(--rz-ink)]'
+                      : 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
                 }`}
               >
                 {report.status === 'pending'
@@ -2139,7 +2139,7 @@ const LiveActivityPanel = ({
 
             <ChevronDown
               size={16}
-              className="text-[#1E293B] -rotate-90 flex-shrink-0"
+              className="text-[var(--rz-primary)] -rotate-90 flex-shrink-0"
             />
           </button>
         ))}
@@ -2171,13 +2171,13 @@ const LiveActivityPanel = ({
           .map((u) => (
           <div
             key={u.id}
-            className="flex items-center justify-between gap-3 p-3 bg-[#1E293B]/5 rounded-xl border border-[#1E293B]/5"
+            className="flex items-center justify-between gap-3 p-3 bg-[var(--rz-primary)]/5 rounded-xl border border-[var(--rz-primary)]/5"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 bg-[#1E293B]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-[var(--rz-primary)]/10 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Crown
                   size={18}
-                  className="text-[#1E293B]"
+                  className="text-[var(--rz-primary)]"
                 />
               </div>
 
@@ -2192,7 +2192,7 @@ const LiveActivityPanel = ({
               </div>
             </div>
 
-            <span className="px-2.5 py-1 rounded-full text-[10px] flex-shrink-0 font-bold bg-[#1E293B]/10 text-[#1E293B]">
+            <span className="px-2.5 py-1 rounded-full text-[10px] flex-shrink-0 font-bold bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]">
               مالك
             </span>
           </div>
@@ -2210,10 +2210,10 @@ const LiveActivityPanel = ({
 )
 
 const MiniStat = ({ icon: Icon, value, label }) => (
-  <div className="text-center p-4 bg-[#1E293B]/5 rounded-xl border border-[#1E293B]/10">
+  <div className="text-center p-4 bg-[var(--rz-primary)]/5 rounded-xl border border-[var(--rz-primary)]/10">
     <Icon
       size={20}
-      className="mx-auto mb-2 text-[#1E293B]"
+      className="mx-auto mb-2 text-[var(--rz-primary)]"
     />
 
     <p className="text-2xl font-bold royal-text">
@@ -2227,10 +2227,10 @@ const MiniStat = ({ icon: Icon, value, label }) => (
 )
 
 const LiveStat = ({ value, label, icon: Icon }) => (
-  <div className="text-center p-4 bg-[#1E293B]/5 rounded-xl border border-[#1E293B]/10">
+  <div className="text-center p-4 bg-[var(--rz-primary)]/5 rounded-xl border border-[var(--rz-primary)]/10">
     <Icon
       size={19}
-      className="mx-auto mb-2 text-[#1E293B]"
+      className="mx-auto mb-2 text-[var(--rz-primary)]"
     />
 
     <p className="text-2xl font-bold royal-text">
@@ -2279,7 +2279,7 @@ const UsersPanel = ({
         </p>
       </div>
 
-      <div className="w-10 h-10 rounded-xl bg-[#1E293B]/10 border border-[#1E293B]/20 flex items-center justify-center text-[#1E293B]">
+      <div className="w-10 h-10 rounded-xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/20 flex items-center justify-center text-[var(--rz-primary)]">
         <Users size={20} />
       </div>
     </div>
@@ -2287,12 +2287,12 @@ const UsersPanel = ({
     <div className="royal-surface rounded-2xl border royal-border overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px]">
-          <thead className="bg-[#1E293B]/8">
+          <thead className="bg-[var(--rz-primary)]/8">
             <tr>
-              <th className="px-4 py-3 text-right font-bold text-[#202A3A]">المستخدم</th>
-              <th className="px-4 py-3 text-right font-bold text-[#202A3A]">البريد</th>
-              <th className="px-4 py-3 text-right font-bold text-[#202A3A]">الحالة</th>
-              <th className="px-4 py-3 text-center font-bold text-[#202A3A]">
+              <th className="px-4 py-3 text-right font-bold text-[var(--rz-ink)]">المستخدم</th>
+              <th className="px-4 py-3 text-right font-bold text-[var(--rz-ink)]">البريد</th>
+              <th className="px-4 py-3 text-right font-bold text-[var(--rz-ink)]">الحالة</th>
+              <th className="px-4 py-3 text-center font-bold text-[var(--rz-ink)]">
                 الإجراءات
               </th>
             </tr>
@@ -2302,15 +2302,15 @@ const UsersPanel = ({
             {users.map(u => (
               <tr
                 key={u.id}
-                className="border-t border-[#1E293B]/10"
+                className="border-t border-[var(--rz-primary)]/10"
               >
                 <td className="px-4 py-3">
                   {editingUserId === u.id ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 bg-[#1E293B]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-[var(--rz-primary)]/10 rounded-xl flex items-center justify-center flex-shrink-0">
                         <UserRound
                           size={18}
-                          className="text-[#1E293B]"
+                          className="text-[var(--rz-primary)]"
                         />
                       </div>
 
@@ -2326,10 +2326,10 @@ const UsersPanel = ({
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#1E293B]/10 rounded-xl flex items-center justify-center">
+                      <div className="w-10 h-10 bg-[var(--rz-primary)]/10 rounded-xl flex items-center justify-center">
                         <Users
                           size={18}
-                          className="text-[#1E293B]"
+                          className="text-[var(--rz-primary)]"
                         />
                       </div>
 
@@ -2360,10 +2360,10 @@ const UsersPanel = ({
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-bold ${
                       u.banned
-                        ? 'bg-[#1E293B]/10 text-[#1E293B]'
+                        ? 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
                         : u.role === 'admin'
-                          ? 'bg-[#1E293B]/10 text-[#1E293B]'
-                          : 'bg-[#202A3A]/10 text-[#202A3A]'
+                          ? 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
+                          : 'bg-[var(--rz-ink)]/10 text-[var(--rz-ink)]'
                     }`}
                   >
                     {u.banned
@@ -2383,7 +2383,7 @@ const UsersPanel = ({
                           onClick={() =>
                             onSaveEdit(u.id)
                           }
-                          className="p-2.5 hover:bg-[#202A3A]/10 rounded-lg text-[#202A3A]"
+                          className="p-2.5 hover:bg-[var(--rz-ink)]/10 rounded-lg text-[var(--rz-ink)]"
                           title="حفظ التعديل"
                           aria-label="حفظ التعديل"
                         >
@@ -2393,7 +2393,7 @@ const UsersPanel = ({
                         <button
                           type="button"
                           onClick={onCancelEdit}
-                          className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg text-[#1E293B]"
+                          className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)]"
                           title="إلغاء التعديل"
                           aria-label="إلغاء التعديل"
                         >
@@ -2404,7 +2404,7 @@ const UsersPanel = ({
                       <button
                         type="button"
                         onClick={() => onEdit(u)}
-                        className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg text-[#1E293B]"
+                        className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)]"
                         title="تعديل المستخدم"
                         aria-label="تعديل المستخدم"
                       >
@@ -2418,7 +2418,7 @@ const UsersPanel = ({
                         onClick={() =>
                           onUnban(u.id)
                         }
-                        className="p-2.5 hover:bg-[#202A3A]/10 rounded-lg text-[#202A3A]"
+                        className="p-2.5 hover:bg-[var(--rz-ink)]/10 rounded-lg text-[var(--rz-ink)]"
                         title="إلغاء الحظر"
                         aria-label="إلغاء الحظر"
                       >
@@ -2437,7 +2437,7 @@ const UsersPanel = ({
                             'مخالفة'
                           )
                         }}
-                        className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg text-[#1E293B]"
+                        className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)]"
                         title="حظر المستخدم"
                         aria-label="حظر المستخدم"
                       >
@@ -2451,7 +2451,7 @@ const UsersPanel = ({
                         onClick={() =>
                           onRemoveAdmin(u.id)
                         }
-                        className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg text-[#1E293B]"
+                        className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)]"
                         title="إزالة صلاحيات المدير"
                         aria-label="إزالة صلاحيات المدير"
                       >
@@ -2463,7 +2463,7 @@ const UsersPanel = ({
                         onClick={() =>
                           onSetAdmin(u.id)
                         }
-                        className="p-2.5 hover:bg-[#1E293B]/10 rounded-lg text-[#1E293B]"
+                        className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)]"
                         title="تعيين مدير"
                         aria-label="تعيين مدير"
                       >
@@ -2514,7 +2514,7 @@ const AdsPanel = ({
         </p>
       </div>
 
-      <div className="w-10 h-10 rounded-xl bg-[#1E293B]/10 border border-[#1E293B]/20 flex items-center justify-center text-[#1E293B]">
+      <div className="w-10 h-10 rounded-xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/20 flex items-center justify-center text-[var(--rz-primary)]">
         <ShoppingBag size={20} />
       </div>
     </div>
@@ -2532,7 +2532,7 @@ const AdsPanel = ({
                 decoding="async"
                 src={ad.images[0]}
                 alt=""
-                className="w-24 h-24 rounded-xl object-cover border border-[#1E293B]/10 flex-shrink-0"
+                className="w-24 h-24 rounded-xl object-cover border border-[var(--rz-primary)]/10 flex-shrink-0"
               />
             )}
 
@@ -2567,7 +2567,7 @@ const AdsPanel = ({
                         onClick={() =>
                           onSaveEdit(ad.id)
                         }
-                        className="px-3 py-2 bg-[#202A3A]/10 text-[#202A3A] rounded-lg text-xs flex items-center gap-1.5 font-bold"
+                        className="px-3 py-2 bg-[var(--rz-ink)]/10 text-[var(--rz-ink)] rounded-lg text-xs flex items-center gap-1.5 font-bold"
                       >
                         <Save size={15} />
                         حفظ
@@ -2576,7 +2576,7 @@ const AdsPanel = ({
                       <button
                         type="button"
                         onClick={onCancelEdit}
-                        className="px-3 py-2 bg-[#1E293B]/10 text-[#1E293B] rounded-lg text-xs flex items-center gap-1.5 font-bold"
+                        className="px-3 py-2 bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] rounded-lg text-xs flex items-center gap-1.5 font-bold"
                       >
                         <X size={15} />
                         إلغاء
@@ -2592,10 +2592,10 @@ const AdsPanel = ({
                 <span
                   className={`px-2 py-1 rounded-full text-[10px] flex-shrink-0 font-bold ${
                     ad.status === 'active'
-                      ? 'bg-[#202A3A]/10 text-[#202A3A]'
+                      ? 'bg-[var(--rz-ink)]/10 text-[var(--rz-ink)]'
                       : ad.status === 'pending'
-                        ? 'bg-[#1E293B]/10 text-[#1E293B]'
-                        : 'bg-[#1E293B]/10 text-[#1E293B]'
+                        ? 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
+                        : 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
                   }`}
                 >
                   {ad.status === 'active'
@@ -2618,7 +2618,7 @@ const AdsPanel = ({
                     <button
                       type="button"
                       onClick={() => onEdit(ad)}
-                      className="px-3 py-2 bg-[#1E293B]/10 text-[#1E293B] rounded-lg text-xs flex items-center gap-1.5 font-bold"
+                      className="px-3 py-2 bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] rounded-lg text-xs flex items-center gap-1.5 font-bold"
                     >
                       <Edit3 size={15} />
                       تعديل
@@ -2631,7 +2631,7 @@ const AdsPanel = ({
                           onClick={() =>
                             onApprove(ad.id)
                           }
-                          className="px-3 py-2 bg-[#202A3A]/10 text-[#202A3A] rounded-lg text-xs flex items-center gap-1.5 font-bold"
+                          className="px-3 py-2 bg-[var(--rz-ink)]/10 text-[var(--rz-ink)] rounded-lg text-xs flex items-center gap-1.5 font-bold"
                         >
                           <Check size={15} />
                           تفعيل
@@ -2645,7 +2645,7 @@ const AdsPanel = ({
                               'مخالفة للشروط'
                             )
                           }
-                          className="px-3 py-2 bg-[#1E293B]/10 text-[#1E293B] rounded-lg text-xs flex items-center gap-1.5 font-bold"
+                          className="px-3 py-2 bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] rounded-lg text-xs flex items-center gap-1.5 font-bold"
                         >
                           <X size={15} />
                           رفض
@@ -2661,7 +2661,7 @@ const AdsPanel = ({
                           'قرار الإدارة'
                         )
                       }
-                      className="px-3 py-2 bg-[#1E293B]/10 text-[#1E293B] rounded-lg text-xs flex items-center gap-1.5 font-bold"
+                      className="px-3 py-2 bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] rounded-lg text-xs flex items-center gap-1.5 font-bold"
                     >
                       <Trash2 size={15} />
                       حذف
@@ -2722,13 +2722,13 @@ const MessagesPanel = ({
           محادثات حراج خاصة (المشتري ↔ المعلن) — تظهر لك فقط كمالك
         </p>
       </div>
-      <span className="px-3 py-1.5 rounded-full text-[10px] bg-[#1E293B]/10 text-[#202A3A] border border-[#1E293B]/25 font-bold">
+      <span className="px-3 py-1.5 rounded-full text-[10px] bg-[var(--rz-primary)]/10 text-[var(--rz-ink)] border border-[var(--rz-primary)]/25 font-bold">
         {formatNumber((privateChats || []).length)} محادثة حراج
       </span>
     </div>
 
-    <div className="royal-surface rounded-xl p-4 border royal-border" style={{ background: 'rgba(30,41,59,0.08)' }}>
-      <p className="text-[#202A3A] flex items-center gap-2 text-sm font-medium">
+    <div className="royal-surface rounded-xl p-4 border royal-border" style={{ background: 'rgba(var(--rz-primary-rgb), 0.08)' }}>
+      <p className="text-[var(--rz-ink)] flex items-center gap-2 text-sm font-medium">
         <Shield size={18} />
         الرسائل الخاصة محمية: المشاركون فقط يتراسلون، وأنت كمالك تراقب لحماية الموقع دون علمهم.
       </p>
@@ -2753,7 +2753,7 @@ const MessagesPanel = ({
               type="button"
               onClick={() => openChat(chat)}
               className="px-3 py-1.5 rounded-lg text-xs font-bold"
-              style={{ background: 'linear-gradient(135deg,#1E293B,#1E293B)', color: '#FFFFFF', border: 'none', cursor: 'pointer' }}
+              style={{ background: 'linear-gradient(135deg,var(--rz-primary),var(--rz-primary))', color: 'var(--rz-white)', border: 'none', cursor: 'pointer' }}
             >
               فتح المحادثة
             </button>
@@ -2766,7 +2766,7 @@ const MessagesPanel = ({
     </div>
 
     {selectedChat && (
-      <div className="royal-surface rounded-xl p-4 border royal-border" style={{ borderColor: '#1E293B' }}>
+      <div className="royal-surface rounded-xl p-4 border royal-border" style={{ borderColor: 'var(--rz-primary)' }}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold royal-text">محادثة: {selectedChat.adTitle || selectedChat.id}</h3>
           <button type="button" onClick={() => { setSelectedChat(null); setChatMessages([]) }} className="text-xs font-bold royal-muted">إغلاق</button>
@@ -2774,7 +2774,7 @@ const MessagesPanel = ({
         <div className="space-y-2 max-h-80 overflow-y-auto">
           {chatMessages.length === 0 && <p className="text-sm royal-muted">لا رسائل أو جاري التحميل...</p>}
           {chatMessages.map((m) => (
-            <div key={m.id} className="p-2 rounded-lg" style={{ background: '#E8E2D6', border: '1px solid rgba(30,41,59,0.2)' }}>
+            <div key={m.id} className="p-2 rounded-lg" style={{ background: 'var(--rz-ivory)', border: '1px solid rgba(var(--rz-primary-rgb), 0.2)' }}>
               <p className="text-[11px] royal-muted font-medium">{m.senderName || m.senderKey || '—'}</p>
               <p className="royal-text text-sm break-words font-medium">{m.text || m.content || '—'}</p>
             </div>
@@ -2783,7 +2783,7 @@ const MessagesPanel = ({
       </div>
     )}
 
-    <div className="border-t border-[#1E293B]/20 pt-4 mt-4">
+    <div className="border-t border-[var(--rz-primary)]/20 pt-4 mt-4">
       <h3 className="font-bold royal-text text-base mb-2">رسائل عامة أخرى</h3>
       <div className="space-y-3">
         {(messages || []).map(msg => (
@@ -2797,7 +2797,7 @@ const MessagesPanel = ({
               </span>
             </div>
             <p className="royal-text break-words font-medium">{msg.content || '—'}</p>
-            <p className="text-[11px] text-[#404040] mt-2 font-medium">{formatDate(msg.createdAt)}</p>
+            <p className="text-[11px] text-[var(--rz-muted)] mt-2 font-medium">{formatDate(msg.createdAt)}</p>
           </div>
         ))}
         {(messages || []).length === 0 && (
@@ -2822,7 +2822,7 @@ const ReportsPanel = ({ reports }) => (
         </p>
       </div>
 
-      <span className="px-3 py-1.5 rounded-full text-[10px] bg-[#1E293B]/10 text-[#202A3A] border border-[#1E293B]/25 font-bold">
+      <span className="px-3 py-1.5 rounded-full text-[10px] bg-[var(--rz-primary)]/10 text-[var(--rz-ink)] border border-[var(--rz-primary)]/25 font-bold">
         مراجعة
       </span>
     </div>
@@ -2837,10 +2837,10 @@ const ReportsPanel = ({ reports }) => (
             <span
               className={`px-2 py-1 rounded-full text-xs font-bold ${
                 report.status === 'pending'
-                  ? 'bg-[#1E293B]/10 text-[#1E293B]'
+                  ? 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
                   : report.status === 'resolved'
-                    ? 'bg-[#202A3A]/10 text-[#202A3A]'
-                    : 'bg-[#1E293B]/10 text-[#1E293B]'
+                    ? 'bg-[var(--rz-ink)]/10 text-[var(--rz-ink)]'
+                    : 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
               }`}
             >
               {report.status === 'pending'
@@ -2897,8 +2897,8 @@ const SecurityPanel = ({ logs }) => (
       </span>
     </div>
 
-    <div className="bg-[#1E293B]/5 border border-[#1E293B]/20 rounded-xl p-4">
-      <p className="text-[#202A3A] flex items-center gap-2 text-sm font-medium">
+    <div className="bg-[var(--rz-primary)]/5 border border-[var(--rz-primary)]/20 rounded-xl p-4">
+      <p className="text-[var(--rz-ink)] flex items-center gap-2 text-sm font-medium">
         <Lock size={18} />
         سجل الأمان للقراءة والمشاهدة فقط.
       </p>
@@ -2916,10 +2916,10 @@ const SecurityPanel = ({ logs }) => (
                 size={18}
                 className={
                   log.severity === 'high'
-                    ? 'text-[#1E293B]'
+                    ? 'text-[var(--rz-primary)]'
                     : log.severity === 'medium'
-                      ? 'text-[#1E293B]'
-                      : 'text-[#202A3A]'
+                      ? 'text-[var(--rz-primary)]'
+                      : 'text-[var(--rz-ink)]'
                 }
               />
 
@@ -2937,7 +2937,7 @@ const SecurityPanel = ({ logs }) => (
             {log.details || '—'}
           </p>
 
-          <p className="text-xs text-[#404040] mt-1 font-medium">
+          <p className="text-xs text-[var(--rz-muted)] mt-1 font-medium">
             بواسطة: {log.userEmail || '—'}
           </p>
         </div>
@@ -2971,8 +2971,8 @@ const OrdersPanel = ({ orders }) => (
       </span>
     </div>
 
-    <div className="bg-[#1E293B]/5 border border-[#1E293B]/20 rounded-xl p-4">
-      <p className="text-[#202A3A] flex items-center gap-2 text-sm font-medium">
+    <div className="bg-[var(--rz-primary)]/5 border border-[var(--rz-primary)]/20 rounded-xl p-4">
+      <p className="text-[var(--rz-ink)] flex items-center gap-2 text-sm font-medium">
         <Eye size={18} />
         الطلبات موجودة في قسم المشاهدة فقط ولا تحتوي على إجراءات تعديل هنا.
       </p>
@@ -2981,21 +2981,21 @@ const OrdersPanel = ({ orders }) => (
     <div className="royal-surface rounded-2xl border royal-border overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[680px]">
-          <thead className="bg-[#1E293B]/8">
+          <thead className="bg-[var(--rz-primary)]/8">
             <tr>
-              <th className="px-4 py-3 text-right font-bold text-[#202A3A]">
+              <th className="px-4 py-3 text-right font-bold text-[var(--rz-ink)]">
                 رقم الطلب
               </th>
 
-              <th className="px-4 py-3 text-right font-bold text-[#202A3A]">
+              <th className="px-4 py-3 text-right font-bold text-[var(--rz-ink)]">
                 العميل
               </th>
 
-              <th className="px-4 py-3 text-right font-bold text-[#202A3A]">
+              <th className="px-4 py-3 text-right font-bold text-[var(--rz-ink)]">
                 المجموع
               </th>
 
-              <th className="px-4 py-3 text-right font-bold text-[#202A3A]">
+              <th className="px-4 py-3 text-right font-bold text-[var(--rz-ink)]">
                 الحالة
               </th>
             </tr>
@@ -3005,7 +3005,7 @@ const OrdersPanel = ({ orders }) => (
             {orders.map(order => (
               <tr
                 key={order.id}
-                className="border-t border-[#1E293B]/10"
+                className="border-t border-[var(--rz-primary)]/10"
               >
                 <td className="px-4 py-3 font-mono text-sm font-medium">
                   {String(order.id || '').slice(0, 8)}
@@ -3015,7 +3015,7 @@ const OrdersPanel = ({ orders }) => (
                   {order.customerName || '—'}
                 </td>
 
-                <td className="px-4 py-3 text-[#1E293B] font-bold">
+                <td className="px-4 py-3 text-[var(--rz-primary)] font-bold">
                   {safeNumber(order.total).toLocaleString('ar-SA')}{' '}
                   ر.س
                 </td>
@@ -3024,10 +3024,10 @@ const OrdersPanel = ({ orders }) => (
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-bold ${
                       order.status === 'completed'
-                        ? 'bg-[#202A3A]/10 text-[#202A3A]'
+                        ? 'bg-[var(--rz-ink)]/10 text-[var(--rz-ink)]'
                         : order.status === 'pending'
-                          ? 'bg-[#1E293B]/10 text-[#1E293B]'
-                          : 'bg-[#1E293B]/5 royal-muted'
+                          ? 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
+                          : 'bg-[var(--rz-primary)]/5 royal-muted'
                     }`}
                   >
                     {order.status || 'غير محدد'}
@@ -3057,14 +3057,14 @@ const BroadcastPanel = ({
   onQuickNotice
 }) => (
   <div className="space-y-4">
-    <div className="royal-surface rounded-2xl p-5 md:p-6 border border-[#1E293B]/30">
+    <div className="royal-surface rounded-2xl p-5 md:p-6 border border-[var(--rz-primary)]/30">
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-11 h-11 rounded-xl bg-[#1E293B]/10 border border-[#1E293B]/25 flex items-center justify-center text-[#1E293B] flex-shrink-0">
+        <div className="w-11 h-11 rounded-xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/25 flex items-center justify-center text-[var(--rz-primary)] flex-shrink-0">
           <Radio size={21} />
         </div>
 
         <div>
-          <h3 className="text-lg font-bold text-[#1E293B]">
+          <h3 className="text-lg font-bold text-[var(--rz-primary)]">
             بث مباشر للعملاء
           </h3>
 
@@ -3081,11 +3081,11 @@ const BroadcastPanel = ({
         maxLength={500}
         placeholder="اكتب رسالة البث..."
         disabled={sending}
-        className="w-full p-3 rounded-xl light-field text-sm outline-none border focus:border-[#1E293B]/60 transition resize-y disabled:opacity-60 font-semibold"
+        className="w-full p-3 rounded-xl light-field text-sm outline-none border focus:border-[var(--rz-primary)]/60 transition resize-y disabled:opacity-60 font-semibold"
       />
 
       <div className="flex items-center justify-between mt-1 mb-3">
-        <span className="text-xs text-[#404040] font-medium">
+        <span className="text-xs text-[var(--rz-muted)] font-medium">
           {text.length}/500
         </span>
 
@@ -3101,7 +3101,7 @@ const BroadcastPanel = ({
         className={`w-full py-3 rounded-xl flex items-center justify-center gap-2 font-bold transition ${
           text.trim() && !sending
             ? 'gold-button hover:scale-[1.01]'
-            : 'bg-[#1E293B]/10 text-[#1E293B] cursor-not-allowed border border-[#1E293B]/10'
+            : 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] cursor-not-allowed border border-[var(--rz-primary)]/10'
         }`}
       >
         <Send size={18} />
@@ -3115,16 +3115,16 @@ const BroadcastPanel = ({
         type="button"
         onClick={onQuickNotice}
         disabled={sending}
-        className="w-full mt-3 py-3 rounded-xl bg-[#1E293B]/5 hover:bg-[#1E293B]/10 text-[#202A3A] text-sm flex items-center justify-center gap-2 transition-all border border-[#1E293B]/15 disabled:opacity-50 font-bold"
+        className="w-full mt-3 py-3 rounded-xl bg-[var(--rz-primary)]/5 hover:bg-[var(--rz-primary)]/10 text-[var(--rz-ink)] text-sm flex items-center justify-center gap-2 transition-all border border-[var(--rz-primary)]/15 disabled:opacity-50 font-bold"
       >
         <Bell size={16} />
         إشعار بعنوان ونص
       </button>
     </div>
 
-    <div className="royal-surface rounded-2xl p-4 border border-[#1E293B]/20">
+    <div className="royal-surface rounded-2xl p-4 border border-[var(--rz-primary)]/20">
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-lg bg-[#1E293B]/10 text-[#1E293B] flex items-center justify-center flex-shrink-0">
+        <div className="w-9 h-9 rounded-lg bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] flex items-center justify-center flex-shrink-0">
           <Eye size={17} />
         </div>
 
@@ -3135,7 +3135,7 @@ const BroadcastPanel = ({
 
           <p className="text-xs royal-muted mt-1 font-medium">
             البث المباشر يستخدم قناة
-            <span className="text-[#1E293B] mx-1 font-bold">
+            <span className="text-[var(--rz-primary)] mx-1 font-bold">
               /api/broadcast
             </span>
             الحالية للموقع.

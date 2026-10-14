@@ -3,31 +3,6 @@
    هوية جديدة كاملة: أزرق كهربائي + أسطح صلبة + عنوان عريض/نص نحيف
    لا تدرّجات صاخبة — تنسيق احترافي هادئ. يُستورد أخيراً.
    ============================================================ */
-:root {
-  --co-bg: #E8E2D6;
-  --co-surface: #FFFFFF;
-  --co-ink: #202A3A;
-  --co-ink-2: #202A3A;
-  --co-muted: #404040;
-  --co-line: #E8E2D6;
-  --co-primary: #1E293B;
-  --co-primary-deep: #1E293B;
-  --co-primary-soft: #E8E2D6;
-  --co-accent: #1E293B;
-  --co-dark: #202A3A;
-  --co-radius: 14px;
-  --co-radius-sm: 10px;
-  --co-font: 'Tajawal', system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
-  --co-shadow: 0 6px 22px -12px rgba(32,42,58, 0.28);
-  --co-shadow-lg: 0 18px 44px -22px rgba(32,42,58, 0.4);
-
-  /* جسر للمتغيرات القديمة في المكوّنات */
-  --nv-font: var(--co-font);
-  --ch-font: var(--co-font);
-  --rh-font: var(--co-font);
-  --font-family: var(--co-font);
-}
-
 /* أسطح صلبة بدل تدرّجات الأورورا — إلغاء طبقة الخلفية السابقة */
 html, body {
   background: var(--co-bg) !important;
@@ -56,13 +31,13 @@ p, li { font-weight: 300; }
 /* أزرار موحّدة صلبة */
 .nv-btn {
   background: var(--co-primary) !important;
-  color: #FFFFFF !important;
+  color: var(--rz-white) !important;
   border-radius: var(--co-radius-sm) !important;
   box-shadow: none !important;
   font-weight: 800 !important;
 }
 .nv-btn-ghost {
-  background: #FFFFFF !important;
+  background: var(--rz-white) !important;
   color: var(--co-ink) !important;
   border: 1px solid var(--co-line) !important;
 }
@@ -76,7 +51,7 @@ p, li { font-weight: 300; }
 /* شريط علوي (نافبار) صلبة */
 .navbar {
   background: var(--co-dark) !important;
-  border-bottom: 1px solid rgba(255,255,255, 0.08) !important;
+  border-bottom: 1px solid rgba(var(--rz-white-rgb), 0.08) !important;
 }
 
 /* حقول إدخال موحّدة */

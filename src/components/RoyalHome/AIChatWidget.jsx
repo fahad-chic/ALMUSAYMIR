@@ -174,11 +174,11 @@ const AIChatWidget = ({
           height: `min(570px, calc(100vh - 130px - ${topOffset}px))`,
           minHeight: 400,
           background:
-            'linear-gradient(145deg, #E8E2D6 0%, #E8E2D6 100%)',
-          border: '1px solid rgba(30,41,59, 0.24)',
+            'linear-gradient(145deg, var(--rz-ivory) 0%, var(--rz-ivory) 100%)',
+          border: '1px solid rgba(var(--rz-primary-rgb), 0.24)',
           borderRadius: 22,
           boxShadow:
-            '0 24px 70px rgba(32,42,58, 0.22), 0 5px 18px rgba(32,42,58, 0.08)',
+            '0 24px 70px rgba(var(--rz-ink-rgb), 0.22), 0 5px 18px rgba(var(--rz-ink-rgb), 0.08)',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 999,
@@ -192,12 +192,12 @@ const AIChatWidget = ({
             flexShrink: 0,
             padding: '0.95rem 1rem',
             background:
-              'linear-gradient(135deg, #202A3A 0%, #202A3A 55%, #202A3A 100%)',
-            color: '#FFFFFF',
+              'linear-gradient(135deg, var(--rz-ink) 0%, var(--rz-ink) 55%, var(--rz-ink) 100%)',
+            color: 'var(--rz-white)',
             display: 'flex',
             alignItems: 'center',
             gap: '0.7rem',
-            boxShadow: '0 3px 14px rgba(32,42,58, 0.10)',
+            boxShadow: '0 3px 14px rgba(var(--rz-ink-rgb), 0.10)',
           }}
         >
           <div
@@ -205,16 +205,16 @@ const AIChatWidget = ({
               width: 40,
               height: 40,
               borderRadius: 13,
-              background: 'linear-gradient(145deg, #202A3A 0%, #202A3A 55%, #202A3A 100%)',
-              border: '1.5px solid rgba(184,164,122, 0.85)',
-              boxShadow: '0 4px 12px rgba(32,42,58,0.45), inset 0 1px 1px rgba(255,255,255,0.28)',
+              background: 'linear-gradient(145deg, var(--rz-ink) 0%, var(--rz-ink) 55%, var(--rz-ink) 100%)',
+              border: '1.5px solid rgba(var(--rz-gold-rgb), 0.85)',
+              boxShadow: '0 4px 12px rgba(var(--rz-ink-rgb), 0.45), inset 0 1px 1px rgba(var(--rz-white-rgb), 0.28)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
             }}
           >
-            <Bot size={21} strokeWidth={2.1} color="#1E293B" />
+            <Bot size={21} strokeWidth={2.1} color="var(--rz-primary)" />
           </div>
 
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -224,11 +224,11 @@ const AIChatWidget = ({
                 fontSize: '0.98rem',
                 fontWeight: 900,
                 lineHeight: 1.4,
-                background: 'linear-gradient(120deg, #E8E2D6 0%, #1E293B 35%, #1E293B 60%, #E8E2D6 100%)',
+                background: 'linear-gradient(120deg, var(--rz-ivory) 0%, var(--rz-primary) 35%, var(--rz-primary) 60%, var(--rz-ivory) 100%)',
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
                 color: 'transparent',
-                textShadow: '0 1px 8px rgba(30,41,59, 0.25)',
+                textShadow: '0 1px 8px rgba(var(--rz-primary-rgb), 0.25)',
               }}
             >
               المساعد الذكي
@@ -238,7 +238,7 @@ const AIChatWidget = ({
               style={{
                 margin: '0.12rem 0 0',
                 fontSize: '0.7rem',
-                color: 'rgba(30,41,59, 0.85)',
+                color: 'rgba(var(--rz-primary-rgb), 0.85)',
                 fontWeight: 700,
                 opacity: 1,
               }}
@@ -257,9 +257,9 @@ const AIChatWidget = ({
               width: 34,
               height: 34,
               borderRadius: 10,
-              border: '1px solid rgba(255,255,255,0.28)',
-              background: 'rgba(255,255,255,0.12)',
-              color: '#E8E2D6',
+              border: '1px solid rgba(var(--rz-white-rgb), 0.28)',
+              background: 'rgba(var(--rz-white-rgb), 0.12)',
+              color: 'var(--rz-ivory)',
               cursor: isLoading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -280,9 +280,9 @@ const AIChatWidget = ({
               width: 34,
               height: 34,
               borderRadius: 10,
-              border: '1px solid rgba(255,255,255,0.28)',
-              background: 'rgba(255,255,255,0.12)',
-              color: '#E8E2D6',
+              border: '1px solid rgba(var(--rz-white-rgb), 0.28)',
+              background: 'rgba(var(--rz-white-rgb), 0.12)',
+              color: 'var(--rz-ivory)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -304,7 +304,7 @@ const AIChatWidget = ({
             flexDirection: 'column',
             gap: '0.8rem',
             scrollbarWidth: 'thin',
-            scrollbarColor: '#1E293B transparent',
+            scrollbarColor: 'var(--rz-primary) transparent',
           }}
         >
           {messages.map((message) => {
@@ -328,8 +328,8 @@ const AIChatWidget = ({
                       borderRadius: 10,
                       flexShrink: 0,
                       background:
-                        'linear-gradient(145deg, #1E293B, #1E293B)',
-                      color: '#E8E2D6',
+                        'linear-gradient(145deg, var(--rz-primary), var(--rz-primary))',
+                      color: 'var(--rz-ivory)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -347,13 +347,13 @@ const AIChatWidget = ({
                     borderTopRightRadius: isUser ? 16 : 5,
                     borderTopLeftRadius: isUser ? 5 : 16,
                     background: isUser
-                      ? 'linear-gradient(145deg, #1E293B, #1E293B)'
-                      : 'rgba(255,255,255,0.82)',
+                      ? 'linear-gradient(145deg, var(--rz-primary), var(--rz-primary))'
+                      : 'rgba(var(--rz-white-rgb), 0.82)',
                     border: isUser
-                      ? '1px solid rgba(30,41,59, 0.2)'
-                      : '1px solid rgba(30,41,59, 0.13)',
-                    color: isUser ? '#E8E2D6' : '#202A3A',
-                    boxShadow: '0 4px 13px rgba(32,42,58, 0.06)',
+                      ? '1px solid rgba(var(--rz-primary-rgb), 0.2)'
+                      : '1px solid rgba(var(--rz-primary-rgb), 0.13)',
+                    color: isUser ? 'var(--rz-ivory)' : 'var(--rz-ink)',
+                    boxShadow: '0 4px 13px rgba(var(--rz-ink-rgb), 0.06)',
                   }}
                 >
                   <p
@@ -376,8 +376,8 @@ const AIChatWidget = ({
                       height: 32,
                       borderRadius: 10,
                       flexShrink: 0,
-                      background: 'rgba(30,41,59, 0.12)',
-                      color: '#1E293B',
+                      background: 'rgba(var(--rz-primary-rgb), 0.12)',
+                      color: 'var(--rz-primary)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -405,8 +405,8 @@ const AIChatWidget = ({
                   height: 32,
                   borderRadius: 10,
                   background:
-                    'linear-gradient(145deg, #1E293B, #1E293B)',
-                  color: '#E8E2D6',
+                    'linear-gradient(145deg, var(--rz-primary), var(--rz-primary))',
+                  color: 'var(--rz-ivory)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -420,12 +420,12 @@ const AIChatWidget = ({
                   padding: '0.7rem 0.9rem',
                   borderRadius: 15,
                   borderTopLeftRadius: 5,
-                  background: 'rgba(255,255,255,0.82)',
-                  border: '1px solid rgba(30,41,59, 0.13)',
+                  background: 'rgba(var(--rz-white-rgb), 0.82)',
+                  border: '1px solid rgba(var(--rz-primary-rgb), 0.13)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 7,
-                  color: '#1E293B',
+                  color: 'var(--rz-primary)',
                 }}
               >
                 <Sparkles size={15} />
@@ -450,8 +450,8 @@ const AIChatWidget = ({
           style={{
             flexShrink: 0,
             padding: '0.8rem',
-            borderTop: '1px solid rgba(30,41,59, 0.16)',
-            background: 'rgba(255,255,255,0.55)',
+            borderTop: '1px solid rgba(var(--rz-primary-rgb), 0.16)',
+            background: 'rgba(var(--rz-white-rgb), 0.55)',
           }}
         >
           <div
@@ -459,11 +459,11 @@ const AIChatWidget = ({
               display: 'flex',
               alignItems: 'center',
               gap: '0.55rem',
-              background: '#E8E2D6',
-              border: '1px solid rgba(30,41,59, 0.20)',
+              background: 'var(--rz-ivory)',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.20)',
               borderRadius: 14,
               padding: '0.35rem',
-              boxShadow: '0 4px 14px rgba(32,42,58, 0.05)',
+              boxShadow: '0 4px 14px rgba(var(--rz-ink-rgb), 0.05)',
             }}
           >
             <input
@@ -483,7 +483,7 @@ const AIChatWidget = ({
                 outline: 'none',
                 background: 'transparent',
                 padding: '0.65rem 0.7rem',
-                color: '#202A3A',
+                color: 'var(--rz-ink)',
                 fontFamily: 'inherit',
                 fontSize: '0.84rem',
                 direction: 'rtl',
@@ -503,9 +503,9 @@ const AIChatWidget = ({
                 borderRadius: 11,
                 background:
                   input.trim() && !isLoading
-                    ? 'linear-gradient(145deg, #1E293B, #1E293B)'
-                    : '#E8E2D6',
-                color: '#E8E2D6',
+                    ? 'linear-gradient(145deg, var(--rz-primary), var(--rz-primary))'
+                    : 'var(--rz-ivory)',
+                color: 'var(--rz-ivory)',
                 cursor:
                   input.trim() && !isLoading
                     ? 'pointer'

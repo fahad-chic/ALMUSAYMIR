@@ -86,15 +86,15 @@ const PERMISSION_ICONS = {
   INLINE_ELEMENT_DELETE: EyeOff,
 };
 
-// لون هدية الأيقونة حسب القسم — درجات بيج وذهبي دافئة متناسقة مع خلفية #E8E2D6
+// لون هدية الأيقونة حسب القسم — درجات بيج وذهبي دافئة متناسقة مع خلفية var(--rz-ivory)
 const CATEGORY_CHIP = {
-  master: 'bg-[#FFF7ED] text-[#0F172A] border-[#FDBA74]',
-  users: 'bg-[#EFF6FF] text-[#0F172A] border-[#93C5FD]',
-  haraj: 'bg-[#F0FDF4] text-[#0F172A] border-[#86EFAC]',
-  catalog: 'bg-[#FDF4FF] text-[#0F172A] border-[#D8B4FE]',
-  staff: 'bg-[#FEF3C7] text-[#0F172A] border-[#FCD34D]',
-  spy: 'bg-[#EEF2FF] text-[#0F172A] border-[#A5B4FC]',
-  inline: 'bg-[#F8FAFC] text-[#0F172A] border-[#CBD5E1]',
+  master: 'bg-[var(--rz-cream-5)] text-[var(--rz-slate)] border-[var(--rz-role-master-line)]',
+  users: 'bg-[var(--rz-role-users-bg)] text-[var(--rz-slate)] border-[var(--rz-role-users-line)]',
+  haraj: 'bg-[var(--rz-role-haraj-bg)] text-[var(--rz-slate)] border-[var(--rz-role-haraj-line)]',
+  catalog: 'bg-[var(--rz-role-catalog-bg)] text-[var(--rz-slate)] border-[var(--rz-role-catalog-line)]',
+  staff: 'bg-[var(--rz-role-staff-bg)] text-[var(--rz-slate)] border-[var(--rz-role-staff-line)]',
+  spy: 'bg-[var(--rz-role-spy-bg)] text-[var(--rz-slate)] border-[var(--rz-role-spy-line)]',
+  inline: 'bg-[var(--rz-cream-8)] text-[var(--rz-slate)] border-[var(--rz-slate-300)]',
 };
 
 // يطابق شكل الكتالوج الأصلي: cat.icon قد يكون اسم الأيقونة أو المعرف
@@ -126,20 +126,20 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
 
   // خلفية فاتحة دائماً + نص أسود عريض (لا أسود/كحلي للخيارات)
   const cardBg = {
-    background: 'linear-gradient(165deg, #F7F3EC 0%, #EFE9DF 100%)',
-    borderColor: 'rgba(30,41,59,.22)',
+    background: 'linear-gradient(165deg, var(--rz-cream-2) 0%, var(--rz-cream-4) 100%)',
+    borderColor: 'rgba(var(--rz-primary-rgb), .22)',
   };
-  const textMain = 'text-[#0F172A] font-extrabold';
-  const textSub = 'text-[#1E293B] font-bold';
-  const textMuted = 'text-[#334155] font-semibold';
+  const textMain = 'text-[var(--rz-slate)] font-extrabold';
+  const textSub = 'text-[var(--rz-primary)] font-bold';
+  const textMuted = 'text-[var(--rz-slate-700)] font-semibold';
   const chipInactive =
-    'bg-[#FFFFFF] text-[#0F172A] border-[#CBD5E1] hover:bg-[#F8FAFC] font-extrabold';
+    'bg-[var(--rz-white)] text-[var(--rz-slate)] border-[var(--rz-slate-300)] hover:bg-[var(--rz-cream-8)] font-extrabold';
   const rowBgOn =
-    'bg-[#FFFFFF] border-[#B8A47A]/60 shadow-sm shadow-[#B8A47A]/15';
+    'bg-[var(--rz-white)] border-[var(--rz-gold)]/60 shadow-sm shadow-[var(--rz-gold)]/15';
   const rowBgOff =
-    'bg-[#FAF8F4] border-[#E2E8F0] hover:border-[#B8A47A]/50';
+    'bg-[var(--rz-cream-7)] border-[var(--rz-slate-200)] hover:border-[var(--rz-gold)]/50';
   const noticeBg =
-    'text-[#0F172A] bg-[#FFFBEB] border-[#B8A47A]/50 font-extrabold';
+    'text-[var(--rz-slate)] bg-[var(--rz-role-active-bg)] border-[var(--rz-gold)]/50 font-extrabold';
 
   // فقط حسابات المالك المعتمدة — تنقية كاملة لأي بريد آخر
   const ownerCandidates = useMemo(() => {
@@ -244,9 +244,9 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
       {/* ترويسة التبويب */}
       <div className="rounded-2xl p-5 border shadow-lg" style={cardBg}>
         <h3 className={`font-bold flex items-center gap-2 mb-2 ${textMain} text-base md:text-lg`}>
-          <Shield size={20} className="text-[#1E293B]" />
+          <Shield size={20} className="text-[var(--rz-primary)]" />
           مصفوفة الصلاحيات المجهرية{' '}
-          <span className="text-[#1E293B]">(47 صلاحية)</span>
+          <span className="text-[var(--rz-primary)]">(47 صلاحية)</span>
         </h3>
         <p className={`text-sm ${textSub} leading-6 font-medium`}>
           اختر حساب مالك ثم فعّل أو عطّل كل صلاحية على حدة عبر زر التعديل ثم الحفظ.
@@ -257,7 +257,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
       {/* مشاهدة حسابات المالك والتحكم المطلق — فقط البريدان المعتمدان */}
       <div className="rounded-2xl p-5 border shadow-lg" style={cardBg}>
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-[#1E293B]/15 border border-[#1E293B]/30 flex items-center justify-center text-[#1E293B]">
+          <div className="w-10 h-10 rounded-xl bg-[var(--rz-primary)]/15 border border-[var(--rz-primary)]/30 flex items-center justify-center text-[var(--rz-primary)]">
             <Crown size={20} />
           </div>
           <div>
@@ -270,7 +270,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
           </div>
         </div>
 
-        <div className="max-h-56 overflow-y-auto divide-y divide-[#1E293B]/15 rounded-xl border border-[#1E293B]/25">
+        <div className="max-h-56 overflow-y-auto divide-y divide-[var(--rz-primary)]/15 rounded-xl border border-[var(--rz-primary)]/25">
           {ownerCandidates.length === 0 && (
             <p className={`p-4 text-sm ${textMuted} text-center font-medium`}>
               لا توجد حسابات مالك مطابقة حالياً
@@ -283,8 +283,8 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
               onClick={() => setTarget(u)}
               className={`w-full text-right px-4 py-3.5 flex items-center justify-between gap-3 transition-colors ${
                 target?.id === u.id
-                  ? 'bg-[#1E293B]/15 border-r-4 border-[#1E293B]'
-                  : 'hover:bg-[#1E293B]/08'
+                  ? 'bg-[var(--rz-primary)]/15 border-r-4 border-[var(--rz-primary)]'
+                  : 'hover:bg-[var(--rz-primary)]/08'
               }`}
             >
               <span className="min-w-0">
@@ -296,7 +296,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                 </span>
               </span>
               {target?.id === u.id && (
-                <Check size={18} className="text-[#1E293B] flex-shrink-0" />
+                <Check size={18} className="text-[var(--rz-primary)] flex-shrink-0" />
               )}
             </button>
           ))}
@@ -316,7 +316,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
               </p>
               <p
                 className={`text-xs font-bold ${
-                  suspended ? 'text-[#1E293B]' : 'text-[#1E293B]'
+                  suspended ? 'text-[var(--rz-primary)]' : 'text-[var(--rz-primary)]'
                 }`}
               >
                 {suspended
@@ -330,8 +330,8 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
               disabled={savingKey === 'suspend'}
               className={`flex items-center justify-center gap-2 w-full md:w-auto px-4 py-3 rounded-xl text-sm font-bold border transition-all duration-200 ${
                 suspended
-                  ? 'bg-[#202A3A]/15 text-[#202A3A] border-[#202A3A]/40 hover:bg-[#202A3A]/25'
-                  : 'bg-[#1E293B]/15 text-[#1E293B] border-[#1E293B]/40 hover:bg-[#1E293B]/25'
+                  ? 'bg-[var(--rz-ink)]/15 text-[var(--rz-ink)] border-[var(--rz-ink)]/40 hover:bg-[var(--rz-ink)]/25'
+                  : 'bg-[var(--rz-primary)]/15 text-[var(--rz-primary)] border-[var(--rz-primary)]/40 hover:bg-[var(--rz-primary)]/25'
               }`}
             >
               {suspended ? <Sun size={16} /> : <Snowflake size={16} />}
@@ -363,7 +363,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                       onClick={() => setActiveCategory(cat.id)}
                       className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold border shrink-0 transition-all duration-200 ${
                         active
-                          ? 'bg-[#FFFFFF] text-[#0F172A] border-[#B8A47A] shadow-md shadow-[#B8A47A]/25 ring-1 ring-[#B8A47A]/40'
+                          ? 'bg-[var(--rz-white)] text-[var(--rz-slate)] border-[var(--rz-gold)] shadow-md shadow-[var(--rz-gold)]/25 ring-1 ring-[var(--rz-gold)]/40'
                           : chipInactive
                       }`}
                     >
@@ -383,14 +383,14 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                   <button
                     type="button"
                     onClick={() => handleCategoryAll(activeCategory, true)}
-                    className="text-xs px-3.5 py-2 rounded-xl bg-[#202A3A]/15 text-[#202A3A] border border-[#202A3A]/40 hover:bg-[#202A3A]/25 font-bold transition-all duration-200"
+                    className="text-xs px-3.5 py-2 rounded-xl bg-[var(--rz-ink)]/15 text-[var(--rz-ink)] border border-[var(--rz-ink)]/40 hover:bg-[var(--rz-ink)]/25 font-bold transition-all duration-200"
                   >
                     تفعيل القسم كله
                   </button>
                   <button
                     type="button"
                     onClick={() => handleCategoryAll(activeCategory, false)}
-                    className="text-xs px-3.5 py-2 rounded-xl bg-[#1E293B]/12 text-[#1E293B] border border-[#1E293B]/35 hover:bg-[#1E293B]/20 font-bold transition-all duration-200"
+                    className="text-xs px-3.5 py-2 rounded-xl bg-[var(--rz-primary)]/12 text-[var(--rz-primary)] border border-[var(--rz-primary)]/35 hover:bg-[var(--rz-primary)]/20 font-bold transition-all duration-200"
                   >
                     تعطيل القسم كله
                   </button>
@@ -406,7 +406,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                   const ChipIcon = PERMISSION_ICONS[p.key] || Shield;
                   const chipColor =
                     CATEGORY_CHIP[activeCategory] ||
-                    'bg-[#1E293B]/12 text-[#1E293B] border-[#1E293B]/30';
+                    'bg-[var(--rz-primary)]/12 text-[var(--rz-primary)] border-[var(--rz-primary)]/30';
                   return (
                     <div
                       key={p.key}
@@ -425,7 +425,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                           <p className={`font-bold text-sm ${textMain} flex items-center gap-2 flex-wrap`}>
                             {p.label}
                             <code
-                              className={`text-[10px] font-mono bg-[#1E293B]/10 px-1.5 py-0.5 rounded ${darkMode ? 'text-[#1E293B]' : 'text-[#404040]'}`}
+                              className={`text-[10px] font-mono bg-[var(--rz-primary)]/10 px-1.5 py-0.5 rounded ${darkMode ? 'text-[var(--rz-primary)]' : 'text-[var(--rz-muted)]'}`}
                               dir="ltr"
                             >
                               {p.key}
@@ -448,7 +448,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                               disabled={suspended || savingKey === 'bulk' || saving}
                               onClick={() => handleToggle(p.key, !on)}
                               className={`relative w-12 h-7 rounded-full transition-colors ${
-                                on ? 'bg-[#B8A47A]' : 'bg-[#CBD5E1]'
+                                on ? 'bg-[var(--rz-gold)]' : 'bg-[var(--rz-slate-300)]'
                               } ${suspended ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                               <span
@@ -457,18 +457,18 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                                 }`}
                               >
                                 {saving ? (
-                                  <span className="w-3 h-3 border-2 border-[#1E293B] border-t-transparent rounded-full animate-spin" />
+                                  <span className="w-3 h-3 border-2 border-[var(--rz-primary)] border-t-transparent rounded-full animate-spin" />
                                 ) : on ? (
-                                  <Check size={11} className="text-[#1E293B]" />
+                                  <Check size={11} className="text-[var(--rz-primary)]" />
                                 ) : (
-                                  <X size={11} className="text-[#1E293B]" />
+                                  <X size={11} className="text-[var(--rz-primary)]" />
                                 )}
                               </span>
                             </button>
                             <button
                               type="button"
                               onClick={() => setEditingKey(null)}
-                              className="p-2 rounded-lg bg-[#1E293B]/10 text-[#1E293B] hover:bg-[#1E293B]/20"
+                              className="p-2 rounded-lg bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] hover:bg-[var(--rz-primary)]/20"
                               title="إلغاء"
                               aria-label="إلغاء التعديل"
                             >
@@ -480,7 +480,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                             type="button"
                             onClick={() => setEditingKey(p.key)}
                             disabled={suspended || savingKey === 'bulk'}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#1E293B]/12 text-[#1E293B] border border-[#1E293B]/30 hover:bg-[#1E293B]/20 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-[var(--rz-primary)]/12 text-[var(--rz-primary)] border border-[var(--rz-primary)]/30 hover:bg-[var(--rz-primary)]/20 transition-all disabled:opacity-50"
                             title="تعديل الصلاحية"
                             aria-label={`تعديل ${p.label}`}
                           >
@@ -495,8 +495,8 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
               </div>
 
               {activeCategory === 'inline' && (
-                <p className={`text-xs ${textSub} leading-6 flex items-start gap-2 border border-[#1E293B]/25 rounded-xl px-3.5 py-2.5 font-medium ${darkMode ? 'bg-[#202A3A]' : 'bg-[#E8E2D6]'}`}>
-                  <Info size={15} className="flex-shrink-0 mt-0.5 text-[#1E293B]" />
+                <p className={`text-xs ${textSub} leading-6 flex items-start gap-2 border border-[var(--rz-primary)]/25 rounded-xl px-3.5 py-2.5 font-medium ${darkMode ? 'bg-[var(--rz-ink)]' : 'bg-[var(--rz-ivory)]'}`}>
+                  <Info size={15} className="flex-shrink-0 mt-0.5 text-[var(--rz-primary)]" />
                   صلاحيات هذا القسم لا تظهر كأزرار ثابتة في الغرفة — بل كأدوات تحكم منبثقة
                   بجانب العناصر نفسها في الموقع (نصوص، صور، شريط متحرك) لمن يملكها فقط.
                 </p>

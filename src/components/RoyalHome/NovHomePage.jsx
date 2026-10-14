@@ -224,7 +224,7 @@ const NovHomePage = () => {
             {emailStatus && (
               <span
                 className="nov-feature-status"
-                style={{ color: emailStatus.includes('نجاح') ? '#1E293B' : '#1E293B' }}
+                style={{ color: emailStatus.includes('نجاح') ? 'var(--rz-primary)' : 'var(--rz-primary)' }}
               >
                 {emailStatus}
               </span>
@@ -330,7 +330,7 @@ const NovHomePage = () => {
               <a
                 href="/"
                 onClick={(e) => { e.preventDefault(); navigate('/terms'); }}
-                style={{ color: '#B8A47A', fontWeight: 800, textDecoration: 'underline' }}
+                style={{ color: 'var(--rz-gold)', fontWeight: 800, textDecoration: 'underline' }}
               >
                 شروط وأحكام الاستخدام
               </a>
@@ -348,7 +348,7 @@ const NovHomePage = () => {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(32,42,58,0.55)',
+            background: 'rgba(var(--rz-ink-rgb), 0.55)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -359,19 +359,19 @@ const NovHomePage = () => {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: 'linear-gradient(145deg,#FFFFFF,#E8E2D6)',
-              border: '1px solid rgba(30,41,59,0.4)',
+              background: 'linear-gradient(145deg,var(--rz-white),var(--rz-ivory))',
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.4)',
               borderRadius: 18,
               padding: '1.2rem 1rem',
               maxWidth: 340,
               width: '100%',
               textAlign: 'right',
-              boxShadow: '0 18px 45px rgba(32,42,58,0.35)',
+              boxShadow: '0 18px 45px rgba(var(--rz-ink-rgb), 0.35)',
               fontFamily: 'Tajawal,sans-serif',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: '0.6rem' }}>
-              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#202A3A' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--rz-ink)' }}>
                 كيف تضيف المتجر لشاشة هاتفك؟
               </h3>
               <button
@@ -379,7 +379,7 @@ const NovHomePage = () => {
                 onClick={() => setShowAddHelp(false)}
                 aria-label="إغلاق"
                 style={{
-                  background: 'rgba(32,42,58,0.06)',
+                  background: 'rgba(var(--rz-ink-rgb), 0.06)',
                   border: 'none',
                   borderRadius: 8,
                   width: 30,
@@ -389,13 +389,13 @@ const NovHomePage = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  color: '#1E293B',
+                  color: 'var(--rz-primary)',
                 }}
               >
                 <X size={16} />
               </button>
             </div>
-            <ol style={{ margin: 0, paddingRight: '1.1rem', fontSize: '0.82rem', color: '#202A3A', lineHeight: 1.7 }}>
+            <ol style={{ margin: 0, paddingRight: '1.1rem', fontSize: '0.82rem', color: 'var(--rz-ink)', lineHeight: 1.7 }}>
               <li>افتح الموقع في المتصفح</li>
               <li>اضغط قائمة المشاركة أو القائمة</li>
               <li>اختر «إضافة إلى الشاشة الرئيسية»</li>
