@@ -1,0 +1,206 @@
+/* ============================================================
+   أناقة ROOZ — طبقة فخامة 3D موحّدة
+   1) خلفية أوراب 3D
+   2) بطاقات زجاجية بارزة
+   3) أزرار بعمق
+   يعتمد على theme.css إن وُجد، مع قيم احتياطية آمنة.
+   الاستيراد في main.jsx بعد theme.css:
+     import './styles/theme.css'
+     import './styles/rooz-luxury-3d.css'
+   ============================================================ */
+
+:root {
+  --rz3d-primary: rgb(var(--rz-primary-rgb, 30, 41, 59));
+  --rz3d-gold: rgb(var(--rz-gold-rgb, 184, 164, 122));
+  --rz3d-beige: #E8E2D6;
+  --rz3d-cream: #F7F3EB;
+  --rz3d-white: rgba(255, 255, 255, 0.72);
+  --rz3d-shadow: rgba(var(--rz-primary-rgb, 30, 41, 59), 0.18);
+  --rz3d-shadow-deep: rgba(var(--rz-primary-rgb, 30, 41, 59), 0.28);
+  --rz3d-radius: 16px;
+  --rz3d-radius-btn: 14px;
+}
+
+/* ---------- 1) خلفية أوراب 3D ---------- */
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100%;
+  background-color: var(--rz3d-beige) !important;
+  background-image:
+    radial-gradient(
+      ellipse 120% 70% at 50% -10%,
+      rgba(var(--rz-primary-rgb, 30, 41, 59), 0.2) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 50% 45% at 95% 18%,
+      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.24) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 45% 40% at 6% 88%,
+      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.16) 0%,
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      var(--rz3d-cream) 0%,
+      var(--rz3d-beige) 50%,
+      #E0D8C8 100%
+    ) !important;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 14% 26%, rgba(var(--rz-gold-rgb, 184, 164, 122), 0.16) 0%, transparent 42%),
+    radial-gradient(circle at 86% 16%, rgba(var(--rz-primary-rgb, 30, 41, 59), 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 72% 74%, rgba(var(--rz-gold-rgb, 184, 164, 122), 0.14) 0%, transparent 46%),
+    radial-gradient(circle at 24% 80%, rgba(var(--rz-primary-rgb, 30, 41, 59), 0.07) 0%, transparent 42%),
+    radial-gradient(circle at 50% 48%, rgba(247, 243, 235, 0.4) 0%, transparent 58%);
+}
+
+#root,
+#root > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- 2) بطاقات زجاجية بارزة ---------- */
+/* يطبّق على بطاقات شائعة في الموقع دون كسر التخطيط */
+.rz-card,
+.rz-glass,
+.rz-discover-card,
+.rz-trust-item,
+.rl-card,
+.rl-panel,
+.rl-box,
+[class*="StatCard"],
+.product-card,
+.haraj-card {
+  background: var(--rz3d-white) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: var(--rz3d-radius) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 10px 28px var(--rz3d-shadow),
+    0 2px 6px rgba(0, 0, 0, 0.04) !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.rz-card:hover,
+.rz-glass:hover,
+.rz-discover-card:hover,
+.product-card:hover,
+.haraj-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 16px 36px var(--rz3d-shadow-deep),
+    0 4px 10px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* بطاقات غامقة (كحلي) — عمق أنعم */
+.rz-card--dark,
+.rl-hero,
+[class*="hero"] {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 14px 32px var(--rz3d-shadow-deep) !important;
+}
+
+/* ---------- 3) أزرار بعمق ---------- */
+button,
+.rz-btn,
+.rl-btn,
+a.rz-btn,
+input[type="submit"],
+input[type="button"] {
+  border-radius: var(--rz3d-radius-btn) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+/* زر أساسي غامق */
+.rz-btn-primary,
+.rl-btn-primary,
+button.primary,
+.rl-btn[type="submit"],
+button[type="submit"] {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.12) inset,
+    0 8px 18px var(--rz3d-shadow),
+    0 2px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+.rz-btn-primary:hover,
+.rl-btn-primary:hover,
+button.primary:hover,
+button[type="submit"]:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.16) inset,
+    0 12px 24px var(--rz3d-shadow-deep),
+    0 3px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.rz-btn-primary:active,
+.rl-btn-primary:active,
+button.primary:active,
+button[type="submit"]:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.12) inset,
+    0 3px 8px var(--rz3d-shadow) !important;
+}
+
+/* زر ثانوي / حدود */
+.rz-btn-secondary,
+.rl-btn-secondary,
+button.secondary {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 4px 12px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.1) !important;
+}
+
+.rz-btn-secondary:hover,
+.rl-btn-secondary:hover,
+button.secondary:hover {
+  transform: translateY(-1px);
+}
+
+/* احترام تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    background-attachment: scroll;
+  }
+  .rz-card,
+  .rz-glass,
+  .rz-discover-card,
+  .product-card,
+  .haraj-card,
+  button,
+  .rz-btn,
+  .rl-btn {
+    transition: none !important;
+  }
+  .rz-card:hover,
+  .rz-discover-card:hover,
+  .product-card:hover,
+  .haraj-card:hover,
+  button:hover {
+    transform: none !important;
+  }
+}
