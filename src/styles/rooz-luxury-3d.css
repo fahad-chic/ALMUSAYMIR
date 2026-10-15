@@ -1,11 +1,9 @@
 /* ============================================================
-   أناقة ROOZ — طبقة فخامة 3D موحّدة
-   1) خلفية أوراب 3D
-   2) بطاقات زجاجية بارزة
-   3) أزرار بعمق
-   يعتمد على theme.css إن وُجد، مع قيم احتياطية آمنة.
-   الاستيراد في main.jsx بعد theme.css:
-     import './styles/theme.css'
+   أناقة ROOZ — فخامة 3D قوية (نسخة بطلة)
+   1) خلفية أوراب وتوهج واضحة
+   2) بطاقات زجاجية بارزة بظل عميق
+   3) أزرار بعمق وحركة
+   ضع بعد theme.css في main.jsx:
      import './styles/rooz-luxury-3d.css'
    ============================================================ */
 
@@ -14,48 +12,45 @@
   --rz3d-gold: rgb(var(--rz-gold-rgb, 184, 164, 122));
   --rz3d-beige: #E8E2D6;
   --rz3d-cream: #F7F3EB;
-  --rz3d-white: rgba(255, 255, 255, 0.72);
-  --rz3d-shadow: rgba(var(--rz-primary-rgb, 30, 41, 59), 0.18);
-  --rz3d-shadow-deep: rgba(var(--rz-primary-rgb, 30, 41, 59), 0.28);
-  --rz3d-radius: 16px;
+  --rz3d-radius: 18px;
   --rz3d-radius-btn: 14px;
+  --rz3d-shadow: 0 12px 32px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.22);
+  --rz3d-shadow-lg: 0 18px 48px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.3);
+  --rz3d-shadow-btn: 0 8px 20px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.28);
 }
 
-/* ---------- 1) خلفية أوراب 3D ---------- */
+/* ========== 1) خلفية أوراب 3D قوية ========== */
 html {
   min-height: 100%;
+  background: var(--rz3d-beige);
 }
 
 body {
   min-height: 100%;
   background-color: var(--rz3d-beige) !important;
   background-image:
-    radial-gradient(
-      ellipse 120% 70% at 50% -10%,
-      rgba(var(--rz-primary-rgb, 30, 41, 59), 0.2) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse 50% 45% at 95% 18%,
-      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.24) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 45% 40% at 6% 88%,
-      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.16) 0%,
-      transparent 55%
-    ),
-    linear-gradient(
-      180deg,
-      var(--rz3d-cream) 0%,
-      var(--rz3d-beige) 50%,
-      #E0D8C8 100%
-    ) !important;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
+    radial-gradient(ellipse 130% 80% at 50% -15%,
+      rgba(var(--rz-primary-rgb, 30, 41, 59), 0.32) 0%,
+      transparent 58%),
+    radial-gradient(ellipse 55% 50% at 100% 10%,
+      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.38) 0%,
+      transparent 62%),
+    radial-gradient(ellipse 50% 45% at 0% 90%,
+      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.28) 0%,
+      transparent 58%),
+    radial-gradient(ellipse 40% 35% at 80% 75%,
+      rgba(var(--rz-primary-rgb, 30, 41, 59), 0.14) 0%,
+      transparent 55%),
+    linear-gradient(165deg,
+      #F9F5ED 0%,
+      #E8E2D6 40%,
+      #DDD4C4 100%) !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
 }
 
+/* طبقة فقاعات ذهبية وكحلية عائمة */
 body::before {
   content: "";
   position: fixed;
@@ -63,144 +58,255 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 14% 26%, rgba(var(--rz-gold-rgb, 184, 164, 122), 0.16) 0%, transparent 42%),
-    radial-gradient(circle at 86% 16%, rgba(var(--rz-primary-rgb, 30, 41, 59), 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 72% 74%, rgba(var(--rz-gold-rgb, 184, 164, 122), 0.14) 0%, transparent 46%),
-    radial-gradient(circle at 24% 80%, rgba(var(--rz-primary-rgb, 30, 41, 59), 0.07) 0%, transparent 42%),
-    radial-gradient(circle at 50% 48%, rgba(247, 243, 235, 0.4) 0%, transparent 58%);
+    radial-gradient(circle 180px at 10% 22%,
+      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.28) 0%, transparent 70%),
+    radial-gradient(circle 140px at 92% 12%,
+      rgba(var(--rz-primary-rgb, 30, 41, 59), 0.18) 0%, transparent 70%),
+    radial-gradient(circle 200px at 78% 70%,
+      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.22) 0%, transparent 72%),
+    radial-gradient(circle 160px at 18% 82%,
+      rgba(var(--rz-primary-rgb, 30, 41, 59), 0.12) 0%, transparent 70%),
+    radial-gradient(circle 120px at 48% 48%,
+      rgba(255, 255, 255, 0.35) 0%, transparent 68%);
+  opacity: 1;
 }
 
-#root,
-#root > * {
+/* لمعان خفيف متحرك بطيء (اختياري) */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 90px at 30% 40%,
+      rgba(255, 255, 255, 0.12) 0%, transparent 70%),
+    radial-gradient(circle 70px at 70% 60%,
+      rgba(var(--rz-gold-rgb, 184, 164, 122), 0.1) 0%, transparent 70%);
+  animation: rz3d-float 14s ease-in-out infinite alternate;
+}
+
+@keyframes rz3d-float {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0.85; }
+  100% { transform: translate3d(0, -18px, 0); opacity: 1; }
+}
+
+#root {
   position: relative;
   z-index: 1;
 }
 
-/* ---------- 2) بطاقات زجاجية بارزة ---------- */
-/* يطبّق على بطاقات شائعة في الموقع دون كسر التخطيط */
+/* ========== 2) بطاقات زجاجية بارزة ========== */
+/* استهداف واسع لعناصر الموقع الشائعة */
 .rz-card,
 .rz-glass,
 .rz-discover-card,
 .rz-trust-item,
+.rz-hero,
 .rl-card,
 .rl-panel,
 .rl-box,
-[class*="StatCard"],
+.rl-hero,
+.product-card,
+.haraj-card,
+.catalog-card,
+[class*="Card"]:not(svg):not(path),
+[class*="card"]:not(svg):not(path),
+[class*="Panel"],
+[class*="panel"],
+.rz-trust-item,
+div[style*="border-radius"][style*="background"] {
+  /* لا نفرض على كل div — نركز أدناه على محددات أوضح */
+}
+
+/* بطاقات فاتحة / صناديق ثقة / اكتشاف */
+.rz-trust-item,
+.rz-discover-card,
+.rz-card,
+.rl-card,
+.rl-panel,
 .product-card,
 .haraj-card {
-  background: var(--rz3d-white) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(16px) saturate(1.15) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
   border-radius: var(--rz3d-radius) !important;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.55) inset,
-    0 10px 28px var(--rz3d-shadow),
-    0 2px 6px rgba(0, 0, 0, 0.04) !important;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    var(--rz3d-shadow) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
 }
 
-.rz-card:hover,
-.rz-glass:hover,
+.rz-trust-item:hover,
 .rz-discover-card:hover,
+.rz-card:hover,
 .product-card:hover,
 .haraj-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px) scale(1.01) !important;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.65) inset,
-    0 16px 36px var(--rz3d-shadow-deep),
-    0 4px 10px rgba(0, 0, 0, 0.06) !important;
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    var(--rz3d-shadow-lg) !important;
 }
 
-/* بطاقات غامقة (كحلي) — عمق أنعم */
-.rz-card--dark,
+/* البطاقات الكحلية / الهيرو — عمق ملكي */
+.rz-hero,
 .rl-hero,
 [class*="hero"] {
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.08) inset,
-    0 14px 32px var(--rz3d-shadow-deep) !important;
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 20px 50px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(184, 164, 122, 0.25) !important;
 }
 
-/* ---------- 3) أزرار بعمق ---------- */
+/* شريط اللافتات العلوي */
+.rz-ticker,
+[class*="ticker"],
+[class*="banner"] {
+  box-shadow: 0 8px 24px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.25) !important;
+}
+
+/* حقول البحث والمدخلات — عمق خفيف */
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 4px 14px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.08) !important;
+  border-radius: 12px !important;
+  transition: box-shadow 0.2s ease, transform 0.15s ease !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow:
+    0 0 0 3px rgba(var(--rz-gold-rgb, 184, 164, 122), 0.35),
+    0 6px 18px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.12) !important;
+  outline: none !important;
+}
+
+/* ========== 3) أزرار بعمق بطلة ========== */
 button,
 .rz-btn,
 .rl-btn,
 a.rz-btn,
+a.rl-btn,
 input[type="submit"],
-input[type="button"] {
+input[type="button"],
+.rz-icon-btn {
   border-radius: var(--rz3d-radius-btn) !important;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease !important;
 }
 
-/* زر أساسي غامق */
+/* أزرار أساسية غامقة */
+button[type="submit"],
 .rz-btn-primary,
 .rl-btn-primary,
+.rl-btn,
 button.primary,
-.rl-btn[type="submit"],
-button[type="submit"] {
+a.primary {
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.12) inset,
-    0 8px 18px var(--rz3d-shadow),
-    0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    var(--rz3d-shadow-btn),
+    0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
+button[type="submit"]:hover,
 .rz-btn-primary:hover,
 .rl-btn-primary:hover,
-button.primary:hover,
-button[type="submit"]:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+.rl-btn:hover,
+button.primary:hover {
+  transform: translateY(-2px) !important;
+  filter: brightness(1.06);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.16) inset,
-    0 12px 24px var(--rz3d-shadow-deep),
-    0 3px 6px rgba(0, 0, 0, 0.1) !important;
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 14px 28px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.38),
+    0 4px 8px rgba(0, 0, 0, 0.12) !important;
 }
 
+button[type="submit"]:active,
 .rz-btn-primary:active,
-.rl-btn-primary:active,
-button.primary:active,
-button[type="submit"]:active {
-  transform: translateY(1px);
+.rl-btn:active,
+button.primary:active {
+  transform: translateY(1px) !important;
   box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.12) inset,
-    0 3px 8px var(--rz3d-shadow) !important;
+    0 3px 8px rgba(0, 0, 0, 0.18) inset,
+    0 2px 6px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.2) !important;
 }
 
-/* زر ثانوي / حدود */
+/* أزرار ثانوية / حدود */
+button.secondary,
 .rz-btn-secondary,
 .rl-btn-secondary,
-button.secondary {
+a.secondary {
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.5) inset,
-    0 4px 12px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.1) !important;
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 6px 16px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.12) !important;
 }
 
-.rz-btn-secondary:hover,
-.rl-btn-secondary:hover,
-button.secondary:hover {
-  transform: translateY(-1px);
+button.secondary:hover,
+.rz-btn-secondary:hover {
+  transform: translateY(-2px) !important;
 }
 
-/* احترام تقليل الحركة */
+/* أزرار الترويسة الدائرية */
+.rz-icon-btn,
+.rz-actions button {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.rz-icon-btn:hover {
+  transform: translateY(-1px) scale(1.05) !important;
+}
+
+/* الترويسة — عمق خفيف */
+header,
+.rz-topbar,
+.rz-header,
+nav[aria-label="التنقل الرئيسي"] {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.rz-topbar,
+.rz-header {
+  box-shadow: 0 8px 28px rgba(var(--rz-primary-rgb, 30, 41, 59), 0.2) !important;
+}
+
+/* شارة / تاج ذهبي */
+.rz-badge,
+[class*="badge"],
+[class*="chip"] {
+  box-shadow: 0 4px 12px rgba(var(--rz-gold-rgb, 184, 164, 122), 0.35) !important;
+}
+
+/* ========== احترام تقليل الحركة ========== */
 @media (prefers-reduced-motion: reduce) {
   body {
-    background-attachment: scroll;
+    background-attachment: scroll !important;
   }
-  .rz-card,
-  .rz-glass,
-  .rz-discover-card,
-  .product-card,
-  .haraj-card,
-  button,
-  .rz-btn,
-  .rl-btn {
-    transition: none !important;
+  body::after {
+    animation: none !important;
+  }
+  * {
+    scroll-behavior: auto !important;
   }
   .rz-card:hover,
+  .rz-trust-item:hover,
   .rz-discover-card:hover,
   .product-card:hover,
-  .haraj-card:hover,
-  button:hover {
+  button:hover,
+  .rl-btn:hover {
     transform: none !important;
   }
 }
