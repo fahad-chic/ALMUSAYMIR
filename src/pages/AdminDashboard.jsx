@@ -19,8 +19,8 @@ import CloseButton from '../components/CloseButton'
 
 /* ===================== Helpers ===================== */
 const btnBase = 'w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-300 min-h-[52px] shrink-0 leading-6 group border'
-const btnGold = 'bg-slate-900/70 border-slate-700/60 text-slate-100 shadow-lg shadow-black/50 hover:bg-slate-700 hover:border-pink-500/50 hover:shadow-pink-500/10 transition-all duration-200 group'
-const btnGoldActive = 'bg-gradient-to-l from-pink-500/25 via-pink-500/10 to-slate-900 text-pink-300 font-bold border border-pink-500/60 shadow-xl shadow-pink-500/25'
+const btnGold = 'bg-[var(--rz-white)] border-[rgba(var(--rz-ink-rgb),0.10)] text-[var(--rz-ink)] shadow-sm hover:bg-[var(--rz-ivory)] hover:border-[var(--rz-primary)]/40 transition-all duration-200 group'
+const btnGoldActive = 'bg-gradient-to-l from-[var(--rz-primary)]/15 via-[var(--rz-primary)]/8 to-[var(--rz-ivory)] text-[var(--rz-primary)] font-bold border border-[var(--rz-primary)]/50 shadow-md shadow-[var(--rz-primary)]/10'
 
 const toSafeNumber = (value, fallback = 0) => {
   if (typeof value === 'number' && Number.isFinite(value)) return value
@@ -55,14 +55,14 @@ const getTimestampValue = (value) => {
 }
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
-  <div className={`bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50 ${color}`}>
+  <div className={`bg-[var(--rz-white)] rounded-xl p-5 border border-[rgba(var(--rz-ink-rgb),0.08)] shadow-sm ${color}`}>
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-slate-400 text-sm">{title}</p>
-        <p className="text-3xl font-bold mt-2">{value}</p>
+        <p className="text-[var(--rz-muted)] text-sm">{title}</p>
+        <p className="text-2xl font-bold mt-1.5 text-[var(--rz-ink)]">{value}</p>
       </div>
-      <div className={`p-3 rounded-lg ${color.replace('border', 'bg').replace('-500', '-500/20')}`}>
-        <Icon className={color.replace('border', 'text')} size={24} />
+      <div className={`p-3 rounded-xl ${color.replace('border', 'bg').replace('-500', '-500/15')}`}>
+        <Icon className={color.replace('border', 'text')} size={22} />
       </div>
     </div>
   </div>
@@ -247,8 +247,8 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="animate-spin w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-[var(--rz-ivory)] flex items-center justify-center">
+        <div className="animate-spin w-12 h-12 border-4 border-[var(--rz-primary)] border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -266,17 +266,17 @@ const AdminDashboard = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white" dir="rtl">
-      <header className="bg-slate-800/80 backdrop-blur-md p-4 flex items-center justify-between gap-2 relative z-40 sticky top-0">
+    <div className="min-h-screen bg-[var(--rz-ivory)] text-[var(--rz-ink)]" dir="rtl">
+      <header className="bg-[var(--rz-white)]/95 backdrop-blur-md p-3.5 sm:p-4 flex items-center justify-between gap-2 relative z-40 sticky top-0 border-b border-[rgba(var(--rz-ink-rgb),0.08)] shadow-sm">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="p-2 hover:bg-slate-700 rounded-lg shrink-0"
+          className="p-2 hover:bg-[var(--rz-ivory)] rounded-lg shrink-0 text-[var(--rz-ink)]"
           aria-label="فتح القائمة"
           type="button"
         >
-          <Menu size={24} />
+          <Menu size={22} />
         </button>
-        <h1 className="text-lg sm:text-xl font-bold truncate flex-1 text-center">
+        <h1 className="text-base sm:text-lg font-bold truncate flex-1 text-center text-[var(--rz-ink)]">
           لوحة التحكم
         </h1>
         <div className="flex items-center gap-2 shrink-0">
@@ -284,7 +284,7 @@ const AdminDashboard = () => {
           <button
             type="button"
             onClick={goBackOneStep}
-            className="px-3 py-2 rounded-xl border border-slate-600 bg-slate-900/70 hover:bg-slate-700 text-xs font-bold flex items-center gap-1.5"
+            className="px-3 py-2 rounded-xl border border-[rgba(var(--rz-ink-rgb),0.12)] bg-[var(--rz-white)] hover:bg-[var(--rz-ivory)] text-xs font-bold flex items-center gap-1.5 text-[var(--rz-ink)]"
             aria-label="رجوع خطوة واحدة"
             title={activeTab === 'overview' ? 'أنت في نظرة عامة' : 'رجوع للقسم السابق'}
           >
@@ -299,9 +299,9 @@ const AdminDashboard = () => {
               width: 38,
               height: 38,
               zIndex: 5,
-              background: 'rgba(var(--rz-white-rgb), 0.08)',
-              borderColor: 'rgba(var(--rz-white-rgb), 0.25)',
-              color: 'var(--rz-white)',
+              background: 'var(--rz-white)',
+              borderColor: 'rgba(var(--rz-ink-rgb), 0.15)',
+              color: 'var(--rz-ink)',
               boxShadow: 'none',
               top: 0,
             }}
@@ -310,27 +310,27 @@ const AdminDashboard = () => {
       </header>
 
       <aside
-        className={`fixed inset-y-0 right-0 w-72 max-w-[88vw] bg-slate-800/80 backdrop-blur-md z-50 flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`fixed inset-y-0 right-0 w-72 max-w-[88vw] bg-[var(--rz-white)] z-50 flex flex-col overflow-hidden transition-all duration-300 ease-in-out border-l border-[rgba(var(--rz-ink-rgb),0.08)] shadow-xl ${
           sidebarOpen
             ? 'translate-x-0 opacity-100 pointer-events-auto'
             : 'translate-x-full opacity-0 pointer-events-none'
         }`}
         aria-hidden={!sidebarOpen}
       >
-        <div className="p-6 border-b border-slate-700/50 shrink-0">
+        <div className="p-5 border-b border-[rgba(var(--rz-ink-rgb),0.08)] shrink-0">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 bg-[var(--rz-primary)]/15 text-[var(--rz-primary)] rounded-full flex items-center justify-center shrink-0">
                 <Store size={20} />
               </div>
               <div className="min-w-0">
-                <p className="font-bold">أناقة ROOZ</p>
-                <p className="text-xs text-slate-300">لوحة التحكم</p>
+                <p className="font-bold text-[var(--rz-ink)]">أناقة ROOZ</p>
+                <p className="text-xs text-[var(--rz-muted)]">لوحة التحكم</p>
               </div>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-2 hover:bg-slate-700 rounded-lg"
+              className="p-2 hover:bg-[var(--rz-ivory)] rounded-lg text-[var(--rz-ink)]"
               aria-label="إغلاق القائمة"
               type="button"
             >
@@ -339,7 +339,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-2">
+        <nav className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3.5 space-y-1.5">
           {menuItems.map((item) => {
             const Icon = item.icon
             const isActive = activeTab === item.id
@@ -351,29 +351,29 @@ const AdminDashboard = () => {
                 aria-current={isActive ? 'page' : undefined}
                 className={`${btnBase} ${isActive ? btnGoldActive : btnGold}`}
               >
-                <Icon size={22} className={`shrink-0 ${isActive ? 'text-pink-400' : 'text-slate-400 group-hover:text-pink-300'}`} />
-                <span className={`flex-1 text-right ${isActive ? 'text-pink-200' : 'text-slate-100'}`}>{item.label}</span>
+                <Icon size={20} className={`shrink-0 ${isActive ? 'text-[var(--rz-primary)]' : 'text-[var(--rz-muted)] group-hover:text-[var(--rz-primary)]'}`} />
+                <span className={`flex-1 text-right ${isActive ? 'text-[var(--rz-primary)]' : 'text-[var(--rz-ink)]'}`}>{item.label}</span>
               </button>
             )
           })}
         </nav>
 
-        <div className="shrink-0 p-4 border-t border-slate-700/50 bg-slate-800/80 backdrop-blur-md">
-          <div className="flex items-center gap-3 mb-4 px-4 min-w-0">
-            <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center shrink-0">
-              <User size={20} />
+        <div className="shrink-0 p-4 border-t border-[rgba(var(--rz-ink-rgb),0.08)] bg-[var(--rz-ivory)]/60">
+          <div className="flex items-center gap-3 mb-3 px-3 min-w-0">
+            <div className="w-9 h-9 bg-[var(--rz-primary)]/15 text-[var(--rz-primary)] rounded-full flex items-center justify-center shrink-0">
+              <User size={18} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.displayName || 'مدير'}</p>
-              <p className="text-xs text-slate-300 truncate" dir="ltr">{user?.email}</p>
+              <p className="text-sm font-medium truncate text-[var(--rz-ink)]">{user?.displayName || 'مدير'}</p>
+              <p className="text-xs text-[var(--rz-muted)] truncate" dir="ltr">{user?.email}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
             type="button"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-red-500/10 text-red-600 transition-colors text-sm font-medium"
           >
-            <LogOut size={20} className="shrink-0" />
+            <LogOut size={18} className="shrink-0" />
             <span>تسجيل الخروج</span>
           </button>
         </div>
@@ -416,15 +416,15 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            <div className="bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50">
+            <div className="bg-[var(--rz-white)] rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)]">
               <h3 className="text-lg font-bold mb-4">آخر الطلبات</h3>
               {recentOrders.length > 0 ? (
                 <div className="space-y-4">
                   {recentOrders.map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-4 bg-slate-900/60 rounded-lg">
+                    <div key={order.id} className="flex items-center justify-between p-4 bg-[var(--rz-ivory)] rounded-lg">
                       <div>
                         <p className="font-medium">طلب #{order.id.slice(0, 8)}</p>
-                        <p className="text-sm text-slate-400">{order.customerName || 'غير محدد'}</p>
+                        <p className="text-sm text-[var(--rz-muted)]">{order.customerName || 'غير محدد'}</p>
                       </div>
                       <div className="text-left">
                         <p className="font-bold text-pink-500">{formatPrice(order.total)}</p>
@@ -434,7 +434,7 @@ const AdminDashboard = () => {
                               ? 'bg-yellow-500/20 text-yellow-400'
                               : order.status === 'completed'
                               ? 'bg-green-500/20 text-green-400'
-                              : 'text-slate-500 text-slate-400'
+                              : 'text-[var(--rz-muted)] text-[var(--rz-muted)]'
                           }`}
                         >
                           {order.status === 'pending'
@@ -448,12 +448,12 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-slate-400 text-center py-8">لا توجد طلبات بعد</p>
+                <p className="text-[var(--rz-muted)] text-center py-8">لا توجد طلبات بعد</p>
               )}
               <button
                 onClick={() => handleMenuSelect('orders')}
                 type="button"
-                className="mt-4 w-full py-3 bg-slate-900/70 hover:bg-slate-700 hover:border-pink-500/50 rounded-lg flex items-center justify-center gap-2 border border-slate-700/60 transition-all duration-200"
+                className="mt-4 w-full py-3 bg-[var(--rz-ivory)] hover:bg-[var(--rz-ivory)] hover:border-pink-500/50 rounded-lg flex items-center justify-center gap-2 border border-[rgba(var(--rz-ink-rgb),0.10)] transition-all duration-200"
               >
                 عرض كل الطلبات <ChevronRight size={18} />
               </button>
@@ -470,7 +470,7 @@ const AdminDashboard = () => {
                   key={q.tab}
                   onClick={() => handleMenuSelect(q.tab)}
                   type="button"
-                  className="bg-slate-800/80 backdrop-blur-md hover:bg-slate-700 hover:border-pink-500/50 rounded-xl p-6 border border-slate-700/50 flex flex-col items-center gap-3 transition-all duration-200"
+                  className="bg-[var(--rz-white)] hover:bg-[var(--rz-ivory)] hover:border-pink-500/50 rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)] flex flex-col items-center gap-3 transition-all duration-200"
                 >
                   <q.icon className={q.color} size={32} />
                   <span>{q.label}</span>
@@ -545,12 +545,12 @@ const ProductsManager = ({ onUpdate }) => {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-400">جاري التحميل...</div>
+        <div className="text-center py-12 text-[var(--rz-muted)]">جاري التحميل...</div>
       ) : (
-        <div className="bg-slate-800/80 backdrop-blur-md rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="bg-[var(--rz-white)] rounded-xl border border-[rgba(var(--rz-ink-rgb),0.08)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-900/60">
+              <thead className="bg-[var(--rz-ivory)]">
                 <tr>
                   <th className="px-6 py-4 text-right">المنتج</th>
                   <th className="px-6 py-4 text-right">السعر</th>
@@ -561,18 +561,18 @@ const ProductsManager = ({ onUpdate }) => {
               </thead>
               <tbody>
                 {products.map((p) => (
-                  <tr key={p.id} className="border-t border-slate-700/50 hover:bg-slate-700/30">
+                  <tr key={p.id} className="border-t border-[rgba(var(--rz-ink-rgb),0.08)] hover:bg-[var(--rz-ivory)]/30">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <img loading="lazy" src={p.image} alt={p.name || 'المنتج'} className="w-12 h-12 rounded-lg object-cover" />
                         <div>
                           <p className="font-medium">{p.name || 'منتج بدون اسم'}</p>
-                          <p className="text-sm text-slate-400">{p.description?.slice(0, 50)}...</p>
+                          <p className="text-sm text-[var(--rz-muted)]">{p.description?.slice(0, 50)}...</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 font-bold text-pink-500">{formatPrice(p.price)}</td>
-                    <td className="px-6 py-4 text-slate-400">{p.category || 'غير محدد'}</td>
+                    <td className="px-6 py-4 text-[var(--rz-muted)]">{p.category || 'غير محدد'}</td>
                     <td className="px-6 py-4">
                       <span className={`px-3 py-1 rounded-full text-xs ${p.active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                         {p.active ? 'مفعل' : 'غير مفعل'}
@@ -593,7 +593,7 @@ const ProductsManager = ({ onUpdate }) => {
               </tbody>
             </table>
           </div>
-          {products.length === 0 && <p className="text-center py-12 text-slate-400">لا توجد منتجات</p>}
+          {products.length === 0 && <p className="text-center py-12 text-[var(--rz-muted)]">لا توجد منتجات</p>}
         </div>
       )}
 
@@ -644,24 +644,24 @@ const ProductForm = ({ product, onClose, onSave }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-slate-700/50 flex items-center justify-between sticky top-0 bg-slate-800/80 backdrop-blur-md">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-[var(--rz-white)] rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-[rgba(var(--rz-ink-rgb),0.08)] flex items-center justify-between sticky top-0 bg-[var(--rz-white)]">
           <h3 className="text-xl font-bold">{product ? 'تعديل منتج' : 'إضافة منتج'}</h3>
-          <button onClick={onClose} type="button" className="p-2 hover:bg-slate-700 rounded-lg"><X size={24} /></button>
+          <button onClick={onClose} type="button" className="p-2 hover:bg-[var(--rz-ivory)] rounded-lg"><X size={24} /></button>
         </div>
         <form onSubmit={submit} className="p-6 space-y-4">
-          <input type="text" placeholder="اسم المنتج" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
-          <textarea placeholder="الوصف" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full bg-slate-800 border border-slate-700/60 rounded-lg px-4 py-3 focus:border-pink-500 focus:outline-none h-24" />
-          <input type="number" min="0" step="0.01" placeholder="السعر" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
-          <input type="text" placeholder="التصنيف" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
-          <input type="url" placeholder="رابط الصورة" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+          <input type="text" placeholder="اسم المنتج" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
+          <textarea placeholder="الوصف" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full bg-[var(--rz-white)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 focus:border-pink-500 focus:outline-none h-24" />
+          <input type="number" min="0" step="0.01" placeholder="السعر" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
+          <input type="text" placeholder="التصنيف" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+          <input type="url" placeholder="رابط الصورة" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
           <label className="flex items-center gap-3">
             <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-5 h-5" />
             <span>مفعل</span>
           </label>
           <div className="flex gap-4 pt-4">
-            <button type="button" onClick={onClose} className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 hover:border-pink-500/50 rounded-lg border border-slate-700/60 transition-all duration-200">إلغاء</button>
+            <button type="button" onClick={onClose} className="flex-1 py-3 bg-[var(--rz-white)] hover:bg-[var(--rz-ivory)] hover:border-pink-500/50 rounded-lg border border-[rgba(var(--rz-ink-rgb),0.10)] transition-all duration-200">إلغاء</button>
             <button type="submit" disabled={saving} className="flex-1 py-3 bg-pink-600 hover:bg-pink-500 rounded-lg disabled:opacity-50 border border-pink-400/30 hover:border-pink-400/60 transition-all duration-200">{saving ? '...' : 'حفظ'}</button>
           </div>
         </form>
@@ -706,15 +706,15 @@ const CategoriesManager = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">إدارة التصنيفات</h2>
       <form onSubmit={add} className="flex gap-3">
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="اسم التصنيف الجديد" className="flex-1 bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="اسم التصنيف الجديد" className="flex-1 bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
         <button type="submit" className="bg-pink-600 hover:bg-pink-500 px-6 py-3 rounded-lg border border-pink-400/30 hover:border-pink-400/60 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/30 transition-all duration-200">إضافة</button>
       </form>
       {loading ? (
-        <div className="text-center py-12 text-slate-400">جاري التحميل...</div>
+        <div className="text-center py-12 text-[var(--rz-muted)]">جاري التحميل...</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {categories.map((c) => (
-            <div key={c.id} className="bg-slate-800/80 backdrop-blur-md rounded-xl p-4 border border-slate-700/50 text-center">
+            <div key={c.id} className="bg-[var(--rz-white)] rounded-xl p-4 border border-[rgba(var(--rz-ink-rgb),0.08)] text-center">
               <p className="font-medium break-words">{c.name}</p>
             </div>
           ))}
@@ -756,14 +756,14 @@ const OrdersManager = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">إدارة الطلبات</h2>
       {loading ? (
-        <div className="text-center py-12 text-slate-400">جاري التحميل...</div>
+        <div className="text-center py-12 text-[var(--rz-muted)]">جاري التحميل...</div>
       ) : (
         <div className="space-y-4">
           {orders.map((o) => (
-            <div key={o.id} className="bg-slate-800/80 backdrop-blur-md rounded-xl p-4 border border-slate-700/50 flex flex-wrap items-center justify-between gap-4">
+            <div key={o.id} className="bg-[var(--rz-white)] rounded-xl p-4 border border-[rgba(var(--rz-ink-rgb),0.08)] flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="font-medium">طلب #{o.id?.slice?.(0, 8)}</p>
-                <p className="text-sm text-slate-400">{o.customerName || 'غير محدد'} — {formatPrice(o.total)}</p>
+                <p className="text-sm text-[var(--rz-muted)]">{o.customerName || 'غير محدد'} — {formatPrice(o.total)}</p>
               </div>
               <div className="flex gap-2">
                 <button onClick={() => changeStatus(o.id, 'pending')} type="button" className="px-3 py-1 rounded-lg text-xs bg-yellow-500/20 text-yellow-400">قيد الانتظار</button>
@@ -771,7 +771,7 @@ const OrdersManager = () => {
               </div>
             </div>
           ))}
-          {orders.length === 0 && <p className="text-center py-12 text-slate-400">لا توجد طلبات</p>}
+          {orders.length === 0 && <p className="text-center py-12 text-[var(--rz-muted)]">لا توجد طلبات</p>}
         </div>
       )}
     </div>
@@ -816,12 +816,12 @@ const UsersManager = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">إدارة المستخدمين</h2>
       {loading ? (
-        <div className="text-center py-12 text-slate-400">جاري التحميل...</div>
+        <div className="text-center py-12 text-[var(--rz-muted)]">جاري التحميل...</div>
       ) : (
-        <div className="bg-slate-800/80 backdrop-blur-md rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="bg-[var(--rz-white)] rounded-xl border border-[rgba(var(--rz-ink-rgb),0.08)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-900/60">
+              <thead className="bg-[var(--rz-ivory)]">
                 <tr>
                   <th className="px-6 py-4 text-right">المستخدم</th>
                   <th className="px-6 py-4 text-right">البريد</th>
@@ -831,7 +831,7 @@ const UsersManager = () => {
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-t border-slate-700/50">
+                  <tr key={u.id} className="border-t border-[rgba(var(--rz-ink-rgb),0.08)]">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center">
@@ -840,9 +840,9 @@ const UsersManager = () => {
                         <span>{u.displayName || 'مستخدم'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-400">{u.email || 'غير متوفر'}</td>
+                    <td className="px-6 py-4 text-[var(--rz-muted)]">{u.email || 'غير متوفر'}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs ${u.role === 'admin' ? 'bg-pink-500/20 text-pink-400' : 'text-slate-500 text-slate-400'}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs ${u.role === 'admin' ? 'bg-pink-500/20 text-pink-400' : 'text-[var(--rz-muted)] text-[var(--rz-muted)]'}`}>
                         {u.role === 'admin' ? 'مدير' : 'مستخدم'}
                       </span>
                     </td>
@@ -892,11 +892,11 @@ const BannersManager = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {banners.map((b) => (
-          <div key={b.id} className="bg-slate-800/80 backdrop-blur-md rounded-xl overflow-hidden border border-slate-700/50">
+          <div key={b.id} className="bg-[var(--rz-white)] rounded-xl overflow-hidden border border-[rgba(var(--rz-ink-rgb),0.08)]">
             <img loading="lazy" src={b.image} alt={b.title || 'الإعلان'} className="w-full h-40 object-cover" />
             <div className="p-4">
               <p className="font-bold">{b.title || 'إعلان بدون عنوان'}</p>
-              <p className="text-sm text-slate-400">{b.link || 'لا يوجد رابط'}</p>
+              <p className="text-sm text-[var(--rz-muted)]">{b.link || 'لا يوجد رابط'}</p>
             </div>
           </div>
         ))}
@@ -926,18 +926,18 @@ const BannerForm = ({ onClose, onSave }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800/80 backdrop-blur-md rounded-2xl w-full max-w-md">
-        <div className="p-6 border-b border-slate-700/50 flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-[var(--rz-white)] rounded-2xl w-full max-w-md">
+        <div className="p-6 border-b border-[rgba(var(--rz-ink-rgb),0.08)] flex items-center justify-between">
           <h3 className="text-xl font-bold">إضافة إعلان</h3>
-          <button onClick={onClose} type="button" className="p-2 hover:bg-slate-700 rounded-lg"><X size={24} /></button>
+          <button onClick={onClose} type="button" className="p-2 hover:bg-[var(--rz-ivory)] rounded-lg"><X size={24} /></button>
         </div>
         <form onSubmit={submit} className="p-6 space-y-4">
-          <input type="text" placeholder="العنوان" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
-          <input type="url" placeholder="رابط الصورة" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
-          <input type="url" placeholder="رابط النقر" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
+          <input type="text" placeholder="العنوان" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
+          <input type="url" placeholder="رابط الصورة" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
+          <input type="url" placeholder="رابط النقر" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
           <div className="flex gap-4 pt-4">
-            <button type="button" onClick={onClose} className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 hover:border-pink-500/50 rounded-lg border border-slate-700/60 transition-all duration-200">إلغاء</button>
+            <button type="button" onClick={onClose} className="flex-1 py-3 bg-[var(--rz-white)] hover:bg-[var(--rz-ivory)] hover:border-pink-500/50 rounded-lg border border-[rgba(var(--rz-ink-rgb),0.10)] transition-all duration-200">إلغاء</button>
             <button type="submit" disabled={saving} className="flex-1 py-3 bg-pink-600 hover:bg-pink-500 rounded-lg disabled:opacity-50 border border-pink-400/30 hover:border-pink-400/60 transition-all duration-200">{saving ? '...' : 'حفظ'}</button>
           </div>
         </form>
@@ -1030,12 +1030,12 @@ const NotificationsManager = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">إدارة الإشعارات</h2>
 
-      <form onSubmit={sendSiteNotice} className="bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50 space-y-3">
+      <form onSubmit={sendSiteNotice} className="bg-[var(--rz-white)] rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)] space-y-3">
         <h3 className="font-bold text-yellow-400 flex items-center gap-2">
           <BellIcon size={18} /> إرسال إشعار لجميع الزوار
         </h3>
-        <input type="text" value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="عنوان الإشعار" maxLength={80} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
-        <textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="نص الإشعار" maxLength={300} rows={3} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
+        <input type="text" value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} placeholder="عنوان الإشعار" maxLength={80} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
+        <textarea value={noteBody} onChange={(e) => setNoteBody(e.target.value)} placeholder="نص الإشعار" maxLength={300} rows={3} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
         <div className="flex items-center gap-3">
           <button type="submit" disabled={sendState === 'sending' || !noteTitle.trim() || !noteBody.trim()} className="bg-pink-600 hover:bg-pink-500 px-6 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50 border border-pink-400/30 hover:border-pink-400/60 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/30 transition-all duration-200">
             {sendState === 'sending' ? <Loader2 className="animate-spin" size={20} /> : <BellIcon size={20} />}
@@ -1047,32 +1047,32 @@ const NotificationsManager = () => {
         </div>
       </form>
 
-      <div className="bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50">
+      <div className="bg-[var(--rz-white)] rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)]">
         <h3 className="font-bold text-yellow-400 mb-3">مشتركو العروض بالبريد ({subscribers.length})</h3>
         {subscribers.length === 0 ? (
-          <p className="text-slate-400 text-sm">لا يوجد مشتركون بعد.</p>
+          <p className="text-[var(--rz-muted)] text-sm">لا يوجد مشتركون بعد.</p>
         ) : (
           <ul className="text-sm space-y-1 max-h-48 overflow-y-auto" dir="ltr">
             {subscribers.map((email) => (
-              <li key={email} className="text-slate-200 text-left">{email}</li>
+              <li key={email} className="text-[var(--rz-ink)] text-left">{email}</li>
             ))}
           </ul>
         )}
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-400">جاري التحميل...</div>
+        <div className="text-center py-12 text-[var(--rz-muted)]">جاري التحميل...</div>
       ) : (
         <div className="space-y-4">
           {notifications.map((n) => (
-            <div key={n.id} className="bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50">
+            <div key={n.id} className="bg-[var(--rz-white)] rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)]">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center">
                   <BellIcon className="text-pink-500" size={24} />
                 </div>
                 <div className="flex-1">
                   <p className="font-bold">{n.title || 'إشعار'}</p>
-                  <p className="text-slate-400">{n.body || ''}</p>
+                  <p className="text-[var(--rz-muted)]">{n.body || ''}</p>
                 </div>
               </div>
             </div>
@@ -1106,9 +1106,9 @@ const SecurityManager = () => {
     <div className="flex items-center justify-between">
       <div>
         <p className="font-bold flex items-center gap-2"><Icon size={20} /> {label}</p>
-        <p className="text-sm text-slate-400">{desc}</p>
+        <p className="text-sm text-[var(--rz-muted)]">{desc}</p>
       </div>
-      <button onClick={onToggle} type="button" className={`w-14 h-8 rounded-full transition-colors ${value ? 'bg-pink-500' : 'bg-slate-600'}`}>
+      <button onClick={onToggle} type="button" className={`w-14 h-8 rounded-full transition-colors ${value ? 'bg-pink-500' : 'bg-[rgba(var(--rz-ink-rgb),0.25)]'}`}>
         <div className={`w-6 h-6 bg-white rounded-full transition-transform ${value ? 'translate-x-7' : ''}`} />
       </button>
     </div>
@@ -1117,13 +1117,13 @@ const SecurityManager = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">إعدادات الأمان</h2>
-      <div className="bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50 space-y-6">
+      <div className="bg-[var(--rz-white)] rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)] space-y-6">
         <Toggle label="التحقق بخطوتين" desc="طلب رمز إضافي عند تسجيل الدخول" icon={LockIcon} value={settings.twoFactorRequired} onToggle={() => save('twoFactorRequired', !settings.twoFactorRequired)} />
         <Toggle label="إشعارات تسجيل الدخول" desc="إشعار عند تسجيل دخول جديد" icon={BellIcon} value={settings.loginNotifications} onToggle={() => save('loginNotifications', !settings.loginNotifications)} />
         <Toggle label="تنبيه النشاط المشبوه" desc="كشف محاولات الاختراق" icon={AlertTriangle} value={settings.suspiciousActivityAlert} onToggle={() => save('suspiciousActivityAlert', !settings.suspiciousActivityAlert)} />
         <div>
           <p className="font-bold mb-2">محاولات تسجيل الدخول المسموحة</p>
-          <select value={settings.maxLoginAttempts} onChange={(e) => save('maxLoginAttempts', Number(e.target.value))} className="bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all w-full">
+          <select value={settings.maxLoginAttempts} onChange={(e) => save('maxLoginAttempts', Number(e.target.value))} className="bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all w-full">
             <option value={3}>3 محاولات</option>
             <option value={5}>5 محاولات</option>
             <option value={10}>10 محاولات</option>
@@ -1131,7 +1131,7 @@ const SecurityManager = () => {
         </div>
         <div>
           <p className="font-bold mb-2">مهلة الجلسة (بالدقائق)</p>
-          <select value={settings.sessionTimeout} onChange={(e) => save('sessionTimeout', Number(e.target.value))} className="bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all w-full">
+          <select value={settings.sessionTimeout} onChange={(e) => save('sessionTimeout', Number(e.target.value))} className="bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all w-full">
             <option value={15}>15 دقيقة</option>
             <option value={30}>30 دقيقة</option>
             <option value={60}>60 دقيقة</option>
@@ -1139,9 +1139,9 @@ const SecurityManager = () => {
         </div>
       </div>
 
-      <div className="bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50">
+      <div className="bg-[var(--rz-white)] rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)]">
         <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Database size={20} /> سجل الأمان</h3>
-        <p className="text-slate-400 text-sm">لا يوجد نشاط مشبوه حالياً</p>
+        <p className="text-[var(--rz-muted)] text-sm">لا يوجد نشاط مشبوه حالياً</p>
       </div>
     </div>
   )
@@ -1183,41 +1183,41 @@ const SettingsManager = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">إعدادات المتجر</h2>
 
-      <div className="bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50">
+      <div className="bg-[var(--rz-white)] rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)]">
         <h3 className="text-lg font-bold mb-4">معلومات المتجر</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-slate-400 mb-2">اسم المتجر</label>
-            <input type="text" value={store.storeName} onChange={(e) => setStore({ ...store, storeName: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+            <label className="block text-sm text-[var(--rz-muted)] mb-2">اسم المتجر</label>
+            <input type="text" value={store.storeName} onChange={(e) => setStore({ ...store, storeName: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
           </div>
           <div>
-            <label className="block text-sm text-slate-400 mb-2">الوصف</label>
-            <textarea value={store.storeDescription} onChange={(e) => setStore({ ...store, storeDescription: e.target.value })} className="w-full bg-slate-800 border border-slate-700/60 rounded-lg px-4 py-3 focus:border-pink-500 focus:outline-none h-24" />
+            <label className="block text-sm text-[var(--rz-muted)] mb-2">الوصف</label>
+            <textarea value={store.storeDescription} onChange={(e) => setStore({ ...store, storeDescription: e.target.value })} className="w-full bg-[var(--rz-white)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 focus:border-pink-500 focus:outline-none h-24" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-slate-400 mb-2">الهاتف</label>
-              <input type="tel" value={store.phone} onChange={(e) => setStore({ ...store, phone: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+              <label className="block text-sm text-[var(--rz-muted)] mb-2">الهاتف</label>
+              <input type="tel" value={store.phone} onChange={(e) => setStore({ ...store, phone: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-2">البريد</label>
-              <input type="email" value={store.email} onChange={(e) => setStore({ ...store, email: e.target.value })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+              <label className="block text-sm text-[var(--rz-muted)] mb-2">البريد</label>
+              <input type="email" value={store.email} onChange={(e) => setStore({ ...store, email: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
             </div>
           </div>
           <button onClick={saveStore} type="button" className="w-full py-3 bg-pink-600 hover:bg-pink-500 rounded-lg border border-pink-400/30 hover:border-pink-400/60 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/30 transition-all duration-200">حفظ إعدادات المتجر</button>
         </div>
       </div>
 
-      <div className="bg-slate-800/80 backdrop-blur-md rounded-xl p-6 border border-slate-700/50">
+      <div className="bg-[var(--rz-white)] rounded-xl p-6 border border-[rgba(var(--rz-ink-rgb),0.08)]">
         <h3 className="text-lg font-bold mb-4">بيانات البنك</h3>
         <div className="space-y-6">
           <div>
             <h4 className="font-medium mb-3">بنك الراجحي</h4>
-            <input type="text" placeholder="رقم IBAN" value={bank.rajhi.iban} onChange={(e) => setBank({ ...bank, rajhi: { ...bank.rajhi, iban: e.target.value } })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+            <input type="text" placeholder="رقم IBAN" value={bank.rajhi.iban} onChange={(e) => setBank({ ...bank, rajhi: { ...bank.rajhi, iban: e.target.value } })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
           </div>
           <div>
             <h4 className="font-medium mb-3">البنك العربي</h4>
-            <input type="text" placeholder="رقم IBAN" value={bank.arabi.iban} onChange={(e) => setBank({ ...bank, arabi: { ...bank.arabi, iban: e.target.value } })} className="w-full bg-slate-900/70 border border-slate-700/60 rounded-lg px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+            <input type="text" placeholder="رقم IBAN" value={bank.arabi.iban} onChange={(e) => setBank({ ...bank, arabi: { ...bank.arabi, iban: e.target.value } })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
           </div>
           <button onClick={saveBank} type="button" className="w-full py-3 bg-pink-600 hover:bg-pink-500 rounded-lg border border-pink-400/30 hover:border-pink-400/60 shadow-lg shadow-pink-500/20 hover:shadow-pink-500/30 transition-all duration-200">حفظ بيانات البنك</button>
         </div>
