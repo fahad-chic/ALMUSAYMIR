@@ -1813,111 +1813,110 @@ const CenterPanel = ({
   const quickActions = [
     {
       id: 'ads',
-      label: 'إدارة الإعلانات',
+      label: 'الإعلانات',
       icon: ShoppingBag,
-      description: 'مراجعة وتفعيل وحذف وتعديل الإعلانات',
+      description: 'مراجعة وتفعيل وحذف',
       action: () => onTab('ads')
     },
     {
       id: 'users',
-      label: 'إدارة المستخدمين',
+      label: 'المستخدمين',
       icon: Users,
-      description: 'إدارة الحسابات والحظر والصلاحيات',
+      description: 'الحسابات والحظر',
       action: () => onTab('users')
     },
     {
       id: 'reports',
       label: 'البلاغات',
       icon: Flag,
-      description: 'مشاهدة البلاغات ومراجعتها',
+      description: 'مراجعة البلاغات',
       action: () => onTab('reports')
     },
     {
       id: 'broadcast',
-      label: 'البث والتنبيهات',
+      label: 'التنبيهات',
       icon: Bell,
-      description: 'إرسال رسالة للعملاء',
+      description: 'إرسال للعملاء',
       action: () => onTab('broadcast')
     },
     {
       id: 'settings',
       label: 'الإعدادات',
       icon: Settings,
-      description: 'فتح إعدادات الموقع',
+      description: 'إعدادات الموقع',
       action: onSettings
     },
     {
       id: 'admin',
-      label: 'لوحة التحكم',
+      label: 'اللوحة',
       icon: Monitor,
-      description: 'فتح لوحة الإدارة',
+      description: 'لوحة الإدارة',
       action: onAdminPanel
     },
     {
       id: 'complaints',
-      label: 'المراسلات',
+      label: 'الرسائل',
       icon: MessageSquare,
-      description: 'فتح صفحة المراسلات',
+      description: 'المراسلات',
       action: onComplaints
     },
     {
       id: 'comments',
-      label: 'آراء العملاء',
+      label: 'التقييمات',
       icon: Star,
-      description: 'مراجعة التعليقات',
+      description: 'آراء العملاء',
       action: () => onTab('comments')
     },
     {
       id: 'overview',
-      label: 'نظرة عامة',
+      label: 'الإحصائيات',
       icon: BarChart3,
-      description: 'إحصائيات الموقع المختصرة',
+      description: 'نظرة عامة',
       action: () => onTab('overview')
     },
     {
       id: 'live',
-      label: 'النشاط اللحظي',
+      label: 'النشاط',
       icon: Gauge,
-      description: 'مراقبة النشاط الحي',
+      description: 'النشاط اللحظي',
       action: () => onTab('live')
     },
     {
       id: 'permissions',
       label: 'الصلاحيات',
       icon: Key,
-      description: 'مصفوفة صلاحيات المالك',
+      description: 'صلاحيات المالك',
       action: () => onTab('permissions')
     }
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="text-center">
-        <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/25 flex items-center justify-center">
-          <Crown size={30} className="text-[var(--rz-primary)]" />
+        <div className="w-14 h-14 mx-auto mb-2.5 rounded-2xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/25 flex items-center justify-center">
+          <Crown size={26} className="text-[var(--rz-primary)]" />
         </div>
 
-        <h2 className="text-xl font-bold royal-text">
+        <h2 className="text-lg font-bold royal-text">
           مركز تحكم أناقة ROOZ
         </h2>
 
-        <p className="text-sm royal-muted mt-1 font-medium">
-          اختر القسم المطلوب من الأدوات أدناه — كل قسم مستقل
+        <p className="text-xs royal-muted mt-1 font-medium">
+          اختر القسم — كل خيار يفتح قسماً مستقلاً
         </p>
       </div>
 
-      <div className="royal-surface rounded-2xl p-4 md:p-5 border royal-border">
-        <div className="mb-4">
-          <h3 className="font-bold royal-text text-base">
+      <div className="royal-surface rounded-2xl p-3.5 md:p-4 border royal-border">
+        <div className="mb-3">
+          <h3 className="font-bold royal-text text-sm">
             مركز الأدوات
           </h3>
-
-          <p className="text-xs royal-muted mt-1 font-medium">
-            الإدارة والمراجعة والتواصل هنا. كل خيار يفتح قسماً مستقلاً دون بعثرة الصفحة.
+          <p className="text-[11px] royal-muted mt-0.5 font-medium">
+            الإدارة والمراجعة والتواصل — بدون بعثرة الصفحة
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {quickActions.map(item => {
             const Icon = item.icon
 
@@ -1926,18 +1925,18 @@ const CenterPanel = ({
                 key={item.id}
                 type="button"
                 onClick={item.action}
-                className="icon-card rounded-xl p-2.5 text-right relative group min-w-0 w-full"
+                className="icon-card rounded-xl p-3 flex flex-col items-center justify-center text-center relative group min-w-0 w-full min-h-[92px] transition-all duration-200 hover:shadow-md"
                 title={item.description}
               >
-                <div className="w-9 h-9 rounded-lg bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/20 text-[var(--rz-primary)] flex items-center justify-center mb-1.5 flex-shrink-0">
-                  <Icon size={18} />
+                <div className="w-10 h-10 rounded-xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/20 text-[var(--rz-primary)] flex items-center justify-center mb-2 flex-shrink-0 shadow-sm">
+                  <Icon size={20} strokeWidth={1.75} />
                 </div>
 
-                <span className="block text-[11px] sm:text-xs font-bold royal-text leading-snug break-words w-full">
+                <span className="block text-[12px] sm:text-[13px] font-bold royal-text leading-tight w-full truncate px-0.5">
                   {item.label}
                 </span>
 
-                <span className="block text-[9px] sm:text-[10px] leading-snug royal-muted mt-0.5 font-medium break-words w-full">
+                <span className="block text-[10px] leading-tight royal-muted mt-0.5 font-medium w-full truncate px-0.5">
                   {item.description}
                 </span>
               </button>
