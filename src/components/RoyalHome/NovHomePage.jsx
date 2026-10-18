@@ -91,14 +91,14 @@ const NovHomePage = () => {
                 فساتين وعبايات وإكسسوارات فاخرة في المملكة العربية السعودية —
                 فخامة، ثقة، وتفاصيل تُعتنى بها.
               </p>
-              <div className="nov-hero-cta">
+              <div className="nov-hero-cta nov-hero-cta--side">
                 <button
                   type="button"
                   className="nov-btn nov-btn-haraj-gold"
                   onClick={() => navigate('/haraj')}
                 >
                   <Flame size={15} strokeWidth={2.2} />
-                  موقع الحراج
+                  موقع الحراج — اضغط هنا
                 </button>
               </div>
             </div>
@@ -180,7 +180,7 @@ const NovHomePage = () => {
         </section>
 
         {/* ===== الفوتر الملكي ===== */}
-        <footer className="rz-footer rz-footer--compact" style={{ borderRadius: 16 }}>
+        <footer className="rz-footer rz-footer--compact rz-footer--home-tight" style={{ borderRadius: 16 }}>
           <div className="rz-footer-inner">
             <div className="rz-footer-top">
               <img src={LOGO_SRC} alt="شعار أناقة ROOZ" className="rz-footer-logo" loading="lazy" />
