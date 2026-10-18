@@ -125,18 +125,17 @@ const MarqueeBanner = ({
       style={{
         width: "100%",
         position: sticky ? "sticky" : "relative",
-        // رُفع الشريط قليلاً وخفّضت طبقته كي يبقى الشعار ظاهراً دائماً.
-        top: sticky ? "calc(var(--rooz-top-offset, 0px) + 51px)" : "auto",
-        zIndex: sticky ? 45 : 35,
+        // مرفوع قليلاً فوق الشريطين الثابتين دون تغطيتهما
+        top: sticky ? "calc(var(--rooz-top-offset, 0px) + 48px)" : "auto",
+        zIndex: sticky ? 40 : 30,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: "5px",
-        padding: "0 14px",
-        margin: "-9px 0 0",
-        // رفع بصري واضح عن الشعار مع إبقاء مساحة التخطيط الأصلية محفوظة.
-        transform: "translateY(-18px)",
+        gap: "4px",
+        padding: "0 12px",
+        margin: "0",
+        transform: "translateY(-6px)",
         boxSizing: "border-box",
       }}
     >
