@@ -125,17 +125,17 @@ const MarqueeBanner = ({
       style={{
         width: "100%",
         position: sticky ? "sticky" : "relative",
-        // مرفوع قليلاً فوق الشريطين الثابتين دون تغطيتهما
-        top: sticky ? "calc(var(--rooz-top-offset, 0px) + 48px)" : "auto",
+        // رفع أوضح فوق الشريطين الثابتين
+        top: sticky ? "calc(var(--rooz-top-offset, 0px) + 42px)" : "auto",
         zIndex: sticky ? 40 : 30,
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: "4px",
+        gap: "3px",
         padding: "0 12px",
         margin: "0",
-        transform: "translateY(-6px)",
+        transform: "translateY(-16px)",
         boxSizing: "border-box",
       }}
     >
