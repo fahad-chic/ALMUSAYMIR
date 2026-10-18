@@ -594,3 +594,88 @@
     justify-content: center;
   }
 }
+
+/* زر الحراج على الجانب (يمين في RTL) وليس في الوسط */
+.nov-hero-cta--side {
+  justify-content: flex-start !important;
+  margin-top: 0.35rem;
+}
+
+/* فوتر الصفحة الرئيسية — مضغوط ومحاذاة يمين */
+.rz-footer--home-tight {
+  margin-top: 0.55rem !important;
+  padding: 0.7rem 0.85rem 0.65rem !important;
+  border-radius: 14px !important;
+}
+
+.rz-footer--home-tight .rz-footer-inner {
+  text-align: right;
+}
+
+.rz-footer--home-tight .rz-footer-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  margin-bottom: 0.55rem;
+  text-align: right;
+}
+
+.rz-footer--home-tight .rz-footer-logo {
+  width: 42px !important;
+  height: 42px !important;
+}
+
+.rz-footer--home-tight .rz-footer-tag {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.rz-footer--home-tight .rz-footer-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem 1rem;
+  text-align: right;
+}
+
+.rz-footer--home-tight .rz-footer-col {
+  text-align: right;
+}
+
+.rz-footer--home-tight .rz-footer-col h4 {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--rz-gold);
+  text-align: right;
+}
+
+.rz-footer--home-tight .rz-footer-col a {
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.82);
+  text-align: right;
+  text-decoration: none;
+}
+
+.rz-footer--home-tight .rz-footer-bottom {
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  font-size: 0.68rem;
+  text-align: right;
+  color: rgba(255,255,255,0.7);
+}
+
+@media (max-width: 640px) {
+  .nov-hero-cta--side {
+    justify-content: flex-start !important;
+  }
+  .rz-footer--home-tight .rz-footer-cols {
+    grid-template-columns: 1fr 1fr;
+  }
+}
