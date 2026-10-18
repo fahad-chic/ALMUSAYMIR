@@ -34,7 +34,6 @@ import { Login } from './components/Login';
 
 import BackButton from './components/BackButton';
 import CloseButton from './components/CloseButton';
-import HomePrefsFloat from './components/HomePrefsFloat';
 import Navigation from './components/Navigation';
 import AIChatWidget from './components/RoyalHome/AIChatWidget';
 import WhatsAppFloat from './components/WhatsAppFloat';
@@ -1893,7 +1892,6 @@ function AppContent() {
 
       {location.pathname ===
         '/' && (
-        <HomePrefsFloat />
       )}
 
       {/* =================================================
