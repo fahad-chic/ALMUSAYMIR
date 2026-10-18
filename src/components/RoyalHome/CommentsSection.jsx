@@ -242,20 +242,20 @@ const CommentsSection = () => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 5,
-            padding: '0.38rem 0.7rem',
+            padding: '0.4rem 0.8rem',
             borderRadius: 999,
-            border: '1.8px solid var(--rz-primary)',
-            background: 'linear-gradient(145deg, var(--rz-ivory), var(--rz-ivory))',
-            color: 'var(--rz-ink)',
+            border: '1.5px solid rgba(var(--rz-primary-rgb), 0.55)',
+            background: 'linear-gradient(145deg, var(--rz-primary) 0%, rgb(18, 28, 42) 100%)',
+            color: 'var(--rz-white)',
             fontSize: '0.72rem',
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(var(--rz-primary-rgb), 0.15)',
+            boxShadow: '0 4px 14px rgba(var(--rz-primary-rgb), 0.35)',
             fontFamily: 'inherit',
             whiteSpace: 'nowrap',
           }}
         >
-          <Sparkles size={13} color="var(--rz-primary)" />
+          <Sparkles size={13} color="var(--rz-gold)" />
           أضف تعليقك هنا
         </button>
       </div>
@@ -270,8 +270,8 @@ const CommentsSection = () => {
             overflow: 'hidden',
             height: 42,
             borderRadius: 11,
-            background: 'linear-gradient(90deg, var(--rz-ink) 0%, var(--rz-ink) 40%, var(--rz-ink) 100%)',
-            border: '1px solid rgba(var(--rz-primary-rgb), 0.35)',
+            background: 'linear-gradient(90deg, rgba(var(--rz-primary-rgb), 0.12) 0%, rgba(var(--rz-primary-rgb), 0.08) 50%, rgba(var(--rz-primary-rgb), 0.12) 100%)',
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.18)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -286,7 +286,7 @@ const CommentsSection = () => {
               alignItems: 'center',
               gap: 8,
               width: '100%',
-              animation: 'tickerSlide 0.55s ease',
+              animation: 'tickerSlide 0.45s ease-out',
             }}
           >
             <span
@@ -304,7 +304,7 @@ const CommentsSection = () => {
             </span>
             <span
               style={{
-                color: 'var(--rz-ivory)',
+                color: 'var(--rz-ink)',
                 fontSize: '0.78rem',
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
@@ -772,8 +772,9 @@ const CommentsSection = () => {
 
       <style>{`
         @keyframes tickerSlide {
-          0% { opacity: 0; transform: translateX(18px); }
-          100% { opacity: 1; transform: translateX(0); }
+          0% { opacity: 0; transform: translateY(8px); }
+          40% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </section>
