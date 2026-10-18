@@ -182,14 +182,14 @@ const NovHomePage = () => {
         {/* ===== الفوتر الملكي ===== */}
         <footer className="rz-footer rz-footer--compact rz-footer--home-tight" style={{ borderRadius: 16 }}>
           <div className="rz-footer-inner">
-            <div className="rz-footer-top">
+            <div className="rz-footer-top rz-footer-top--center">
               <img src={LOGO_SRC} alt="شعار أناقة ROOZ" className="rz-footer-logo" loading="lazy" />
               <p className="rz-footer-tag">ROOZ — أناقة تفوق الخيال</p>
             </div>
 
             <div className="rz-footer-cols">
               <div className="rz-footer-col">
-                <h4>متجر أناقةROOZ</h4>
+                <h4>متجر أناقة ROOZ</h4>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate(STORE_HOME_PATH); }}>جميع المنتجات</a>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>الكتالوجات</a>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/advertisements'); }}>العروض</a>
@@ -210,20 +210,12 @@ const NovHomePage = () => {
                 <h4>المساعدة</h4>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/faq'); }}>الأسئلة الشائعة</a>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>تواصل معنا</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>شروط الاستخدام</a>
+                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>شروط وأحكام الاستخدام</a>
               </div>
             </div>
 
-            <div className="rz-footer-bottom">
+            <div className="rz-footer-bottom rz-footer-bottom--center">
               جميع الحقوق محفوظة © 2026 أناقة ROOZ
-              <span style={{ margin: '0 8px', opacity: 0.5 }}>·</span>
-              <a
-                href="/"
-                onClick={(e) => { e.preventDefault(); navigate('/terms'); }}
-                style={{ color: 'var(--rz-gold)', fontWeight: 800, textDecoration: 'underline' }}
-              >
-                شروط وأحكام الاستخدام
-              </a>
             </div>
           </div>
         </footer>
