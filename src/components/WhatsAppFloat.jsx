@@ -18,8 +18,9 @@ const WhatsAppFloat = () => {
       dir="rtl"
       style={{
         position: 'fixed',
-        bottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
-        right: 16,
+        bottom: 'max(18px, env(safe-area-inset-bottom, 0px))',
+        left: 16,
+        right: 'auto',
         zIndex: 90,
         display: 'flex',
         flexDirection: 'column',
