@@ -1,7 +1,5 @@
 // src/components/RoyalHome/NovHomePage.jsx
-// ROOZ NOVA — الصفحة الرئيسية بالتصميم الجديد كلياً
-// نفس المسارات/الربط/البيانات، لكن بهيكل وتخطيط مختلف تماماً:
-// هيرو عريض + شريط مزايا + شبكة أقسام تفاعلية + شريط حراج.
+// ROOZ NOVA — الصفحة الرئيسية (نسخة مرتبة واحترافية)
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { STORE_HOME_PATH } from '../../data/royalMenu';
@@ -31,7 +29,6 @@ import '../../styles/NovHome.css';
 
 const LOGO_SRC = '/assets/logo.png';
 
-
 const FAQ_ITEMS = [
   { q: 'كيف أتتبع طلبي؟', a: 'بعد تسجيل الدخول، افتح «ملفي الشخصي» ثم «طلباتي» لعرض حالة كل طلب ومراحل الشحن.' },
   { q: 'ما مدة الشحن؟', a: 'الشحن لجميع مناطق المملكة، ويستغرق عادة من 2 إلى 5 أيام عمل حسب المدينة.' },
@@ -50,7 +47,6 @@ const NovHomePage = () => {
   const [showAddHelp, setShowAddHelp] = useState(false);
   const [email, setEmail] = useState('');
   const [emailStatus, setEmailStatus] = useState('');
-  const [discoverPicked, setDiscoverPicked] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [faqSectionOpen, setFaqSectionOpen] = useState(false);
 
@@ -66,7 +62,8 @@ const NovHomePage = () => {
 
   return (
     <div className="ch-root" dir="rtl">
-      <div className="home-marquees-sticky">
+      {/* شريطا التنبيهات — مرفوعان قليلاً لعدم تغطية الشريطين الثابتين */}
+      <div className="home-marquees-sticky" style={{ position: 'relative', zIndex: 30, marginTop: '2px' }}>
         <MarqueeBanner
           banners={MARQUEE_BANNERS}
           editableKeys={['marquee1', 'marquee2', 'marquee3']}
@@ -79,20 +76,16 @@ const NovHomePage = () => {
       </div>
 
       <div className="nov-home">
-        {/* ===== الهيرو الملكي ===== */}
-        <section className="nov-hero rz-hero">
-          <div className="nov-hero-grid">
+        {/* ===== الهيرو الملكي — مضغوط ومميز ===== */}
+        <section className="nov-hero rz-hero nov-hero--compact">
+          <div className="nov-hero-grid nov-hero-grid--compact">
             <img
               fetchPriority="high"
               src={LOGO_SRC}
               alt="شعار أناقة ROOZ"
-              className="nov-hero-logo"
+              className="nov-hero-logo nov-hero-logo--lg"
             />
             <div>
-              <span className="nov-hero-kicker">
-                <Gem size={13} strokeWidth={2} />
-                أناقة تفوق الخيال
-              </span>
               <h1 className="nov-hero-title">أناقة تليق بكم</h1>
               <p className="nov-hero-sub">
                 فساتين وعبايات وإكسسوارات فاخرة في المملكة العربية السعودية —
@@ -101,18 +94,10 @@ const NovHomePage = () => {
               <div className="nov-hero-cta">
                 <button
                   type="button"
-                  className="nov-btn nov-btn-primary"
-                  onClick={() => navigate(STORE_HOME_PATH)}
-                >
-                  <ShoppingBag size={16} />
-                  تصفّح المتجر
-                </button>
-                <button
-                  type="button"
-                  className="nov-btn nov-btn-ghost"
+                  className="nov-btn nov-btn-haraj-gold"
                   onClick={() => navigate('/haraj')}
                 >
-                  <Flame size={16} />
+                  <Flame size={15} strokeWidth={2.2} />
                   موقع الحراج
                 </button>
               </div>
@@ -120,139 +105,44 @@ const NovHomePage = () => {
           </div>
         </section>
 
-        {/* ===== نقاط الثقة ===== */}
-        <section className="rz-trust" aria-label="لماذا أناقة ROOZ">
+        {/* ===== آراء العملاء (مرفوعة للأعلى ومكبّرة قليلاً) ===== */}
+        <div className="nov-comments-wrap">
+          <CommentsSection />
+        </div>
+
+        {/* ===== نقاط الثقة — صفين × اثنين، خلفية ذهبية فاتحة ===== */}
+        <section className="rz-trust rz-trust--gold" aria-label="لماذا أناقة ROOZ">
           <button type="button" className="rz-trust-item" onClick={() => navigate('/faq')}>
-            <span className="rz-trust-ico"><Truck size={16} /></span>
-            <h4>شحن سريع</h4>
-            <p>لجميع مناطق المملكة</p>
+            <span className="rz-trust-ico"><Truck size={15} /></span>
+            <div>
+              <h4>شحن سريع</h4>
+              <p>لكل المناطق</p>
+            </div>
           </button>
           <button type="button" className="rz-trust-item" onClick={() => navigate('/terms')}>
-            <span className="rz-trust-ico"><ShieldCheck size={16} /></span>
-            <h4>دفع آمن</h4>
-            <p>حماية وتشفير كامل</p>
+            <span className="rz-trust-ico"><ShieldCheck size={15} /></span>
+            <div>
+              <h4>دفع آمن</h4>
+              <p>حماية كاملة</p>
+            </div>
           </button>
           <button type="button" className="rz-trust-item" onClick={() => navigate('/faq')}>
-            <span className="rz-trust-ico"><BadgeCheck size={16} /></span>
-            <h4>إرجاع خلال 7 أيام</h4>
-            <p>سياسة استبدال واضحة</p>
+            <span className="rz-trust-ico"><BadgeCheck size={15} /></span>
+            <div>
+              <h4>إرجاع 7 أيام</h4>
+              <p>استبدال واضح</p>
+            </div>
           </button>
           <button type="button" className="rz-trust-item" onClick={() => navigate('/contact')}>
-            <span className="rz-trust-ico"><Headphones size={16} /></span>
-            <h4>دعم ومساندة</h4>
-            <p>تواصل معنا في أي وقت</p>
+            <span className="rz-trust-ico"><Headphones size={15} /></span>
+            <div>
+              <h4>دعم دائم</h4>
+              <p>تواصل بأي وقت</p>
+            </div>
           </button>
         </section>
 
-        {/* ===== اكتشفي ROOZ (تفاعلي) ===== */}
-        {!discoverPicked && (
-          <section className="rz-discover" aria-label="اكتشفي ROOZ">
-            <div className="rz-discover-head">
-              <h2><Sparkles size={18} /> ماذا تبحثين عنه اليوم؟</h2>
-              <button
-                type="button"
-                className="rz-discover-skip"
-                onClick={() => setDiscoverPicked(true)}
-                aria-label="إخفاء"
-              >
-                <X size={15} />
-              </button>
-            </div>
-            <div className="rz-discover-grid">
-              <button type="button" className="rz-discover-card" onClick={() => navigate(STORE_HOME_PATH)}>
-                <ShoppingBag size={18} /><span>أريد التسوق</span>
-              </button>
-              <button type="button" className="rz-discover-card" onClick={() => navigate('/advertisements')}>
-                <Flame size={18} /><span>أريد مشاهدة العروض</span>
-              </button>
-              <button type="button" className="rz-discover-card" onClick={() => navigate('/haraj')}>
-                <StoreIcon size={18} /><span>أريد تصفح الحراج</span>
-              </button>
-              <button type="button" className="rz-discover-card" onClick={() => navigate('/haraj/post')}>
-                <Plus size={18} /><span>أريد إضافة إعلان</span>
-              </button>
-              <button type="button" className="rz-discover-card" onClick={() => navigate('/settings')}>
-                <Crown size={18} /><span>أريد الوصول إلى حسابي</span>
-              </button>
-            </div>
-          </section>
-        )}
-
-        {/* ===== شريط المزايا ===== */}
-        <section className="nov-features">
-          <div className="nov-feature">
-            <span className="nov-feature-ico">
-              <Crown size={18} strokeWidth={1.9} />
-            </span>
-            <h4>لأنكم تستاهلون</h4>
-            <p>مسابقة ذهب عيار 21 قريباً</p>
-          </div>
-
-          <div className="nov-feature">
-            <span className="nov-feature-ico">
-              <Smartphone size={18} strokeWidth={1.9} />
-            </span>
-            <h4>أضف للمتجر</h4>
-            <p>ثبّته كتطبيق على هاتفك</p>
-            <button
-              type="button"
-              className="nov-mini-btn"
-              onClick={() => setShowAddHelp(true)}
-            >
-              <Plus size={12} />
-              كيف؟
-            </button>
-          </div>
-
-          <div className="nov-feature">
-            <span className="nov-feature-ico">
-              <Mail size={18} strokeWidth={1.9} />
-            </span>
-            <h4>عروضنا توصلك</h4>
-            <p>اشترك ليصلك الجديد</p>
-            <form onSubmit={handleSubscribe}>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="بريدك"
-              />
-              <button type="submit" className="nov-mini-btn">
-                اشترك
-              </button>
-            </form>
-            {emailStatus && (
-              <span
-                className="nov-feature-status"
-                style={{ color: emailStatus.includes('نجاح') ? 'var(--rz-primary)' : 'var(--rz-primary)' }}
-              >
-                {emailStatus}
-              </span>
-            )}
-          </div>
-        </section>
-
-        {/* أقسام المتجر نُقلت إلى قائمة الثلاث شرطات في الترويسة لتقصير الصفحة */}
-
-        {/* ===== شريط حراج ===== */}
-        <section className="nov-haraj">
-          <div>
-            <h3>موقع الحراج الرسمي</h3>
-            <p>بيع واشترِ بثقة داخل منصة أناقة ROOZ</p>
-          </div>
-          <button
-            type="button"
-            className="nov-btn nov-btn-primary"
-            onClick={() => navigate('/haraj')}
-          >
-            <Flame size={16} />
-            دخول الحراج
-          </button>
-        </section>
-
-        <CommentsSection />
-
-        {/* ===== الأسئلة الشائعة — طيّ كامل بزر + / − ===== */}
+        {/* ===== الأسئلة الشائعة ===== */}
         <section className="rz-faq" aria-label="الأسئلة الشائعة">
           <button
             type="button"
@@ -339,76 +229,20 @@ const NovHomePage = () => {
         </footer>
       </div>
 
+      {/* مودال «كيف أثبت التطبيق؟» — يبقى متاحاً من القائمة */}
       {showAddHelp && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setShowAddHelp(false)}
-          className="nov-modal-overlay"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(var(--rz-ink-rgb), 0.55)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 6000,
-            padding: 14,
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'linear-gradient(145deg,var(--rz-white),var(--rz-ivory))',
-              border: '1px solid rgba(var(--rz-primary-rgb), 0.4)',
-              borderRadius: 18,
-              padding: '1.2rem 1rem',
-              maxWidth: 340,
-              width: '100%',
-              textAlign: 'right',
-              boxShadow: '0 18px 45px rgba(var(--rz-ink-rgb), 0.35)',
-              fontFamily: 'Tajawal,sans-serif',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: '0.6rem' }}>
-              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: 'var(--rz-ink)' }}>
-                كيف تضيف المتجر لشاشة هاتفك؟
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowAddHelp(false)}
-                aria-label="إغلاق"
-                style={{
-                  background: 'rgba(var(--rz-ink-rgb), 0.06)',
-                  border: 'none',
-                  borderRadius: 8,
-                  width: 30,
-                  height: 30,
-                  flex: '0 0 30px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  color: 'var(--rz-primary)',
-                }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <ol style={{ margin: 0, paddingRight: '1.1rem', fontSize: '0.82rem', color: 'var(--rz-ink)', lineHeight: 1.7 }}>
-              <li>افتح الموقع في المتصفح</li>
-              <li>اضغط قائمة المشاركة أو القائمة</li>
-              <li>اختر «إضافة إلى الشاشة الرئيسية»</li>
-              <li>أكد الإضافة</li>
-            </ol>
-            <button
-              type="button"
-              onClick={() => setShowAddHelp(false)}
-              className="nov-btn nov-btn-primary"
-              style={{ marginTop: '0.9rem', width: '100%', justifyContent: 'center' }}
-            >
-              فهمت
+        <div className="nov-modal-overlay" onClick={() => setShowAddHelp(false)} role="presentation">
+          <div className="nov-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <button type="button" className="nov-modal-close" onClick={() => setShowAddHelp(false)} aria-label="إغلاق">
+              <X size={18} />
             </button>
+            <h3>كيف تضيف المتجر كتطبيق؟</h3>
+            <ol>
+              <li>افتح الموقع من متصفح الجوال (Safari أو Chrome).</li>
+              <li>اضغط زر المشاركة أو القائمة ⋮.</li>
+              <li>اختر «إضافة إلى الشاشة الرئيسية».</li>
+              <li>أكد الاسم ثم أضف — سيظهر أيقونة المتجر مثل التطبيقات.</li>
+            </ol>
           </div>
         </div>
       )}
