@@ -83,4 +83,17 @@ export const ROYAL_DRAWER = [
       { label: 'حول الموقع', path: '/about' },
     ],
   },
+  {
+    id: 'quick',
+    label: 'خدمات سريعة',
+    icon: 'sparkles',
+    items: [
+      { label: 'أريد التسوق', path: STORE_HOME_PATH },
+      { label: 'أريد مشاهدة العروض', path: '/advertisements' },
+      { label: 'أريد تصفح الحراج', path: '/haraj' },
+      { label: 'أريد إضافة إعلان', path: '/haraj/post' },
+      { label: 'أريد الوصول إلى حسابي', path: '/settings' },
+      { label: 'دخول الحراج', path: '/haraj' },
+    ],
+  },
 ];
