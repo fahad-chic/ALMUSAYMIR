@@ -707,3 +707,27 @@
     gap: 0.65rem 0.9rem !important;
   }
 }
+
+
+/* توسيط شعار الفوتر + الحقوق */
+.rz-footer--home-tight .rz-footer-top--center {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 0.35rem !important;
+}
+
+.rz-footer--home-tight .rz-footer-top--center .rz-footer-logo {
+  margin: 0 auto !important;
+}
+
+.rz-footer--home-tight .rz-footer-top--center .rz-footer-tag {
+  text-align: center !important;
+}
+
+.rz-footer--home-tight .rz-footer-bottom--center {
+  text-align: center !important;
+  direction: rtl !important;
+}
