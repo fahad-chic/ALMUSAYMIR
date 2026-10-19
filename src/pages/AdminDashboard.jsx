@@ -16,6 +16,8 @@ import {
   doc, addDoc, onSnapshot, serverTimestamp, deleteDoc
 } from '../firebase'
 import CloseButton from '../components/CloseButton'
+import usePermissions from '../permissions/usePermissions'
+import { requirePerm } from '../permissions/requirePerm'
 
 /* ===================== Helpers ===================== */
 const btnBase = 'w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-300 min-h-[52px] shrink-0 leading-6 group border'
@@ -514,20 +516,20 @@ const ProductsManager = ({ onUpdate }) => {
     setLoading(false)
   }
 
+  const { can } = usePermissions()
   const handleDelete = async (id) => {
     if (!window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) return
     try {
-      await deleteProduct(id)
+      await requirePerm(can, 'DELETE_MAIN_CATALOG', 'حذف منتج', id)
+      try {
+        await deleteProduct(id)
+      } catch {
+        await deleteDoc(doc(db, COLLECTIONS.PRODUCTS, id))
+      }
       await load()
       onUpdate?.()
-    } catch {
-      try {
-        await deleteDoc(doc(db, COLLECTIONS.PRODUCTS, id))
-        await load()
-        onUpdate?.()
-      } catch {
-        alert('حدث خطأ أثناء الحذف')
-      }
+    } catch (err) {
+      alert(err?.message || 'حدث خطأ أثناء الحذف')
     }
   }
 
