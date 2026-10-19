@@ -21,6 +21,7 @@ import { Clock, X } from 'lucide-react';
 
 import { AdminProvider } from './context/AdminContext';
 import { useAuth } from './context/AuthContext';
+import usePermissions from './permissions/usePermissions';
 import useStore from './store/useStore';
 import usePrefs from './store/usePrefs';
 import useNotifications from './store/useNotifications';
@@ -276,8 +277,9 @@ const UnauthorizedPage = () => {
    Protected Route
    ========================================================= */
 
-const ProtectedRoute = ({ children, roleRequired, blockGuest }) => {
+const ProtectedRoute = ({ children, roleRequired, permissionAny, blockGuest }) => {
   const { user, userRole, isAuthenticated } = useAuth();
+  const { can, isOwner: permIsOwner, ready: permsReady } = usePermissions();
 
   const guestActive = useStore((s) => s.guestSession?.active);
 
@@ -362,6 +364,21 @@ const ProtectedRoute = ({ children, roleRequired, blockGuest }) => {
           null,
       });
 
+      return <Navigate to="/unauthorized" replace />;
+    }
+  }
+
+  if (permissionAny && Array.isArray(permissionAny) && permissionAny.length > 0) {
+    if (!permsReady) return <LoadingScreen />;
+    const allowedPerm =
+      permIsOwner ||
+      userRole === 'owner' ||
+      permissionAny.some((k) => can(k));
+    if (!allowedPerm) {
+      recordKick('protected-route-no-permission', {
+        permissionAny,
+        userRole: userRole || null,
+      });
       return <Navigate to="/unauthorized" replace />;
     }
   }
@@ -2152,7 +2169,9 @@ function AppContent() {
               <Route
                 path="/employees"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute
+                    permissionAny={['ADD_NEW_EMPLOYEE', 'EDIT_EMPLOYEE_PROFILE', 'SUSPEND_SUB_ADMIN_ACCOUNT', 'SUPER_ADMIN_FULL_ACCESS']}
+                  >
                     <EmployeesPage />
                   </ProtectedRoute>
                 }
@@ -2227,7 +2246,7 @@ function AppContent() {
                 path="/admin"
                 element={
                   <ProtectedRoute
-                    roleRequired="owner"
+                    permissionAny={['SUPER_ADMIN_FULL_ACCESS', 'UPDATE_GLOBAL_SETTINGS', 'CREATE_NEW_CATALOG', 'DELETE_MAIN_CATALOG']}
                   >
                     <AdminPage />
                   </ProtectedRoute>
