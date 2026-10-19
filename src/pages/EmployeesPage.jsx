@@ -1,8 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { AdminContext } from '../context/AdminContext';
 import { Plus, RotateCcw, Shield, X } from 'lucide-react';
+import usePermissions from '../permissions/usePermissions';
+import { requirePerm } from '../permissions/requirePerm';
 
 export const EmployeesPage = () => {
+  const { can, isOwner } = usePermissions();
   const ctx = useContext(AdminContext) || {};
   const {
     employees = [],
@@ -32,6 +35,12 @@ export const EmployeesPage = () => {
       return;
     }
 
+    try {
+      await requirePerm(can, 'ADD_NEW_EMPLOYEE', 'إضافة موظف', email);
+    } catch (err) {
+      alert(err?.message || 'لا تملك صلاحية إضافة موظف');
+      return;
+    }
     await addEmployee({
       ...formData,
       name,
