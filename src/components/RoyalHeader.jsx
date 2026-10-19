@@ -243,7 +243,7 @@ const RoyalHeader = ({
                   <Crown size={15} /> <span>أهلاً بكم</span>
                 </button>
               )}
-              {isOwnerLoggedIn && typeof onOpenOwnerContact === 'function' && (
+              {!isOwnerLoggedIn && typeof onOpenOwnerContact === 'function' && (
                 <button type="button" className="rz-drawer-logout" onClick={() => { closeDrawer(); onOpenOwnerContact(); }}>
                   <User size={15} /> <span>مراسلة صاحب الموقع</span>
                 </button>
