@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { isAdminEmail } from '../firebase';
+import usePermissions from '../permissions/usePermissions';
 import { collection, onSnapshot } from 'firebase/firestore';
 import {
   MessageCircle,
@@ -14,12 +15,13 @@ import {
 
 const UsersList = ({ onSelectUser }) => {
   const { user } = useAuth();
+  const { can, isOwner: permOwner } = usePermissions();
   const [users, setUsers] = useState([]);
   const [forbidden, setForbidden] = useState(false);
   const [loading, setLoading] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState('');
 
-  const isOwner = isAdminEmail(user?.email);
+  const isOwner = isAdminEmail(user?.email) || permOwner || can('BAN_USER_TEMPORARY') || can('MANAGE_USER_VERIFICATION') || can('SUPER_ADMIN_FULL_ACCESS');
 
   useEffect(() => {
     let mounted = true;
