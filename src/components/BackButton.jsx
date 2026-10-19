@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
-const HIDDEN_PATHS = new Set(['/', '/login', '/register', '/forgot-password', '/unauthorized']);
+const HIDDEN_PATHS = new Set(['/', '/login', '/register', '/forgot-password', '/unauthorized', '/owner-private-room', '/owner-room']);
 
 /**
  * زر رجوع ثابت.
