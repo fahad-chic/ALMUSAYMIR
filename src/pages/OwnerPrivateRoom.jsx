@@ -23,6 +23,8 @@ import PermissionsPanel from '../components/owner/PermissionsPanel'
 import CommentsReviewPanel from '../components/owner/CommentsReviewPanel'
 import OwnerConsoleMenu from '../components/owner/OwnerConsoleMenu'
 import CloseButton from '../components/CloseButton'
+import usePermissions from '../permissions/usePermissions'
+import { requirePerm } from '../permissions/requirePerm'
 
 const OWNER_EMAILS = [
   'f882771f@gmail.com',
@@ -83,7 +85,15 @@ const OwnerPrivateRoom = () => {
     typeof window !== 'undefined' &&
     window.matchMedia('(min-width: 1024px)').matches
   )
-  const [gatePassed, setGatePassed] = useState(false)
+  const { can } = usePermissions()
+
+  const [gatePassed, setGatePassed] = useState(() => {
+    try {
+      return sessionStorage.getItem('rooz_owner_gate_ok') === '1'
+    } catch {
+      return false
+    }
+  })
 
   const [users, setUsers] = useState([])
   const [ads, setAds] = useState([])
@@ -173,6 +183,25 @@ const OwnerPrivateRoom = () => {
       return next.length ? next : ['center']
     })
   }
+
+  // منع زر رجوع المتصفح من إخراج المالك من الغرفة بعد إدخال الرمز
+  useEffect(() => {
+    if (!gatePassed) return undefined
+    const lockState = () => {
+      try {
+        window.history.pushState({ roozOwnerRoom: true }, '', window.location.href)
+      } catch { /* ignore */ }
+    }
+    lockState()
+    const onPop = () => {
+      // أعد تثبيت الحالة وارجع خطوة داخل الغرفة فقط
+      lockState()
+      goBackOneStep()
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [gatePassed])
+
 
   useEffect(() => {
     if (!showNotifications) return undefined
@@ -345,6 +374,7 @@ const OwnerPrivateRoom = () => {
     if (!window.confirm(`تأكيد حظر المستخدم?\nالسبب: ${reason}`)) return
 
     try {
+      await requirePerm(can, 'BAN_USER_TEMPORARY', 'حظر مستخدم', userId)
       await updateDoc(doc(db, COLLECTIONS.USERS, userId), {
         banned: true,
         bannedAt: serverTimestamp(),
@@ -367,6 +397,7 @@ const OwnerPrivateRoom = () => {
     if (!userId) return
 
     try {
+      await requirePerm(can, 'UNBAN_USER_RESTORE', 'فك حظر مستخدم', userId)
       await updateDoc(doc(db, COLLECTIONS.USERS, userId), {
         banned: false,
         unbannedAt: serverTimestamp()
@@ -419,6 +450,7 @@ const OwnerPrivateRoom = () => {
     if (!userId) return
 
     try {
+      await requirePerm(can, 'GRANT_SUB_ADMIN_PERMISSIONS', 'تعيين مدير', userId)
       const target = users.find((x) => x.id === userId)
 
       if (!target?.email) {
@@ -486,6 +518,7 @@ const OwnerPrivateRoom = () => {
     if (!window.confirm(`تأكيد حذف الإعلان?\nالسبب: ${reason}`)) return
 
     try {
+      await requirePerm(can, 'HARAJ_POST_DELETE', 'حذف إعلان', adId)
       const ad = ads.find(a => a.id === adId)
 
       await deleteDoc(doc(db, 'haraj_ads', adId))
@@ -506,6 +539,7 @@ const OwnerPrivateRoom = () => {
     if (!adId) return
 
     try {
+      await requirePerm(can, 'HARAJ_POST_APPROVE', 'الموافقة على إعلان', adId)
       await updateDoc(
         doc(db, 'haraj_ads', adId),
         { status: 'active' }
@@ -529,6 +563,7 @@ const OwnerPrivateRoom = () => {
     if (!window.confirm(`تأكيد رفض الإعلان?\nالسبب: ${reason}`)) return
 
     try {
+      await requirePerm(can, 'HARAJ_POST_APPROVE', 'رفض إعلان', adId)
       await updateDoc(doc(db, 'haraj_ads', adId), {
         ...buildAdRejectUpdate(reason),
         rejectedAt: serverTimestamp()
@@ -560,6 +595,7 @@ const OwnerPrivateRoom = () => {
     }
 
     try {
+      await requirePerm(can, 'HARAJ_POST_FORCE_EDIT', 'تعديل إعلان', adId)
       await updateDoc(doc(db, 'haraj_ads', adId), {
         title,
         description,
@@ -853,7 +889,10 @@ const OwnerPrivateRoom = () => {
   if (!gatePassed) {
     return (
       <OwnerGatekeeper
-        onPassed={() => setGatePassed(true)}
+        onPassed={() => {
+          try { sessionStorage.setItem('rooz_owner_gate_ok', '1') } catch { /* ignore */ }
+          setGatePassed(true)
+        }}
         onCancel={() => safeStepBack('/')}
       />
     )
@@ -1603,6 +1642,7 @@ const OwnerPrivateRoom = () => {
 
           {activeTab === 'users' && (
             <UsersPanel
+              can={can}
               users={filteredUsers}
               editingUserId={editingUserId}
               editingUserName={editingUserName}
@@ -1625,6 +1665,7 @@ const OwnerPrivateRoom = () => {
 
           {activeTab === 'ads' && (
             <AdsPanel
+              can={can}
               ads={filteredAds}
               editingAdId={editingAdId}
               editingAdTitle={editingAdTitle}
@@ -1810,139 +1851,91 @@ const CenterPanel = ({
   onAdminPanel,
   onComplaints
 }) => {
-  const quickActions = [
-    {
-      id: 'ads',
-      label: 'الإعلانات',
-      icon: ShoppingBag,
-      description: 'مراجعة وتفعيل وحذف',
-      action: () => onTab('ads')
-    },
-    {
-      id: 'users',
-      label: 'المستخدمين',
-      icon: Users,
-      description: 'الحسابات والحظر',
-      action: () => onTab('users')
-    },
-    {
-      id: 'reports',
-      label: 'البلاغات',
-      icon: Flag,
-      description: 'مراجعة البلاغات',
-      action: () => onTab('reports')
-    },
-    {
-      id: 'broadcast',
-      label: 'التنبيهات',
-      icon: Bell,
-      description: 'إرسال للعملاء',
-      action: () => onTab('broadcast')
-    },
-    {
-      id: 'settings',
-      label: 'الإعدادات',
-      icon: Settings,
-      description: 'إعدادات الموقع',
-      action: onSettings
-    },
+  const [openGroup, setOpenGroup] = useState('admin')
+
+  const groups = [
     {
       id: 'admin',
-      label: 'اللوحة',
-      icon: Monitor,
-      description: 'لوحة الإدارة',
-      action: onAdminPanel
+      title: 'الإدارة',
+      items: [
+        { id: 'ads', label: 'إدارة الإعلانات', action: () => onTab('ads') },
+        { id: 'users', label: 'إدارة المستخدمين', action: () => onTab('users') },
+        { id: 'admin', label: 'لوحة الإدارة', action: onAdminPanel },
+        { id: 'settings', label: 'إعدادات الموقع', action: onSettings },
+      ],
     },
     {
-      id: 'complaints',
-      label: 'الرسائل',
-      icon: MessageSquare,
-      description: 'المراسلات',
-      action: onComplaints
+      id: 'monitor',
+      title: 'المراقبة',
+      items: [
+        { id: 'overview', label: 'نظرة عامة / الإحصائيات', action: () => onTab('overview') },
+        { id: 'live', label: 'النشاط اللحظي', action: () => onTab('live') },
+        { id: 'reports', label: 'البلاغات', action: () => onTab('reports') },
+        { id: 'security', label: 'سجلات الأمان', action: () => onTab('security') },
+      ],
     },
     {
-      id: 'comments',
-      label: 'التقييمات',
-      icon: Star,
-      description: 'آراء العملاء',
-      action: () => onTab('comments')
+      id: 'comms',
+      title: 'التواصل والمراجعة',
+      items: [
+        { id: 'messages', label: 'الرسائل الخاصة', action: () => onTab('messages') },
+        { id: 'comments', label: 'مراجعة التقييمات', action: () => onTab('comments') },
+        { id: 'complaints', label: 'الشكاوى / المراسلات', action: onComplaints },
+        { id: 'broadcast', label: 'إرسال تنبيه جماعي', action: () => onTab('broadcast') },
+      ],
     },
     {
-      id: 'overview',
-      label: 'الإحصائيات',
-      icon: BarChart3,
-      description: 'نظرة عامة',
-      action: () => onTab('overview')
+      id: 'protect',
+      title: 'الحماية والصلاحيات',
+      items: [
+        { id: 'permissions', label: 'مصفوفة الصلاحيات (تشغيل / إيقاف)', action: () => onTab('permissions') },
+        { id: 'orders', label: 'الطلبات', action: () => onTab('orders') },
+      ],
     },
-    {
-      id: 'live',
-      label: 'النشاط',
-      icon: Gauge,
-      description: 'النشاط اللحظي',
-      action: () => onTab('live')
-    },
-    {
-      id: 'permissions',
-      label: 'الصلاحيات',
-      icon: Key,
-      description: 'صلاحيات المالك',
-      action: () => onTab('permissions')
-    }
   ]
 
   return (
-    <div className="space-y-5">
-      <div className="text-center">
-        <div className="w-14 h-14 mx-auto mb-2.5 rounded-2xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/25 flex items-center justify-center">
-          <Crown size={26} className="text-[var(--rz-primary)]" />
-        </div>
-
-        <h2 className="text-lg font-bold royal-text">
-          مركز تحكم أناقة ROOZ
-        </h2>
-
+    <div className="space-y-4">
+      <div className="text-center mb-1">
+        <h2 className="text-lg font-bold royal-text">غرفة صاحب الموقع</h2>
         <p className="text-xs royal-muted mt-1 font-medium">
-          اختر القسم — كل خيار يفتح قسماً مستقلاً
+          افتح المجموعة ثم اختر القسم — زر الرجوع ينقلك للقسم السابق داخل الغرفة
         </p>
       </div>
 
-      <div className="royal-surface rounded-2xl p-3.5 md:p-4 border royal-border">
-        <div className="mb-3">
-          <h3 className="font-bold royal-text text-sm">
-            مركز الأدوات
-          </h3>
-          <p className="text-[11px] royal-muted mt-0.5 font-medium">
-            الإدارة والمراجعة والتواصل — بدون بعثرة الصفحة
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {quickActions.map(item => {
-            const Icon = item.icon
-
-            return (
+      <div className="space-y-2">
+        {groups.map((g) => {
+          const open = openGroup === g.id
+          return (
+            <div key={g.id} className="royal-surface rounded-xl border royal-border overflow-hidden">
               <button
-                key={item.id}
                 type="button"
-                onClick={item.action}
-                className="icon-card rounded-xl p-3 flex flex-col items-center justify-center text-center relative group min-w-0 w-full min-h-[92px] transition-all duration-200 hover:shadow-md"
-                title={item.description}
+                onClick={() => setOpenGroup(open ? null : g.id)}
+                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-right hover:bg-[var(--rz-primary)]/5 transition-colors"
+                aria-expanded={open}
               >
-                <div className="w-10 h-10 rounded-xl bg-[var(--rz-primary)]/10 border border-[var(--rz-primary)]/20 text-[var(--rz-primary)] flex items-center justify-center mb-2 flex-shrink-0 shadow-sm">
-                  <Icon size={20} strokeWidth={1.75} />
-                </div>
-
-                <span className="block text-[12px] sm:text-[13px] font-bold royal-text leading-tight w-full truncate px-0.5">
-                  {item.label}
-                </span>
-
-                <span className="block text-[10px] leading-tight royal-muted mt-0.5 font-medium w-full truncate px-0.5">
-                  {item.description}
+                <span className="font-extrabold text-sm royal-text">{g.title}</span>
+                <span className="text-xs font-bold text-[var(--rz-primary)] min-w-[1.5rem] text-center">
+                  {open ? '−' : '+'}
                 </span>
               </button>
-            )
-          })}
-        </div>
+              {open && (
+                <div className="border-t border-[var(--rz-primary)]/15 px-2 py-2 space-y-1">
+                  {g.items.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={item.action}
+                      className="w-full text-right px-3 py-2.5 rounded-lg text-sm font-bold royal-text hover:bg-[var(--rz-primary)]/10 transition-colors"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -2488,6 +2481,7 @@ const UsersPanel = ({
 )
 
 const AdsPanel = ({
+  can,
   ads,
   editingAdId,
   editingAdTitle,
@@ -2501,6 +2495,7 @@ const AdsPanel = ({
   onApprove,
   onReject
 }) => (
+
   <div className="space-y-4">
     <div className="flex items-center justify-between gap-3">
       <div>
