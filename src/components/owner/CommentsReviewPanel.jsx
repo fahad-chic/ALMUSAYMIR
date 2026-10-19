@@ -10,8 +10,10 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
-
+import usePermissions from '../../permissions/usePermissions';
+import { requirePerm } from '../../permissions/requirePerm';
 const CommentsReviewPanel = () => {
+  const { can } = usePermissions();
   const [pending, setPending] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +44,7 @@ const CommentsReviewPanel = () => {
   }, []);
 
   const approve = async (id) => {
+    try { await requirePerm(can, 'HARAJ_COMMENT_EDIT', 'اعتماد تعليق', id); } catch (e) { alert(e.message); return; }
     try {
       await updateDoc(doc(db, 'comments', id), {
         status: 'approved',
@@ -53,6 +56,7 @@ const CommentsReviewPanel = () => {
   };
 
   const reject = async (id) => {
+    try { await requirePerm(can, 'HARAJ_COMMENT_DELETE', 'رفض تعليق', id); } catch (e) { alert(e.message); return; }
     if (!window.confirm('هل أنت متأكد من رفض هذا التعليق؟')) return;
 
     try {
