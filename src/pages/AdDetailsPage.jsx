@@ -4,6 +4,7 @@ import {
   doc,
   getDoc,
   updateDoc,
+  deleteDoc,
   increment,
   addDoc,
   collection,
@@ -38,6 +39,8 @@ import {
   Mail,
   Lock,
 } from 'lucide-react';
+import usePermissions from '../permissions/usePermissions';
+import { requirePerm, showIfCan } from '../permissions/requirePerm';
 
 const ADMIN_NUMBER = '0536667222';
 
@@ -64,6 +67,19 @@ const timeAgo = (timestamp) => {
 };
 
 export default function AdDetailsPage() {
+  const { can, isOwner } = usePermissions();
+  const handleModDelete = async () => {
+    if (!ad?.id) return;
+    if (!window.confirm('تأكيد حذف هذا الإعلان؟')) return;
+    try {
+      await requirePerm(can, 'HARAJ_POST_DELETE', 'حذف إعلان حراج', ad.id);
+      await deleteDoc(doc(db, 'haraj_ads', ad.id));
+      window.history.back();
+    } catch (e) {
+      alert(e?.message || 'تعذر الحذف');
+    }
+  };
+
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -583,7 +599,14 @@ export default function AdDetailsPage() {
             <div style={infoRow}>
               <User size={18} color={C.gold} />
               <span style={{ fontWeight: 700 }}>{ad.userName || 'معلن'}</span>
-              <VerifiedBadge verified={ad.sellerVerified || ad.verified} withLabel />
+              {(isOwner || showIfCan(can, 'HARAJ_POST_DELETE')) && (
+        <button type="button" onClick={handleModDelete} style={{
+          marginBottom: 10, padding: '8px 12px', borderRadius: 10,
+          border: '1px solid rgba(179,38,30,0.35)', background: '#FBEAE7',
+          color: '#B3261E', fontWeight: 800, fontSize: 13, cursor: 'pointer'
+        }}>حذف الإعلان (صلاحية مشرف)</button>
+      )}
+      <VerifiedBadge verified={ad.sellerVerified || ad.verified} withLabel />
             </div>
             {(ad.city || ad.location || ad.userRegion) && (
               <div style={infoRow}>
