@@ -19,12 +19,8 @@ body {
   overflow-x: hidden;
   font-family: 'Tajawal', 'Segoe UI', 'Arial', 'Tahoma', sans-serif;
   font-weight: 400;
-  background: linear-gradient(
-    150deg,
-    var(--bg-deep) 0%,
-    var(--rz-ivory) 55%,
-    var(--rz-ivory) 100%
-  );
+  /* الخلفية البصرية من rooz-site-backdrop.css */
+  background: transparent;
   color: var(--text-primary);
   min-height: 100vh;
   direction: rtl;
