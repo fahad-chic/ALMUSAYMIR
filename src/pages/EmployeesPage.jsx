@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AdminContext } from '../context/AdminContext';
 import { Plus, RotateCcw, Shield, X } from 'lucide-react';
 import usePermissions from '../permissions/usePermissions';
-import { requirePerm } from '../permissions/requirePerm';
+import { requirePerm } from '../permissions/rbacService';
 
 export const EmployeesPage = () => {
   const { can, isOwner } = usePermissions();
