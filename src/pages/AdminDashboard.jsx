@@ -17,7 +17,7 @@ import {
 } from '../firebase'
 import CloseButton from '../components/CloseButton'
 import usePermissions from '../permissions/usePermissions'
-import { requirePerm } from '../permissions/requirePerm'
+import { requirePerm } from '../permissions/rbacService'
 
 /* ===================== Helpers ===================== */
 const btnBase = 'w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-300 min-h-[52px] shrink-0 leading-6 group border'
