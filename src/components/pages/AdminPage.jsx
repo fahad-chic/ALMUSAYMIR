@@ -6,6 +6,7 @@ import { db } from '../../firebase/config'
 import { collection, getDocs } from 'firebase/firestore'
 import { useAuth } from '../../context/AuthContext'
 import { isAdminEmail } from '../../firebase'
+import usePermissions from '../../permissions/usePermissions'
 import {
   Package,
   ShoppingCart,
@@ -185,9 +186,27 @@ function AdminFallback() {
 export default function AdminPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { can, isOwner, ready } = usePermissions()
 
-  // غير مسجّل أو ليس أدمن
-  if (!user || !isAdminEmail(user.email)) {
+  const allowed =
+    !!user &&
+    (isAdminEmail(user.email) ||
+      isOwner ||
+      can('SUPER_ADMIN_FULL_ACCESS') ||
+      can('UPDATE_GLOBAL_SETTINGS') ||
+      can('CREATE_NEW_CATALOG') ||
+      can('DELETE_MAIN_CATALOG'))
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="animate-spin w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full" />
+      </div>
+    )
+  }
+
+  // غير مسجّل أو بلا صلاحية إدارة
+  if (!allowed) {
     return (
       <div
         dir="rtl"
