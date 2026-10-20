@@ -40,7 +40,7 @@ import {
   Lock,
 } from 'lucide-react';
 import usePermissions from '../permissions/usePermissions';
-import { requirePerm, showIfCan } from '../permissions/requirePerm';
+import { requirePerm, showIfCan } from '../permissions/rbacService';
 
 const ADMIN_NUMBER = '0536667222';
 
