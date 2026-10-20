@@ -42,7 +42,7 @@
   --rz-slate-rgb: 15, 23, 42;                /* كحلي عميق #0F172A */
   --rz-slate: rgb(var(--rz-slate-rgb));
 
-  --rz-gold-rgb: 196, 168, 110;              /* ذهبي شمباني أفخم */
+  --rz-gold-rgb: 212, 175, 95;               /* ذهبي أوضح فوق الخلفية الليلية */
   --rz-gold: rgb(var(--rz-gold-rgb));
   --rz-gold-soft: var(--rz-gold);
   --rz-gold-ink-rgb: 102, 84, 48;            /* نص على ذهبي فاتح */
