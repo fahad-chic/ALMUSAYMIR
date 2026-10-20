@@ -111,3 +111,26 @@ export const guardedAction = async ({ can, permissionKey, action, target, run })
     throw err;
   }
 };
+
+// ——— تحقق واجهة موحّد قبل الإجراءات الحساسة ———
+export const denyMessage = (key) =>
+  `لا تملك صلاحية تنفيذ هذا الإجراء (${key}). تواصل مع صاحب الموقع.`;
+
+export async function requirePerm(can, key, actionLabel = key, target = '-') {
+  if (typeof can === 'function' && can(key)) return true;
+  try {
+    await logPermissionAudit(
+      'permission_denied_local',
+      `محاولة ${actionLabel} على ${target} بدون صلاحية ${key}`,
+      'high'
+    );
+  } catch { /* ignore */ }
+  const err = new Error(denyMessage(key));
+  err.code = 'no-permission';
+  throw err;
+}
+
+export function showIfCan(can, ...keys) {
+  if (typeof can !== 'function') return false;
+  return keys.some((k) => can(k));
+}
