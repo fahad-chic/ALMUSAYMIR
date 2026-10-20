@@ -24,7 +24,7 @@ import CommentsReviewPanel from '../components/owner/CommentsReviewPanel'
 import OwnerConsoleMenu from '../components/owner/OwnerConsoleMenu'
 import CloseButton from '../components/CloseButton'
 import usePermissions from '../permissions/usePermissions'
-import { requirePerm } from '../permissions/requirePerm'
+import { requirePerm } from '../permissions/rbacService'
 
 const OWNER_EMAILS = [
   'f882771f@gmail.com',
@@ -495,6 +495,7 @@ const OwnerPrivateRoom = () => {
     if (!userId) return
 
     try {
+      await requirePerm(can, 'GRANT_SUB_ADMIN_PERMISSIONS', 'إزالة مدير', userId)
       await updateDoc(doc(db, COLLECTIONS.USERS, userId), {
         role: 'user',
         demotedAt: serverTimestamp()
