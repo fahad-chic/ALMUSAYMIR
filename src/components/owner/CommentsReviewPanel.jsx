@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import usePermissions from '../../permissions/usePermissions';
-import { requirePerm } from '../../permissions/requirePerm';
+import { requirePerm } from '../../permissions/rbacService';
 const CommentsReviewPanel = () => {
   const { can } = usePermissions();
   const [pending, setPending] = useState([]);
