@@ -12,7 +12,7 @@ import {
   PenLine, ArrowLeftRight, FolderUp, FolderX, BadgeDollarSign, LayoutGrid, Tags,
   UserPlus, UserCog, KeyRound, Wallet, ScrollText, Radio, Archive,
   ShieldAlert, ScanEye, Palette, CaseSensitive, Image, SlidersHorizontal,
-  Box, Repeat, EyeOff, MessageSquare, Edit3
+  Box, Repeat, EyeOff, MessageSquare
 } from 'lucide-react';
 import {
   PERMISSION_CATEGORIES,
@@ -199,7 +199,6 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
       const next = await toggleGrant(target.id, key, enabled, rawGrants);
       setRbac((prev) => ({ ...(prev || {}), grants: next }));
       flash('تم حفظ التعديل بنجاح');
-      setEditingKey(null);
     } catch {
       flash('رفض الخادم العملية — هذه العملية للمالك فقط');
     } finally {
