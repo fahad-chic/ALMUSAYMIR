@@ -1308,10 +1308,8 @@ function AppContent() {
         minHeight: '100vh',
         width: '100%',
         overflowX: 'hidden',
-        background:
-          location.pathname === '/login'
-            ? 'transparent'
-            : 'linear-gradient(180deg, var(--rz-ivory) 0%, var(--rz-ivory) 55%, var(--rz-ivory) 100%)',
+        /* شفاف ليظهر غلاف الموقع فوق صورة المدينة (الخلفية في rooz-site-backdrop.css) */
+        background: 'transparent',
         color: 'var(--rz-ink)',
         fontFamily: 'Tajawal',
         position: 'relative',
