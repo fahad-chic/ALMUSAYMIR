@@ -1,7 +1,7 @@
 /* ============================================================
-   ROOZ — خلفية الرياض الليلية + تناسق ألوان ووضوح نصوص
-   الصورة: /assets/bg-riyadh-night.jpg
-   يُستورد أخيراً بعد theme.css في main.jsx
+   ROOZ — خلفية الرياض الليلية
+   /assets/bg-riyadh-night.jpg
+   مهم: لا نلمس .rz-drawer (قائمة جانبية داكنة بنصوص بيضاء)
    ============================================================ */
 
 html {
@@ -13,10 +13,8 @@ body {
   background-image: none !important;
   min-height: 100vh;
   min-height: 100dvh;
-  color: #0f172a;
 }
 
-/* صورة المدينة */
 body::before {
   content: '';
   position: fixed;
@@ -30,22 +28,19 @@ body::before {
   pointer-events: none;
 }
 
-/* تعتيم متدرّج — المدينة ظاهرة والنص فوق الألواح واضح */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse 100% 80% at 50% 0%, rgba(5, 10, 22, 0.35) 0%, transparent 50%),
-    linear-gradient(
-      180deg,
-      rgba(5, 10, 22, 0.55) 0%,
-      rgba(5, 10, 22, 0.42) 30%,
-      rgba(5, 10, 22, 0.55) 65%,
-      rgba(5, 10, 22, 0.82) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(5, 10, 22, 0.5) 0%,
+    rgba(5, 10, 22, 0.38) 35%,
+    rgba(5, 10, 22, 0.55) 70%,
+    rgba(5, 10, 22, 0.78) 100%
+  );
 }
 
 #root {
@@ -56,93 +51,61 @@ body::after {
   background: transparent !important;
 }
 
-/* —— متغيرات أسطح فوق الخلفية الليلية —— */
 :root {
-  --rz-glass: rgba(255, 250, 242, 0.93);
-  --rz-glass-strong: rgba(255, 252, 247, 0.97);
-  --rz-glass-border: rgba(201, 169, 98, 0.42);
-  --rz-glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-  --bg-card: rgba(255, 250, 242, 0.94);
   --bg-deep: transparent;
-  --bg-mid: rgba(255, 250, 242, 0.90);
-  --text-primary: #0f172a;
-  --text-secondary: #1e293b;
+  --bg-mid: rgba(255, 250, 242, 0.92);
+  --bg-card: rgba(255, 250, 242, 0.95);
 }
 
-/* صفحات min-h-screen لا تطمس المدينة بلوح معتم كامل */
+/* الصفحات: لا تغطي المدينة بسطح معتم كامل */
 .min-h-screen {
   background-color: transparent !important;
 }
 
-/* ألواح وبطاقات */
-.royal-surface,
-.card,
-.rooz-card,
-.glass-panel,
-[class*='rounded-2xl'][class*='border'][class*='bg-'],
-[class*='rounded-xl'][class*='shadow'] {
-  backdrop-filter: blur(12px) saturate(1.1);
-  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+/* ===== القائمة الجانبية تبقى داكنة (نص أبيض واضح) ===== */
+.rz-drawer {
+  background: linear-gradient(180deg, #161820 0%, #0f141c 100%) !important;
+  color: #ffffff !important;
 }
 
-/* ترويسة ثابتة — زجاج فاتح + حد ذهبي خفيف */
-header,
-.rz-header,
-nav[class*='header'],
-.sticky top-0 {
-  background: rgba(255, 250, 242, 0.92) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom-color: rgba(201, 169, 98, 0.35) !important;
-  color: #0f172a !important;
+.rz-drawer-title,
+.rz-group-btn,
+.rz-drawer-close,
+.rz-drawer-logout {
+  color: #ffffff !important;
 }
 
-/* نصوص عامة فوق الخلفية (خارج الألواح) */
-body,
-#root {
-  color: #0f172a;
+.rz-sub-item {
+  color: rgba(255, 252, 247, 0.92) !important;
 }
 
-/* حقول إدخال بيضاء صلبة */
-input:not([type='checkbox']):not([type='radio']),
-textarea,
-select {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border-color: rgba(15, 23, 42, 0.18);
+.rz-sub-item:hover {
+  color: #e8c97a !important;
 }
 
-input::placeholder,
-textarea::placeholder {
-  color: #64748b !important;
-  opacity: 1;
+.rz-group-btn:hover {
+  color: #e8c97a !important;
 }
 
-/* أزرار ذهبية/كحلية تبقى عالية التباين */
-button,
-.btn,
-[role='button'] {
-  text-shadow: none;
+.rz-drawer-user,
+.rz-drawer-user .rz-role {
+  color: rgba(255, 252, 247, 0.9) !important;
 }
 
-/* ===== تسجيل الدخول ===== */
+/* تسجيل الدخول */
 .rl-root {
   background: transparent !important;
   background-image: none !important;
-  color: #0f172a !important;
 }
 
+.rl-root form,
 .rl-root .rl-card,
 .rl-root .rl-box,
-.rl-root .rl-panel,
-.rl-root form,
-.rl-wrap > div {
+.rl-root .rl-panel {
   background: rgba(255, 252, 247, 0.96) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(201, 169, 98, 0.4) !important;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4) !important;
   color: #0f172a !important;
+  border: 1px solid rgba(201, 169, 98, 0.4) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35) !important;
 }
 
 .rl-root input,
@@ -152,70 +115,15 @@ button,
   color: #0f172a !important;
 }
 
-.rl-root label,
-.rl-root p,
-.rl-root h1,
-.rl-root h2,
-.rl-root h3,
-.rl-root span,
-.rl-root a {
-  color: inherit;
-  text-shadow: none;
-}
+/* لا نغيّر [role=dialog] عام — حتى لا نخرب .rz-drawer */
 
-.rl-root .rl-btn,
-.rl-root button[type='submit'] {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
-  font-weight: 700;
-}
-
-/* مودالات */
-[role='dialog'],
-.modal,
-.overlay-panel {
-  background: rgba(255, 252, 247, 0.98) !important;
-  color: #0f172a !important;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
-}
-
-/* فوتر */
-footer {
-  background: rgba(255, 250, 242, 0.92) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #0f172a !important;
-  border-top: 1px solid rgba(201, 169, 98, 0.3);
-}
-
-/* قوائم منسدلة */
-[class*='dropdown'],
-[class*='menu'][class*='absolute'],
-[class*='popover'] {
-  background: rgba(255, 252, 247, 0.98) !important;
-  color: #0f172a !important;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(201, 169, 98, 0.35);
-}
-
-/* روابط ذهبية أوضح على الزجاج */
-a {
-  text-underline-offset: 2px;
-}
-
-/* جوال: تعتيم أقوى قليلًا */
 @media (max-width: 640px) {
   body::after {
     background: linear-gradient(
       180deg,
-      rgba(5, 10, 22, 0.62) 0%,
-      rgba(5, 10, 22, 0.5) 40%,
-      rgba(5, 10, 22, 0.78) 100%
+      rgba(5, 10, 22, 0.58) 0%,
+      rgba(5, 10, 22, 0.48) 45%,
+      rgba(5, 10, 22, 0.8) 100%
     );
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body::before {
-    transform: none;
   }
 }
