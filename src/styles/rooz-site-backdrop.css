@@ -98,10 +98,9 @@ body::after {
   background-image: none !important;
 }
 
-.rl-root form,
-.rl-root .rl-card,
-.rl-root .rl-box,
-.rl-root .rl-panel {
+/* بطاقة النموذج فقط — لا تلمس .rl-card--big الداكنة */
+.rl-root .rl-form-card,
+.rl-root form.rl-form-card {
   background: rgba(255, 252, 247, 0.96) !important;
   color: #0f172a !important;
   border: 1px solid rgba(201, 169, 98, 0.4) !important;
