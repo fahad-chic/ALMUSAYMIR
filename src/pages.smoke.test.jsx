@@ -8,7 +8,6 @@ import { AuthProvider } from './context/AuthContext';
 const Loading = () => <div>loading</div>;
 
 const pages = [
-  { name: 'RoyalHomePage', imp: () => import('./components/RoyalHome/RoyalHomePage'), path: '/' },
   { name: 'CatalogPage', imp: () => import('./components/RoyalHome/CatalogPage'), path: '/catalog/x' },
   { name: 'ContactPage', imp: () => import('./components/RoyalHome/ContactPage'), path: '/contact' },
   { name: 'RoyalHarajPage', imp: () => import('./components/RoyalHome/RoyalHarajPage'), path: '/haraj' },

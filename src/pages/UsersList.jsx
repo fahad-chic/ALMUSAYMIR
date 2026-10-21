@@ -362,7 +362,7 @@ const restrictedBox = {
 };
 
 const restrictedText = {
-  color: 'var(--rz-muted)',
+  color: 'var(--rz-ivory)',
   margin: '10px 0 0',
   fontSize: 14,
   lineHeight: 1.7,

@@ -670,7 +670,7 @@ const ContactPage = () => {
                     style={{
                       margin: '0 0 0.25rem',
                       fontSize: '0.75rem',
-                      color: 'var(--rz-gold)',
+                      color: 'var(--rz-gold-ink)',
                       fontWeight: 700,
                     }}
                   >
@@ -719,20 +719,20 @@ const ContactPage = () => {
                         width: 32,
                         height: 32,
                         flexShrink: 0,
-                        background: 'transparent',
-                        color: bank.color,
+                        background: 'rgba(var(--rz-ivory-rgb), 0.16)',
+                        color: 'var(--rz-ivory)',
                       }}
                     >
                       {copied === `iban-${bank.id}` ? (
                         <Check
                           size={16}
-                          color="var(--rz-ink)"
+                          color="var(--rz-ivory)"
                           aria-hidden="true"
                         />
                       ) : (
                         <Copy
                           size={16}
-                          color={bank.color}
+                          color="var(--rz-ivory)"
                           aria-hidden="true"
                         />
                       )}
@@ -746,7 +746,7 @@ const ContactPage = () => {
                     style={{
                       margin: '0 0 0.25rem',
                       fontSize: '0.75rem',
-                      color: 'var(--rz-gold)',
+                      color: 'var(--rz-gold-ink)',
                       fontWeight: 700,
                     }}
                   >
@@ -795,20 +795,20 @@ const ContactPage = () => {
                         width: 32,
                         height: 32,
                         flexShrink: 0,
-                        background: 'transparent',
-                        color: bank.color,
+                        background: 'rgba(var(--rz-ivory-rgb), 0.16)',
+                        color: 'var(--rz-ivory)',
                       }}
                     >
                       {copied === `acc-${bank.id}` ? (
                         <Check
                           size={16}
-                          color="var(--rz-ink)"
+                          color="var(--rz-ivory)"
                           aria-hidden="true"
                         />
                       ) : (
                         <Copy
                           size={16}
-                          color={bank.color}
+                          color="var(--rz-ivory)"
                           aria-hidden="true"
                         />
                       )}
@@ -897,8 +897,8 @@ const ContactPage = () => {
             style={{
               margin: 0,
               fontSize: '0.85rem',
-              color: 'var(--rz-gold)',
-                      fontWeight: 700,
+              color: 'var(--rz-ink)',
+              fontWeight: 700,
               lineHeight: 1.7,
             }}
           >

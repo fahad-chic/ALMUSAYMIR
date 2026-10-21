@@ -53,7 +53,6 @@ export const BranchesManagement = () => {
       appliedAutoEdit.current = true;
       openEditBranch(target);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branches, location]);
 
   const handleSubmitBranch = async (e) => {

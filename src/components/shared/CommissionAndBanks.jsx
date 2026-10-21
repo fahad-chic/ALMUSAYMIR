@@ -254,7 +254,7 @@ export default function CommissionAndBanks({
                     style={{
                       fontSize: '0.68rem',
                       fontWeight: 600,
-                      color: 'var(--rz-gray-500)',
+                      color: 'var(--rz-ink)',
                       minWidth: 32,
                     }}
                   >
@@ -310,7 +310,7 @@ export default function CommissionAndBanks({
                     style={{
                       fontSize: '0.68rem',
                       fontWeight: 600,
-                      color: 'var(--rz-gray-500)',
+                      color: 'var(--rz-ink)',
                       minWidth: 32,
                     }}
                   >
