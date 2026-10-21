@@ -30,8 +30,7 @@ body::before {
   pointer-events: none !important;
 }
 
-/* الطبقة اللؤلؤية (rz-pearl-layer) كانت معتمة بالكامل وتغطي صورة المدينة.
-   نُفرّغ خلفيتها ونُخفي طبقاتها الفاتحة حتى تظهر المدينة. */
+/* الطبقة اللؤلؤية كانت معتمة وتغطي المدينة — تُفرَّغ */
 .rz-pearl-layer {
   background: transparent !important;
 }
@@ -43,8 +42,7 @@ body::before {
   display: none !important;
 }
 
-/* حجاب فاتح (بدل الحجاب الداكن السابق) فوق صورة المدينة: يُبقي المدينة
-   ظاهرة كخلفية، ويرفع إضاءة الخلفية كي تبقى النصوص الداكنة الحالية مقروءة. */
+/* حجاب أخف: المدينة أوضح (~65–75٪) مع بقاء النصوص الداكنة مقروءة */
 body::after {
   content: '' !important;
   position: fixed !important;
@@ -53,10 +51,10 @@ body::after {
   pointer-events: none !important;
   background: linear-gradient(
     180deg,
-    rgba(250, 246, 238, 0.86) 0%,
-    rgba(250, 246, 238, 0.80) 35%,
-    rgba(250, 246, 238, 0.84) 70%,
-    rgba(250, 246, 238, 0.92) 100%
+    rgba(250, 246, 238, 0.68) 0%,
+    rgba(250, 246, 238, 0.58) 35%,
+    rgba(250, 246, 238, 0.64) 70%,
+    rgba(250, 246, 238, 0.76) 100%
   ) !important;
 }
 
@@ -74,12 +72,11 @@ body::after {
   --bg-card: rgba(255, 250, 242, 0.95);
 }
 
-/* الصفحات: لا تغطي المدينة بسطح معتم كامل */
 .min-h-screen {
   background-color: transparent !important;
 }
 
-/* ===== القائمة الجانبية تبقى داكنة (نص أبيض واضح) ===== */
+/* ===== القائمة الجانبية داكنة + نص أبيض ===== */
 .rz-drawer {
   background: linear-gradient(180deg, #161820 0%, #0f141c 100%) !important;
   color: #ffffff !important;
@@ -115,7 +112,6 @@ body::after {
   background-image: none !important;
 }
 
-/* بطاقة النموذج فقط — لا تلمس .rl-card--big الداكنة */
 .rl-root .rl-form-card,
 .rl-root form.rl-form-card {
   background: rgba(255, 252, 247, 0.96) !important;
@@ -131,15 +127,13 @@ body::after {
   color: #0f172a !important;
 }
 
-/* لا نغيّر [role=dialog] عام — حتى لا نخرب .rz-drawer */
-
 @media (max-width: 640px) {
   body::after {
     background: linear-gradient(
       180deg,
-      rgba(250, 246, 238, 0.86) 0%,
-      rgba(250, 246, 238, 0.74) 45%,
-      rgba(250, 246, 238, 0.90) 100%
+      rgba(250, 246, 238, 0.72) 0%,
+      rgba(250, 246, 238, 0.62) 45%,
+      rgba(250, 246, 238, 0.78) 100%
     ) !important;
   }
 }
