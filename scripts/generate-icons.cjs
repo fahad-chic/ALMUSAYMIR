@@ -34,15 +34,12 @@ async function generateIcons() {
         .resize(size, size)
         .png()
         .toFile(filepath);
-      /* eslint-disable-next-line no-console */
       console.log('Created ' + filename);
     } catch (err) {
-      /* eslint-disable-next-line no-console */
       console.error('Error creating ' + filename + ':', err.message);
     }
   }
   
-  /* eslint-disable-next-line no-console */
   console.log('All icons generated!');
 }
 

@@ -69,14 +69,14 @@ function FAQ() {
           align-items: center;
           justify-content: center;
           border-radius: 14px;
-          color: var(--rz-primary);
-          background: rgba(var(--rz-primary-rgb), 0.12);
-          border: 1px solid rgba(var(--rz-primary-rgb), 0.3);
+          color: var(--rz-gold);
+          background: rgba(var(--rz-gold-rgb), 0.14);
+          border: 1px solid rgba(var(--rz-gold-rgb), 0.4);
         }
 
         .faq-title {
           margin: 0;
-          color: var(--rz-ivory);
+          color: var(--rz-ivory) !important;
           font-size: clamp(1.35rem, 3vw, 1.9rem);
           font-weight: 800;
         }
