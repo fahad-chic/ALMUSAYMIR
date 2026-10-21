@@ -283,3 +283,54 @@
   .rl-link, .rl-google { font-size: 11px !important; min-height: 32px !important; }
   .rl-card-phrase { -webkit-line-clamp: 2 !important; }
 }
+
+/* ===== CONTRAST LOCK (WCAG AA /login) ===== */
+
+/* بطاقة صاحب الموقع تبقى داكنة دائمًا */
+.rl-root .rl-card.rl-card--big,
+.rl-card.rl-card--big {
+  background: #202A3A !important;
+  border-color: #202A3A !important;
+  color: #FFFFFF !important;
+}
+.rl-root .rl-card--big .rl-card-title,
+.rl-card--big .rl-card-title,
+.rl-card--big .rl-card-title.text-royal-gold {
+  color: #FFFFFF !important;
+}
+.rl-root .rl-card--big .rl-card-sub,
+.rl-card--big .rl-card-sub,
+.rl-card--big .rl-card-sub.text-royal-goldSoft {
+  color: #F5F0E6 !important; /* أفتح قليلًا لرفع التباين على الكحلي */
+}
+.rl-root .rl-card--big .rl-card-phrase,
+.rl-card--big .rl-card-phrase,
+.rl-card--big .rl-card-phrase.text-royal-white {
+  color: #FFFFFF !important;
+}
+
+/* زر مراسلة صاحب الموقع — داخل البطاقة الداكنة */
+.rl-root .rl-card--big .rl-contact-owner,
+.rl-card--big .rl-contact-owner {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #FFFFFF !important;
+}
+.rl-root .rl-card--big .rl-contact-owner:hover,
+.rl-root .rl-card--big .rl-contact-owner:focus,
+.rl-card--big .rl-contact-owner:hover,
+.rl-card--big .rl-contact-owner:focus {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #FFFFFF !important;
+  outline: 2px solid #E8C97A !important;
+  outline-offset: 2px !important;
+}
+
+/* بطاقات الأعضاء العادية — نص داكن على أبيض */
+.rl-card:not(.rl-card--big) .rl-card-title {
+  color: #202A3A !important;
+}
+.rl-card:not(.rl-card--big) .rl-card-sub,
+.rl-card:not(.rl-card--big) .rl-card-phrase {
+  color: #334155 !important;
+}
