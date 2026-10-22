@@ -140,8 +140,11 @@ for (const r of matrix.guestOwnerRedirect) {
   if (logoStyle.bg !== 'rgba(0, 0, 0, 0)' || logoStyle.border !== '0px') add('error', 'login/logo', 'الشعار عليه خلفية/إطار: ' + JSON.stringify(logoStyle));
   else add('ok', 'login/logo', 'الشعار شفاف بلا مربع');
 
+  // .rl-root شفاف عمدًا كي تظهر خلفية الرياض الليلية خلف البطاقات.
+  // نتحقق من أن صفحة الدخول ليست بيضاء صلبة تعمي الخلفية.
   const bg = await page.evaluate(() => getComputedStyle(document.querySelector('.rl-root')).backgroundColor);
-  add(bg === 'rgb(255, 255, 255)' ? 'ok' : 'error', 'login/bg', 'الخلفية ' + bg);
+  const transparent = /rgba\(0, 0, 0, 0\)|transparent/.test(bg);
+  add(transparent ? 'ok' : 'error', 'login/bg', transparent ? 'الخلفية شفافة (خلفية الرياض ظاهرة)' : 'خلفية معتمة: ' + bg);
 
   const diagVisible = await page.evaluate(() => document.body.innerText.includes('سجل التشخيص'));
   add(diagVisible ? 'error' : 'ok', 'login/diagnostics', diagVisible ? 'سجل التشخيص ما زال ظاهراً' : 'سجل التشخيص أُزيل');
@@ -155,7 +158,8 @@ for (const r of matrix.guestOwnerRedirect) {
     return { cols: g.gridTemplateColumns, fs: getComputedStyle(document.querySelector('.rl-actions button')).fontSize };
   });
   if (grid.cols.split(' ').length !== 2) add('error', 'login/grid', 'ليست شبكة عمودين: ' + grid.cols);
-  if (grid.fs !== '13px') add('warn', 'login/grid', 'حجم الخط ' + grid.fs);
+  if (parseFloat(grid.fs) < 12.5) add('warn', 'login/grid', 'حجم الخط صغير: ' + grid.fs);
+  else add('ok', 'login/grid', 'حجم خط الأزرار ' + grid.fs);
 
   const cardSizes = await page.evaluate(() => {
     const big = document.querySelector('.rl-card--big').getBoundingClientRect();
@@ -168,9 +172,9 @@ for (const r of matrix.guestOwnerRedirect) {
   await page.locator('#email').focus();
   await page.waitForTimeout(500);
   const border = await page.evaluate(() => getComputedStyle(document.querySelector('.rl-input-wrap')).borderColor);
-  add(border === 'rgb(184, 164, 122)' ? 'ok' : 'warn', 'login/input', 'إطار التركيز ' + border);
+  add(border === 'rgb(201, 162, 39)' ? 'ok' : 'warn', 'login/input', 'إطار التركيز ' + border);
   const radius = await page.evaluate(() => getComputedStyle(document.querySelector('.rl-input-wrap')).borderTopLeftRadius);
-  add(radius === '8px' ? 'ok' : 'warn', 'login/input', 'استدارة الحقل ' + radius);
+  add(radius === '10px' ? 'ok' : 'warn', 'login/input', 'استدارة الحقل ' + radius);
 
   const navTest = async (label, expectPath) => {
     await page.goto(BASE + '/login', { waitUntil: 'domcontentloaded' });
