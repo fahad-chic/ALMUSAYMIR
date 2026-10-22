@@ -130,5 +130,34 @@
   (نفس `background_color` في manifest) بنسبة 72% (هامش 14%)، ويصدّر PNG بجدول ألوان 256 لوناً.
   المقاسات `[72, 96, 192, 512]` **مطابقة تماماً** لما يشير إليه `public/manifest.json`.
   الناتج أصغر من الأصل: 512 = 33KB (كان 36KB) و72 = 2.2KB (كان 2.6KB) — نفس الشكل.
-- **أُبقي بطلب المالك**: `src/permissions/requirePerm.js`، `src/utils/wcag.js` + `wcag.test.js`،
+- **أُبقي بطلب المالك**: `src/permissions/requirePerm.js`، `src/utils/wcag.js` + `wcag.test.js`，
   `public/favicon.ico`، `public/assets/og-image.jpg`، `src/data/saudiCities.js`.
+
+## تدقيق الكود الميت — نتيجة الفحص الدقيق (2026-10-22) + قرارات المالك
+منهجية الفحص: **رسم استيراد حقيقي** (يشمل `import` + `export … from` + `import()` الديناميكي
+لأن `React.lazy` يستخدمه) — لا تعتمد على `grep` ساذج باسم الملف: يُنتج ~88 نتيجة خاطئة.
+النتيجة: **118 من 120 ملف مصدر مستخدم فعلاً**. الفحص الساذج كان سيُظهر
+`firebase/{auth,firestore,storage}.js` وكل صفحات `RoyalHome/*` و`pages/*` "يتيمة" وهي ليست كذلك.
+- **الوحيد غير المستخدم فعلاً**: `src/permissions/requirePerm.js` (4K) — كل المكوّنات تستورد
+  `requirePerm` من `rbacService` مباشرة. **قرار المالك: أُبقي** — لا تحذفه.
+- **حُذف بموافقة المالك (PR #16)**: 6 سكربتات Capacitor معطّلة من `package.json`
+  (`cap:init/add:android/add:ios/sync/android/ios`) — لا `capacitor.config.*`، ولا حزمة
+  `@capacitor` مثبّتة، ولا أي استيراد. التبعيات لم تُمس.
+- **قرار المالك: لا تحذف**: `public/assets/og-image.jpg`، `public/favicon.ico`، `public/sw.js`.
+- **مؤجّل بطلب المالك**: تنظيف CSS الكبير (~35K مصدر: 105 قاعدة بأصناف لا تظهر في JSX) — يحتاج
+  إثبات لقطات بايت-بايت لكل مسار قبل التنفيذ. **وتصديرات `sectionsData.js` الميتة**
+  (`HARAJ_BANNERS`, `ROYAL_KINGS`, `PREDEFINED_COMMENTS`, `CATALOG_ITEMS` — مثبتة tree-shaken).
+- **تحذير تحليل ساذج**: `@testing-library/dom` يبدو "غير مستخدم" لكنه **peer dependency**؛
+  `sharp`/`wrangler`/`eslint`/`postcss`/`autoprefixer` أدوات CLI لا تُستورَد — **لا تحذفها**.
+
+## صفحة الدخول — قياسات الهوية (مُثبَتة على الموقع الحي، جوال 390px)
+- الشعار: `logo-almusaymir.png` (549×576 مصدر) يُعرض **117×123px**، بخلفية **شفافة تماماً**
+  (`rgba(0,0,0,0)`، بلا إطار) — لا صندوق أسود.
+- حد الشعار الكحلي: `drop-shadow(rgba(15,23,42,.92) …)` 4 اتجاهات → التباين الفعلي على الخلفية
+  **4.16** (كان **1.07** قبل الإصلاح).
+- بطاقة المالك: تدرّج كحلي (`rgb(27,37,55)` → `rgb(15,23,42)`) + برواز ذهبي
+  `rgba(201,162,39,.62)`.
+- **فرق الحجم مقصود**: العرض **1.07×** فقط (362 مقابل 337px — "أكبر قليلاً")، لكن المساحة
+  **1.67×** لأن بطاقة المالك تحمل 3 عناصر إضافية لا وجود لها عند المشرفين:
+  `rl-card-phrase` + `rl-owner-badge` (®️ المالك الرئيسي ®️) + زر `rl-contact-owner`.
+  **لا تُضِف هذه العناصر لبطاقة المشرفين لتقليل الفرق** — الفرق ناتج عن المحتوى لا عن التنسيق.
