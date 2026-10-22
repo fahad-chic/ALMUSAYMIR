@@ -251,7 +251,7 @@ const ContactPage = () => {
               lineHeight: 1.5,
             }}
           >
-            أنـاقـة ROOZ
+            المسيمير | ALMUSAYMIR
           </h2>
 
           <p
@@ -902,7 +902,7 @@ const ContactPage = () => {
               lineHeight: 1.7,
             }}
           >
-            جميع الحقوق محفوظة © أناقة ROOZ 2026
+            جميع الحقوق محفوظة © المسيمير | ALMUSAYMIR 2026
           </p>
         </footer>
       </div>

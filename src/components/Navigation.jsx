@@ -1,6 +1,6 @@
 // src/components/Navigation.jsx
 // ============================================================
-// Navigation Component - أناقة ROOZ
+// Navigation Component - المسيمير | ALMUSAYMIR
 // تحسينات الأداء + تعليقات توضيحية كاملة
 // ============================================================
 
@@ -8,75 +8,26 @@ import React, {
   useContext,
   useState,
   useEffect,
-  useCallback,
-  useMemo
+  useCallback
 } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
-  LogOut,
-  Home,
-  Users,
-  Zap,
-  MessageSquare,
-  Info,
-  Menu,
   X,
-  Eye,
-  EyeOff,
-  ShoppingBag,
   Crown,
-  Settings,
-  Bell,
-  Mail,
-  Megaphone,
-  Bot,
-  Store,
-  ChevronDown,
-  ChevronUp,
-  ArrowLeft,
-  Sparkles,
   ShieldCheck,
   Gem,
   Headphones,
-  MonitorSmartphone
+  MonitorSmartphone,
 } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import useNotifications from '../store/useNotifications';
 import ContactOwnerModal from './ContactOwnerModal';
 import BroadcastModal from './BroadcastModal';
-import { ROYAL_SECTIONS } from './RoyalHome/sectionsData';
-import OwnerEditBadge from './OwnerEditBadge';
 import RoyalHeader from './RoyalHeader';
 
 // ============================================================
 // ثوابت خارج المكوّن → لا يُعاد إنشاؤها في كل تصيير (تحسين أداء)
 // ============================================================
-const SECTION_ICONS = {
-  'dresses': Home,
-  'wedding-dresses': Sparkles,
-  'girls-dresses': Sparkles,
-  'abayas': Sparkles,
-  'bags': ShoppingBag,
-  'shoes': Sparkles,
-  'used-dresses': Sparkles,
-  'perfumes': Sparkles,
-  'golden-mothers': Crown,
-  'jewelry': Sparkles,
-  'home-products': Store,
-};
-
-const PAGES = [
-  { id: 'dashboard', label: 'الرئيسية', icon: Home, path: '/' },
-  { id: 'owner-private', label: 'غرفة صاحب موقع أناقة ROOZ', icon: Crown, path: '/owner-private-room', ownerOnly: true },
-  { id: 'admin-panel', label: 'الإدارة', icon: Settings, path: '/admin', ownerOnly: true },
-  { id: 'contact-owner', label: 'مراسلة صاحب الموقع', icon: Mail, opensModal: true },
-  { id: 'ads', label: 'موقع الحراج الرسمي', icon: ShoppingBag, path: '/haraj' },
-  { id: 'branches', label: 'الفروع', icon: Zap, path: '/branches' },
-  { id: 'employees', label: 'فريق العمل', icon: Users, path: '/employees' },
-  { id: 'contact', label: 'تواصل معنا', icon: MessageSquare, path: '/contact' },
-  { id: 'about', label: 'حول الموقع', icon: Info, path: '/about' }
-];
-
 // ============================================================
 // المكوّن الرئيسي
 // ============================================================
@@ -93,9 +44,6 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showOwnerContact, setShowOwnerContact] = useState(false);
   const [showBroadcast, setShowBroadcast] = useState(false);
-  const [expandedSection, setExpandedSection] = useState(null);
-  const [storeMenuOpen, setStoreMenuOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
   const [infoModal, setInfoModal] = useState(null);
   const [showElegantWelcome, setShowElegantWelcome] = useState(false);
 
@@ -104,11 +52,9 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
 
   const closeMenu = useCallback(() => {
     setIsOpen(false);
-    setExpandedSection(null);
   }, []);
 
   const handleLogout = useCallback(async () => {
-    setLoggingOut(true);
     closeMenu();
     try {
       await logout?.();
@@ -123,7 +69,6 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
       // تجاهل الأخطاء غير الحرجة
     }
     navigate('/login', { replace: true });
-    window.setTimeout(() => setLoggingOut(false), 300);
   }, [logout, navigate, closeMenu]);
 
   useEffect(() => {
@@ -145,7 +90,6 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
   }, [isOpen, closeMenu]);
 
   useEffect(() => {
-    setExpandedSection(null);
     setIsOpen(false);
   }, [location.pathname]);
 
@@ -164,16 +108,6 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
 
   const unreadNotifications = useNotifications((s) =>
     s.muted ? 0 : s.items.filter((i) => i.at > s.lastSeenAt).length
-  );
-
-  const visiblePages = useMemo(
-    () => PAGES.filter((p) => !p.ownerOnly || isOwnerLoggedIn),
-    [isOwnerLoggedIn]
-  );
-
-  const catalogSections = useMemo(
-    () => ROYAL_SECTIONS.filter((s) => !s.isAction),
-    []
   );
 
   return (
@@ -255,7 +189,7 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
           >
             <Crown size={30} color="var(--rz-primary)" style={{ marginBottom: 10 }} />
             <h3 style={{ margin: '0 0 0.45rem', fontSize: '1.15rem', fontWeight: 800, color: 'var(--rz-ink)' }}>
-              أهلاً بكم في أناقة ROOZ
+              أهلاً بكم في المسيمير | ALMUSAYMIR
             </h3>
             <p style={{ margin: '0 0 1.1rem', fontSize: '0.88rem', color: 'var(--rz-ink)', lineHeight: 1.65 }}>
               نورت المنصة. هنا تجدون الفخامة والثقة في كل تفصيلة.
@@ -317,10 +251,10 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.08rem', fontWeight: 800, color: 'var(--rz-ink)' }}>
-                {infoModal === 'why' && 'لماذا أناقة ROOZ؟'}
+                {infoModal === 'why' && 'لماذا المسيمير | ALMUSAYMIR؟'}
                 {infoModal === 'contest' && 'المسابقة الكبرى'}
                 {infoModal === 'statement' && 'بيان الموقع الرسمي'}
-                {infoModal === 'journey' && 'رحلة التسوق في ROOZ'}
+                {infoModal === 'journey' && 'رحلة التسوق في ALMUSAYMIR'}
               </h3>
               <button
                 type="button"
@@ -388,7 +322,7 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
 
             {infoModal === 'statement' && (
               <p style={{ fontSize: '0.88rem', lineHeight: 1.9, color: 'var(--rz-ink)', margin: 0 }}>
-                منصة «أناقة ROOZ» تعمل تحت <strong style={{ color: 'var(--rz-primary)' }}>حماية قانونية ومحاماة معتمدة</strong>.
+                منصة «المسيمير | ALMUSAYMIR» تعمل تحت <strong style={{ color: 'var(--rz-primary)' }}>حماية قانونية ومحاماة معتمدة</strong>.
                 خصوصية جميع المستخدمين مصانة بالكامل، وجميع البيانات محمية بتشفير كامل.
                 نلتزم بالاحترام المتبادل، وأعضاؤنا بالنسبة لصاحب الموقع <strong style={{ color: 'var(--rz-primary)' }}>خط أحمر</strong> —
                 لا يُقبل أي إساءة أو ضرر لأي شخص داخل المنصة، ومن يتجاوز ذلك يُحال للجهات المختصة.
@@ -411,7 +345,7 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
                 </div>
                 <div style={{ background: 'rgba(var(--rz-white-rgb), 0.65)', borderRadius: 11, padding: '0.75rem' }}>
                   <strong style={{ color: 'var(--rz-primary)' }}>04 استمتع</strong>
-                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: 'var(--rz-ink)' }}>استكمل تجربتك داخل أناقة ROOZ بكل سهولة.</p>
+                  <p style={{ margin: '3px 0 0', fontSize: '0.84rem', color: 'var(--rz-ink)' }}>استكمل تجربتك داخل المسيمير | ALMUSAYMIR بكل سهولة.</p>
                 </div>
               </div>
             )}

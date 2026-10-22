@@ -1,5 +1,5 @@
 // src/utils/motionPreview.js
-// "الفستان في الحركة": يستخرج إطارات متتابعة من مقطع قصير (٥ ثوانٍ كحد أقصى)
+// "المنتج في الحركة": يستخرج إطارات متتابعة من مقطع قصير (٥ ثوانٍ كحد أقصى)
 // ويحفظها كمعاينة حركة خفيفة تُخزَّن داخل وثيقة Firestore (بدون Firebase Storage).
 import { MAX_VIDEO_SECONDS, MAX_VIDEO_BYTES } from './dressMeta';
 

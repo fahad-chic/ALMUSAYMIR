@@ -1,18 +1,20 @@
 // src/data/royalMenu.js
 // ============================================================
-// قائمة التنقل الملكية (+ الذكية) — أناقة ROOZ
+// قائمة التنقل الملكية (+ الذكية) — متجر المسيمير | ALMUSAYMIR
 // هيكل هرمي: كل مجموعة رئيسية لها فروع تُفتح بزر (+).
 // ملاحظة: كل مسار هنا حقيقي وموجود في App.jsx — لا اختراع مسارات.
-// المتجر = صفحات الكتالوج للزوار (/catalog/...) وليس /dashboard (لوحة المالك).
+// /catalog/:catalogId مسار ديناميكي: أي catalogId جديد يعمل فوراً
+// ويظهر باسمه من src/components/RoyalHome/sectionsData.js.
 // ============================================================
+import { BRAND } from './brand';
 
 /** المسار الافتراضي لدخول متجر المنتجات */
-export const STORE_HOME_PATH = '/catalog/party-dresses';
+export const STORE_HOME_PATH = '/catalog/electronics';
 
 export const ROYAL_NAV = [
   { id: 'home', label: 'الرئيسية', path: '/', icon: 'home' },
-  { id: 'store', label: 'متجر أناقةROOZ', path: STORE_HOME_PATH, icon: 'store' },
-  { id: 'catalogs', label: 'الكتالوجات', path: '/branches', icon: 'grid' },
+  { id: 'store', label: `متجر ${BRAND.AR}`, path: STORE_HOME_PATH, icon: 'store' },
+  { id: 'catalogs', label: 'الأقسام', path: '/branches', icon: 'grid' },
   { id: 'haraj', label: 'الحراج', path: '/haraj', icon: 'tag' },
   { id: 'offers', label: 'العروض', path: '/advertisements', icon: 'sparkles' },
   { id: 'about', label: 'من نحن', path: '/about', icon: 'info' },
@@ -21,30 +23,30 @@ export const ROYAL_NAV = [
 export const ROYAL_DRAWER = [
   {
     id: 'store',
-    label: 'متجر أناقةROOZ',
+    label: `متجر ${BRAND.AR}`,
     icon: 'store',
     items: [
       { label: 'جميع المنتجات', path: STORE_HOME_PATH },
-      { label: 'الكتالوجات', path: '/branches' },
+      { label: 'كل الأقسام', path: '/branches' },
       { label: 'العروض', path: '/advertisements' },
     ],
   },
   {
     id: 'sections',
-    label: 'أقسام متجر أناقة',
+    label: 'أقسام المتجر',
     icon: 'grid',
     items: [
-      { label: 'فساتين حفلات أنيقة وفخمة', path: '/catalog/party-dresses' },
-      { label: 'فساتين أعراس', path: '/catalog/wedding-dresses' },
-      { label: 'فساتين بنات صغار', path: '/catalog/girls-dresses' },
-      { label: 'العبايات بأنواعها', path: '/catalog/abayas' },
-      { label: 'الشنط والحقائب', path: '/catalog/bags' },
-      { label: 'الأحذية', path: '/catalog/shoes' },
-      { label: 'فساتين فاخرة مستعملة', path: '/catalog/used-dresses' },
-      { label: 'العطور والبخور', path: '/catalog/perfumes' },
-      { label: 'المجوهرات والإكسسوارات', path: '/catalog/jewelry' },
-      { label: 'أمهاتنا – الجيل الذهبي', path: '/catalog/golden-mothers' },
-      { label: 'الأسر المنتجة', path: '/catalog/home-products' },
+      { label: 'إلكترونيات', path: '/catalog/electronics' },
+      { label: 'جوالات وإكسسوارات', path: '/catalog/mobiles' },
+      { label: 'أجهزة منزلية', path: '/catalog/home-appliances' },
+      { label: 'أزياء وموضة', path: '/catalog/fashion' },
+      { label: 'أطفال', path: '/catalog/kids' },
+      { label: 'جمال وعناية', path: '/catalog/beauty' },
+      { label: 'رياضة', path: '/catalog/sports' },
+      { label: 'سيارات وإكسسوارات', path: '/catalog/cars' },
+      { label: 'مستلزمات منزلية', path: '/catalog/home-supplies' },
+      { label: 'خدمات', path: '/catalog/services' },
+      { label: 'متنوعات', path: '/catalog/others' },
     ],
   },
   {
@@ -55,7 +57,7 @@ export const ROYAL_DRAWER = [
       { label: 'الحراج الرئيسي', path: '/haraj' },
       { label: 'كل الإعلانات', path: '/advertisements' },
       { label: 'أضف إعلانك', path: '/haraj/post' },
-      { label: 'الفستان المطلوب', path: '/wanted-dress' },
+      { label: 'الطلبات الخاصة', path: '/wanted-dress' },
     ],
   },
   {

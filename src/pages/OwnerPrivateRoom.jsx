@@ -861,7 +861,7 @@ const OwnerPrivateRoom = () => {
         <div className="text-center">
           <div className="animate-spin w-14 h-14 border-4 border-[var(--rz-primary)]/30 border-t-[var(--rz-primary)] rounded-full mx-auto mb-4" />
           <p className="text-[var(--rz-ink)] font-bold">
-            جاري تحميل غرفة صاحب موقع أناقة ROOZ...
+            جاري تحميل غرفة صاحب موقع المسيمير | ALMUSAYMIR...
           </p>
         </div>
       </div>
@@ -1330,7 +1330,7 @@ const OwnerPrivateRoom = () => {
                   className="text-[var(--rz-primary)] flex-shrink-0"
                   size={24}
                 />
-                غرفة صاحب موقع أناقة ROOZ
+                غرفة صاحب موقع المسيمير | ALMUSAYMIR
               </h1>
 
               <p className="text-xs md:text-sm royal-muted font-medium">

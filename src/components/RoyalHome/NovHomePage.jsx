@@ -1,8 +1,9 @@
 // src/components/RoyalHome/NovHomePage.jsx
-// ROOZ NOVA — الصفحة الرئيسية (نسخة مرتبة واحترافية)
+// متجر المسيمير | ALMUSAYMIR — الصفحة الرئيسية (نسخة مرتبة واحترافية)
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { STORE_HOME_PATH } from '../../data/royalMenu';
+import { BRAND } from '../../data/brand';
 import {
   Crown,
   Gem,
@@ -27,7 +28,7 @@ import CommentsSection from './CommentsSection';
 import { MARQUEE_BANNERS, MARQUEE_BANNERS_2 } from './sectionsData';
 import '../../styles/NovHome.css';
 
-const LOGO_SRC = '/assets/logo.png';
+const LOGO_SRC = BRAND.LOGO;
 
 const FAQ_ITEMS = [
   { q: 'كيف أتتبع طلبي؟', a: 'بعد تسجيل الدخول، افتح «ملفي الشخصي» ثم «طلباتي» لعرض حالة كل طلب ومراحل الشحن.' },
@@ -71,7 +72,7 @@ const NovHomePage = () => {
         <MarqueeBanner
           banners={MARQUEE_BANNERS_2}
           editableKeys={['marquee4', 'marquee5', 'marquee6']}
-          label="عروض ROOZ"
+          label={`عروض ${BRAND.AR}`}
         />
       </div>
 
@@ -82,14 +83,14 @@ const NovHomePage = () => {
             <img
               fetchPriority="high"
               src={LOGO_SRC}
-              alt="شعار أناقة ROOZ"
+              alt={`شعار ${BRAND.FULL}`}
               className="nov-hero-logo nov-hero-logo--lg"
             />
             <div>
-              <h1 className="nov-hero-title">أناقة تليق بكم</h1>
+              <h1 className="nov-hero-title">المسيمير | ALMUSAYMIR</h1>
               <p className="nov-hero-sub">
-                فساتين وعبايات وإكسسوارات فاخرة في المملكة العربية السعودية —
-                فخامة، ثقة، وتفاصيل تُعتنى بها.
+                متجرك الشامل لكل ما تحتاجه — إلكترونيات، جوالات، أجهزة منزلية،
+                أزياء، أطفال، جمال وعناية، رياضة، سيارات وخدمات. جودة وثقة وأسعار منافسة.
               </p>
               <div className="nov-hero-cta nov-hero-cta--side">
                 <button
@@ -111,7 +112,7 @@ const NovHomePage = () => {
         </div>
 
         {/* ===== نقاط الثقة — صفين × اثنين، خلفية ذهبية فاتحة ===== */}
-        <section className="rz-trust rz-trust--gold" aria-label="لماذا أناقة ROOZ">
+        <section className="rz-trust rz-trust--gold" aria-label={`لماذا ${BRAND.AR}`}>
           <button type="button" className="rz-trust-item" onClick={() => navigate('/faq')}>
             <span className="rz-trust-ico"><Truck size={15} /></span>
             <div>
@@ -183,13 +184,13 @@ const NovHomePage = () => {
         <footer className="rz-footer rz-footer--compact rz-footer--home-tight" style={{ borderRadius: 16 }}>
           <div className="rz-footer-inner">
             <div className="rz-footer-top rz-footer-top--center">
-              <img src={LOGO_SRC} alt="شعار أناقة ROOZ" className="rz-footer-logo" loading="lazy" />
-              <p className="rz-footer-tag">ROOZ — أناقة تفوق الخيال</p>
+              <img src={LOGO_SRC} alt={`شعار ${BRAND.FULL}`} className="rz-footer-logo" loading="lazy" />
+              <p className="rz-footer-tag">{BRAND.FULL} — متجرك الشامل</p>
             </div>
 
             <div className="rz-footer-cols">
               <div className="rz-footer-col">
-                <h4>متجر أناقة ROOZ</h4>
+                <h4>متجر {BRAND.AR}</h4>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate(STORE_HOME_PATH); }}>جميع المنتجات</a>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>الكتالوجات</a>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/advertisements'); }}>العروض</a>
@@ -198,7 +199,7 @@ const NovHomePage = () => {
                 <h4>الحراج</h4>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/haraj'); }}>الحراج الرئيسي</a>
                 <a href="/" onClick={(e) => { e.preventDefault(); navigate('/haraj/post'); }}>أضف إعلانك</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/wanted-dress'); }}>الفستان المطلوب</a>
+                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/wanted-dress'); }}>الطلبات الخاصة</a>
               </div>
               <div className="rz-footer-col">
                 <h4>الحساب</h4>
@@ -215,7 +216,7 @@ const NovHomePage = () => {
             </div>
 
             <div className="rz-footer-bottom rz-footer-bottom--center">
-              جميع الحقوق محفوظة © 2026 أناقة ROOZ
+              جميع الحقوق محفوظة © 2026 {BRAND.FULL}
             </div>
           </div>
         </footer>

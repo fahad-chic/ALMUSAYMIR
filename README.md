@@ -1,4 +1,4 @@
-# أناقة ROOZ — NOVA
+# المسيمير | ALMUSAYMIR
 
 تصميم **Obsidian × Copper** مع الربط الكامل لـ Firebase و Cloudflare Functions.
 

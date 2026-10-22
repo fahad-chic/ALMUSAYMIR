@@ -105,7 +105,7 @@ const CatalogPage = () => {
   const location = useLocation();
   const { user, userRole } = useContext(AuthContext);
 
-  // فلتر المقاس القادم من القائمة الذكية (مثال: فساتين أعراس جديدة -> مقاس M)
+  // فلتر المقاس القادم من القائمة الذكية (مثال: قسم معيّن -> مقاس M)
   const activeSize = location.state?.size || null;
   const activeSubName = location.state?.subName || null;
 
@@ -1210,7 +1210,7 @@ const AddProductModal = ({
               }
               required
               style={inputStyle}
-              placeholder="مثال: فستان سهرة فاخر"
+              placeholder="ابحث باسم المنتج أو القسم"
             />
           </div>
 

@@ -1,6 +1,6 @@
 // src/components/RoyalHeader.jsx
 // ============================================================
-// الترويسة الملكية — أناقة ROOZ (الطبقتان + الدرج الذكي بزر +)
+// الترويسة الملكية — متجر المسيمير | ALMUSAYMIR (الطبقتان + الدرج الذكي بزر +)
 // واجهة فقط: تستقبل الحالة والدوال جاهزة من Navigation ولا تلمس أي منطق.
 // ============================================================
 import { useState, useEffect, useCallback } from 'react';
@@ -10,6 +10,7 @@ import {
   LayoutGrid, Tag, Sparkles, Info, Crown, LogOut, Bot,
 } from 'lucide-react';
 import { ROYAL_NAV, ROYAL_DRAWER, STORE_HOME_PATH } from '../data/royalMenu';
+import { BRAND } from '../data/brand';
 import '../styles/rooz-royal.css';
 
 const NAV_ICONS = {
@@ -90,8 +91,8 @@ const RoyalHeader = ({
       {/* ---------- الطبقة الأولى ---------- */}
       <div className="rz-topbar">
         <div className="rz-topbar-inner">
-          <Link to="/" className="rz-logo" aria-label="أناقة ROOZ — الصفحة الرئيسية">
-            <img src="/assets/logo.png" alt="أناقة ROOZ" />
+          <Link to="/" className="rz-logo" aria-label={`${BRAND.FULL} — الصفحة الرئيسية`}>
+            <img src={BRAND.LOGO_WIDE} alt={BRAND.FULL} className="rz-logo-img" />
           </Link>
 
           <form className="rz-search" onSubmit={submitSearch} role="search">
@@ -100,7 +101,7 @@ const RoyalHeader = ({
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="ماذا تبحثين عنه؟"
+              placeholder="ابحث عن أي منتج أو قسم…"
               aria-label="البحث في الموقع"
             />
           </form>
@@ -166,7 +167,7 @@ const RoyalHeader = ({
           <button type="button" className="rz-drawer-overlay" aria-label="إغلاق القائمة" tabIndex={-1} onClick={closeDrawer} />
           <aside className="rz-drawer" role="dialog" aria-modal="true" aria-label="قائمة التنقل الكاملة">
             <div className="rz-drawer-head">
-              <span className="rz-drawer-title"><Crown size={18} color="var(--rz-gold)" /> أناقة ROOZ</span>
+              <span className="rz-drawer-title"><Crown size={18} color="var(--rz-gold)" /> {BRAND.FULL}</span>
               <button type="button" className="rz-drawer-close" onClick={closeDrawer} aria-label="إغلاق">
                 <X size={18} />
               </button>

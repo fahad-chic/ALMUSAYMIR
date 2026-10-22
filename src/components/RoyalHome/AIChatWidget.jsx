@@ -9,12 +9,12 @@ import {
   RotateCcw,
 } from 'lucide-react';
 
-const ASSISTANT_NAME = 'المساعد الذكي';
+const ASSISTANT_NAME = 'فهد';
 
 const INITIAL_MESSAGE = {
   id: 'welcome',
   sender: 'bot',
-  text: 'أهلاً وسهلاً فيك نورت موقع أناقة ROOZ 💐\nمعك علياء تفضل كيف أقدر أساعدك؟',
+  text: 'أهلاً وسهلاً فيك نورت متجر المسيمير | ALMUSAYMIR 💐\nمعك فهد تفضل كيف أقدر أساعدك؟',
 };
 
 const SMART_RESPONSES = {

@@ -6,7 +6,7 @@ import { commissionAmount, commissionRateFor } from '../../utils/dressMeta';
 
 const STEPS = [
   { key: 'paid', label: 'تحويل المبلغ للموقع', icon: Wallet },
-  { key: 'shipped', label: 'شحن البائع للفستان', icon: Truck },
+  { key: 'shipped', label: 'شحن البائع للمنتج', icon: Truck },
   { key: 'received', label: 'استلام وتأكيد المشترية', icon: CircleCheck },
   { key: 'released', label: 'تحويل المبلغ للبائع', icon: ShieldCheck },
 ];
@@ -30,12 +30,12 @@ export default function EscrowPanel({
     status === 'none'
       ? { key: 'pay', label: 'الدفع الآمن عبر الموقع' }
       : status === 'shipped'
-      ? { key: 'receive', label: 'تأكيد استلام الفستان' }
+      ? { key: 'receive', label: 'تأكيد استلام المنتج' }
       : null;
 
   const sellerAction =
     status === 'paid'
-      ? { key: 'ship', label: 'تأكيد شحن الفستان' }
+      ? { key: 'ship', label: 'تأكيد شحن المنتج' }
       : status === 'received'
       ? { key: 'release', label: 'تحرير المبلغ بعد انتهاء مهلة المراجعة (24 ساعة)' }
       : null;
@@ -128,7 +128,7 @@ export default function EscrowPanel({
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span>قيمة الفستان</span>
+          <span>قيمة المنتج</span>
           <span>{price.toLocaleString()} ريال</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--rz-primary)' }}>

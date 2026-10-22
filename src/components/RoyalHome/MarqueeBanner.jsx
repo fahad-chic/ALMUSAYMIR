@@ -11,7 +11,7 @@ const MarqueeBanner = ({
   banners = [],
   sticky = false,
   editableKeys = [],
-  label = "جديد ROOZ",
+  label = "جديد المسيمير",
   barBg = null,
 }) => {
   const siteTexts = useSiteTexts((s) => s.texts);

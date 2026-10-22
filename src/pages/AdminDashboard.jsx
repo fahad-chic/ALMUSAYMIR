@@ -326,7 +326,7 @@ const AdminDashboard = () => {
                 <Store size={20} />
               </div>
               <div className="min-w-0">
-                <p className="font-bold text-[var(--rz-ink)]">أناقة ROOZ</p>
+                <p className="font-bold text-[var(--rz-ink)]">المسيمير | ALMUSAYMIR</p>
                 <p className="text-xs text-[var(--rz-muted)]">لوحة التحكم</p>
               </div>
             </div>
@@ -1152,7 +1152,7 @@ const SecurityManager = () => {
 /* ===================== Settings Manager ===================== */
 const SettingsManager = () => {
   const [store, setStore] = useState({
-    storeName: 'أناقة ROOZ',
+    storeName: 'المسيمير | ALMUSAYMIR',
     storeDescription: '',
     phone: '',
     email: '',

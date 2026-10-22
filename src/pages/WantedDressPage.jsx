@@ -1,5 +1,5 @@
 // src/pages/WantedDressPage.jsx
-// ميزة "طلب فستان" — تنشر المشترية مواصفاتها ليرسل النظام تنبيهاً للمعلنين.
+// ميزة "الطلبات الخاصة" — ينشر المشتري مواصفاته ليرسل النظام تنبيهاً للمعلنين.
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Send, Loader2, CircleCheck, Sparkles } from 'lucide-react';
@@ -92,7 +92,7 @@ export default function WantedDressPage() {
 
   const validate = () => {
     const next = {};
-    if (!form.title.trim()) next.title = 'اكتبي وصفاً موجزاً للفستان المطلوب';
+    if (!form.title.trim()) next.title = 'اكتب وصفاً موجزاً للطلب';
     if (!form.color) next.color = 'اختاري اللون';
     if (!(Number(form.budget) > 0)) next.budget = 'أدخلي ميزانية تقديرية';
     if (!isValidSaudiPhone(form.userPhone)) {
@@ -122,7 +122,7 @@ export default function WantedDressPage() {
         setErrors({ userPhone: 'أدخلي رقم جوال صحيح (مثال: 05xxxxxxxx)' });
         return;
       }
-      // الوثيقة العامة: بيانات الفستان + ownerUid (للربط) فقط، بلا أي بيانات شخصية.
+      // الوثيقة العامة: بيانات الطلب + ownerUid (للربط) فقط، بلا أي بيانات شخصية.
       const publicPayload = {
         title: form.title.trim(),
         color: form.color,
@@ -169,8 +169,8 @@ export default function WantedDressPage() {
         return;
       }
       notifyOwner(
-        'طلب فستان جديد',
-        `${publicPayload.userName} تطلب فستاناً: ${publicPayload.title} — اللون ${publicPayload.color} — الميزانية ${publicPayload.budget.toLocaleString()} ريال`
+        'طلب خاص جديد',
+        `${publicPayload.userName} يطلب: ${publicPayload.title} — اللون ${publicPayload.color} — الميزانية ${publicPayload.budget.toLocaleString()} ريال`
       );
       setDone(true);
       setForm(emptyForm);
@@ -209,10 +209,10 @@ export default function WantedDressPage() {
             <Heart size={30} color="var(--rz-ivory)" />
           </div>
           <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(1.3rem, 4vw, 1.8rem)', fontWeight: 900, color: 'var(--rz-primary)' }}>
-            طلب فستان
+            الطلبات الخاصة
           </h1>
           <p style={{ margin: 0, color: 'var(--rz-muted)', fontWeight: 600 }}>
-            انشري مواصفات الفستان الذي تبحثين عنه، وسيصل تنبيه للمعلنين الذين يملكون فساتين مطابقة.
+            انشر مواصفات ما تبحث عنه، وسيصل تنبيه للمعلنين الذين يملكون منتجات مطابقة.
           </p>
         </header>
 
@@ -246,11 +246,11 @@ export default function WantedDressPage() {
             gap: 14,
           }}
         >
-          <Field label="وصف الفستان المطلوب *" error={errors.title}>
+          <Field label="وصف الطلب المطلوب *" error={errors.title}>
             <input
               value={form.title}
               onChange={(e) => setField('title', e.target.value)}
-              placeholder="مثال: فستان زفاف أبيض مطرز بالدانتيل"
+              placeholder="مثال: جوال آيفون 15 برو بحالة ممتازة"
               style={inputStyle(!!errors.title)}
             />
           </Field>

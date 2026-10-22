@@ -110,10 +110,10 @@ export default function AdDetailsPage() {
   useEffect(() => {
     if (!ad) return;
     const price = Number(ad.price) || 0;
-    const title = `${ad.title || 'إعلان حراج'} — ${price} ريال | حراج ROOZ`;
+    const title = `${ad.title || 'إعلان حراج'} — ${price} ريال | حراج المسيمير`;
     const description =
       `${ad.description || ''}`.slice(0, 155) ||
-      `إعلان في حراج ROOZ — ${ad.category || 'أصناف متعددة'}${ad.city ? ' في ' + ad.city : ''}`;
+      `إعلان في حراج المسيمير — ${ad.category || 'أصناف متعددة'}${ad.city ? ' في ' + ad.city : ''}`;
     const url = 'https://rooz-store.pages.dev/ad/' + id;
     document.title = title;
     const setMeta = (selector, value) => {
@@ -358,7 +358,7 @@ export default function AdDetailsPage() {
 
   const handleShare = () => {
     const adUrl = `${window.location.origin}/haraj/ad/${ad.id}`;
-    const text = `${ad.title} — ${Number(ad.price || 0).toLocaleString()} ريال | حراج أناقة ROOZ\n${adUrl}`;
+    const text = `${ad.title} — ${Number(ad.price || 0).toLocaleString()} ريال | حراج المسيمير | ALMUSAYMIR\n${adUrl}`;
     if (navigator.share) {
       navigator.share({ title: ad.title, text, url: adUrl }).catch(() => {});
     } else {
@@ -536,7 +536,7 @@ export default function AdDetailsPage() {
           )}
         </div>
 
-        {/* الفستان في الحركة — معاينة إطارات الفيديو القصير */}
+        {/* المنتج في الحركة — معاينة إطارات الفيديو القصير */}
         {Array.isArray(ad.motionFrames) && ad.motionFrames.length > 0 && (
           <div
             style={{
@@ -549,7 +549,7 @@ export default function AdDetailsPage() {
             }}
           >
             <h3 style={{ margin: '0 0 10px', fontSize: 16, fontWeight: 800, textAlign: 'center' }}>
-              الفستان في الحركة
+              المنتج في الحركة
             </h3>
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
               {ad.motionFrames.map((frame, i) => (

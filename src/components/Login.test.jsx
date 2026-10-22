@@ -98,7 +98,7 @@ describe('بطاقتا اختيار الدور', () => {
     renderLogin();
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'دخول صاحب موقع “أناقة ROOZ”' })
+      screen.getByRole('button', { name: 'دخول صاحب موقع “المسيمير | ALMUSAYMIR”' })
     );
 
     expect(screen.getByText('دخول صاحب الموقع')).toBeTruthy();

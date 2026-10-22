@@ -71,8 +71,8 @@ export const isFirebaseConfigured = () => {
 
 // Utility: Get store config from env
 export const getStoreConfig = () => ({
-  name: import.meta.env.VITE_STORE_NAME || 'أناقة ROOZ',
-  description: import.meta.env.VITE_STORE_DESCRIPTION || 'متجر أناقة',
+  name: import.meta.env.VITE_STORE_NAME || 'المسيمير | ALMUSAYMIR',
+  description: import.meta.env.VITE_STORE_DESCRIPTION || 'متجر شامل',
   phone1: import.meta.env.VITE_PHONE_1,
   phone2: import.meta.env.VITE_PHONE_2,
   whatsapp1: import.meta.env.VITE_CONTACT_WHATSAPP_1,
@@ -98,7 +98,7 @@ export const getStoreConfig = () => ({
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean),
   aliyaConfig: {
-    name: import.meta.env.VITE_ALIAA_NAME || 'علياء',
+    name: import.meta.env.VITE_ALIAA_NAME || 'فهد',
     greeting: import.meta.env.VITE_ALIAA_GREETING || 'ياهلا!',
     personality: import.meta.env.VITE_ALIAA_PERSONALITY,
     owner: import.meta.env.VITE_ALIAA_OWNER,

@@ -199,7 +199,7 @@ export const AboutPage = () => {
 
       {/* هيدر مضغوط */}
       <div className="about-header">
-        <h1 className="about-title">منصة أناقة ROOZ</h1>
+        <h1 className="about-title">منصة المسيمير | ALMUSAYMIR</h1>
         <p className="about-subtitle">
           منصة سعودية فاخرة تجمع بين التجارة الإلكترونية والحراج والخدمات الرقمية، بهوية ملكية وإشراف نخبة من المختصين لتقديم تجربة راقية وآمنة.
         </p>
@@ -209,7 +209,7 @@ export const AboutPage = () => {
       <h2 className="section-title"><Star size={16} /> رؤيتنا</h2>
       <div className="about-card">
         <div className="about-card-content">
-          أن نكون المنصة السعودية الأولى في مجال الأناقة والتجارة الإلكترونية والحراج، مع تجربة فاخرة موثوقة وسهلة لكل عميل في المملكة.
+          أن نكون المنصة السعودية الأولى في التجارة الإلكترونية والحراج، بتجربة موثوقة وسهلة وأسعار منافسة لكل عميل في المملكة.
         </div>
       </div>
 
@@ -234,11 +234,11 @@ export const AboutPage = () => {
       </div>
 
       {/* لماذا تختارنا */}
-      <h2 className="section-title"><TrendingUp size={16} /> لماذا تختار أناقة ROOZ؟</h2>
+      <h2 className="section-title"><TrendingUp size={16} /> لماذا تختار المسيمير | ALMUSAYMIR؟</h2>
       <div className="about-card">
         <div className="about-card-content">
           <ul>
-            <li>منصة سعودية بهوية ملكية</li>
+            <li>متجر شامل يغطي كل احتياجاتك</li>
             <li>دعم فني مباشر عبر الواتساب</li>
             <li>خدمات رقمية احترافية</li>
             <li>حراج متكامل ومنظم</li>
@@ -381,7 +381,7 @@ export const AboutPage = () => {
       <div className="about-card">
         <div className="about-card-content">
           <ul>
-            <li>إطلاق تطبيق ROOZ</li>
+            <li>إطلاق تطبيق المسيمير</li>
             <li>توسيع الخدمات الرقمية</li>
             <li>إضافة نظام وسطاء متكامل</li>
             <li>افتتاح فروع جديدة</li>
@@ -440,7 +440,7 @@ export const AboutPage = () => {
       {/* الفوتر */}
       <div className="footer">
         <strong>جميع الحقوق محفوظة © {new Date().getFullYear()}</strong>
-        <p className="owner-name">صاحب موقع أناقة ROOZ: الأستاذ / فهد بن حمود بن فهد الشمري</p>
+        <p className="owner-name">صاحب موقع المسيمير | ALMUSAYMIR: الأستاذ / فهد بن حمود بن فهد الشمري</p>
         <p style={{ margin: 0 }}>المقر: حفر الباطن – طريق الملك فهد</p>
       </div>
     </div>

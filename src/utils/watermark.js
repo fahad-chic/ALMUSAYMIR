@@ -1,6 +1,6 @@
 // src/utils/watermark.js
 // علامة مائية شفافة (أيقونة حرف R والتاج) تُطبَّق تلقائياً على صور إعلانات
-// الفساتين لحمايتها — تُرسم على Canvas قبل حفظ الصورة.
+// الإعلانات لحمايتها — تُرسم على Canvas قبل حفظ الصورة.
 
 export const WATERMARK_OPACITY = 0.15;
 export const WATERMARK_SRC = '/assets/emblem.png';

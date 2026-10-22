@@ -4,7 +4,7 @@ import { buildAdOwnerNotice } from './visitorNotify';
 describe('buildAdOwnerNotice', () => {
   it('يُرسل عنوان إشعار واضحاً في كل الحالات', () => {
     const { title } = buildAdOwnerNotice({ title: 'ساعة رولكس' });
-    expect(title).toBe('إعلان جديد في حراج ROOZ');
+    expect(title).toBe('إعلان جديد في حراج المسيمير');
   });
 
   it('يتضمن اسم الناشر وهاتفه ومدينته وعنوان الإعلان', () => {

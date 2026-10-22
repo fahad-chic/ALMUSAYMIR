@@ -9,14 +9,14 @@ export default function AIChat() {
     {
       id: crypto.randomUUID(),
       role: "assistant",
-      text: "أهلاً وسهلاً بك. نورت موقع أناقة ROOZ. معك علياء خدمة العملاء: كيف أقدر أساعدك؟"
+      text: "أهلاً وسهلاً بك. نورت متجر المسيمير | ALMUSAYMIR. معك فهد خدمة العملاء: كيف أقدر أساعدك؟"
     }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const mountedRef = useRef(true);
 
-  const AI_NAME = import.meta.env.VITE_AI_NAME || "علياء";
+  const AI_NAME = import.meta.env.VITE_AI_NAME || "فهد";
   const chatRef = useRef(null);
 
   // متابعة حالة المكوّن لمنع تحديث الحالة بعد إزالته
@@ -75,8 +75,8 @@ export default function AIChat() {
       return "السماء زرقاء بسبب تشتت الضوء، والبحر يبدو أزرق لأنه يعكس لون السماء ويمتص الألوان الأخرى.";
     }
 
-    if (msg.includes("من أنت") || msg.includes("من انتي") || msg.includes("عرفيني") || msg.includes("من هي علياء")) {
-      return `أنا ${AI_NAME}، مساعدتك الذكية في أناقة ROOZ. أقدر أساعدك في الأزياء والعبايات والفساتين والمقاسات والأسعار، وكمان أجاوب على أي سؤال عام تحبينه.`;
+    if (msg.includes("من أنت") || msg.includes("من انتي") || msg.includes("عرفيني") || msg.includes("من هو فهد")) {
+      return `أنا ${AI_NAME}، مساعدك الذكي في متجر المسيمير | ALMUSAYMIR. أقدر أساعدك في كل الأقسام: إلكترونيات، جوالات، أجهزة منزلية، أزياء، أطفال، جمال وعناية، رياضة، سيارات، خدمات وغيرها — وأجاوب على أي سؤال عام تحبه.`;
     }
 
     if (msg.includes("مرحبا") || msg.includes("هلا") || msg.includes("السلام") || msg.includes("صباح") || msg.includes("مساء")) {
@@ -84,7 +84,7 @@ export default function AIChat() {
     }
 
     if (msg.includes("شكرا") || msg.includes("مشكورة") || msg.includes("تسلمين")) {
-      return "العفو يا غالية، أي وقت تحتاجينني أنا موجودة.";
+      return "العفو يا طيب، أي وقت تحتاجني أنا موجود.";
     }
 
     if (msg.includes("كم الساعة") || msg.includes("الوقت الآن") || msg.includes("الوقت الان")) {
@@ -97,17 +97,17 @@ export default function AIChat() {
       return `تاريخ اليوم: ${now.toLocaleDateString("ar-SA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`;
     }
 
-    // ===== أسئلة الموقع والأزياء =====
+    // ===== أسئلة الموقع والأقسام =====
     if (msg.includes("افضل") || msg.includes("ترشيح") || msg.includes("اختيار")) {
       return "أقدر أرشح لك أفضل الخيارات حسب المناسبة والميزانية واللون. أعطيني 3 معلومات فقط وأجهز لك قائمة فاخرة";
     }
 
-    if (msg.includes("فستان") || msg.includes("عباية") || msg.includes("سهرة")) {
-      return "عندنا تشكيلة فخمة  ميزانيتك كم؟ واي لون تفضلين؟ أرشح لك 3 خيارات فوراً.";
+    if (msg.includes("جوال") || msg.includes("إلكترون") || msg.includes("جهاز") || msg.includes("سيارة")) {
+      return "عندنا تشكيلة واسعة في كل الأقسام. ميزانيتك كم؟ ووش تبحث عنه بالضبط؟ أرشح لك أفضل الخيارات فوراً.";
     }
 
     if (msg.includes("سعر") || msg.includes("كم سعر") || msg.includes("بكم")) {
-      return "الأسعار تبدأ من 299 ريال، والشحن مجاني للطلبات فوق 500 ريال";
+      return "الأسعار تختلف حسب القسم والمنتج، والشحن مجاني للطلبات فوق حد معيّن. أعطني تفاصيل المنتج وأحدد لك السعر.";
     }
 
     if (msg.includes("مقاس") || msg.includes("قياس")) {
@@ -131,11 +131,11 @@ export default function AIChat() {
     }
 
     if (msg.includes("عروض") || msg.includes("خصم") || msg.includes("تخفيض")) {
-      return "عندنا عروض خاصة على فساتين السهرة والعبايات. تبين أرسل لك أحدث الخصومات؟";
+      return "عندنا عروض وخصومات متجددة على مختلف الأقسام. تبيني أرسل لك أحدث العروض؟";
     }
 
-    if (msg.includes("موقع") || msg.includes("حراج") || msg.includes("أناقة") || msg.includes("رووز") || msg.includes("rooz")) {
-      return "أناقة ROOZ منصة راقية للإعلانات المميزة في السعودية. تقدرين تتصفحين الأقسام من القائمة، أو تقوليلي وش تبحثين عنه بالضبط وأرشدك.";
+    if (msg.includes("موقع") || msg.includes("حراج") || msg.includes("مسيمير") || msg.includes("almusaymir") || msg.includes("متجر")) {
+      return "المسيمير | ALMUSAYMIR متجر شامل ومنصة إعلانات موثوقة في السعودية. تقدر تتصفح الأقسام من القائمة، أو تقول لي وش تبحث عنه بالضبط وأرشدك.";
     }
 
     // ===== رد عام ذكي لأي سؤال آخر =====

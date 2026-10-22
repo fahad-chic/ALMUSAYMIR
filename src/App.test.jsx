@@ -30,7 +30,7 @@ describe('App smoke tests', () => {
       </MemoryRouter>
     );
 
-    const brand = await screen.findAllByText(/أناقة ROOZ/i);
+    const brand = await screen.findAllByText(/المسيمير | ALMUSAYMIR/i);
     expect(brand.length).toBeGreaterThan(0);
   });
 

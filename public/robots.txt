@@ -1,4 +1,5 @@
-# أناقة ROOZ - robots.txt# https://rooz-store.pages.dev
+# المسيمير | ALMUSAYMIR - robots.txt
+# https://rooz-store.pages.dev
 
 User-agent: *
 Allow: /

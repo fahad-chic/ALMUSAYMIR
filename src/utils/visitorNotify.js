@@ -23,7 +23,7 @@ export async function notifyOwner(title, body) {
 // يبني نص إشعار غرفة المالك من بيانات إعلان حراج جديد — دالة نقيّة
 // (نقيّة) حتى تُختبر وحدها وتضمن وصول اسم الناشر وهاتفه ومدينته.
 export function buildAdOwnerNotice(ad) {
-  const title = 'إعلان جديد في حراج ROOZ';
+  const title = 'إعلان جديد في حراج المسيمير';
   const body = [
     `الإعلان: ${ad?.title || ''}`,
     `الناشر: ${ad?.userName || 'غير محدد'}`,

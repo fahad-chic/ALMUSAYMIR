@@ -1,5 +1,5 @@
 /* src/styles/NovHome.css
-   ROOZ NOVA — تخطيط جديد كلياً للصفحة الرئيسية
+   ALMUSAYMIR — تخطيط الصفحة الرئيسية
    بنية مختلفة: هيرو عريض + شريط مزايا + شبكة أقسام تفاعلية */
 
 .nov-home {
@@ -53,20 +53,6 @@
   box-shadow: 0 8px 20px rgba(var(--rz-ink-rgb), 0.28);
 }
 
-.nov-hero-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  padding: 4px 12px;
-  border-radius: 999px;
-  color: var(--rz-white);
-  background: rgba(var(--rz-ink-rgb), 0.2);
-  border: 1px solid rgba(var(--rz-ink-rgb), 0.5);
-}
-
 .nov-hero-title {
   margin: 0.5rem 0 0.3rem;
   font-size: clamp(1.5rem, 4.4vw, 2.35rem);
@@ -111,289 +97,6 @@
   transform: scale(0.97);
 }
 
-.nov-btn-primary {
-  color: var(--rz-white);
-  background: linear-gradient(135deg, var(--rz-primary) 0%, var(--rz-primary) 55%, var(--rz-ink) 130%);
-  box-shadow: 0 12px 26px -8px rgba(var(--rz-primary-rgb), 0.7);
-}
-
-.nov-btn-ghost {
-  color: var(--rz-white);
-  background: rgba(var(--rz-white-rgb), 0.1);
-  border: 1.5px solid rgba(var(--rz-white-rgb), 0.28);
-}
-
-/* ===== شريط المزايا ===== */
-.nov-features {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.45rem;
-  margin-bottom: 0.65rem;
-}
-
-.nov-feature {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.6rem 0.55rem;
-  border-radius: 14px;
-  background: var(--rz-white);
-  border: 1px solid rgba(var(--rz-primary-rgb), 0.18);
-  box-shadow: 0 8px 18px -14px rgba(var(--rz-ink-rgb), 0.45);
-  text-align: right;
-}
-
-.nov-feature-ico {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 9px;
-  color: var(--rz-white);
-  background: linear-gradient(135deg, var(--rz-primary), var(--rz-ink));
-}
-
-.nov-feature h4 {
-  margin: 0;
-  font-size: 0.74rem;
-  font-weight: 900;
-  color: var(--rz-ink);
-}
-
-.nov-feature p {
-  margin: 0;
-  font-size: 0.62rem;
-  color: var(--rz-muted);
-  line-height: 1.4;
-}
-
-.nov-feature input {
-  width: 100%;
-  margin-top: 0.15rem;
-  padding: 0.4rem 0.55rem;
-  border-radius: 10px;
-  border: 1px solid rgba(var(--rz-primary-rgb), 0.3);
-  background: var(--rz-ivory);
-  font-family: inherit;
-  font-size: 0.68rem;
-  text-align: center;
-}
-
-.nov-feature .nov-mini-btn {
-  margin-top: 0.3rem;
-  width: 100%;
-  justify-content: center;
-  min-height: 34px;
-  padding: 0.35rem;
-  font-size: 0.72rem;
-  border-radius: 10px;
-  border: none;
-  color: var(--rz-white);
-  font-family: inherit;
-  font-weight: 800;
-  cursor: pointer;
-  background: linear-gradient(135deg, var(--rz-primary), var(--rz-primary));
-}
-
-.nov-feature-status {
-  font-size: 0.62rem;
-  font-weight: 700;
-}
-
-/* ===== عنوان قسم ===== */
-.nov-sec-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin: 0.25rem 0 0.45rem;
-}
-
-.nov-sec-head h2 {
-  margin: 0;
-  font-size: 0.92rem;
-  font-weight: 900;
-  color: var(--rz-ink);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.nov-sec-head h2::before {
-  content: "";
-  width: 6px;
-  height: 16px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, var(--rz-primary), var(--rz-ink));
-}
-
-.nov-sec-count {
-  font-size: 0.62rem;
-  font-weight: 800;
-  color: var(--rz-primary);
-  background: rgba(var(--rz-primary-rgb), 0.1);
-  padding: 3px 8px;
-  border-radius: 999px;
-}
-
-/* ===== شبكة الأقسام ===== */
-.nov-tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 0.4rem;
-}
-
-.nov-tile {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.55rem;
-  border-radius: 12px;
-  background: var(--rz-white);
-  border: 1px solid rgba(var(--rz-primary-rgb), 0.16);
-  box-shadow: 0 8px 20px -16px rgba(var(--rz-ink-rgb), 0.5);
-  cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-  text-align: right;
-  font-family: inherit;
-}
-
-.nov-tile:hover {
-  transform: translateY(-2px);
-  border-color: rgba(var(--rz-primary-rgb), 0.5);
-  box-shadow: 0 12px 24px -16px rgba(var(--rz-primary-rgb), 0.5);
-}
-
-.nov-tile[data-open="true"] {
-  border-color: var(--rz-primary);
-  box-shadow: 0 0 0 2px rgba(var(--rz-primary-rgb), 0.35);
-}
-
-.nov-tile-ico {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  color: var(--rz-white);
-}
-
-.nov-tile-body {
-  min-width: 0;
-  flex: 1;
-}
-
-.nov-tile-body h3 {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 900;
-  color: var(--rz-ink);
-  line-height: 1.25;
-}
-
-.nov-tile-body span {
-  font-size: 0.58rem;
-  color: var(--rz-muted);
-  font-weight: 700;
-}
-
-/* ===== لوحة الفروع الموسّعة ===== */
-.nov-branch-panel {
-  margin-top: 0.7rem;
-  padding: 0.9rem;
-  border-radius: 20px;
-  background: linear-gradient(150deg, var(--rz-white), var(--rz-ivory));
-  border: 1px solid rgba(var(--rz-primary-rgb), 0.22);
-  box-shadow: 0 18px 40px -26px rgba(var(--rz-ink-rgb), 0.7);
-}
-
-.nov-branch-panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.6rem;
-}
-
-.nov-branch-panel-head h3 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 900;
-  color: var(--rz-ink);
-}
-
-.nov-branch-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  border: none;
-  cursor: pointer;
-  color: var(--rz-primary);
-  background: rgba(var(--rz-primary-rgb), 0.1);
-}
-
-.nov-branch-chips {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.5rem;
-}
-
-.nov-branch-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-  padding: 0.55rem 0.7rem;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--rz-primary-rgb), 0.2);
-  background: var(--rz-white);
-  color: var(--rz-ink);
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.nov-branch-chip:hover {
-  background: linear-gradient(135deg, var(--rz-primary), var(--rz-ink));
-  color: var(--rz-white);
-  transform: translateY(-2px);
-}
-
-/* ===== شريط حراج ===== */
-.nov-haraj {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  margin: 0.65rem 0;
-  padding: 0.7rem 0.9rem;
-  border-radius: 14px;
-  color: var(--rz-white);
-  background: linear-gradient(120deg, var(--rz-ink) 0%, var(--rz-primary) 55%, var(--rz-primary) 120%);
-  box-shadow: 0 12px 28px -18px rgba(var(--rz-ink-rgb), 0.7);
-}
-
-.nov-haraj h3 {
-  margin: 0 0 0.1rem;
-  font-size: 0.88rem;
-  font-weight: 900;
-}
-
-.nov-haraj p {
-  margin: 0;
-  font-size: 0.68rem;
-  color: var(--rz-white);
-}
-
 @media (max-width: 640px) {
   .nov-hero {
     padding: 0.9rem 0.85rem;
@@ -410,13 +113,6 @@
   }
   .nov-hero-cta {
     justify-content: center;
-  }
-  .nov-features {
-    grid-template-columns: 1fr;
-  }
-  .nov-haraj {
-    flex-direction: column;
-    text-align: center;
   }
 }
 
@@ -707,7 +403,6 @@
     gap: 0.65rem 0.9rem !important;
   }
 }
-
 
 /* توسيط شعار الفوتر + الحقوق */
 .rz-footer--home-tight .rz-footer-top--center {

@@ -52,7 +52,7 @@ export default function SizeMatcher({ dress = {} }) {
         <Ruler size={20} color="var(--rz-primary)" /> حاسبة المقاسات الذكية
       </h3>
       <p style={{ margin: '0 0 14px', textAlign: 'center', fontSize: 12, color: 'var(--rz-muted)' }}>
-        أدخلي مقاساتك بالسنتيمتر لتعرفي نسبة ملاءمة الفستان لكِ.
+        أدخل مقاساتك بالسنتيمتر لتعرف نسبة ملاءمة المنتج لك.
       </p>
 
       <div
@@ -75,7 +75,7 @@ export default function SizeMatcher({ dress = {} }) {
               onChange={(e) =>
                 setBuyer((prev) => ({ ...prev, [field.key]: e.target.value }))
               }
-              placeholder={dress[field.key] ? `مقاس الفستان: ${dress[field.key]}` : '0'}
+              placeholder={dress[field.key] ? `مقاس المنتج: ${dress[field.key]}` : '0'}
               style={{
                 border: '1px solid rgba(var(--rz-primary-rgb), 0.22)',
                 borderRadius: 12,
