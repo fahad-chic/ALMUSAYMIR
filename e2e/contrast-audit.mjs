@@ -1,5 +1,5 @@
 /**
- * Automated WCAG 2.1 AA contrast audit for أناقة ROOZ.
+ * Automated WCAG 2.1 AA contrast audit for المسيمير | ALMUSAYMIR.
  *
  * Renders the built site in a headless browser and checks computed text /
  * background colours of real elements on the important pages:

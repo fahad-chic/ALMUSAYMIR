@@ -94,11 +94,11 @@ body::after {
 }
 
 .rz-sub-item:hover {
-  color: #e8c97a !important;
+  color: var(--rz-gold) !important;
 }
 
 .rz-group-btn:hover {
-  color: #e8c97a !important;
+  color: var(--rz-gold) !important;
 }
 
 .rz-drawer-user,
@@ -114,17 +114,17 @@ body::after {
 
 .rl-root .rl-form-card,
 .rl-root form.rl-form-card {
-  background: rgba(255, 252, 247, 0.96) !important;
-  color: #0f172a !important;
-  border: 1px solid rgba(201, 169, 98, 0.4) !important;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35) !important;
+  background: var(--rz-white) !important;
+  color: var(--rz-ink) !important;
+  border: 1px solid rgba(var(--rz-gold-rgb), 0.42) !important;
+  box-shadow: var(--rz-shadow) !important;
 }
 
 .rl-root input,
 .rl-root textarea,
 .rl-root select {
-  background: #ffffff !important;
-  color: #0f172a !important;
+  background: var(--rz-white) !important;
+  color: var(--rz-ink) !important;
 }
 
 @media (max-width: 640px) {
