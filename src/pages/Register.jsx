@@ -260,7 +260,7 @@ export const Register = () => {
         </div>
 
         <h1 style={title}>إنشاء حساب جديد</h1>
-        <p style={subtitle}>انضم إلى أناقة ROOZ</p>
+        <p style={subtitle}>انضم إلى المسيمير | ALMUSAYMIR</p>
 
         {error && (
           <div style={alertError} role="alert">

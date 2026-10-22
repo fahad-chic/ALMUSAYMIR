@@ -3,10 +3,14 @@ import react from '@vitejs/plugin-react'
 import { visualizer } from '@aklinker1/rollup-plugin-visualizer'
 import { fileURLToPath, URL } from 'node:url'
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
-    visualizer({ filename: 'dist/stats.html', open: false, gzipSize: true, brotliSize: true })
+    // تقرير حجم الحزمة يُولَّد فقط عند التحليل الصريح (npm run analyze)
+    // حتى لا يُنشر dist/stats.html بلا داعٍ مع كل بناء.
+    ...(mode === 'analyze'
+      ? [visualizer({ filename: 'dist/stats.html', open: false, gzipSize: true, brotliSize: true })]
+      : []),
   ],
   base: '/',
   // ختم وقت البناء — يُعرض أسفل صفحة الدخول ليميّز المستخدم النسخة الجديدة
@@ -48,4 +52,4 @@ export default defineConfig({
       }
     }
   }
-})
+}))

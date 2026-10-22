@@ -190,7 +190,7 @@ const OtpModal = ({ email, purpose = 'login', onVerified, onClose, loading = fal
               lineHeight: 1.7,
             }}
           >
-            عزيزي الزائر، أهلاً وسهلاً بك في موقع «أناقة ROOZ»
+            عزيزي الزائر، أهلاً وسهلاً بك في موقع «المسيمير | ALMUSAYMIR»
             <br />
             نتمنى لك تسوّقاً ممتعاً
           </p>

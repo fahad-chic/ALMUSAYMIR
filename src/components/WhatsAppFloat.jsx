@@ -1,12 +1,12 @@
 // src/components/WhatsAppFloat.jsx — زر واتساب عائم أسفل يمين الشاشة
 // رابط مباشر wa.me بدون أي خدمات خارجية. الموضع: أسفل اليمين حتى لا يتعارض
-// مع زر الخروج العائم (أسفل اليسار) ولا مع ودجت علياء (أعلى اليسار).
+// مع زر الخروج العائم (أسفل اليسار) ولا مع ودجت المساعد (أعلى اليسار).
 import { CONTACT_INFO } from '../utils/constants';
 import React, { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 
 const WHATSAPP_NUMBER = CONTACT_INFO.WHATSAPP;
-const PREFILLED_TEXT = 'السلام عليكم، أتواصل معكم من موقع أناقة ROOZ';
+const PREFILLED_TEXT = 'السلام عليكم، أتواصل معكم من متجر المسيمير | ALMUSAYMIR';
 
 const WhatsAppFloat = () => {
   const [bubbleOpen, setBubbleOpen] = useState(false);

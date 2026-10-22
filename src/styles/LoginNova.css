@@ -1,5 +1,5 @@
 /* ============================================================
-   ROOZ NOVA — LOGIN CONTOUR (نسخة مضغوطة)
+   ALMUSAYMIR — LOGIN CONTOUR (نسخة مضغوطة)
    تصغير المسافات والبطاقات دون إخفاء النص أو تشويه الصفحة
    ============================================================ */
 
@@ -252,28 +252,6 @@
   border-radius: 8px !important; padding: 7px 8px !important; font-size: 0.72rem !important;
   font-weight: 700 !important; margin-bottom: 6px !important; text-align: center !important;
   line-height: 1.35 !important;
-}
-.rl-alert--error {
-  background: rgba(107, 29, 47, 0.08) !important;
-  border: 1px solid rgba(107, 29, 47, 0.25) !important;
-  color: #6B1D2F !important;
-}
-.rl-alert--success {
-  background: rgba(47, 93, 80, 0.08) !important;
-  border: 1px solid rgba(47, 93, 80, 0.25) !important;
-  color: #2F5D50 !important;
-}
-.rl-footer-note {
-  margin-top: 6px !important;
-  font-size: 0.6rem !important;
-  color: #6B7280 !important;
-  line-height: 1.4 !important;
-  padding: 0 4px !important;
-}
-.rl-copy {
-  margin-top: 4px !important;
-  font-size: 0.58rem !important;
-  color: #9CA3AF !important;
 }
 
 /* شاشات صغيرة جدًا */

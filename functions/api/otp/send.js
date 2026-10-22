@@ -53,16 +53,16 @@ async function sendEmail(env, email, code, purpose) {
         ? "تسجيل الدخول"
         : "التحقق";
 
-  // القالب المعتمد رسمياً لرسالة التحقق — هوية أناقة ROOZ الفاخرة
+  // القالب المعتمد رسمياً لرسالة التحقق — هوية المسيمير | ALMUSAYMIR
   const html = `
     <div dir="rtl" style="font-family:'Tajawal',Arial,Tahoma,sans-serif;max-width:520px;margin:auto;padding:32px 28px;background:#fdfbf7;color:#1f1116;border:1px solid rgba(31,17,22,.10);border-radius:8px">
       <h2 style="color:#6b1d2f;text-align:center;margin:0 0 4px;font-weight:800;font-size:22px">
-        أناقة ROOZ
+        المسيمير | ALMUSAYMIR
       </h2>
       <div style="height:3px;width:56px;background:#d4a5a5;border-radius:3px;margin:0 auto 24px"></div>
 
       <p style="text-align:right;font-size:15px;line-height:1.9;margin:0 0 12px">
-        مرحباً بك في أناقة ROOZ،
+        مرحباً بك في المسيمير | ALMUSAYMIR،
       </p>
 
       <p style="text-align:right;font-size:15px;line-height:1.9;margin:0 0 8px">
@@ -84,7 +84,7 @@ async function sendEmail(env, email, code, purpose) {
       </p>
 
       <p style="text-align:right;font-size:13px;line-height:1.9;color:#8a5560;margin:0">
-        شكراً لك،<br>فريق دعم أناقة ROOZ.
+        شكراً لك،<br>فريق دعم المسيمير | ALMUSAYMIR.
       </p>
     </div>
   `;
@@ -98,9 +98,9 @@ async function sendEmail(env, email, code, purpose) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `أناقة ROOZ <${fromEmail}>`,
+        from: `المسيمير | ALMUSAYMIR <${fromEmail}>`,
         to: [email],
-        subject: "رمز التحقق الخاص بك لملف دخولك - أناقة ROOZ",
+        subject: "رمز التحقق الخاص بك لملف دخولك - المسيمير | ALMUSAYMIR",
         html,
       }),
     }

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
+import { BRAND } from '../data/brand';
 import { auth } from '../firebase/config';
 import {
   signInWithEmailAndPassword,
@@ -30,7 +31,7 @@ import { markManualSignOut, readKickLog, kickReasonLabel } from '../utils/kickLo
 import '../styles/global.css';
 import '../styles/LoginNova.css';
 
-const OWNER_MARQUEE = 'تم تسجيل دخول صاحب موقع "أناقة ROOZ" ويُرحّب بكم جميعاً ويتمنى لكم تجربة تسوّق ممتعة ترضي ذائقتكم الرفيعة. يُذكِّركم بأن من لديه اقتراح أو ملاحظة أو شكوى على أحد موظفي الموقع أو على أي شخص بسبب النصب أو الاحتيال، يتوجّه إلى غرفة صاحب موقع "أناقة ROOZ" ويتقدّم برسالة مفصّلة. وفي حال كانت الشكوى نصب واحتيال فسيتم اتخاذ الإجراءات اللازمة فوراً، سواء من قِبَل صاحب الموقع أو بإحالة الموضوع إلى الجهات الأمنية المختصّة بشكل عاجل، حفاظاً على حقوقكم وسلامة تعاملاتكم. أناقة ROOZ — حيث الأناقة تلتقي بالثقة.';
+const OWNER_MARQUEE = 'تم تسجيل دخول صاحب موقع "المسيمير | ALMUSAYMIR" ويُرحّب بكم جميعاً ويتمنى لكم تجربة تسوّق ممتعة ترضي ذائقتكم الرفيعة. يُذكِّركم بأن من لديه اقتراح أو ملاحظة أو شكوى على أحد موظفي الموقع أو على أي شخص بسبب النصب أو الاحتيال، يتوجّه إلى غرفة صاحب موقع "المسيمير | ALMUSAYMIR" ويتقدّم برسالة مفصّلة. وفي حال كانت الشكوى نصب واحتيال فسيتم اتخاذ الإجراءات اللازمة فوراً، سواء من قِبَل صاحب الموقع أو بإحالة الموضوع إلى الجهات الأمنية المختصّة بشكل عاجل، حفاظاً على حقوقكم وسلامة تعاملاتكم. المسيمير | ALMUSAYMIR — حيث الأناقة تلتقي بالثقة.';
 const OWNER_SOUND_URL = '/sounds/welcome.mp3';
 const API_BASE = '/api';
 
@@ -113,7 +114,7 @@ const Login = () => {
   useEffect(() => {
     if (kickEntries.length > 0) {
       console.info(
-        '[ROOZ] آخر أسباب الرجوع لصفحة الدخول:',
+        '[ALMUSAYMIR] آخر أسباب الرجوع لصفحة الدخول:',
         kickEntries.slice(-3).reverse().map((entry) => ({
           at: new Date(entry.at).toLocaleTimeString('ar-SA'),
           reason: kickReasonLabel(entry.reason),
@@ -153,7 +154,7 @@ const Login = () => {
   const [guestEmail, setGuestEmail] = useState('');
   const [guestEntryOpen, setGuestEntryOpen] = useState(false);
 
-  // خلفية الصفحة عند ظهورها — لؤلؤية فاتحة منسجمة مع هوية ROOZ
+  // خلفية الصفحة عند ظهورها — لؤلؤية فاتحة منسجمة مع هوية ALMUSAYMIR
   useEffect(() => {
     const previous = document.body.style.background;
 
@@ -1036,10 +1037,10 @@ const Login = () => {
     {
       icon: Crown,
       role: 'owner',
-      title: 'دخول صاحب موقع “أناقة ROOZ”',
+      title: 'دخول صاحب موقع “المسيمير | ALMUSAYMIR”',
       subtitle: 'الإدارة والإشراف العام',
       phrase:
-        'موقع أناقة ROOZ يسعى لراحة الزوار وتلبية تطلعاتهم برؤية مبتكرة تجمع بين جودة الإدارة وسحر الأناقة.',
+        'متجر المسيمير | ALMUSAYMIR يسعى لراحة الزوار وتلبية تطلعاتهم برؤية مبتكرة تجمع بين جودة الإدارة وثقة التعامل.',
       big: true,
     },
     {
@@ -1064,13 +1065,13 @@ const Login = () => {
         <header className="rl-head">
         <div className="rl-crown-ic">
           <img
-            src="/assets/logo.png"
-            alt="شعار أناقة ROOZ"
+            src={BRAND.LOGO}
+            alt="شعار المسيمير | ALMUSAYMIR"
           />
         </div>
 
         <div className="rl-tag">
-          أناقة تفوق الخيال
+          المسيمير | ALMUSAYMIR
         </div>
       </header>
 
@@ -1110,7 +1111,7 @@ const Login = () => {
           >
             <span className="rl-card-crown-line">
               <img
-                src="/assets/logo.png"
+                src={BRAND.LOGO}
                 alt=""
                 className="rl-card-logo"
               />
@@ -1219,7 +1220,7 @@ const Login = () => {
         <div className="rl-form-divider">
           <span />
           <b>
-            دخول آمن إلى أناقة ROOZ — تحقق ثنائي مفعّل
+            دخول آمن إلى المسيمير | ALMUSAYMIR — تحقق ثنائي مفعّل
           </b>
           <span />
         </div>
@@ -1953,7 +1954,7 @@ const Login = () => {
 
           <br />
 
-          أناقة ROOZ — منصة تجارة فاخرة
+          المسيمير | ALMUSAYMIR — متجر شامل وحراج إعلانات
           معتمدة،
 
           <br />
@@ -1965,7 +1966,7 @@ const Login = () => {
       </section>
 
       <footer className="rl-foot">
-        جميع الحقوق محفوظة © أناقة ROOZ
+        جميع الحقوق محفوظة © المسيمير | ALMUSAYMIR
         2026
       </footer>
 

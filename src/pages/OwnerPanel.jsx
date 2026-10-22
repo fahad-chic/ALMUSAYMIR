@@ -130,7 +130,7 @@ export default function OwnerPanel() {
     <div style={page} dir="rtl">
       <div style={headerRow}>
         <div>
-          <h1 style={title}>لوحة صاحب موقع أناقة ROOZ</h1>
+          <h1 style={title}>لوحة صاحب موقع المسيمير | ALMUSAYMIR</h1>
           <p style={subtitle}>هذه الصفحة خاصة بصاحب الموقع فقط</p>
         </div>
 

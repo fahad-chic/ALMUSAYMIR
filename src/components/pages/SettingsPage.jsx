@@ -9,7 +9,7 @@ import useNotifications from '../../store/useNotifications';
 import { useAuth } from '../../context/AuthContext';
 
 const ROLE_LABELS = {
-  owner: 'صاحب موقع "أناقة ROOZ"',
+  owner: 'صاحب موقع "المسيمير | ALMUSAYMIR"',
   admin: 'مشرف',
   employee: 'موظف',
   user: 'مستخدم',
@@ -296,7 +296,7 @@ export default function SettingsPage() {
 
         {/* الفوتر */}
         <div className="glass-morphism-gold rounded-lg p-4 text-center text-xs text-gray-400">
-          <p>إصدار 1.0.0 - أناقة ROOZ</p>
+          <p>إصدار 1.0.0 - المسيمير | ALMUSAYMIR</p>
           <p className="mt-2">منصة معتمدة تتبع رؤية 2030</p>
         </div>
 

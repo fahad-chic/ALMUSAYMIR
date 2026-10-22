@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { colorAlpha } from '../../utils/color';
+import { BRAND } from '../../data/brand';
 import {
   Crown,
   Plus,
@@ -75,7 +76,7 @@ const C = {
 };
 
 
-const LOGO_SRC = '/assets/logo.png';
+const LOGO_SRC = BRAND.LOGO;
 
 const BANK_ICONS = { alrajhi: Building2, arabank: Landmark };
 const BANK_ACCOUNTS = CONST_BANKS.map((b) => ({
@@ -1789,7 +1790,7 @@ const RoyalHarajPage = () => {
                   color: C.gold,
                 }}
               >
-                منصة الإعلانات في أناقة ROOZ
+                منصة الإعلانات في المسيمير | ALMUSAYMIR
               </h3>
 
               <p
@@ -1817,7 +1818,7 @@ const RoyalHarajPage = () => {
               textAlign: 'justify',
             }}
           >
-            تجمع منصة الإعلانات في موقع «أناقة ROOZ» بين الموثوقية المطلقة
+            تجمع منصة الإعلانات في موقع «المسيمير | ALMUSAYMIR» بين الموثوقية المطلقة
             وأعلى معايير الحماية لبيانات زوار الموقع ومستخدميه، مما يضمن بيئة
             تصفح آمنة وتجربة إعلانية موثوقة للجميع.
           </p>
@@ -1844,7 +1845,7 @@ const RoyalHarajPage = () => {
                 'Tajawal',
             }}
           >
-            جميع الحقوق محفوظة © أناقة ROOZ 2026
+            جميع الحقوق محفوظة © المسيمير | ALMUSAYMIR 2026
           </p>
         </footer>
       </main>

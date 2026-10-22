@@ -1,7 +1,7 @@
 # AGENTS.md — rooz-nova
 
 ## المشروع (Project)
-- منصة **أناقة ROOZ / ROOZ** — تجارة أزياء عربية + حراج إعلانات.
+- منصة **المسيمير | ALMUSAYMIR** — متجر شامل عربي + حراج إعلانات (كانت: أناقة ROOZ / fahad-chic).
 - المستودع القديم: `fahad-chic/fahad-chic`. المستودع الجديد: `fahad-chic/rooz-nova` (لا يُدمج إلا بموافقة المستخدم الصريحة).
 - التقنيات: React + Vite + Firebase (auth/firestore) + react-router-dom.
 
@@ -17,7 +17,7 @@
 - ملاحظة: ذُكر سابقاً «أزرق كهربائي #2563eb» — هذه هوية قديمة ملغاة، لا تعتمدها.
 
 ## قيود يجب عدم كسرها (Must keep)
-- نفس **اسم الموقع** (أناقة ROOZ).
+- نفس **اسم الموقع** (المسيمير | ALMUSAYMIR). مصدر الاسم الوحيد: `src/data/brand.js` (`BRAND.AR/EN/FULL/LOGO/LOGO_WIDE/EMBED/ASSISTANT`).
 - نفس **المسارات** في `src/App.jsx` (تحقق بمقارنة `path="..."` مع main).
 - نفس **الصلاحيات**: غرفة المالك + المراقبة.
 - **حراج يعمل فعلاً** وروابطه سليمة.
@@ -72,3 +72,63 @@
 - لدمج لون مع شفافية داخل JSX استخدم `colorAlpha(color, 0.13)` من `src/utils/color.js` بدل `${color}20`.
 - كتل `:root` القديمة أُزيلت من `contour-theme.css`, `nova-theme.css`, `rooz-pearl.css`, `rooz-royal.css`, `global.css`, `index.css`؛ جسر التوافق (`--co-*`, `--nv-*`, `--ch-*`, `--rh-*`, `--rzp-*`, والمتغيّرات القديمة) موجود في `theme.css` بقيم مطابقة تماماً للأصل (بلا أي تغيير بصري).
 - عند تعديل الهوية مستقبلاً: عدّل `theme.css` فقط.
+
+## تدقيق الملفات غير المستخدمة (Cleanup audit) — نتائج مثبتة
+تم بناء رسم استيراد كامل (`src/main.jsx` كمدخل + كل الاستيرادات الساكنة والديناميكية).
+- **ملفات يتيمة فعلاً** (غير مستوردة إطلاقاً، ولا يدخل أي منها حزمة الإنتاج):
+  - `src/permissions/requirePerm.js` — الوحيد من `permissions/*` الذي لا يُستورد. المكوّنات تستورد
+    `requirePerm` من `rbacService.js` مباشرة. (نفس الملف موجود في `HEAD`، ليس من إعادة العلامة.)
+  - `src/utils/wcag.js` — لا يُستورد من كود الإنتاج؛ يستورده `src/utils/wcag.test.js` فقط
+    (`npm run test:contrast-unit`) ولا يستخدمه `e2e/contrast-audit.mjs`.
+- **ليست يتيمة (تحذير)**: `src/firebase/{auth,firestore,storage}.js` تظهر "يتيمة" في التحليل
+  الساذج لكنها تُصدَّر عبر `src/firebase/index.js` (`export * from './auth'` …) — لا تحذفها.
+- **تصديرات ميتة** داخل `src/components/RoyalHome/sectionsData.js`: `HARAJ_BANNERS`,
+  `ROYAL_KINGS`, `PREDEFINED_COMMENTS`, `CATALOG_ITEMS` — لا مستورد لها (بعضها يشير لصور
+  `royal-*` غير موجودة). **مثبت بالفحص: الأربعة tree-shaken** (نصوصها غير موجودة في `dist`) →
+  حذفها مصدر-فقط بلا أي مكسب أداء. حذفها يحتاج موافقة صريحة.
+- **كود ميت داخل `src/components/Navigation.jsx`**: `SECTION_ICONS`، `expandedSection`،
+  `storeMenuOpen`، `visiblePages`، `catalogSections`، و10 أيقونات Lucide مستوردة بلا استخدام
+  (أيقونات lucide شجرية-tree-shaken → 0 بايت في الحزمة).
+- **أصول غير مستدعاة**: `public/assets/logo.png`، `public/assets/og-image.jpg`،
+  و4 أيقونات PWA (`icon-128/144/152/384`).
+- **نسخ مكررة**: كتلة `VITE_*` و`ALIAA_*`/`STORE_*` مكرّرة حرفياً في `wrangler.toml`
+  (تُبنى في الواجهة عبر `VITE_*`، والنسخة بلا `VITE_` للخادم فقط — ليست زائدة).
+
+## تنظيف CSS مُثبَت (Verified CSS prune) — تنفيذ آمن
+طريقة التحقق المستخدمة: استخراج كل أصناف `className` (ساكنة + قوالب + شرطية + `classList`)
+من `src/**/*.{js,jsx}` و`index.html`، ثم حذف كل قاعدة CSS لا يُشارك صنفها أي استخدام.
+**الإثبات البصري**: لقطة `fullPage` قبل/بعد بنفس الـhash بايت-بايت (تطابق تام) للصفحات المتأثرة.
+- `src/styles/RoyalHome.css`: 908 → ~272 سطراً (21.5KB → 7.5KB). 55 قاعدة ميتة (من بقايا
+  `RoyalHomePage` القديمة: `rh-header/rh-brand/rh-hero/rh-card/rh-owner/rh-contest/…`).
+  المُبقي: `.rh-root` (الأساس + الأزرار + العناوين)، `.rh-bg`، `.rh-topline` (مستخدمة فعلاً في
+  `CatalogPage.jsx` و`RoyalHarajPage.jsx`)، وقواعد `rh-card-*` القديمة التي لا تُستخدم الآن.
+- `src/styles/NovHome.css`: 733 → ~428 سطراً (16.7KB → 10.2KB). 35 قاعدة ميتة
+  (`nov-features/nov-feature*/nov-tiles/nov-tile*/nov-branch-*/nov-haraj/nov-sec-head/nov-btn-*`).
+- `src/styles/LoginNova.css`: 4 قواعد ميتة (`rl-alert--error/success`, `rl-footer-note`, `rl-copy`).
+- **`public/manifest.json`**: أُزيلت 4 مراجع أيقونات PWA غير موجودة (`icon-128/144/152/384`)
+  كانت تُنتج 404 في كل تثبيت PWA. المتبقي 4 أيقونات موجودة فعلاً فقط.
+- **ما زال ميتاً ولم يُحذف بعد** (يحتاج موافقة صريحة، ~19.6KB مصدر): `src/index.css` (45 قاعدة:
+  `.btn-*`, `.badge-*`, `.alert-*`, `.card-body/header`, `.grid-*`, `.flex-*`, `.text-muted/soft/gold`,
+  `.skeleton`, `.spinner`, `.owner-alert`, `.royal-owner-bar`, `.bg-gray-900/700`, `.border-gray-700`)
+  و`rooz-royal.css` (27)، `nova-theme.css` (18)، `global.css` (9)، `contour-theme.css` (4)،
+  `rooz-luxury-3d.css` (4). احذر: `.rz-btn/.rz-card/.rz-glass/.rz-discover/.nv-*` تُستخدم كأسماء
+  في طبقات أخرى — راجع قبل الحذف.
+- **ملاحظة تحقق**: فحص `e2e/full-audit.mjs` فيه خطأ قائم مسبقاً `[login/bg] rgba(0,0,0,0)`
+  (`.rl-root` بلا `background-color`) — **موجود قبل هذه التغييرات**، ليس ناتجاً عن التنظيف.
+
+## تنظيف التبعيات والإعدادات (Dependency & config cleanup) — منفَّذ
+- **`react-hot-toast` أُزيل** من `dependencies`: صفر استيراد في `src/` و`functions/` (المتغيّر
+  `toast` في `OwnerPrivateRoom.jsx` هو حالة محلية للرسائل، وليس مكتبة). لم يكن في الحزمة أصلاً
+  (`grep` على `dist/assets/*.js` = 0). لا شيء يعتمد عليه (`npm ls` = فارغ).
+- **`vite.perf.config.js` + سكربت `build:perf` أُزيلا**: إعداد بناء موازٍ لا يستخدمه CI
+  (`.github/workflows/ci.yml` يشغّل lint/test/build/contrast فقط) ولا النشر (Cloudflare يستخدم
+  `npm run build` → `vite.config.js`). وكان **ناقصاً** `define.__BUILD_STAMP__` الموجود في
+  `vite.config.js`، أي أنه نسخة قديمة متفرّعة. `analyze` يبقى في `vite.config.js`.
+- **`scripts/generate-icons.cjs` أُعيدت كتابته لهوية «المسيمير | ALMUSAYMIR»**: كان يولّد
+  أيقونات بهوية «اناقة ROOZ» القديمة (SVG نصّي بخلفية كحلية) — تشغيله كان سيُفسد أيقونات الموقع.
+  الآن: يقرأ `public/assets/emblem.png` (الشعار الفعلي)، يركّبه على خلفية كريمية `#FDFBF7`
+  (نفس `background_color` في manifest) بنسبة 72% (هامش 14%)، ويصدّر PNG بجدول ألوان 256 لوناً.
+  المقاسات `[72, 96, 192, 512]` **مطابقة تماماً** لما يشير إليه `public/manifest.json`.
+  الناتج أصغر من الأصل: 512 = 33KB (كان 36KB) و72 = 2.2KB (كان 2.6KB) — نفس الشكل.
+- **أُبقي بطلب المالك**: `src/permissions/requirePerm.js`، `src/utils/wcag.js` + `wcag.test.js`،
+  `public/favicon.ico`، `public/assets/og-image.jpg`، `src/data/saudiCities.js`.
