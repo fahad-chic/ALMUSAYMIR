@@ -49,7 +49,7 @@
 .rl-crown-ic img {
   width: clamp(96px, 30vw, 132px) !important;
   height: auto !important;
-  max-height: 140px !important;
+  max-height: 92px !important;
   border-radius: 0 !important;
   object-fit: contain !important;
   border: 0 !important;
@@ -106,23 +106,26 @@
 
 /* بطاقة صاحب الموقع: أفخم عنصر — تدرّج كحلي + برواز ذهبي */
 .rl-card--big {
-  padding: 13px 14px 12px !important;
+  width: 100% !important;
+  padding: 11px 12px 10px !important;
   background: linear-gradient(158deg, var(--rz-navy-soft) 0%, var(--rz-primary) 48%, var(--rz-navy-deep) 100%) !important;
-  border: 1px solid rgba(var(--rz-gold-rgb), 0.62) !important;
+  border: 1.5px solid rgba(var(--rz-gold-rgb), 0.7) !important;
   box-shadow:
-    0 0 0 1px rgba(var(--rz-gold-rgb), 0.20) inset,
-    0 16px 34px -20px rgba(var(--rz-primary-rgb), 0.72) !important;
+    0 0 0 1px rgba(var(--rz-gold-rgb), 0.22) inset,
+    0 14px 28px -18px rgba(var(--rz-primary-rgb), 0.65) !important;
   position: relative !important;
 }
 /* بطاقة المشرفين: أصغر قليلًا وأبسط — تسلسل بصري صحيح */
 .rl-card:not(.rl-card--big) {
-  width: 93% !important;
+  width: 86% !important;
   min-height: 0 !important;
-  padding: 13px 14px !important;
+  padding: 8px 10px !important;
   margin-top: 0 !important;
-  background: var(--rz-ivory) !important;
-  border: 1px solid var(--rz-line) !important;
-  box-shadow: var(--rz-shadow-sm) !important;
+  background: rgba(255, 252, 247, 0.78) !important;
+  border: 1px solid rgba(201, 162, 39, 0.35) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
 }
 .rl-card--big::before { content: none !important; }
 .rl-card-logo {
@@ -167,7 +170,12 @@
   -webkit-box-orient: vertical !important;
   overflow: hidden !important;
 }
-.rl-card--big .rl-card-phrase { color: var(--rz-ivory) !important; }
+.rl-card--big .rl-card-phrase {
+  color: var(--rz-ivory) !important;
+  font-size: 0.58rem !important;
+  -webkit-line-clamp: 2 !important;
+  max-height: 2.6em !important;
+}
 .rl-owner-badge {
   display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 4px !important;
   margin: 6px auto 0 !important; padding: 3px 11px !important; border-radius: 999px !important;
@@ -192,12 +200,14 @@
 
 /* ===== بطاقة النموذج ===== */
 .rl-form-card {
-  background: var(--rz-white) !important;
-  border: 1px solid var(--rz-line) !important;
+  background: rgba(255, 252, 247, 0.72) !important;
+  border: 1.5px solid rgba(201, 162, 39, 0.45) !important;
   border-radius: 16px !important;
-  padding: 16px 16px 14px !important;
-  box-shadow: var(--rz-shadow) !important;
+  padding: 12px 12px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18) !important;
   text-align: center !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
 }
 .rl-form-title {
   margin: 0 0 4px !important;
@@ -367,4 +377,22 @@
 .rl-card:not(.rl-card--big) .rl-card-sub,
 .rl-card:not(.rl-card--big) .rl-card-phrase {
   color: var(--rz-muted) !important;
+}
+
+/* ===== GLASS LOGIN LOCK — خلفية الرياض ظاهرة ===== */
+.rl-root .rl-card:not(.rl-card--big) .rl-card-title {
+  color: var(--rz-ink) !important;
+}
+.rl-root .rl-card:not(.rl-card--big) .rl-card-sub,
+.rl-root .rl-card:not(.rl-card--big) .rl-card-phrase {
+  color: var(--rz-muted) !important;
+}
+.rl-root .rl-form-card .rl-form-title,
+.rl-root .rl-form-card label {
+  color: var(--rz-ink) !important;
+}
+.rl-root .rl-form-card input,
+.rl-root .rl-form-card textarea {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: var(--rz-ink) !important;
 }
