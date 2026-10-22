@@ -1,7 +1,7 @@
 /* ============================================================
-   ALMUSAYMIR — خلفية الرياض الليلية
+   ROOZ / المسيمير — خلفية الرياض الليلية
    /assets/bg-riyadh-night.jpg
-   مهم: لا نلمس .rz-drawer (قائمة جانبية داكنة بنصوص بيضاء)
+   حجاب خفيف جدًا لإظهار المدينة + وضوح النصوص على البطاقات
    ============================================================ */
 
 html {
@@ -15,9 +15,6 @@ body {
   min-height: 100dvh;
 }
 
-/* يُفرض الظهور بـ !important لأن contour-theme.css يعلن
-   `body::before { content: none !important }` (لإلغاء طبقة قديمة)، وهذا
-   الملف يُستورد بعده فيتقدّم عليه. */
 body::before {
   content: '' !important;
   position: fixed !important;
@@ -30,7 +27,6 @@ body::before {
   pointer-events: none !important;
 }
 
-/* الطبقة اللؤلؤية كانت معتمة وتغطي المدينة — تُفرَّغ */
 .rz-pearl-layer {
   background: transparent !important;
 }
@@ -42,7 +38,7 @@ body::before {
   display: none !important;
 }
 
-/* حجاب أخف: المدينة أوضح (~65–75٪) مع بقاء النصوص الداكنة مقروءة */
+/* حجاب أخف بكثير — المدينة ظاهرة بوضوح */
 body::after {
   content: '' !important;
   position: fixed !important;
@@ -51,10 +47,10 @@ body::after {
   pointer-events: none !important;
   background: linear-gradient(
     180deg,
-    rgba(250, 246, 238, 0.68) 0%,
-    rgba(250, 246, 238, 0.58) 35%,
-    rgba(250, 246, 238, 0.64) 70%,
-    rgba(250, 246, 238, 0.76) 100%
+    rgba(250, 246, 238, 0.42) 0%,
+    rgba(250, 246, 238, 0.32) 40%,
+    rgba(250, 246, 238, 0.40) 75%,
+    rgba(250, 246, 238, 0.52) 100%
   ) !important;
 }
 
@@ -68,15 +64,15 @@ body::after {
 
 :root {
   --bg-deep: transparent;
-  --bg-mid: rgba(255, 250, 242, 0.92);
-  --bg-card: rgba(255, 250, 242, 0.95);
+  --bg-mid: rgba(255, 250, 242, 0.82);
+  --bg-card: rgba(255, 250, 242, 0.88);
 }
 
 .min-h-screen {
   background-color: transparent !important;
 }
 
-/* ===== القائمة الجانبية داكنة + نص أبيض ===== */
+/* القائمة الجانبية داكنة */
 .rz-drawer {
   background: linear-gradient(180deg, #161820 0%, #0f141c 100%) !important;
   color: #ffffff !important;
@@ -93,12 +89,9 @@ body::after {
   color: rgba(255, 252, 247, 0.92) !important;
 }
 
-.rz-sub-item:hover {
-  color: var(--rz-gold) !important;
-}
-
+.rz-sub-item:hover,
 .rz-group-btn:hover {
-  color: var(--rz-gold) !important;
+  color: var(--rz-gold, #C9A227) !important;
 }
 
 .rz-drawer-user,
@@ -106,34 +99,19 @@ body::after {
   color: rgba(255, 252, 247, 0.9) !important;
 }
 
-/* تسجيل الدخول */
+/* دخول: جذر شفاف */
 .rl-root {
   background: transparent !important;
   background-image: none !important;
-}
-
-.rl-root .rl-form-card,
-.rl-root form.rl-form-card {
-  background: var(--rz-white) !important;
-  color: var(--rz-ink) !important;
-  border: 1px solid rgba(var(--rz-gold-rgb), 0.42) !important;
-  box-shadow: var(--rz-shadow) !important;
-}
-
-.rl-root input,
-.rl-root textarea,
-.rl-root select {
-  background: var(--rz-white) !important;
-  color: var(--rz-ink) !important;
 }
 
 @media (max-width: 640px) {
   body::after {
     background: linear-gradient(
       180deg,
-      rgba(250, 246, 238, 0.72) 0%,
-      rgba(250, 246, 238, 0.62) 45%,
-      rgba(250, 246, 238, 0.78) 100%
+      rgba(250, 246, 238, 0.48) 0%,
+      rgba(250, 246, 238, 0.36) 50%,
+      rgba(250, 246, 238, 0.55) 100%
     ) !important;
   }
 }
