@@ -8,7 +8,6 @@
   },
   "scripts": {
     "dev": "vite --port 5173 --host",
-    "build:perf": "vite build --config vite.perf.config.js",
     "build": "vite build",
     "lint": "eslint . --ext .js,.jsx --quiet",
     "test": "vitest run",
@@ -30,7 +29,6 @@
     "lucide-react": "^0.469.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hot-toast": "^2.4.1",
     "react-router-dom": "^7.1.1",
     "zustand": "^5.0.3"
   },
