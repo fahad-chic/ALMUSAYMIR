@@ -16,13 +16,7 @@
     "contrast:strict": "node e2e/contrast-audit.mjs --strict",
     "preview": "vite preview --port 4173 --host",
     "analyze": "vite build --mode analyze",
-    "icons": "node scripts/generate-icons.cjs",
-    "cap:init": "npx cap init",
-    "cap:add:android": "npx cap add android",
-    "cap:add:ios": "npx cap add ios",
-    "cap:sync": "npx cap sync",
-    "cap:android": "npx cap open android",
-    "cap:ios": "npx cap open ios"
+    "icons": "node scripts/generate-icons.cjs"
   },
   "dependencies": {
     "firebase": "^11.1.0",
