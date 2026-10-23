@@ -92,7 +92,7 @@ const AdFormPage = () => {
     name: '',
     publisherName: '',
     publisherPhone: '',
-    category: 
+    category: '',
     size: '',
     price: '',
     description: '',
