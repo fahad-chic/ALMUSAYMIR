@@ -259,14 +259,10 @@ const AdFormPage = () => {
     const hasAtLeastOneImage = formData.images.some(Boolean);
 
     if (!publisherName) {
-      setSubmitError('اكتب اسم المعلن كما سيظهر في الإعلان.');
-      setSubmitting(false);
-      return;
+      newErrors.publisherName = 'اكتب اسم المعلن كما سيظهر في الإعلان.';
     }
     if (publisherPhone.length < 9 || publisherPhone.length > 15) {
-      setSubmitError('أدخل رقم جوال المعلن بشكل صحيح (9–15 رقمًا). لا يُستخدم رقم الموقع.');
-      setSubmitting(false);
-      return;
+      newErrors.publisherPhone = 'أدخل رقم جوال المعلن بشكل صحيح (9–15 رقمًا).';
     }
     if (!hasAtLeastOneImage) {
       newErrors.images = 'يجب إضافة صورة واحدة على الأقل';
@@ -366,6 +362,14 @@ const AdFormPage = () => {
         hip: Number(formData.measurements.hip) || null,
         length: Number(formData.measurements.length) || null,
       };
+      const publisherName = (formData.publisherName || '').trim();
+      const publisherPhone = String(formData.publisherPhone || '').replace(/\D/g, '');
+      if (!publisherName || publisherPhone.length < 9 || publisherPhone.length > 15) {
+        setSubmitError('أكمل اسم المعلن ورقم جواله بشكل صحيح قبل النشر.');
+        setSubmitting(false);
+        setStep(1);
+        return;
+      }
       const initialAdData = {
         title: formData.name.trim(),
         category: formData.category,
