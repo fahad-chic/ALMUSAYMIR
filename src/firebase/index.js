@@ -96,16 +96,7 @@ export const getStoreConfig = () => ({
   )
     .split(',')
     .map((e) => e.trim().toLowerCase())
-    .filter(Boolean),
-  aliyaConfig: {
-    name: import.meta.env.VITE_ALIAA_NAME || 'فهد',
-    greeting: import.meta.env.VITE_ALIAA_GREETING || 'ياهلا!',
-    personality: import.meta.env.VITE_ALIAA_PERSONALITY,
-    owner: import.meta.env.VITE_ALIAA_OWNER,
-    established: import.meta.env.VITE_ALIAA_ESTABLISHED,
-    location: import.meta.env.VITE_ALIAA_LOCATION,
-    contacts: import.meta.env.VITE_ALIAA_CONTACTS
-  }
+    .filter(Boolean)
 });
 
 // Utility: Admin check

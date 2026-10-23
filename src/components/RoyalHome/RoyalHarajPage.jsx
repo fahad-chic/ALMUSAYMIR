@@ -1212,7 +1212,9 @@ const RoyalHarajPage = () => {
 
       <header
         style={{
-          background: `linear-gradient(180deg, ${C.darkBg} 0%, var(--rz-ivory) 100%)`,
+          // حجاب عاجي شبه شفاف (بدل عاجي معتم) ليبقى جبل/مدينة الرياض
+          // ظاهراً خلف ترويسة الحراج — مع الحفاظ على قراءة النص الداكن.
+          background: `linear-gradient(180deg, rgba(var(--rz-ivory-rgb), 0.88) 0%, rgba(var(--rz-ivory-rgb), 0.62) 100%)`,
           borderBottom: `1px solid colorAlpha(C.gold, 0.19)`,
           padding: '1.1rem 1rem 1.25rem',
           position: 'sticky',

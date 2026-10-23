@@ -1,0 +1,201 @@
+/* ============================================================
+   ALMUSAYMIR — تخفيف الصفحة الرئيسية (Home Slim)
+   ------------------------------------------------------------
+   الهدف: إظهار خلفية الرياض في كل الصفحات + تقليل المساحات
+   والكثافة البصرية في الرئيسية (الهيرو، آراء العملاء، المزايا،
+   الأسئلة، التذييل) بحيث لا تغطي أي طبقة معتمة صورة المدينة.
+
+   لا ألوان ثابتة هنا: كل القيم من متغيّرات theme.css.
+   يُستورد بعد NovHome.css ليتقدّم عليه.
+   ============================================================ */
+
+/* ===== الهيرو: زجاجي مضغوط تظهر منه المدينة ===== */
+.nov-hero,
+.nov-hero.rz-hero {
+  padding: 0.7rem 0.8rem 0.75rem !important;
+  margin: 0.3rem 0 0.45rem !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(
+      120% 140% at 12% 0%,
+      rgba(var(--rz-primary-rgb), 0.5),
+      transparent 58%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(var(--rz-ink-rgb), 0.82) 0%,
+      rgba(var(--rz-primary-rgb), 0.8) 100%
+    ) !important;
+  backdrop-filter: blur(3px);
+  box-shadow: 0 16px 38px -22px rgba(var(--rz-ink-rgb), 0.7) !important;
+}
+
+.nov-hero::after {
+  opacity: 0.16 !important;
+}
+
+.nov-hero-logo--lg {
+  width: 78px !important;
+  height: 78px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.nov-hero-title {
+  font-size: clamp(1.25rem, 3.6vw, 1.9rem) !important;
+  margin: 0.3rem 0 0.2rem !important;
+}
+
+.nov-hero-sub {
+  font-size: 0.82rem !important;
+  line-height: 1.6 !important;
+  margin: 0 !important;
+  opacity: 0.95;
+}
+
+.nov-hero-cta--side {
+  margin-top: 0.4rem !important;
+}
+
+/* ===== آراء العملاء: زجاجي مضغوط ===== */
+.nov-comments-wrap {
+  margin: 0.35rem 0 0.3rem !important;
+}
+
+.nov-comments-wrap .comments-section,
+.nov-comments-wrap [class*="comment"] {
+  transform: none !important;
+}
+
+.nov-comments-wrap > section {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0.6rem 0.7rem !important;
+  border-radius: 14px !important;
+  background: rgba(var(--rz-white-rgb), 0.72) !important;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 10px 26px -18px rgba(var(--rz-ink-rgb), 0.5) !important;
+}
+
+/* ===== نقاط الثقة: خفيفة وزجاجية ===== */
+.rz-trust--gold {
+  margin: 0.45rem 0 0.5rem !important;
+  gap: 0.35rem !important;
+}
+
+.rz-trust--gold .rz-trust-item {
+  padding: 0.45rem 0.5rem !important;
+  background: rgba(var(--rz-white-rgb), 0.72) !important;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(var(--rz-gold-rgb), 0.42) !important;
+  box-shadow: 0 8px 20px -16px rgba(var(--rz-ink-rgb), 0.5) !important;
+}
+
+.rz-trust--gold .rz-trust-ico {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9px !important;
+}
+
+.rz-trust--gold h4 {
+  font-size: 0.75rem !important;
+}
+
+.rz-trust--gold p {
+  font-size: 0.62rem !important;
+}
+
+/* ===== الأسئلة الشائعة: أخف ===== */
+.rz-faq {
+  margin: 0.45rem 0 !important;
+  background: rgba(var(--rz-white-rgb), 0.66) !important;
+  backdrop-filter: blur(5px);
+  border-radius: 14px !important;
+  padding: 0.5rem 0.6rem !important;
+}
+
+.rz-faq-toggle {
+  padding: 0.35rem 0.2rem !important;
+}
+
+/* ===== التذييل: مضغوط + سطر حقوق واحد ===== */
+.rz-footer--home-tight {
+  margin-top: 0.45rem !important;
+  background: rgba(var(--rz-ink-rgb), 0.9) !important;
+  backdrop-filter: blur(5px);
+  border-radius: 14px !important;
+}
+
+.rz-footer--home-tight .rz-footer-inner {
+  padding: 0.6rem 0.7rem 0.5rem !important;
+}
+
+.rz-footer--home-tight .rz-footer-top {
+  margin-bottom: 0.4rem !important;
+}
+
+.rz-footer--home-tight .rz-footer-logo {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.rz-footer--home-tight .rz-footer-tag {
+  font-size: 0.74rem !important;
+}
+
+.rz-footer--home-tight .rz-footer-bottom {
+  margin-top: 0.4rem !important;
+  padding-top: 0.4rem !important;
+  font-size: 0.7rem !important;
+  border-top: 1px solid rgba(var(--rz-gold-rgb), 0.22);
+}
+
+/* ===== روابط التذييل القابلة للطي (تفادي تكرار قائمة الترويسة) ===== */
+.rz-footer-fold {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.rz-footer-fold-head {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.42rem 0.55rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 0.76rem;
+  /* شمبانيا فوق خلفية داكنة أكثر — يضمن تباين AA (≥ 4.5:1) */
+  color: var(--rz-champagne);
+  background: rgba(var(--rz-white-rgb), 0.07);
+  border: 1px solid rgba(var(--rz-gold-rgb), 0.28);
+}
+
+.rz-footer-fold-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.2rem 0.6rem;
+  padding: 0.3rem 0.15rem 0.1rem;
+}
+
+.rz-footer-fold-body a {
+  font-size: 0.74rem;
+  padding: 0.16rem 0;
+}
+
+@media (max-width: 640px) {
+  .nov-hero-logo--lg {
+    width: 66px !important;
+    height: 66px !important;
+  }
+  .nov-hero-title {
+    font-size: 1.2rem !important;
+  }
+}

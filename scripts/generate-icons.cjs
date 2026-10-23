@@ -3,7 +3,7 @@
  * توليد أيقونات PWA لهوية «المسيمير | ALMUSAYMIR».
  *
  * المصدر: public/assets/emblem.png (شعار العلامة الفعلي).
- * الخلفية: كريمي #FDFBF7 — نفس background_color في public/manifest.json.
+ * الخلفية: عاجي #F7F1E7 — نفس background_color في public/manifest.json.
  * الشعار يشغل 72% من الإطار (هامش 14% من كل جهة) ليبقى واضحاً كأيقونة maskable.
  *
  * المقاسات هنا مطابقة تماماً لما يشير إليه public/manifest.json.
@@ -18,7 +18,7 @@ const path = require('path');
 const fs = require('fs');
 
 const SIZES = [72, 96, 192, 512];
-const BRAND_BG = '#FDFBF7';
+const BRAND_BG = '#F7F1E7';
 const EMBLEM_RATIO = 0.72;
 
 const root = path.join(__dirname, '..');
