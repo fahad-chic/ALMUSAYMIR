@@ -936,11 +936,13 @@ const ProductCard = ({
     );
   }
 
-  return <>
-        <StoreActions />
-        <BankModal />
-        <GuestBlockOverlay />
-      </>;
+  return (
+    <>
+      <BankModal />
+      <GuestBlockOverlay />
+    </>
+  );
 };
+
 
 export default ProductCard;
