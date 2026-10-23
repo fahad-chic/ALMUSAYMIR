@@ -1,0 +1,400 @@
+/* ============================================================
+   ALMUSAYMIR — شريط العروض المتحرك (HomeOffersSlider)
+   ------------------------------------------------------------
+   6 مواضع ثابتة. الصورة تدخل من اليمين، تتوقف 5 ثوانٍ في المنتصف،
+   ثم تخرج يساراً وتبدأ التالية — حلقة لا نهائية.
+
+   الحركة معتمدة على transform/opacity فقط (تُنفَّذ على الـ GPU) فلا
+   تُسحب الصفحة على الجوال. القياسات كلها من متغيّرات theme.css.
+   ============================================================ */
+
+.hos-wrap {
+  position: relative;
+  width: 100%;
+  margin: 0.35rem auto 0.7rem;
+  padding: 0 0.15rem;
+  box-sizing: border-box;
+}
+
+/* ===== الإطار الفخم ===== */
+.hos-frame {
+  position: relative;
+  width: 100%;
+  height: clamp(158px, 24vw, 268px);
+  border-radius: 18px;
+  overflow: hidden;
+  /* إطار ذهبي خفيف + ظل راقٍ */
+  border: 1px solid rgba(var(--rz-gold-rgb), 0.46);
+  background: linear-gradient(
+    145deg,
+    rgba(var(--rz-ink-rgb), 0.92) 0%,
+    rgba(var(--rz-primary-rgb), 0.96) 100%
+  );
+  box-shadow:
+    0 1px 0 rgba(var(--rz-gold-rgb), 0.28) inset,
+    0 18px 40px -20px rgba(var(--rz-ink-rgb), 0.62),
+    0 3px 12px -6px rgba(var(--rz-gold-rgb), 0.35);
+}
+
+/* خط ذهبي رقيق أعلى الإطار — لمسة فاخرة */
+.hos-frame::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 4;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--rz-gold-rgb), 0.85),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.hos-stage {
+  position: absolute;
+  inset: 0;
+}
+
+/* ===== الشريحة ===== */
+.hos-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+  /* 6 شرائح × 6.5 ثانية = 39 ثانية للحلقة الكاملة.
+     كل شريحة نشطة 16.667% من زمنها = 6.5 ثانية. */
+  animation: hosLoop 39s cubic-bezier(0.22, 0.61, 0.36, 1) infinite both;
+}
+
+.hos-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* الخلفية النصية البديلة — اسم الموقع عند غياب الصورة */
+.hos-slide--text {
+  background:
+    radial-gradient(120% 150% at 12% 0%, rgba(var(--rz-primary-rgb), 0.55), transparent 60%),
+    radial-gradient(120% 150% at 100% 100%, rgba(var(--rz-gold-rgb), 0.22), transparent 58%),
+    linear-gradient(135deg, var(--rz-ink) 0%, var(--rz-primary) 100%);
+}
+
+.hos-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0 18px;
+  text-align: center;
+}
+
+.hos-fallback-ar {
+  font-family: Tajawal, "Segoe UI", Tahoma, Arial, sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.5rem, 6.4vw, 2.5rem);
+  line-height: 1.15;
+  background: linear-gradient(
+    100deg,
+    var(--rz-white) 0%,
+    var(--rz-ivory) 45%,
+    var(--rz-gold) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--rz-white);
+  letter-spacing: 0.5px;
+}
+
+.hos-fallback-en {
+  font-family: "DejaVu Serif", Tajawal, serif;
+  font-weight: 700;
+  font-size: clamp(0.68rem, 2.4vw, 0.95rem);
+  letter-spacing: 5px;
+  color: rgba(var(--rz-gold-rgb), 0.95);
+  text-transform: uppercase;
+}
+
+.hos-fallback-line {
+  width: 74px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--rz-gold-rgb), 0.9),
+    transparent
+  );
+}
+
+/* ===== مؤشرات المواضع ===== */
+.hos-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.hos-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(var(--rz-white-rgb), 0.42);
+  box-shadow: 0 0 0 1px rgba(var(--rz-ink-rgb), 0.28);
+  animation: hosDot 39s linear infinite both;
+}
+
+/* ===== زر إدارة العروض — لصاحب الموقع فقط ===== */
+.hos-manage {
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 8px;
+  z-index: 12;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: Tajawal, "Segoe UI", Tahoma, Arial, sans-serif;
+  font-weight: 900;
+  font-size: 0.72rem;
+  color: var(--rz-ink);
+  background: linear-gradient(145deg, var(--rz-gold) 0%, var(--rz-gold) 100%);
+  border: 1px solid rgba(var(--rz-ink-rgb), 0.18);
+  box-shadow: 0 4px 12px -4px rgba(var(--rz-ink-rgb), 0.55);
+}
+
+.hos-manage:hover {
+  filter: brightness(1.06);
+}
+
+/* ===== محرّر العروض (مودال) ===== */
+.hos-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(var(--rz-ink-rgb), 0.62);
+  backdrop-filter: blur(4px);
+  direction: rtl;
+  font-family: Tajawal, "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+.hos-modal {
+  width: min(680px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  border-radius: 18px;
+  background: var(--rz-ivory);
+  border: 2px solid var(--rz-primary);
+  box-shadow: 0 26px 60px -18px rgba(var(--rz-ink-rgb), 0.6);
+}
+
+.hos-modal-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  background: linear-gradient(120deg, var(--rz-ink), var(--rz-primary));
+  color: var(--rz-gold);
+  font-weight: 900;
+  font-size: 0.98rem;
+}
+
+.hos-modal-head button {
+  display: flex;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: var(--rz-gold);
+  cursor: pointer;
+}
+
+.hos-modal-hint {
+  margin: 0;
+  padding: 11px 16px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--rz-muted);
+}
+
+.hos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 14px 16px 18px;
+}
+
+.hos-slot {
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--rz-white);
+  border: 1.5px solid rgba(var(--rz-primary-rgb), 0.22);
+  box-shadow: 0 4px 14px -8px rgba(var(--rz-ink-rgb), 0.4);
+}
+
+.hos-slot-preview {
+  position: relative;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--rz-ink), var(--rz-primary));
+  overflow: hidden;
+}
+
+.hos-slot-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hos-slot-num {
+  position: absolute;
+  top: 5px;
+  inset-inline-end: 6px;
+  z-index: 2;
+  min-width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: var(--rz-ink);
+  background: var(--rz-gold);
+}
+
+.hos-slot-empty {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: rgba(var(--rz-gold-rgb), 0.92);
+}
+
+.hos-slot-actions {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+}
+
+.hos-slot-actions label,
+.hos-slot-actions button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 0.72rem;
+  border: 1px solid rgba(var(--rz-primary-rgb), 0.35);
+  background: var(--rz-white);
+  color: var(--rz-primary);
+}
+
+.hos-slot-actions label:hover,
+.hos-slot-actions button:hover {
+  background: rgba(var(--rz-primary-rgb), 0.07);
+}
+
+.hos-slot-actions button.hos-danger {
+  border-color: rgba(var(--rz-error-rgb), 0.5);
+  color: var(--rz-error);
+}
+
+.hos-slot-actions button.hos-danger:hover {
+  background: rgba(var(--rz-error-rgb), 0.09);
+}
+
+.hos-slot-actions label input {
+  display: none;
+}
+
+.hos-slot-actions .is-busy,
+.hos-slot-actions label.is-busy {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ===== الحركة: يمين ← منتصف (5 ثوانٍ) ← يسار =====
+   انتقال انزلاقي خالص: الشريحة الخارجة تتحرك من 0 إلى -100% في نفس النافذة
+   الزمنية التي تتحرك فيها الداخلة من +100% إلى 0 — أي أنهما متجاورتان دائماً
+   داخل الإطار فلا تظهر لحظة فراغ إطلاقاً.
+   النافذة [16.667% ← 19.667%] = 1.17 ثانية، ومدّة الثبات ≈ 5.3 ثانية. */
+@keyframes hosLoop {
+  0% {
+    transform: translateX(100%);
+  }
+  3% {
+    transform: translateX(0);
+  }
+  16.667% {
+    transform: translateX(0);
+  }
+  19.667% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes hosDot {
+  0%, 16.667% { background: var(--rz-gold); }
+  16.7%, 100% { background: rgba(var(--rz-white-rgb), 0.42); }
+}
+
+/* ===== تقليل الحركة: صورة واحدة ثابتة بلا دوران ===== */
+@media (prefers-reduced-motion: reduce) {
+  .hos-slide {
+    animation: none !important;
+    transform: none !important;
+  }
+  .hos-slide:not(:first-child) {
+    display: none !important;
+  }
+  .hos-dot {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .hos-frame {
+    height: clamp(148px, 46vw, 210px);
+    border-radius: 16px;
+  }
+  .hos-manage {
+    padding: 5px 10px;
+    font-size: 0.68rem;
+  }
+}

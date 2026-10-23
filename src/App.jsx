@@ -27,6 +27,7 @@ import useNotifications from './store/useNotifications';
 import { installGlobalClickSound } from './utils/clickSound';
 import { startSiteTextsSync } from './store/useSiteTexts';
 import { startInlineStylesSync } from './store/useInlineStyles';
+import { startOffersSync } from './store/useOffers';
 import { notifyOwner, formatArTime } from './utils/visitorNotify';
 import { recordKick } from './utils/kickLog';
 
@@ -592,6 +593,7 @@ function AppContent() {
 
     startSiteTextsSync();
     startInlineStylesSync();
+    startOffersSync();
 
     return installGlobalClickSound();
   }, []);

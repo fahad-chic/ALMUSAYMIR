@@ -25,6 +25,7 @@ import {
 
 import MarqueeBanner from './MarqueeBanner';
 import CommentsSection from './CommentsSection';
+import HomeOffersSlider from './HomeOffersSlider';
 import { MARQUEE_BANNERS, MARQUEE_BANNERS_2 } from './sectionsData';
 import '../../styles/NovHome.css';
 
@@ -50,6 +51,7 @@ const NovHomePage = () => {
   const [emailStatus, setEmailStatus] = useState('');
   const [openFaq, setOpenFaq] = useState(null);
   const [faqSectionOpen, setFaqSectionOpen] = useState(false);
+  const [footerLinksOpen, setFooterLinksOpen] = useState(false);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -77,6 +79,9 @@ const NovHomePage = () => {
       </div>
 
       <div className="nov-home">
+        {/* ===== شريط العروض المتحرك — تحت الترويسة مباشرة ===== */}
+        <HomeOffersSlider />
+
         {/* ===== الهيرو الملكي — مضغوط ومميز ===== */}
         <section className="nov-hero rz-hero nov-hero--compact">
           <div className="nov-hero-grid nov-hero-grid--compact">
@@ -87,10 +92,10 @@ const NovHomePage = () => {
               className="nov-hero-logo nov-hero-logo--lg"
             />
             <div>
-              <h1 className="nov-hero-title">المسيمير | ALMUSAYMIR</h1>
+              <h1 className="nov-hero-title">{BRAND.FULL}</h1>
               <p className="nov-hero-sub">
-                متجرك الشامل لكل ما تحتاجه — إلكترونيات، جوالات، أجهزة منزلية،
-                أزياء، أطفال، جمال وعناية، رياضة، سيارات وخدمات. جودة وثقة وأسعار منافسة.
+                متجرك الشامل — إلكترونيات وجوالات وأجهزة منزلية وأزياء
+                وخدمات، بجودة وثقة وأسعار منافسة.
               </p>
               <div className="nov-hero-cta nov-hero-cta--side">
                 <button
@@ -180,39 +185,41 @@ const NovHomePage = () => {
           )}
         </section>
 
-        {/* ===== الفوتر الملكي ===== */}
-        <footer className="rz-footer rz-footer--compact rz-footer--home-tight" style={{ borderRadius: 16 }}>
+        {/* ===== التذييل الملكي — مختصر، بلا تكرار لروابط الترويسة =====
+            روابط الأقسام/الحراج/الحساب موجودة في القائمة العلوية ودرج (+)،
+            لذا تُطوى هنا داخل زر واحد بدل تكرارها في أربعة أعمدة. */}
+        <footer className="rz-footer rz-footer--compact rz-footer--home-tight">
           <div className="rz-footer-inner">
-            <div className="rz-footer-top rz-footer-top--center">
+            <div className="rz-footer-top">
               <img src={LOGO_SRC} alt={`شعار ${BRAND.FULL}`} className="rz-footer-logo" loading="lazy" />
               <p className="rz-footer-tag">{BRAND.FULL} — متجرك الشامل</p>
             </div>
 
-            <div className="rz-footer-cols">
-              <div className="rz-footer-col">
-                <h4>متجر {BRAND.AR}</h4>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate(STORE_HOME_PATH); }}>جميع المنتجات</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>الكتالوجات</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/advertisements'); }}>العروض</a>
-              </div>
-              <div className="rz-footer-col">
-                <h4>الحراج</h4>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/haraj'); }}>الحراج الرئيسي</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/haraj/post'); }}>أضف إعلانك</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/wanted-dress'); }}>الطلبات الخاصة</a>
-              </div>
-              <div className="rz-footer-col">
-                <h4>الحساب</h4>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/settings'); }}>ملفي الشخصي</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/chat'); }}>رسائلي</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>إشعاراتي</a>
-              </div>
-              <div className="rz-footer-col">
-                <h4>المساعدة</h4>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/faq'); }}>الأسئلة الشائعة</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>تواصل معنا</a>
-                <a href="/" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>شروط وأحكام الاستخدام</a>
-              </div>
+            <div className="rz-footer-fold">
+              <button
+                type="button"
+                className="rz-footer-fold-head"
+                aria-expanded={footerLinksOpen}
+                onClick={() => setFooterLinksOpen((v) => !v)}
+              >
+                <span>روابط سريعة</span>
+                <span aria-hidden="true">
+                  {footerLinksOpen ? <Minus size={15} /> : <Plus size={15} />}
+                </span>
+              </button>
+
+              {footerLinksOpen && (
+                <div className="rz-footer-fold-body">
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate(STORE_HOME_PATH); }}>جميع المنتجات</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>كل الأقسام</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/advertisements'); }}>العروض</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/haraj'); }}>الحراج</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/haraj/post'); }}>أضف إعلانك</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/faq'); }}>الأسئلة الشائعة</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>تواصل معنا</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>شروط الاستخدام</a>
+                </div>
+              )}
             </div>
 
             <div className="rz-footer-bottom rz-footer-bottom--center">

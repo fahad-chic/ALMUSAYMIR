@@ -72,6 +72,28 @@ body::after {
   background-color: transparent !important;
 }
 
+/* ===== إظهار خلفية الرياض في كل الصفحات =====
+   .rh-root (الحراج + الكتالوج) كان يرسم خلفية عاجية معتمة تحجب المدينة،
+   و.rh-bg كان يرسم تدرّجاً كريمياً فوقها. كلاهما يُفرَّغ الآن لتظهر
+   صورة الرياض، مع بقاء حجاب body::after الخفيف لقراءة النصوص الداكنة. */
+.rh-root {
+  background: transparent !important;
+}
+
+.rh-root .rh-bg {
+  background: transparent !important;
+}
+
+.rh-root .rh-bg::after {
+  display: none !important;
+}
+
+/* الحاويات الجذرية الأخرى كانت شفافة أصلاً — نثبّتها بلا خلفية */
+.ch-root,
+.nov-home {
+  background: transparent;
+}
+
 /* القائمة الجانبية داكنة */
 .rz-drawer {
   background: linear-gradient(180deg, #161820 0%, #0f141c 100%) !important;

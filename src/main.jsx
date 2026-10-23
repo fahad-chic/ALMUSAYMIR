@@ -13,6 +13,7 @@ import './styles/rooz-pearl.css'
 import './styles/theme.css'
 import './styles/rooz-luxury-3d.css'
 import './styles/rooz-site-backdrop.css'
+import './styles/home-slim.css'
 
 /* ── استقرار تحميل المقاطع (chunks) ──
  * عند فشل تحميل أي مقطع ديناميكي (بصمة قديمة بعد نشر جديد، أو خطأ MIME
