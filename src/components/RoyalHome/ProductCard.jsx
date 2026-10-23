@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Ruler, ShoppingBag, Ban, Pencil, X } from 'lucide-react';
+import { Ruler, ShoppingBag, Ban, Pencil, X, MessageCircle, Building2, Copy, Check } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
 import useStore from '../../store/useStore';
 
 const ProductIcon = ({ size = '4rem', color = 'var(--rz-primary)' }) => (
@@ -16,6 +18,12 @@ const ProductCard = ({
   const [imageError, setImageError] = useState(false);
   const [guestBlocked, setGuestBlocked] = useState(false);
   const isGuest = useStore((s) => s.userRole === 'guest');
+  const user = useStore((s) => s.user);
+  const userRole = useStore((s) => s.userRole);
+  const isAuthed = Boolean(user?.uid || user?.email) && userRole !== 'guest';
+  const [bankOpen, setBankOpen] = useState(false);
+  const [msgStatus, setMsgStatus] = useState('idle');
+  const [copied, setCopied] = useState('');
 
   const GuestBlockOverlay = () =>
     guestBlocked
@@ -138,6 +146,211 @@ const ProductCard = ({
 
     return `${numericPrice.toLocaleString('ar-SA')} ر.س`;
   };
+
+  const bankRajhi = {
+    name: import.meta.env.VITE_BANK_RAJHI_NAME || 'بنك الراجحي',
+    iban: import.meta.env.VITE_BANK_RAJHI_IBAN || '',
+    account: import.meta.env.VITE_BANK_RAJHI_ACCOUNT || '',
+  };
+  const bankArabi = {
+    name: import.meta.env.VITE_BANK_ARABI_NAME || 'البنك العربي',
+    iban: import.meta.env.VITE_BANK_ARABI_IBAN || '',
+    account: import.meta.env.VITE_BANK_ARABI_ACCOUNT || '',
+  };
+
+  const handleMessageOwner = async () => {
+    if (isGuest || !isAuthed) {
+      setGuestBlocked(true);
+      return;
+    }
+    if (msgStatus === 'sending') return;
+    setMsgStatus('sending');
+    try {
+      const productName = product?.name || 'منتج';
+      const priceText = formatPrice(product?.price);
+      const body =
+        `طلب شراء من المتجر\n` +
+        `المنتج: ${productName}\n` +
+        `السعر: ${priceText}\n` +
+        (product?.id ? `رمز المنتج: ${product.id}\n` : '') +
+        `أرغب بالشراء والتواصل لإتمام الطلب.`;
+      await addDoc(collection(db, 'messages'), {
+        senderId: user?.uid || user?.email || 'member',
+        uid: user?.uid || null,
+        senderEmail: user?.email || null,
+        senderPhone: user?.phone || null,
+        senderName: user?.displayName || user?.name || user?.email || '',
+        receiverId: 'owner',
+        text: body,
+        productId: product?.id || null,
+        productName,
+        productPrice: product?.price ?? null,
+        read: false,
+        createdAt: serverTimestamp(),
+        timestamp: serverTimestamp(),
+        type: 'store_purchase_inquiry',
+      });
+      setMsgStatus('sent');
+      setTimeout(() => setMsgStatus('idle'), 2500);
+    } catch {
+      setMsgStatus('error');
+      setTimeout(() => setMsgStatus('idle'), 2500);
+    }
+  };
+
+  const copyText = async (value, key) => {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(key);
+      setTimeout(() => setCopied(''), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const StoreActions = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: '0.75rem', width: '100%' }}>
+      <button
+        type="button"
+        onClick={handleMessageOwner}
+        disabled={msgStatus === 'sending'}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          padding: '0.55rem 0.75rem',
+          borderRadius: 12,
+          border: 'none',
+          cursor: 'pointer',
+          fontFamily: 'Tajawal',
+          fontWeight: 800,
+          fontSize: '0.8rem',
+          background: 'linear-gradient(135deg, var(--rz-primary), #1e293b)',
+          color: 'var(--rz-white)',
+        }}
+      >
+        <MessageCircle size={16} />
+        {msgStatus === 'sending' ? 'جاري الإرسال...' : msgStatus === 'sent' ? 'تم إرسال الطلب' : msgStatus === 'error' ? 'تعذر الإرسال' : 'مراسلتي للشراء'}
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          if (isGuest || !isAuthed) {
+            setGuestBlocked(true);
+            return;
+          }
+          setBankOpen(true);
+        }}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          padding: '0.55rem 0.75rem',
+          borderRadius: 12,
+          border: '1.5px solid rgba(201,162,39,0.55)',
+          cursor: 'pointer',
+          fontFamily: 'Tajawal',
+          fontWeight: 800,
+          fontSize: '0.8rem',
+          background: 'rgba(255,252,247,0.95)',
+          color: 'var(--rz-ink)',
+        }}
+      >
+        <Building2 size={16} color="var(--rz-gold)" />
+        الحساب للتحويل
+      </button>
+    </div>
+  );
+
+  const BankModal = () =>
+    bankOpen
+      ? createPortal(
+          <div
+            dir="rtl"
+            onClick={() => setBankOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 16000,
+              background: 'rgba(15,23,42,0.65)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 16,
+              fontFamily: 'Tajawal',
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: 'min(420px, 100%)',
+                background: 'var(--rz-ivory)',
+                borderRadius: 18,
+                border: '1.5px solid rgba(201,162,39,0.45)',
+                padding: '1.25rem',
+                color: 'var(--rz-ink)',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.25)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900 }}>الحساب للتحويل</h3>
+                <button type="button" onClick={() => setBankOpen(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
+                  <X size={20} />
+                </button>
+              </div>
+              <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--rz-muted)', lineHeight: 1.6 }}>
+                حول على أحد الحسابين ثم راسل المالك بإيصال التحويل مع اسم المنتج.
+              </p>
+              {[{ key: 'rajhi', ...bankRajhi }, { key: 'arabi', ...bankArabi }].map((b) => (
+                <div
+                  key={b.key}
+                  style={{
+                    marginBottom: 12,
+                    padding: 12,
+                    borderRadius: 14,
+                    background: 'var(--rz-white)',
+                    border: '1px solid rgba(var(--rz-ink-rgb),0.08)',
+                  }}
+                >
+                  <div style={{ fontWeight: 900, marginBottom: 6 }}>{b.name}</div>
+                  {b.account ? (
+                    <div style={{ fontSize: 13, marginBottom: 4 }}>حساب: {b.account}</div>
+                  ) : null}
+                  <div style={{ fontSize: 12, wordBreak: 'break-all', marginBottom: 8 }}>IBAN: {b.iban || '—'}</div>
+                  <button
+                    type="button"
+                    onClick={() => copyText(b.iban, b.key)}
+                    disabled={!b.iban}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      border: 'none',
+                      borderRadius: 10,
+                      padding: '8px 12px',
+                      background: 'var(--rz-primary)',
+                      color: '#fff',
+                      fontWeight: 800,
+                      fontSize: 12,
+                      cursor: b.iban ? 'pointer' : 'not-allowed',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {copied === b.key ? <Check size={14} /> : <Copy size={14} />}
+                    {copied === b.key ? 'تم النسخ' : 'نسخ الآيبان'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
 
   const handleWhatsApp = () => {
     if (isGuest) {
@@ -367,7 +580,11 @@ const ProductCard = ({
           </button>
         </div>
 
+        <>
+        <StoreActions />
+        <BankModal />
         <GuestBlockOverlay />
+      </>
       </div>
     );
   }
@@ -550,7 +767,11 @@ const ProductCard = ({
           </button>
         </div>
 
+        <>
+        <StoreActions />
+        <BankModal />
         <GuestBlockOverlay />
+      </>
       </div>
     );
   }
@@ -706,12 +927,20 @@ const ProductCard = ({
           </button>
         </div>
 
+        <>
+        <StoreActions />
+        <BankModal />
         <GuestBlockOverlay />
+      </>
       </div>
     );
   }
 
-  return <GuestBlockOverlay />;
+  return <>
+        <StoreActions />
+        <BankModal />
+        <GuestBlockOverlay />
+      </>;
 };
 
 export default ProductCard;
