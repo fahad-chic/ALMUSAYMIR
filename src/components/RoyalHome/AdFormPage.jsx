@@ -90,7 +90,9 @@ const AdFormPage = () => {
   const [agreed, setAgreed] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    category: '',
+    publisherName: '',
+    publisherPhone: '',
+    category: 
     size: '',
     price: '',
     description: '',
@@ -232,6 +234,8 @@ const AdFormPage = () => {
     const name = formData.name.trim();
     const description = formData.description.trim();
     const location = formData.location.trim();
+    const publisherName = (formData.publisherName || '').trim();
+    const publisherPhone = String(formData.publisherPhone || '').replace(/\D/g, '');
     const price = Number(formData.price);
     if (!name) {
       newErrors.name = 'اسم السلعة مطلوب';
@@ -253,6 +257,17 @@ const AdFormPage = () => {
       newErrors.description = 'يرجى كتابة وصف أوضح للسلعة';
     }
     const hasAtLeastOneImage = formData.images.some(Boolean);
+
+    if (!publisherName) {
+      setSubmitError('اكتب اسم المعلن كما سيظهر في الإعلان.');
+      setSubmitting(false);
+      return;
+    }
+    if (publisherPhone.length < 9 || publisherPhone.length > 15) {
+      setSubmitError('أدخل رقم جوال المعلن بشكل صحيح (9–15 رقمًا). لا يُستخدم رقم الموقع.');
+      setSubmitting(false);
+      return;
+    }
     if (!hasAtLeastOneImage) {
       newErrors.images = 'يجب إضافة صورة واحدة على الأقل';
     }
@@ -381,13 +396,11 @@ const AdFormPage = () => {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         userName:
-          harajUser.name ||
-          harajUser.userName ||
+          publisherName ||
+          harajUser?.name ||
+          harajUser?.userName ||
           '',
-        userPhone:
-          harajUser.phone ||
-          harajUser.userPhone ||
-          '',
+        userPhone: publisherPhone,
         userEmail:
           harajUser.email ||
           harajUser.userEmail ||
@@ -793,6 +806,57 @@ const AdFormPage = () => {
                   boxSizing: 'border-box',
                 }}
               />
+
+              <label style={{ display: 'block', marginTop: '0.85rem', marginBottom: 6, color: 'var(--rz-gold)', fontWeight: 700, fontSize: '0.9rem' }}>
+                اسم المعلن *
+              </label>
+              <input
+                type="text"
+                name="publisherName"
+                value={formData.publisherName}
+                onChange={handleChange}
+                placeholder="اسمك كما يظهر للمشترين"
+                style={{
+                  width: '100%',
+                  background: 'var(--rz-ivory)',
+                  border: '1px solid rgba(var(--rz-primary-rgb), 0.2)',
+                  borderRadius: 12,
+                  padding: '0.85rem 1rem',
+                  color: 'var(--rz-ink)',
+                  fontSize: '0.95rem',
+                  fontFamily: 'inherit',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+
+              <label style={{ display: 'block', marginTop: '0.85rem', marginBottom: 6, color: 'var(--rz-gold)', fontWeight: 700, fontSize: '0.9rem' }}>
+                جوال المعلن *
+              </label>
+              <input
+                type="tel"
+                name="publisherPhone"
+                inputMode="numeric"
+                value={formData.publisherPhone}
+                onChange={handleChange}
+                placeholder="05xxxxxxxx"
+                style={{
+                  width: '100%',
+                  background: 'var(--rz-ivory)',
+                  border: '1px solid rgba(var(--rz-primary-rgb), 0.2)',
+                  borderRadius: 12,
+                  padding: '0.85rem 1rem',
+                  color: 'var(--rz-ink)',
+                  fontSize: '0.95rem',
+                  fontFamily: 'inherit',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--rz-muted)' }}>
+                يظهر رقمك للمشترين — لا يُستخدم رقم صاحب الموقع.
+              </p>
+
               {errors.name && (
                 <p
                   style={{
