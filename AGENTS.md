@@ -188,3 +188,63 @@
   لا توجد بيانات اعتماد كتابة في هذه البيئة (`git push --dry-run` يفشل بطلب اسم المستخدم).
   **الموقع الحي `rooz-store.pages.dev` لا يزال بلا شريط العروض ولا خلفية الحراج المُصلَحة**
   لأن العمل غير مدفوع. يلزم: موافقة المالك + رمز دفع، أو تنفيذ `git commit && git push` من جهته.
+
+## جولة إصلاح تقرير الفحص (fix/audit-report-repairs) — 2026-10-22
+**سياق**: تقرير فحص ثابت (قراءة 177 ملفاً) ادّعى أخطاء. تحقّق حيّ + قراءة كود أظهر أن
+**عدة بنود غير دقيقة**، وبعضها صحيح فعلاً. لم يُحذف أي ملف (قاعدة المالك سارية).
+
+### أُصلح فعلاً (7 بنود)
+- **كاش الشعارات (`public/_headers`)**: كانت كل `/assets/*` بـ `max-age=31536000, immutable`
+  — لكن ملفات العلامة **بلا بصمة اسم** (`logo-almusaymir.png`, `logo-almusaymir-wide.png`,
+  `emblem.png`, `og-image.jpg`, `bg-riyadh-night.jpg`). أي تحديث للشعار كان يبقى سنة في كاش
+  المتصفح. أُضيف لكل ملف قاعدة `! Cache-Control` + `max-age=0, must-revalidate`
+  (صيغة إلغاء الترويسة الموثّقة في Cloudflare). الأصول المُبصَّمة (`dist/assets/*-[hash].js`)
+  تبقى `immutable` كما هي.
+- **`og:image`/Twitter مفقودة**: `index.html` لم يكن فيه أي وسم Open Graph، و`og-image.jpg`
+  (37KB) مُخدَّم بلا مرجع → صورة مشاركة فارغة في واتساب/تويتر. أُضيفت 11 وسمًا (og:* + twitter:*)
+  مع `og:image:width/height` و`og:locale=ar_SA`.
+- **`favicon.ico` غير مربوط**: الملف موجود (96KB، مُبقى بقرار المالك) و`/favicon.ico` يعمل،
+  لكن لا `<link>` يشير إليه — أُضيف.
+- **`App.jsx` لا يسقط على `VITE_ADMIN_EMAILS`**: بقية الملفات (`useStore`, `firebase/index.js`,
+  `AuthContext`) تقرأ `VITE_OWNER_EMAILS || VITE_ADMIN_EMAILS`؛ `App.jsx` كان يقرأ الأول فقط.
+  أُضيف السقوط — يمنع طرد المالك لو ضُبط `VITE_ADMIN_EMAILS` وحده.
+- **تعارض إصدار Node**: `.nvmrc`=22 · `package.json engines` >=20 · CI `node-version: '20'` ·
+  README=22. وُحّد الكل على **22** (4 وظائف في CI + engines).
+- **كود ميت حقيقي أُزيل** (بلا مكسب بايت — tree-shaken، لكنه تنظيف مصدر):
+  `initAuthListener` (useStore.js — لا مستدعي)، وتبعها `apiCall` (صار بلا مستدعي؛ `API_BASE`
+  **بقي** لأن OTP يستخدمه)، و`LOGO_SRC`+استيراد `BRAND` في `RoyalHarajPage.jsx` (غير مستخدمين)،
+  ونموذج اشتراك بريد وهمي في `NovHomePage.jsx` (`email`/`emailStatus`/`handleSubscribe` —
+  **لم يكن مُصيَّراً في JSX إطلاقاً**، فلا `<form>` ولا `<input>`؛ أُزيل بدل ربطه بـ Firestore).
+- **`robots.txt`**: كان يحجب مسارات وهمية (`/owner-panel` كانت `Disallow` وهي المسار الصحيح
+  للمالك، و`/owner` مذكور بلا مسار فعلي). أُعيد كتابته: منع `/owner-panel`, `/owner-room`,
+  `/owner-private-room`, `/settings`, `/api/` + سماح صريح لروبوتات الذكاء + Sitemap.
+- **`sitemap.xml`**: كان 12 رابطاً فيهم أقسام قديمة. أُعيد بناؤه بـ **20 رابطاً** كلها مسارات
+  فعلية في `App.jsx` (13 قسم كتالوج + haraj + branches + advertisements + about/faq/contact/
+  terms + wanted-dress) — XML صالح مُتحقَّق بـ ElementTree.
+- **`.env.example`**: كان ناقصاً 8 متغيرات مستخدمة فعلاً (`VITE_SHIPPING_FEE`,
+  `VITE_FREE_SHIPPING_MIN`, `VITE_AI_NAME`, `VITE_RETURN_POLICY_DAYS`, `VITE_SNAPCHAT_URL/USERNAME`,
+  `VITE_PHONE_*_DISPLAY`, `VITE_STORE_NAME/DESCRIPTION`, `VITE_OWNER_SOUND_URL`,
+  `VITE_SOUND_DURATION_SECONDS`) + أسرار الخادم (`GROQ_API_KEY`, `RESEND_API_KEY`,
+  `OTP_FROM_EMAIL`, `FIREBASE_WEB_API_KEY`) + شرح ربط D1. أُضيف تحذير أن `VITE_OWNER_SECRET_CODE`
+  **يظهر في حزمة المتصفح** (ليس سراً حقيقياً؛ الحماية من `/api/owner-pin`).
+
+### بنود التقرير التي ثبت أنها **غير صحيحة** (لم تُعدَّل)
+- **`public/_redirects` مفقود ≠ عطل**: كل الروابط العميقة تعمل حيًّا HTTP 200 مع بنية SPA
+  (`/haraj`, `/about`, `/faq`, `/terms`, `/catalog/*`, `/owner-room`, `/owner-panel`, وحتى
+  `/foo/bar/baz`). Cloudflare Pages يقدّم SPA fallback تلقائياً لمشروع Vite. إضافة `/* /index.html 200`
+  قد **تعترض** `/api/*` (الدوال تُخدَم من `functions/`) وتكسر OTP/المساعد. أُنشئ الملف ثم **حُذف**
+  لأنه بلا قاعدة = بلا أثر؛ القرار: لا `_redirects`.
+- **الحراج لا يُقرأ للزائر**: كاذب. فحص حيّ بجلسة زائر: **كل** طلبات Firestore = 200، وشبكة
+  `.ads-grid` موجودة. الحراج يعمل.
+- **أصول يتيمة** (`logo.png`, `icon-128/144/152/384`): **غير موجودة أصلاً** في الشجرة
+  (أُزيلت سابقاً + نُظّف `manifest.json`). لا شيء ليُحذف.
+- **أيقونات PWA 404**: الموجود 4 أيقونات فقط (72/96/192/512) وكلها مُشار إليها في `manifest.json`.
+- **مكوّنات غير مربوطة / مسارات ميتة**: 118/120 ملف مصدر مستخدم (رسم استيراد دقيق، لا `grep` ساذج).
+
+### قرارات المالك — لا تحذف
+`src/permissions/requirePerm.js` · `src/utils/wcag.js` (+ اختباره) · `public/assets/og-image.jpg`
+· `public/favicon.ico` · `public/sw.js`. (og-image.jpg الآن **مستخدم فعلاً** في وسوم OG.)
+
+### البوابات بعد الجولة
+BUILD ✓ · LINT exit 0 ✓ · VITEST **15 ملفاً/113 اختباراً** ✓ · CONTRAST OVERALL PASS ✓ ·
+FULL AUDIT **66/66 (0 أخطاء، 0 تحذيرات)** ✓ · XML sitemap صالح ✓ · كل مسارات preview = 200 ✓.

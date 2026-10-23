@@ -33,6 +33,29 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# ملفات العلامة بلا بصمة اسم (يُستبدل محتواها بنفس المسار) — إلغاء الكاش
+# الأبدي عنها كي يظهر الشعار الجديد فوراً بعد النشر بلا انتظار سنة.
+# قاعدة "! Header" تحذف ترويسة القاعدة الأكثر شمولاً (/assets/*) أعلاه.
+/assets/logo-almusaymir.png
+  ! Cache-Control
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/logo-almusaymir-wide.png
+  ! Cache-Control
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/emblem.png
+  ! Cache-Control
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/og-image.jpg
+  ! Cache-Control
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/bg-riyadh-night.jpg
+  ! Cache-Control
+  Cache-Control: public, max-age=0, must-revalidate
+
 # Sounds - cache but allow revalidation
 /sounds/*
   Cache-Control: public, max-age=3600, must-revalidate

@@ -4,22 +4,27 @@
 User-agent: *
 Allow: /
 
-# Admin & Private Pages - Block All Bots (لحماية لوحتك السرية)
+# لوحات الإدارة والغرف الخاصة — منع الفهرسة
 Disallow: /admin
 Disallow: /owner
-Disallow: /settings
+Disallow: /owner-room
+Disallow: /owner-panel
+Disallow: /owner-private-room
 Disallow: /dashboard
+Disallow: /settings
+Disallow: /inbox
 Disallow: /complaints
 Disallow: /notifications
 Disallow: /otp
 Disallow: /users
+Disallow: /employees
 Disallow: /chat
 Disallow: /ai-chat
 
-# API Routes
+# مسارات الخدمات الخلفية
 Disallow: /api/
 
-# السماح لجميع روبوتات الذكاء الاصطناعي ومحركات البحث بالقراءة والإعلان عن موقعك
+# السماح لروبوتات الذكاء الاصطناعي ومحركات البحث
 User-agent: GPTBot
 Allow: /
 
@@ -33,4 +38,3 @@ User-agent: anthropic-ai
 Allow: /
 
 Sitemap: https://rooz-store.pages.dev/sitemap.xml
-

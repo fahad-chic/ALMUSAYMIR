@@ -125,6 +125,7 @@ const OWNER_WELCOME_MESSAGE =
 const OWNER_EMAILS = new Set(
   (
     import.meta.env.VITE_OWNER_EMAILS ||
+    import.meta.env.VITE_ADMIN_EMAILS ||
     'f882771f@gmail.com,kal6667222@gmail.com'
   )
     .split(',')

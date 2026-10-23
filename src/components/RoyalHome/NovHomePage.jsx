@@ -47,21 +47,9 @@ const FAQ_ITEMS = [
 const NovHomePage = () => {
   const navigate = useNavigate();
   const [showAddHelp, setShowAddHelp] = useState(false);
-  const [email, setEmail] = useState('');
-  const [emailStatus, setEmailStatus] = useState('');
   const [openFaq, setOpenFaq] = useState(null);
   const [faqSectionOpen, setFaqSectionOpen] = useState(false);
   const [footerLinksOpen, setFooterLinksOpen] = useState(false);
-
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailStatus('يرجى إدخال بريد صحيح');
-      return;
-    }
-    setEmailStatus('تم الاشتراك بنجاح');
-    setEmail('');
-  };
 
   return (
     <div className="ch-root" dir="rtl">

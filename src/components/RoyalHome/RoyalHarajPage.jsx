@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { colorAlpha } from '../../utils/color';
-import { BRAND } from '../../data/brand';
 import {
   Crown,
   Plus,
@@ -75,8 +74,6 @@ const C = {
   red: 'var(--rz-primary)',
 };
 
-
-const LOGO_SRC = BRAND.LOGO;
 
 const BANK_ICONS = { alrajhi: Building2, arabank: Landmark };
 const BANK_ACCOUNTS = CONST_BANKS.map((b) => ({

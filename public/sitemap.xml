@@ -1,125 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
-  <!-- الصفحة الرئيسية -->
-  <!-- صفحة تسجيل الدخول -->
-  <!-- صفحة التسجيل -->
-  <!-- نسيت كلمة المرور -->
-  <!-- لوحة التحكم -->
-  <!-- اتصل بنا -->
-  <!-- من نحن -->
-  <!-- منصة الإعلانات - الرئيسية -->
-  <!-- إضافة إعلان جديد -->
-  <!-- الإعلانات -->
-  <!-- الأقسام الرئيسية للكتالوج -->
-  <!-- فساتين -->
-  <!-- العبايات -->
-  <!-- الشنط -->
-  <!-- الأحذية -->
-  <!-- العطورات -->
-  <!-- أمهاتنا -->
-  <!-- الأسر المنتجة -->
-  <!-- الفروع -->
-  <!-- الموظفون -->
-  <!-- الدردشة -->
-  <!-- الذكاء الاصطناعي -->
-  
-<url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
     <loc>https://rooz-store.pages.dev/</loc>
-    <lastmod>2026-01-01</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/contact</loc>
-    <lastmod>2026-01-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-
-
-<url>
+  <url>
     <loc>https://rooz-store.pages.dev/haraj</loc>
-    <lastmod>2026-01-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-
-
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/dresses</loc>
-    <lastmod>2026-01-01</lastmod>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/electronics</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/mobiles</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/wedding-dresses</loc>
-    <lastmod>2026-01-01</lastmod>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/home-appliances</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/girls-dresses</loc>
-    <lastmod>2026-01-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/used-dresses</loc>
-    <lastmod>2026-01-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/abayas</loc>
-    <lastmod>2026-01-01</lastmod>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/fashion</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/bags</loc>
-    <lastmod>2026-01-01</lastmod>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/kids</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/shoes</loc>
-    <lastmod>2026-01-01</lastmod>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/beauty</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/perfumes</loc>
-    <lastmod>2026-01-01</lastmod>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/sports</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/golden-mothers</loc>
-    <lastmod>2026-01-01</lastmod>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/cars</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/home-supplies</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/services</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/catalog/others</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
-
-<url>
-    <loc>https://rooz-store.pages.dev/catalog/home-products</loc>
-    <lastmod>2026-01-01</lastmod>
+  <url>
+    <loc>https://rooz-store.pages.dev/branches</loc>
     <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/advertisements</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/about</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
-
-
-
+  <url>
+    <loc>https://rooz-store.pages.dev/faq</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://rooz-store.pages.dev/wanted-dress</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
 </urlset>

@@ -36,22 +36,6 @@ import { ensureFirebaseSession } from "../utils/firebaseSession";
 // API helpers للـ Auth (D1)
 const API_BASE = "/api";
 
-async function apiCall(endpoint, method = "POST", body = null) {
-  const options = {
-    method,
-    headers: { "Content-Type": "application/json" },
-  };
-  if (body) options.body = JSON.stringify(body);
-
-  const token = localStorage.getItem("auth_token");
-  if (token) options.headers["Authorization"] = `Bearer ${token}`;
-
-  const res = await fetch(`${API_BASE}${endpoint}`, options);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "حدث خطأ");
-  return data;
-}
-
 // قائمة السماح: تُقرأ من متغيرات البيئة مع قيمة افتراضية للتوافق
 const ENV_EMAILS = (
   import.meta.env.VITE_OWNER_EMAILS ||
@@ -235,47 +219,6 @@ const useStore = create(
   },
 
   setOtpSent: (val) => set({ otpSent: val }),
-
-  // مستمع المصادقة - يستخدم D1 API مع fallback
-  initAuthListener: async () => {
-    set({ loading: true });
-    
-    // محاولة التحقق من_session D1
-    const token = localStorage.getItem("auth_token");
-    if (token) {
-      try {
-        const data = await apiCall("/auth/verify", "GET");
-        if (data.authenticated) {
-          const user = data.user;
-          const role = user.role || (isOwnerEmail(user.email) ? "owner" : "user");
-          
-          set({
-            user: { ...user, uid: user.id },
-            userRole: role,
-            isAuthenticated: true,
-            loading: false,
-          });
-          return;
-        }
-      } catch (_) {
-        localStorage.removeItem("auth_token");
-      }
-    }
-
-    // التحقق من جلسة الزائر
-    const guestSession = get().checkGuestSession?.();
-    if (guestSession) {
-      set({
-        user: guestSession,
-        userRole: "guest",
-        isAuthenticated: true,
-        loading: false,
-      });
-      return;
-    }
-
-    set({ loading: false });
-  },
 
   // مسح هوية الزائر الراكدة نهائياً — تُستدعى قبل كل دخول حقيقي (بريد/Google)
   // وبعد وصول مستخدم Firebase حقيقي في AuthContext حتى لا تلطخ جلسة
