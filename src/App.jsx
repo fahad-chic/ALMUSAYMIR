@@ -16,8 +16,7 @@ import {
 import { db, auth } from './firebase/config';
 import { getAuth } from 'firebase/auth';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { ensureFirebaseSession } from './utils/firebaseSession';
-import { Clock, X } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 import { AdminProvider } from './context/AdminContext';
 import { useAuth } from './context/AuthContext';
@@ -32,6 +31,7 @@ import { notifyOwner, formatArTime } from './utils/visitorNotify';
 import { recordKick } from './utils/kickLog';
 
 import { Login } from './components/Login';
+import VerifyEmailGate from './components/VerifyEmailGate';
 
 import BackButton from './components/BackButton';
 import CloseButton from './components/CloseButton';
@@ -50,7 +50,6 @@ import SettingsPage from './components/pages/SettingsPage';
 import OTPPage from './components/pages/OTPPage';
 import MemberInbox from './components/pages/MemberInbox';
 import NotificationPanel from './components/NotificationPanel';
-import OtpModal from './components/OtpModal';
 
 import ComplaintsPage from './components/pages/ComplaintsPage';
 import './styles/global.css';
@@ -143,7 +142,6 @@ const SOUND_DURATION_SECONDS =
    Fixed bars heights
    ========================================================= */
 
-const GUEST_BAR_HEIGHT = 36;
 const OWNER_BANNER_HEIGHT = 48;
 
 /* =========================================================
@@ -278,13 +276,8 @@ const UnauthorizedPage = () => {
    Protected Route
    ========================================================= */
 
-const ProtectedRoute = ({ children, roleRequired, blockGuest }) => {
+const ProtectedRoute = ({ children, roleRequired }) => {
   const { user, userRole, isAuthenticated } = useAuth();
-
-  const guestActive = useStore((s) => s.guestSession?.active);
-
-  const isGuest =
-    useStore((s) => s.userRole === 'guest') || guestActive;
 
   const liveAuth =
     auth ||
@@ -298,6 +291,12 @@ const ProtectedRoute = ({ children, roleRequired, blockGuest }) => {
 
   const currentFirebaseUser = liveAuth?.currentUser || null;
   const hasFirebaseSession = !!currentFirebaseUser;
+
+  // الشرط الوحيد لفتح أي مسار: عضو حقيقي (ليس مجهولاً) بريده موثّق.
+  // لا جلسة زائر ولا جلسة مجهولة تمنح وصولاً بعد الآن.
+  const memberUser = currentFirebaseUser || user;
+  const isVerifiedMember =
+    !!memberUser?.emailVerified && !memberUser?.isAnonymous;
 
   const sessionPending =
     hasFirebaseSession &&
@@ -322,18 +321,14 @@ const ProtectedRoute = ({ children, roleRequired, blockGuest }) => {
     return <LoadingScreen />;
   }
 
-  const effectiveAuthenticated =
-    isAuthenticated ||
-    (hasFirebaseSession && pendingExpired);
+  // عضو مسجّل لكن بريده لم يُوثَّق → شاشة إثبات الملكية، ولا محتوى للمتجر.
+  if (hasFirebaseSession && !isVerifiedMember) {
+    return <VerifyEmailGate />;
+  }
 
-  const allowed =
-    effectiveAuthenticated ||
-    (!roleRequired && !blockGuest && guestActive);
-
-  if (!allowed) {
+  if (!isVerifiedMember) {
     recordKick('protected-route-no-session', {
       roleRequired: roleRequired || null,
-      blockGuest: !!blockGuest,
       isAuthenticated,
       hasFirebaseSession,
       pendingExpired,
@@ -368,21 +363,14 @@ const ProtectedRoute = ({ children, roleRequired, blockGuest }) => {
     }
   }
 
-  if (blockGuest && isGuest) {
-    return <Navigate to="/login" replace />;
-  }
-
   return children;
 };
 
-/* مسار الدخول: يعرض النموذج لغير المسجّل، ويحوّل المسجّل الحقيقي إلى الرئيسية.
-   مهم: الزائر (جلسة مؤقتة) لا يُعتبر مسجّلاً هنا — وإلا حُوِّل إلى "/" فوراً
-   فلم يستطع الدخول بحسابه أبداً، وخَلَق مع blockGuest في "/" حلقة توجيه.
-   كذلك الجلسة المجهولة من Firebase (تُنشأ تلقائياً عبر ensureFirebaseSession
-   لأجل إشعارات/قراءات Firestore) ليست تسجيل دخول حقيقي؛ لو حُسبت "مُسجّلاً"
-   لرُمي الزائر الجديد الذي يفتح /login مباشرةً إلى "/" فوراً. */
-const LoginRoute = ({ isAuthenticated, isGuest, isAnonymousSession, children }) => {
-  if (isAuthenticated && !isGuest && !isAnonymousSession) {
+/* مسار الدخول: يعرض النموذج لغير المسجّل، ويحوّل المسجّل الموثّق إلى الرئيسية.
+   الشرط الوحيد: حساب حقيقي (ليس مجهولاً) بريده موثّق. العضو غير الموثّق يبقى
+   في شاشة إثبات الملكية (VerifyEmailGate) التي يعرضها ProtectedRoute. */
+const LoginRoute = ({ isVerifiedMember, children }) => {
+  if (isVerifiedMember) {
     return <Navigate to="/" replace />;
   }
 
@@ -405,17 +393,11 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // الزائر = جلسة مؤقتة بلا حساب حقيقي. يجب أن يطابق اشتقاق AuthContext
-  // (userRole === 'guest' || guestSession.active) وإلا اختلف حكم LoginRoute
-  // عن حكم ProtectedRoute فتنشأ حلقة توجيه بين "/" و "/login".
-  const isGuest = useStore(
-    (s) => s.userRole === 'guest' || !!s.guestSession?.active
-  );
-
-  // جلسة Firebase مجهولة (بلا بريد) — تُنشأ تلقائياً من ensureFirebaseSession
-  // لأجل الكتابة/القراءة في Firestore، وليست تسجيل دخول حقيقي. نفرّق بها حتى
-  // لا يُرمى الزائر الجديد من /login إلى "/".
-  const isAnonymousSession = !!user?.isAnonymous;
+  // الشرط الوحيد لفتح الموقع أو تحويل المستخدم بعيداً عن /login:
+  // حساب حقيقي (ليس مجهولاً) بريده موثّق. لا جلسة زائر ولا جلسة مجهولة.
+  const liveFirebaseUser = auth?.currentUser || user;
+  const isVerifiedMember =
+    !!liveFirebaseUser?.emailVerified && !liveFirebaseUser?.isAnonymous;
 
   // ربط زر الإغلاق العام (❌) بمُوجّه react-router — فيتنقل خطوة للخلف
   // داخلياً دون إعادة تحميل أو مغادرة الموقع.
@@ -490,45 +472,6 @@ function AppContent() {
       prevPathRef.current = current;
     }
   }, [location.pathname]);
-
-  const guestExpired = useStore((s) => s.guestExpired);
-  const guestWarning = useStore((s) => s.guestWarning);
-  const endGuestSession = useStore((s) => s.endGuestSession);
-  const guestActive = useStore((s) => s.guestSession?.active);
-  const [guestWelcomeSeen, setGuestWelcomeSeen] = useState(false);
-
-  /* =======================================================
-     Guest welcome banner (ظهور واحد عند كل دخول زائر مؤقت)
-     ======================================================= */
-
-  useEffect(() => {
-    if (!guestActive) {
-      setGuestWelcomeSeen(false);
-      return;
-    }
-
-    if (guestWelcomeSeen) return;
-
-    const shown = window.sessionStorage.getItem(
-      'rooz_guest_welcome_shown'
-    );
-
-    if (shown) {
-      setGuestWelcomeSeen(true);
-      return;
-    }
-
-    const t = setTimeout(() => {
-      window.sessionStorage.setItem(
-        'rooz_guest_welcome_shown',
-        '1'
-      );
-
-      setGuestWelcomeSeen(true);
-    }, 800);
-
-    return () => clearTimeout(t);
-  }, [guestActive, guestWelcomeSeen]);
 
   /* =======================================================
      Dynamic page titles
@@ -664,115 +607,6 @@ function AppContent() {
   }, [user]);
 
   /* =======================================================
-     Guest countdown
-     ======================================================= */
-
-  const [guestRemaining, setGuestRemaining] =
-    useState(0);
-
-  useEffect(() => {
-    if (!guestActive) {
-      setGuestRemaining(0);
-      return undefined;
-    }
-
-    const tick = () => {
-      setGuestRemaining(
-        useStore.getState().getGuestRemaining()
-      );
-    };
-
-    tick();
-
-    const id = setInterval(tick, 1000);
-
-    return () => clearInterval(id);
-  }, [guestActive]);
-
-  /* =======================================================
-     Guest expiration
-     ======================================================= */
-
-  useEffect(() => {
-    if (loading) return;
-
-    const graceId = setTimeout(() => {
-      let liveAuthUser = null;
-
-      try {
-        liveAuthUser =
-          (auth || getAuth())?.currentUser || null;
-      } catch {
-        liveAuthUser = auth?.currentUser || null;
-      }
-
-      const memberPresent =
-        (!!liveAuthUser &&
-          !liveAuthUser.isAnonymous) ||
-        (isAuthenticated &&
-          !!userRole &&
-          userRole !== 'guest');
-
-      if (
-        memberPresent &&
-        (guestExpired || guestActive)
-      ) {
-        endGuestSession('member-active');
-        return;
-      }
-
-      if (!guestExpired) return;
-
-      // حراج سوق عام — انتهاء جلوسة الزائر لا يطرد من صفحاته.
-
-      const isPublicHarajPath =
-        window.location.pathname === '/haraj' ||
-        window.location.pathname.startsWith('/haraj/');
-
-      if (isPublicHarajPath) {
-        recordKick(
-          'guest-expired-ignored-public-haraj',
-          {
-            guestActive: !!guestActive,
-            isAuthenticated,
-          }
-        );
-        return;
-      }
-
-      recordKick(
-        'guest-expired-effect',
-        {
-          guestActive: !!guestActive,
-          isAuthenticated,
-        }
-      );
-
-      try {
-        window.sessionStorage.setItem(
-          'guestExpiredMsg',
-          'عزيزي الزائر: تم انتهاء الجلسة المؤقتة، ولو تريد الاستمرار بالدخول في الموقع فأنشئ حساباً جديداً. شكراً لتعاونكم معنا 💐 ولو عندك استفسار أو شكوى فتقدم بإرسال رسالتك إلى صاحب موقع «المسيمير | ALMUSAYMIR» وسوف يتم التواصل معكم بأقرب وقت ممكن. بحفظ الرحمن ✋'
-        );
-      } catch {
-        // ignore storage errors
-      }
-
-      navigate('/login', {
-        replace: true,
-      });
-    }, 3000);
-
-    return () => clearTimeout(graceId);
-  }, [
-    guestExpired,
-    guestActive,
-    isAuthenticated,
-    loading,
-    navigate,
-    endGuestSession,
-  ]);
-
-  /* =======================================================
      Owner banner
      ======================================================= */
 
@@ -789,40 +623,6 @@ function AppContent() {
     }, 300000);
     return () => clearTimeout(t);
   }, [ownerWelcomeBanner]);
-
-  /* =======================================================
-     Guest / owner top offset
-     ======================================================= */
-
-  // شريط الزائر ورسالة البث لا يظهران إلا في الصفحة الرئيسية فقط (كما طلب المستخدم)
-  const guestBarVisible =
-    guestActive &&
-    guestRemaining > 0 &&
-    location.pathname === '/';
-
-  useEffect(() => {
-    const guestOffset = guestBarVisible
-      ? GUEST_BAR_HEIGHT
-      : 0;
-
-    const totalOffset = guestOffset;
-
-    document.documentElement.style.setProperty(
-      '--rooz-top-offset',
-      `${totalOffset}px`
-    );
-
-    return () => {
-      document.documentElement.style.setProperty(
-        '--rooz-top-offset',
-        '0px'
-      );
-    };
-  }, [
-    guestBarVisible,
-    ownerWelcomeBanner,
-    location.pathname,
-  ]);
 
   /* =======================================================
      Owner message / audio
@@ -843,17 +643,6 @@ function AppContent() {
      ======================================================= */
 
   const [aiChatOpen, setAiChatOpen] = useState(false);
-
-  /* =======================================================
-     Visitor popup
-     ======================================================= */
-
-  const [showVisitorPopup, setShowVisitorPopup] =
-    useState(false);
-
-  const [visitorEmail, setVisitorEmail] = useState("");
-
-  const [visitorOtpEmail, setVisitorOtpEmail] = useState(null);
 
   /* =======================================================
      Logout
@@ -1138,132 +927,6 @@ function AppContent() {
     announceOwnerWelcome,
   ]);
 
-  /* =======================================================
-     Visitor enter
-     ======================================================= */
-
-  // دخول الزوار — التحقق برمز يصل إلى البريد الإلكتروني إجباري (Email OTP)
-  const handleVisitorEnter =
-    async () => {
-      const email = String(
-        visitorEmail || ''
-      )
-        .trim()
-        .toLowerCase();
-
-      if (
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-          email
-        )
-      ) {
-        window.alert(
-          "الرجاء إدخال بريد إلكتروني صحيح"
-        );
-
-        return;
-      }
-
-      try {
-        await ensureFirebaseSession();
-
-        const sendOtp =
-          useStore.getState().sendOtp;
-
-        if (typeof sendOtp !== 'function') {
-          window.alert(
-            "تعذّر إرسال كود التحقق، حاول لاحقاً"
-          );
-
-          return;
-        }
-
-        const res = await sendOtp(
-          email,
-          'login'
-        );
-
-        if (!res?.success) {
-          window.alert(
-            res?.error
-              ? `تعذّر إرسال كود التحقق: ${res.error}`
-              : "تعذّر إرسال كود التحقق، حاول مرة أخرى"
-          );
-
-          return;
-        }
-
-        setVisitorOtpEmail(email);
-        setShowVisitorPopup(false);
-      } catch (error) {
-        window.console.error(error);
-
-        window.alert(
-          "حدث خطأ غير متوقع، حاول مرة أخرى"
-        );
-      }
-    };
-
-  // إكمال دخول الزائر بعد نجاح التحقق بالبريد (Email OTP)
-  const handleVisitorOtpVerified =
-    async () => {
-      await addDoc(
-        collection(db, "visitors"),
-        { createdAt: serverTimestamp() }
-      );
-
-      const guestLogin =
-        useStore.getState().guestLogin;
-
-      if (typeof guestLogin === 'function') {
-        await guestLogin(visitorOtpEmail);
-      }
-
-      setVisitorOtpEmail(null);
-
-      window.alert(
-        "كود الخصم الخاص بك: ALMUSAYMIR10 — أهلاً بك في المسيمير | ALMUSAYMIR."
-      );
-    };
-
-  const openWelcomeModal = () =>
-    setShowVisitorPopup(true);
-
-  const closeWelcomeModal = () =>
-    setShowVisitorPopup(false);
-
-  /* =======================================================
-     Visitor popup keyboard
-     ======================================================= */
-
-  useEffect(() => {
-    if (!showVisitorPopup) {
-      return undefined;
-    }
-
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        closeWelcomeModal();
-      }
-    };
-
-    document.body.style.overflow =
-      'hidden';
-
-    window.addEventListener(
-      'keydown',
-      onKeyDown
-    );
-
-    return () => {
-      document.body.style.overflow =
-        '';
-
-      window.removeEventListener(
-        'keydown',
-        onKeyDown
-      );
-    };
-  }, [showVisitorPopup]);
 
   /* =======================================================
      Loading
@@ -1339,165 +1002,6 @@ function AppContent() {
       </div>
 
       {/* =================================================
-          Visitor Welcome Popup
-          ================================================= */}
-
-      {showVisitorPopup && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background:
-              "rgba(var(--rz-ink-rgb), 0.5)",
-            display: "flex",
-            justifyContent:
-              "center",
-            alignItems:
-              "center",
-            zIndex: 9999,
-            overflowY: 'auto',
-            padding: '1rem',
-          }}
-          role="presentation"
-          onClick={
-            closeWelcomeModal
-          }
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="نموذج دخول الزائر"
-            style={{
-              background: "var(--rz-white)",
-              padding: "25px",
-              borderRadius: "12px",
-              width: "90%",
-              maxWidth: "380px",
-              textAlign: "center",
-              boxShadow:
-                "0 0 15px rgba(var(--rz-ink-rgb), 0.2)",
-              color: "var(--rz-ink)",
-            }}
-            onClick={(event) =>
-              event.stopPropagation()
-            }
-          >
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 6 }}>
-              <button
-                type="button"
-                onClick={closeWelcomeModal}
-                aria-label="إغلاق"
-                style={{
-                  background: 'rgba(var(--rz-ink-rgb), 0.06)',
-                  border: 'none',
-                  borderRadius: 8,
-                  width: 30,
-                  height: 30,
-                  marginInlineStart: 'auto',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  color: 'var(--rz-ink)',
-                }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <h3
-              style={{
-                marginBottom: "10px",
-              }}
-            >
-              مرحبًا بك في “المسيمير | ALMUSAYMIR”
-            </h3>
-
-            <p
-              style={{
-                marginBottom: "20px",
-                fontSize: "15px",
-              }}
-            >
-              سجّل معنا الآن وأنشئ حسابك الجديد
-              لتحصل على كود خصم 10٪ وتبدأ رحلتك
-              في عالم التسوق الذكي.
-            </p>
-
-            <input
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              placeholder="بريدك الإلكتروني"
-              value={visitorEmail}
-              onChange={(e) =>
-                setVisitorEmail(e.target.value)
-              }
-              style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "8px",
-                border:
-                  "1px solid var(--rz-border)",
-                marginBottom: "15px",
-                fontSize: "16px",
-              }}
-            />
-
-            <button
-              onClick={
-                handleVisitorEnter
-              }
-              style={{
-                width: "100%",
-                padding: "12px",
-                background: "var(--rz-ink)",
-                color: "var(--rz-white)",
-                borderRadius: "8px",
-                border: "none",
-                marginBottom: "10px",
-                fontSize: "16px",
-                cursor: "pointer",
-              }}
-            >
-              إرسال رمز التحقق
-            </button>
-
-            <button
-              onClick={
-                closeWelcomeModal
-              }
-              style={{
-                width: "100%",
-                padding: "12px",
-                background: "var(--rz-primary)",
-                color: "var(--rz-white)",
-                borderRadius: "8px",
-                border: "none",
-                marginBottom: "10px",
-                fontSize: "16px",
-                cursor: "pointer",
-              }}
-            >
-              إغلاق
-            </button>
-          </div>
-        </div>
-      )}
-
-      {visitorOtpEmail && (
-        <OtpModal
-          email={visitorOtpEmail}
-          purpose="login"
-          onVerified={handleVisitorOtpVerified}
-          onClose={() => setVisitorOtpEmail(null)}
-        />
-      )}
-
-      {/* =================================================
           Global animations
           ================================================= */}
 
@@ -1570,306 +1074,15 @@ function AppContent() {
         preload="auto"
       />
 
-      {guestActive &&
-        guestWelcomeSeen && (
-          <div
-            dir="rtl"
-            style={{
-              position: 'fixed',
-              bottom: 24,
-              left: 16,
-              right: 16,
-              zIndex: 1460,
-              maxWidth: 420,
-              marginInline: 'auto',
-              background:
-                'linear-gradient(150deg, var(--rz-ink), var(--rz-ink))',
-              border:
-                '1px solid rgba(var(--rz-primary-rgb), 0.55)',
-              borderRadius: 16,
-              padding:
-                '18px 20px',
-              fontFamily:
-                'Tajawal, sans-serif',
-              color: 'var(--rz-ivory)',
-              boxShadow:
-                '0 18px 50px rgba(var(--rz-ink-rgb), 0.65)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                marginBottom: 8,
-              }}
-            >
-              <Clock
-                size={30}
-                color="var(--rz-gold)"
-              />
-              <strong
-                style={{
-                  color: 'var(--rz-ivory)',
-                  fontSize: 15,
-                  fontWeight: 900,
-                }}
-              >
-                دخول الزوار المؤقت
-              </strong>
-            </div>
-
-            <p
-              style={{
-                margin: 0,
-                fontSize: 14,
-                lineHeight: 1.7,
-                textAlign: 'right',
-                color: 'var(--rz-ivory)',
-              }}
-            >
-              صديقنا العزيز: نفيدك بأن دخولك
-              من هذا المكان هو مؤقت لمدة
-              دقيقتين فقط، ونأمل منكم تسجيل
-              حساب أو تسجيل الدخول لتتمكنوا
-              من الدخول بشكل مستمر. شكراً
-              لتفهمكم.
-
-              <span
-                style={{
-                  display: 'block',
-                  marginTop: 8,
-                  fontSize: 12,
-                  color: 'var(--rz-gold)',
-                }}
-              >
-                سيتم إخراجك تلقائياً عند انتهاء الوقت.
-
-              </span>
-            </p>
-          </div>
-        )}
-
-        {/* =================================================
-            Guest countdown bar
-            ================================================= */}
-
-        {guestActive &&
-          guestRemaining > 0 && (
-          <div
-            dir="rtl"
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              height:
-                `calc(${GUEST_BAR_HEIGHT}px + env(safe-area-inset-top, 0px))`,
-              minHeight:
-                `calc(${GUEST_BAR_HEIGHT}px + env(safe-area-inset-top, 0px))`,
-              paddingTop:
-                'env(safe-area-inset-top, 0px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1400,
-              background:
-                guestRemaining <=
-                10000
-                  ? 'linear-gradient(90deg, rgba(var(--rz-primary-rgb), 0.97), rgba(var(--rz-primary-rgb), 0.92))'
-                  : 'linear-gradient(90deg, var(--rz-ink), var(--rz-primary))',
-              color: 'var(--rz-white)',
-              padding: '0 1rem',
-              textAlign: 'center',
-              fontWeight: 800,
-              fontSize: '0.9rem',
-              boxShadow:
-                '0 2px 10px rgba(var(--rz-ink-rgb), 0.3)',
-              fontFamily:
-                'Tajawal',
-              boxSizing: 'border-box',
-            }}
-          >
-            وضع الزائر المؤقت — الوقت
-            المتبقي:{' '}
-            <b
-              style={{
-                marginInline:
-                  '4px',
-              }}
-            >
-              {Math.ceil(
-                guestRemaining / 1000
-              )}
-            </b>{' '}
-            ثانية
-            {guestRemaining <=
-              10000 &&
-              ' — قاربت الجلسة على الانتهاء!'}
-          </div>
-        )}
-
-      {/* =================================================
-          Guest expired popup
-          ================================================= */}
-
-      {guestExpired &&
-        !isAuthenticated &&
-        !window.location.pathname.startsWith('/haraj') && (
-          <div
-            dir="rtl"
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background:
-                'rgba(var(--rz-ink-rgb), 0.8)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent:
-                'center',
-              zIndex: 15000,
-              padding: 16,
-              fontFamily:
-                'Tajawal',
-            }}
-          >
-            <div
-              style={{
-                background: 'var(--rz-ink)',
-                border:
-                  '1px solid rgba(var(--rz-primary-rgb), 0.4)',
-                borderRadius: 16,
-                padding:
-                  '2rem 1.5rem',
-                maxWidth: 420,
-                width: '100%',
-                textAlign: 'center',
-                color: 'var(--rz-ivory)',
-                boxShadow:
-                  '0 20px 60px rgba(var(--rz-ink-rgb), 0.6)',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 48,
-                  marginBottom: 8,
-                  display: 'flex',
-                  justifyContent:
-                    'center',
-                }}
-              >
-                <Clock
-                  size={48}
-                  color="var(--rz-primary)"
-                />
-              </div>
-
-              <h2
-                style={{
-                  color: 'var(--rz-primary)',
-                  fontSize: 22,
-                  fontWeight: 700,
-                  marginBottom: 12,
-                }}
-              >
-                تم انتهاء الجلسة
-              </h2>
-
-              <p
-                style={{
-                  color: 'var(--rz-border)',
-                  fontSize: 15,
-                  marginBottom: 20,
-                  lineHeight: 1.6,
-                }}
-              >
-                عزيزي الزائر: تم انتهاء الجلسة
-                المؤقتة، ولو تريد الاستمرار
-                بالدخول في الموقع فأنشئ
-                حساباً جديداً. شكراً لتعاونكم
-                معنا 💐 ولو عندك استفسار أو
-                شكوى فتقدم بإرسال رسالتك
-                إلى صاحب موقع «المسيمير | ALMUSAYMIR»
-                وسوف يتم التواصل معكم بأقرب
-                وقت ممكن. بحفظ الرحمن ✋
-              </p>
-
-              <button
-                type="button"
-                onClick={() => {
-                  endGuestSession(
-                    'manual'
-                  );
-
-                  navigate(
-                    '/register',
-                    {
-                      replace: true,
-                    }
-                  );
-                }}
-                style={{
-                  width: '100%',
-                  padding: '13px',
-                  background:
-                    'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
-                  color: 'var(--rz-white)',
-                  border: 'none',
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: 'pointer',
-                  marginBottom: 8,
-                }}
-              >
-                إنشاء حساب جديد
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  endGuestSession(
-                    'manual'
-                  );
-
-                  navigate(
-                    '/login',
-                    {
-                      replace: true,
-                    }
-                  );
-                }}
-                style={{
-                  width: '100%',
-                  padding: '13px',
-                  background:
-                    'transparent',
-                  color: 'var(--rz-primary)',
-                  border:
-                    '1px solid rgba(var(--rz-primary-rgb), 0.4)',
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  cursor: 'pointer',
-                }}
-              >
-                الذهاب لتسجيل الدخول
-              </button>
-            </div>
-          </div>
-        )}
 
       {/* =================================================
           Navigation
           ================================================= */}
 
-      {isAuthenticated && (
+      {isVerifiedMember && (
         <Navigation
           user={user}
           onLogout={handleLogout}
-          onOpenWelcome={
-            openWelcomeModal
-          }
           onOpenAIChat={() => setAiChatOpen(true)}
         />
       )}
@@ -1895,11 +1108,7 @@ function AppContent() {
       {isAuthenticated && (
         <AIChatWidget
           topOffset={
-            guestBarVisible
-              ? 80
-              : ownerWelcomeBanner
-              ? 48
-              : 0
+            ownerWelcomeBanner ? OWNER_BANNER_HEIGHT : 0
           }
           isOpen={aiChatOpen}
           onClose={() => setAiChatOpen(false)}
@@ -2034,11 +1243,7 @@ function AppContent() {
               <Route
                 path="/login"
                 element={
-                  <LoginRoute
-                    isAuthenticated={isAuthenticated}
-                    isGuest={isGuest}
-                    isAnonymousSession={isAnonymousSession}
-                  >
+                  <LoginRoute isVerifiedMember={isVerifiedMember}>
                     <Login />
                   </LoginRoute>
                 }
@@ -2074,9 +1279,7 @@ function AppContent() {
                 }
               />
 
-              {/* الرئيسية مسار عام: الزائر يتصفّحها مع شريط العدّاد.
-                  إزالة blockGuest هنا تمنع حلقة التوجيه مع /login.
-                  الصفحات الخاصة (مثل /dashboard) تبقى محمية بـ blockGuest. */}
+              {/* الرئيسية: محمية بالكامل — لا تُعرض إلا لحساب موثّق البريد. */}
               <Route
                 path="/"
                 element={
@@ -2089,9 +1292,7 @@ function AppContent() {
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute
-                    blockGuest
-                  >
+                  <ProtectedRoute>
                     <Dashboard />
                   </ProtectedRoute>
                 }

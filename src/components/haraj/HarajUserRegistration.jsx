@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { X, User, Phone, Mail, MapPin, Check, Crown } from 'lucide-react';
 import { db, auth } from '../../firebase/config';
-import { signInAnonymously } from 'firebase/auth';
 import { SAUDI_CITIES, CITY_GROUPS } from '../../data/saudiCities';
 import {
   collection,
@@ -80,11 +79,12 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
         return;
       }
 
-      // جلسة Firebase مطلوبة لقواعد Firestore الحالية — دخول مجهول صامت ثم إنشاء الحساب
-      try {
-        if (auth && !auth.currentUser) await signInAnonymously(auth);
-      } catch (anonymousErr) {
-        console.warn('anon auth skipped:', anonymousErr);
+      // لا دخول مجهول: حراج محمي بحاجز توثيق البريد، فالجلسة حقيقية موجودة
+      // سلفاً. نتحقق فقط ونرفض بأمان إن غابت.
+      if (!auth?.currentUser?.emailVerified) {
+        setErrors({ phone: 'يلزم توثيق بريدك قبل إنشاء حساب حراج.' });
+        setSubmitting(false);
+        return;
       }
 
       // حفظ المستخدم في Firestore (حساب حقيقي)

@@ -60,12 +60,6 @@ export const AuthProvider = ({ children }) => {
   const auth = firebaseAuth;
   const db = firebaseDb;
 
-  // دمج حالة الزائر المؤقت: الزائر مسموح له بالصفحات العامة حتى دون حساب Firebase.
-  // نقرأها من useStore (مصدر جلسة الزائر) ونضمّها إلى isAuthenticated المُعاد من useAuth
-  // حتى تعمل صفحات مثل Dashboard التي تعتمد على useAuth().isAuthenticated.
-  const guestActive = useStore((s) => !!s.guestSession?.active);
-  const guestUser = useStore((s) => (s.guestSession?.active ? s.user : null));
-
   const OWNER_EMAILS = OWNER_EMAILS_LIST;
 
   // Alias for backward compatibility - ADMIN_EMAILS is used elsewhere in the codebase
@@ -372,9 +366,9 @@ export const AuthProvider = ({ children }) => {
   );
 
   const value = {
-    user: user || guestUser,
-    userRole: userRole || (guestActive ? 'guest' : null),
-    isAuthenticated: isAuthenticated || guestActive,
+    user,
+    userRole,
+    isAuthenticated,
     loading,
 
     // مصادقة

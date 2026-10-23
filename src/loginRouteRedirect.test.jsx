@@ -6,20 +6,36 @@ import { AuthProvider } from './context/AuthContext';
 import App from './App';
 import useStore from './store/useStore';
 
-// انحدار: الزائر الجديد الذي يفتح /login مباشرةً كان يُحوَّل إلى "/" لأن
-// ensureFirebaseSession يُنشئ جلسة Firebase مجهولة (isAnonymous) فتصبح
-// isAuthenticated=true، فيرى LoginRoute أنه "مُسجّل" ويطرده. الإصلاح يميّز
-// الجلسة المجهولة فلا تُحسب تسجيل دخول حقيقي، مع بقاء تحويل المسجّل الحقيقي.
+// حاجز ملكية البريد: لا جلسة مجهولة ولا دخول زوار. /login يبقى متاحاً
+// لغير الموثّق، ويُحوَّل العضو الموثّق البريد إلى الرئيسية. الجلسة المجهولة
+// (isAnonymous) لم تعد تُنشأ إطلاقاً، ويُعامل صاحبها كغير مسجّل.
 const setAnonymousSession = () => {
   vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-    callback({ uid: 'anon-1', isAnonymous: true, email: null });
+    callback({ uid: 'anon-1', isAnonymous: true, email: null, emailVerified: false });
     return vi.fn();
   });
 };
 
 const setRealMemberSession = () => {
   vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-    callback({ uid: 'member-1', isAnonymous: false, email: 'user@example.com' });
+    callback({
+      uid: 'member-1',
+      isAnonymous: false,
+      email: 'user@example.com',
+      emailVerified: true,
+    });
+    return vi.fn();
+  });
+};
+
+const setUnverifiedMemberSession = () => {
+  vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
+    callback({
+      uid: 'member-2',
+      isAnonymous: false,
+      email: 'user@example.com',
+      emailVerified: false,
+    });
     return vi.fn();
   });
 };
@@ -33,7 +49,7 @@ const renderAt = (path) =>
     </MemoryRouter>
   );
 
-describe('مسار /login مع الجلسة المجهولة (إصلاح انحدار)', () => {
+describe('حاجز ملكية البريد على /login', () => {
   beforeEach(() => {
     useStore.setState({
       user: null,
@@ -42,22 +58,29 @@ describe('مسار /login مع الجلسة المجهولة (إصلاح انح�
     });
   });
 
-  it('يعرض نموذج الدخول للزائر الجديد بجلسة Firebase مجهولة بدل تحويله إلى /', async () => {
+  it('يعرض نموذج الدخول للجلسة المجهولة (لا تُحسب تسجيل دخول حقيقي)', async () => {
     setAnonymousSession();
 
     renderAt('/login');
 
-    expect(await screen.findByText('دخول الزوار المؤقت')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('example@mail.com')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('example@mail.com')).toBeInTheDocument();
   });
 
-  it('يبقي تحويل العضو المسجّل الحقيقي من /login إلى الصفحة الرئيسية', async () => {
+  it('يبقي تحويل العضو الموثّق البريد من /login إلى الصفحة الرئيسية', async () => {
     setRealMemberSession();
 
     renderAt('/login');
 
     await waitFor(() =>
-      expect(screen.queryByText('دخول الزوار المؤقت')).toBeNull()
+      expect(screen.queryByPlaceholderText('example@mail.com')).toBeNull()
     );
+  });
+
+  it('يعرض نموذج الدخول للعضو غير الموثّق (لا يُحوَّل إلى الرئيسية)', async () => {
+    setUnverifiedMemberSession();
+
+    renderAt('/login');
+
+    expect(await screen.findByPlaceholderText('example@mail.com')).toBeInTheDocument();
   });
 });

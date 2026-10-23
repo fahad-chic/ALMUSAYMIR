@@ -32,19 +32,21 @@ vi.mock('firebase/firestore', () => ({
 }));
 
 // Firebase Auth mocks
-const mockSignInWithEmailAndPassword = vi.fn(() => Promise.resolve({ user: {} }));
+const mockSignInWithEmailAndPassword = vi.fn(() =>
+  Promise.resolve({ user: { uid: 'member-1', email: 'user@example.com', emailVerified: false } })
+);
 const mockSignOut = vi.fn(() => Promise.resolve());
 const mockOnAuthStateChanged = vi.fn((auth, callback) => {
   callback(null);
   return vi.fn();
 });
-const mockSignInAnonymously = vi.fn(() => Promise.resolve({ user: { uid: 'guest-uid' } }));
+const mockSendEmailVerification = vi.fn(() => Promise.resolve());
 
 vi.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
   signOut: mockSignOut,
   onAuthStateChanged: mockOnAuthStateChanged,
-  signInAnonymously: mockSignInAnonymously,
+  sendEmailVerification: mockSendEmailVerification,
   GoogleAuthProvider: vi.fn(),
   signInWithPopup: vi.fn(() => Promise.resolve({ user: { email: 'test@test.com' } })),
 }));

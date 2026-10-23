@@ -15,7 +15,6 @@ import {
   MapPin
 } from 'lucide-react';
 import useStore from '../store/useStore';
-import OtpModal from '../components/OtpModal';
 
 const SAUDI_REGIONS = [
   'حفر الباطن',
@@ -45,7 +44,6 @@ export const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const [otpModal, setOtpModal] = useState(null);
 
   const navigate = useNavigate();
   const store = useStore();
@@ -187,62 +185,20 @@ export const Register = () => {
     setLoading(true);
 
     try {
-      const otpResult = await store.sendOtp(normalizedEmail, 'register');
-
-      // التحقق برمز الإيميل إجباري — لا يُنشأ حساب بدون نجاح إرسال OTP
-      if (!otpResult?.success) {
-        console.warn(
-          'OTP unavailable for register — blocked for security:',
-          otpResult?.error
-        );
-
-        showError(
-          otpResult?.error
-            ? `تعذّر إرسال كود التحقق: ${otpResult.error}. تأكد من صحة بريدك وحاول مرة أخرى.`
-            : 'تعذّر إرسال كود التحقق إلى بريدك. لا يمكن إنشاء الحساب بدون رمز التحقق. حاول مرة أخرى بعد قليل.'
-        );
-
-        return;
-      }
-
-      showSuccess(
-        'تم إرسال كود التحقق إلى بريدك. أدخله لإكمال إنشاء الحساب.'
+      // لا بوابة OTP: نُنشئ الحساب مباشرة ثم تُرسل Firebase رسالة توثيق
+      // البريد الرسمية. لا يُفتح الموقع حتى يضغط المستخدم رابط الرسالة
+      // (ProtectedRoute يعرض شاشة إثبات الملكية).
+      await createAccount(
+        normalizedEmail,
+        normalizedName,
+        normalizedRegion
       );
 
-      if (!mountedRef.current) return;
+      showSuccess(
+        'تم إنشاء الحساب! أرسلنا رسالة تفعيل إلى بريدك — افتح الرابط لتفعيل الدخول.'
+      );
 
-      setOtpModal({
-        email: normalizedEmail,
-        purpose: 'register',
-        onVerified: async () => {
-          if (!mountedRef.current) return;
-
-          setOtpModal(null);
-          setLoading(true);
-          setError('');
-          setSuccess('');
-
-          try {
-            await createAccount(
-              normalizedEmail,
-              normalizedName,
-              normalizedRegion
-            );
-
-            showSuccess(
-              'تم إنشاء الحساب وتسجيل الدخول بنجاح! جارٍ تحويلك...'
-            );
-
-            scheduleRedirect(800);
-          } catch (err) {
-            handleAccountError(err);
-          } finally {
-            if (mountedRef.current) {
-              setLoading(false);
-            }
-          }
-        },
-      });
+      scheduleRedirect(800);
     } catch (err) {
       handleAccountError(err);
     } finally {
@@ -418,19 +374,6 @@ export const Register = () => {
         </p>
       </div>
 
-      {otpModal && (
-        <OtpModal
-          email={otpModal.email}
-          purpose={otpModal.purpose}
-          loading={loading}
-          onVerified={otpModal.onVerified}
-          onClose={() => {
-            if (!loading) {
-              setOtpModal(null);
-            }
-          }}
-        />
-      )}
     </div>
   );
 };

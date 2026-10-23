@@ -63,19 +63,17 @@ const matrix = {
     '/settings', '/catalog/wedding-dresses', '/haraj/catalog/wedding-dresses',
     '/admin', '/owner-panel', '/owner-private-room', '/complaints',
   ],
-  guestAllowed: [
-    '/contact', '/about', '/faq', '/terms', '/wanted-dress', '/branches',
-    '/advertisements', '/employees', '/haraj', '/haraj/post', '/notifications',
-    '/inbox', '/otp', '/users', '/settings', '/chat', '/ai-chat',
-    '/catalog/wedding-dresses', '/haraj/catalog/wedding-dresses',
-  ],
-  guestBlocked: ['/dashboard'],
-  // ملاحظة تصميمية: الصفحة الرئيسية "/" تحمل blockGuest في المسار، لكن
-  // التطبيق يعرض للزائر شريط عدّاد مؤقّت (guest bar) ويسمح له بالتصفح —
-  // سلوك مقصود وموثّق، لذا لا نعتبره خطأ.
-  guestRootRenders: ['/'],
-  guestOwnerRedirect: ['/admin', '/owner-panel', '/owner-private-room', '/complaints'],
 };
+
+// حاجز ملكية البريد: لا دخول زوار ولا جلسة مجهولة. حتى لو حُقنت جلسة زائر
+// قديمة في التخزين، كل مسار محمي يجب أن يهبط على /login بلا استثناء.
+const guestInjectedRoutes = [
+  '/', '/dashboard', '/chat', '/ai-chat', '/contact', '/about', '/faq',
+  '/terms', '/wanted-dress', '/branches', '/advertisements', '/employees',
+  '/haraj', '/haraj/post', '/notifications', '/inbox', '/otp', '/users',
+  '/settings', '/catalog/wedding-dresses', '/haraj/catalog/wedding-dresses',
+  '/admin', '/owner-panel', '/owner-private-room', '/complaints',
+];
 
 for (const r of matrix.anonPublic) {
   const o = await visit(r, 'anon');
@@ -90,31 +88,11 @@ for (const r of matrix.anonProtected) {
   else add('ok', `anon${r}`, 'محمي → /login');
 }
 
-for (const r of matrix.guestAllowed) {
+// جلسة زائر محقونة في التخزين يجب ألا تمنح أي وصول بعد الآن.
+for (const r of guestInjectedRoutes) {
   const o = await visit(r, 'guest');
-  if (o.finalPath === '/login') add('error', `guest${r}`, 'الزائر مُنع من مسار مسموح');
-  else if (o.len < 5) add('error', `guest${r}`, 'صفحة فارغة للزائر');
-  else add('ok', `guest${r}`, 'الزائر مسموح');
-  if (o.overflow > 6) add('error', `guest${r}`, `تجاوز أفقي ${o.overflow}px`);
-  if (o.errors.length) add('warn', `guest${r}`, 'console: ' + o.errors.slice(0, 2).join(' | ').slice(0, 180));
-}
-
-for (const r of matrix.guestBlocked) {
-  const o = await visit(r, 'guest');
-  if (o.finalPath !== '/login') add('error', `guest${r}`, `blockGuest: متوقع /login لكن ${o.finalPath}`);
-  else add('ok', `guest${r}`, 'blockGuest → /login');
-}
-
-for (const r of matrix.guestRootRenders) {
-  const o = await visit(r, 'guest');
-  if (o.len < 5) add('error', `guest${r}`, 'الصفحة الرئيسية فارغة للزائر');
-  else add('ok', `guest${r}`, 'الرئيسية تُعرض للزائر مع شريط العدّاد');
-}
-
-for (const r of matrix.guestOwnerRedirect) {
-  const o = await visit(r, 'guest');
-  if (o.finalPath === '/login' || o.finalPath === r) add('error', `guest${r}`, `owner-only: متوقع /unauthorized لكن ${o.finalPath}`);
-  else add('ok', `guest${r}`, `owner-only → ${o.finalPath}`);
+  if (o.finalPath !== '/login') add('error', `guestInjected${r}`, `جلسة الزائر المحقونة يجب ألا تمنح وصولاً — ذهب إلى ${o.finalPath}`);
+  else add('ok', `guestInjected${r}`, 'جلسة الزائر ملغاة → /login');
 }
 
 // ---------- login page ----------
@@ -150,7 +128,7 @@ for (const r of matrix.guestOwnerRedirect) {
   add(diagVisible ? 'error' : 'ok', 'login/diagnostics', diagVisible ? 'سجل التشخيص ما زال ظاهراً' : 'سجل التشخيص أُزيل');
 
   const order = await page.evaluate(() => [...document.querySelectorAll('.rl-actions button')].map((b) => b.textContent.trim()));
-  const expected = ['نسيت كلمة المرور؟', 'إنشاء حساب جديد', 'الدخول عن طريق Google', 'دخول الزوار المؤقت'];
+  const expected = ['نسيت كلمة المرور؟', 'إنشاء حساب جديد', 'الدخول عن طريق Google'];
   add(JSON.stringify(order) === JSON.stringify(expected) ? 'ok' : 'error', 'login/grid', 'ترتيب: ' + order.join(' | '));
 
   const grid = await page.evaluate(() => {
@@ -188,16 +166,6 @@ for (const r of matrix.guestOwnerRedirect) {
   };
   await navTest('نسيت كلمة المرور؟', '/forgot-password');
   await navTest('إنشاء حساب جديد', '/register');
-
-  await page.goto(BASE + '/login', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(500);
-  await page.locator('.rl-actions button', { hasText: 'دخول الزوار المؤقت' }).click();
-  await page.waitForTimeout(700);
-  const modal = await page.evaluate(() => {
-    const emails = [...document.querySelectorAll('input[type="email"]')].map((i) => i.placeholder);
-    return emails.length >= 2 || document.body.innerText.includes('زائر');
-  });
-  add(modal ? 'ok' : 'error', 'login/guest', modal ? 'مودال الزوار يفتح (حقل بريد إضافي)' : 'مودال الزوار لم يفتح');
 
   await page.goto(BASE + '/login', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(500);

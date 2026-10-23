@@ -7,6 +7,7 @@ import { auth } from '../firebase/config';
 import {
   signInWithEmailAndPassword,
   signOut,
+  sendEmailVerification,
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
@@ -25,7 +26,6 @@ import {
   MailOpen,
   Phone,
 } from 'lucide-react';
-import OtpModal from './OtpModal';
 import ContactOwnerModal from './ContactOwnerModal';
 import { markManualSignOut, readKickLog, kickReasonLabel } from '../utils/kickLog';
 import '../styles/global.css';
@@ -146,14 +146,10 @@ const Login = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const [otpModal, setOtpModal] = useState(null);
   const [googleEmailConfirm, setGoogleEmailConfirm] = useState('');
   const [googleUserObj, setGoogleUserObj] = useState(null);
 
   // دخول الزوار: رقم الهاتف فقط — دخول مؤقت مباشر لمدة دقيقتين بلا تحقق
-  const [guestEmail, setGuestEmail] = useState('');
-  const [guestEntryOpen, setGuestEntryOpen] = useState(false);
-
   // خلفية الصفحة عند ظهورها — لؤلؤية فاتحة منسجمة مع هوية ALMUSAYMIR
   useEffect(() => {
     const previous = document.body.style.background;
@@ -253,105 +249,6 @@ const Login = () => {
     }
   };
 
-  const handleOtpVerified = async (
-    verifiedEmail,
-    verifiedPassword,
-    authInstance,
-    role
-  ) => {
-    setOtpModal(null);
-    setLoading(true);
-    setError('');
-
-    try {
-      // الجلسة موجودة أصلاً من handleLogin — لا نُعيد signInWithEmailAndPassword
-      // على iOS/WebKit: إعادة الدخول فوراً بعد signOut تُفقد التوكن في IndexedDB
-      // فيرى ProtectedRoute جلسة فارغة ويطرد المالك رغم نجاح OTP.
-      if (!authInstance.currentUser) {
-        await signInWithEmailAndPassword(
-          authInstance,
-          verifiedEmail,
-          verifiedPassword
-        );
-      }
-
-      // حفظ توكن المالك فوراً — تستخدمه نقاط /api/broadcast وحمايات الخادم
-      if (role === 'owner' && authInstance?.currentUser) {
-        const idToken = authInstance.currentUser
-          ? await authInstance.currentUser.getIdToken()
-          : null;
-
-        if (idToken) {
-          localStorage.setItem('auth_token', idToken);
-        }
-      }
-
-      // بوابة أمنية: بطاقة "مالك" لا تكفي — البريد نفسه يجب أن يكون مالكاً
-      // معتمداً، وإلا أُلغيت الجلسة فوراً ورفض الدخول.
-      if (
-        role === 'owner' &&
-        !OWNER_EMAIL_SET.has(
-          verifiedEmail.trim().toLowerCase()
-        )
-      ) {
-        markManualSignOut();
-        await signOut(authInstance);
-
-        setError(
-          'هذا الحساب غير مصرّح له بدخول صفحة صاحب الموقع'
-        );
-
-        setLoading(false);
-        return;
-      }
-
-      setSuccess(
-        'تم تسجيل الدخول بنجاح! جاري تحويلك...'
-      );
-
-      if (role === 'owner') {
-        try {
-          await handleOwnerBroadcast();
-        } catch (broadcastErr) {
-          console.warn(
-            'broadcast skipped:',
-            broadcastErr?.message
-          );
-        }
-      }
-
-      setLoading(false);
-
-      // بعد الدخول يهبط المستخدم على الرئيسية دائماً (بطلب المالك) —
-      // غرفة المالك تُفتح من زر التاج في الترويسة.
-      navigate('/', { replace: true });
-    } catch (err) {
-      console.error(
-        'post-OTP login error:',
-        err?.code,
-        err?.message
-      );
-
-      // لا نعيد فتح مودال OTP هنا — الكود استُهلك وحُذف من الخادم عند نجاح
-      // التحقق، فإعادة فتحه تُدخل المستخدم في حلقة مفرغة. نظهر الخطأ في
-      // نموذج الدخول ليعيد المحاولة من البداية برمز جديد.
-      setError(
-        (
-          err?.code === 'auth/wrong-password' ||
-          err?.code === 'auth/invalid-credential'
-        )
-          ? 'كلمة المرور غير صحيحة — تحقق منها وأعد تسجيل الدخول'
-          : err?.code === 'auth/network-request-failed'
-            ? 'تعذّر الاتصال بخوادم المصادقة — تحقق من الإنترنت أو عطّل حاجب الإعلانات/الشبكة الافتراضية ثم أعد المحاولة'
-            : err?.code === 'auth/too-many-requests'
-              ? 'محاولات كثيرة، انتظر قليلاً ثم أعد المحاولة'
-              : `تعذّر إكمال الدخول (${err?.code || 'خطأ'}) — حاول مجدداً`
-      );
-
-      setLoading(false);
-    }
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -430,60 +327,42 @@ const Login = () => {
         // non-critical
       }
 
-      const otpResult = await store.sendOtp(
-        email.trim(),
-        'login'
-      );
-
-      console.log(
-        '[LOGIN] OTP send result:',
-        otpResult
-      );
-
-      // التحقق الثنائي (OTP) إجباري للحماية — لا يُسمح بالدخول بدون كود التحقق.
-      // إن تعذّر إرسال الكود نُلغي الجلسة المؤقتة ونُظهر رسالة واضحة.
-      if (!otpResult?.success) {
-        console.warn(
-          'OTP unavailable — login blocked for security:',
-          otpResult?.error
-        );
-
+      // لا بوابة OTP خارجية: الشرط الوحيد لفتح الموقع هو توثيق بريد Firebase.
+      // إن لم يكن موثّقاً نرسل رسالة التحقق الرسمية من Firebase ثم نوجّهه
+      // لشاشة إثبات الملكية — ولا محتوى للمتجر قبل الضغط على الرابط.
+      if (!signInResult.user.emailVerified) {
         try {
-          markManualSignOut();
-          await signOut(authInstance);
-        } catch {
-          // non-critical
+          await sendEmailVerification(signInResult.user);
+        } catch (verifyErr) {
+          console.warn(
+            'email verification send failed:',
+            verifyErr?.code
+          );
         }
 
-        setError(
-          otpResult?.error
-            ? `تعذّر إرسال كود التحقق: ${otpResult.error}. حاول مرة أخرى بعد قليل.`
-            : 'تعذّر إرسال كود التحقق الثنائي. يرجى المحاولة لاحقاً أو تواصل مع الدعم.'
-        );
-
         setLoading(false);
+        navigate('/', { replace: true });
         return;
       }
 
-      // لا نُسجّل الخروج هنا — على iOS/WebKit يتعارض signOut ثم signIn
-      // الفوري مع IndexedDB فيُفقد التوكن، فيرى ProtectedRoute جلسة فارغة
-      // ويطرد المالك رغم نجاح OTP. الجلسة الجديدة تستبدل القديمة تلقائياً.
+      setSuccess('تم تسجيل الدخول بنجاح! جاري تحويلك...');
 
-      setSuccess(
-        'تم إرسال كود التحقق إلى بريدك'
-      );
+      if (selectedRole === 'owner') {
+        try {
+          await handleOwnerBroadcast();
+        } catch (broadcastErr) {
+          console.warn(
+            'broadcast skipped:',
+            broadcastErr?.message
+          );
+        }
+      }
 
-      setOtpModal({
-        email: email.trim(),
-        purpose: 'login',
-        onVerified: () =>
-          handleOtpVerified(
-            email.trim(),
-            password,
-            authInstance,
-            selectedRole
-          ),
-      });
+      setLoading(false);
+
+      // بعد الدخول يهبط المستخدم على الرئيسية دائماً (بطلب المالك) —
+      // غرفة المالك تُفتح من زر التاج في الترويسة.
+      navigate('/', { replace: true });
     } catch (err) {
       const code = err?.code || '';
 
@@ -611,7 +490,6 @@ const Login = () => {
     // إكمال دخول Google بعد التحقق (سواء عبر OTP أو بالمسار الاحتياطي) —
     // يعيد فتح نافذة Google للتأكد أن الحساب المختار هو نفسه المؤكَّد.
     const completeGoogleLogin = async () => {
-      setOtpModal(null);
       setLoading(true);
 
       try {
@@ -680,132 +558,14 @@ const Login = () => {
       }
     };
 
+    // لا بوابة OTP: نُكمل دخول Google مباشرة. توثيق البريد مضمون من مزوّد
+    // Google نفسه، ويبقى حاجز emailVerified في ProtectedRoute هو الفيصل.
     try {
-      const result = await store.sendOtp(
-        real,
-        'google'
-      );
-
-      if (!result?.success) {
-        // التحقق الثنائي إجباري حتى مع Google — لا نكمل بدون OTP.
-        console.warn(
-          'OTP unavailable for Google login — blocked for security:',
-          result?.error
-        );
-
-        setError(
-          result?.error
-            ? `تعذّر إرسال كود التحقق: ${result.error}. حاول مرة أخرى بعد قليل.`
-            : 'تعذّر إرسال كود التحقق الثنائي. يرجى المحاولة لاحقاً.'
-        );
-
-        setLoading(false);
-        return;
-      }
-
-      setSuccess(
-        'تم إرسال كود التحقق إلى بريدك'
-      );
-
-      setOtpModal({
-        email: real,
-        purpose: 'google',
-        onVerified: completeGoogleLogin,
-      });
+      await completeGoogleLogin();
     } catch (err) {
       setError(
         err.message ||
-          'تعذّر إرسال كود التحقق'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const completeGuestLogin = async (verifiedEmail) => {
-    setError('');
-    setSuccess('');
-
-    // إنهِ أي جلسة زائر سابقة قبل بدء جلسة جديدة — مؤقّتها القديم كان
-    // يبقى يعمل في الخلفية ويستدعي signOut فيُسقِط الدخول الجديد (كان
-    // يطرد حتى المالك إذا سجّل دخوله بعد زائر مباشرة). endGuestSession
-    // يوقّف المؤقّتات، ومسح مفتاح التخزين يمنع استرجاع آثارها عند التحديث.
-    // (نلغي clearStaleGuestIdentity هنا — guestLogin نفسه يبني الجلسة
-    // وينظّف السابقة بأمان عبر startGuestSession/endGuestSession، فلا
-    // تُمسح هوية الزائر الجديد لحظة بنائه فيُرمى لصفحة الدخول.)
-
-    try {
-      await store.endGuestSession?.(
-        'restart'
-      );
-
-      localStorage.removeItem(
-        'chic-guest-session'
-      );
-    } catch {
-      // غير حرج — نكمل الدخول
-    }
-
-    const result =
-      await store.guestLogin(verifiedEmail);
-
-    if (!result?.success) {
-      throw new Error(
-        result?.error ||
-          'فشل الدخول كزائر'
-      );
-    }
-
-    setSuccess(
-      'تم الدخول كزائر بنجاح!'
-    );
-
-    navigate('/');
-  };
-
-  // دخول الزوار — التحقق برمز يصل إلى البريد الإلكتروني إجباري (Email OTP)
-  const handleGuestOtpRequest = async () => {
-    setError('');
-    setSuccess('');
-    setLoading(true);
-
-    const email =
-      String(guestEmail || '')
-        .trim()
-        .toLowerCase();
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('أدخل بريداً إلكترونياً صحيحاً');
-
-      setLoading(false);
-
-      return;
-    }
-
-    try {
-      const otpResult = await store.sendOtp(email, 'login');
-
-      if (!otpResult?.success) {
-        setError(
-          otpResult?.error
-            ? `تعذّر إرسال كود التحقق: ${otpResult.error}. حاول مرة أخرى بعد قليل.`
-            : 'تعذّر إرسال كود التحقق. حاول مرة أخرى بعد قليل.'
-        );
-
-        return;
-      }
-
-      setGuestEntryOpen(false);
-      setSuccess('تم إرسال كود التحقق إلى بريدك');
-      setOtpModal({
-        email,
-        purpose: 'login',
-        onVerified: () => completeGuestLogin(email),
-      });
-    } catch (err) {
-      setError(
-        err?.message ||
-          'تعذّر إرسال كود التحقق — حاول مرة أخرى'
+          'تعذّر إكمال الدخول'
       );
     } finally {
       setLoading(false);
@@ -1489,19 +1249,6 @@ const Login = () => {
           >
             الدخول عن طريق Google
           </button>
-
-          <button
-            type="button"
-            className="rl-link"
-            onClick={() => {
-              setError('');
-              setSuccess('');
-              setGuestEntryOpen(true);
-            }}
-            disabled={loading}
-          >
-            دخول الزوار المؤقت
-          </button>
         </div>
 
         {/* زر حراج أونلاين — تصميم أنيق ومتناسق أسفل الشبكة */}
@@ -1749,201 +1496,6 @@ const Login = () => {
               </form>
             </div>
           </div>
-        )}
-
-        {guestEntryOpen && (
-          <div
-            dir="rtl"
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background:
-                'rgba(var(--rz-ink-rgb), 0.85)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 15000,
-              padding: 16,
-              fontFamily:
-                'Tajawal',
-            }}
-            onClick={() =>
-              setGuestEntryOpen(false)
-            }
-          >
-            <div
-              style={{
-                background:
-                  'linear-gradient(150deg, var(--rz-ink), var(--rz-ink))',
-                border:
-                  '1px solid rgba(var(--rz-primary-rgb), 0.6)',
-                borderRadius: 18,
-                padding:
-                  '24px 20px 18px',
-                maxWidth: 420,
-                width: '100%',
-                textAlign: 'center',
-                boxShadow:
-                  '0 20px 60px rgba(var(--rz-ink-rgb), 0.6)',
-                color: 'var(--rz-ivory)',
-              }}
-              onClick={(e) =>
-                e.stopPropagation()
-              }
-            >
-              <div
-                style={{
-                  fontSize: 26,
-                  marginBottom: 8,
-                }}
-              >
-                <Sparkles
-                  size={28}
-                  color="var(--rz-primary)"
-                />
-              </div>
-
-              <h3
-                style={{
-                  color: 'var(--rz-primary)',
-                  margin:
-                    '0 0 10px',
-                  fontSize: 17,
-                  fontWeight: 900,
-                }}
-              >
-                دخول الزوار المؤقت
-              </h3>
-
-              <p
-                style={{
-                  color: 'var(--rz-ivory)',
-                  fontSize: 14,
-                  lineHeight: 1.7,
-                  margin:
-                    '0 0 12px',
-                }}
-              >
-                صديقنا العزيز: نفيدك بأن دخولك من هذا المكان
-                مؤقت، ولضمان أمان حسابك أصبح التحقق إجبارياً عبر
-                رمز يصل إلى بريدك الإلكتروني.
-
-                <br />
-                <br />
-                أدخل بريدك الإلكتروني لاستلام رمز التحقق:
-              </p>
-
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleGuestOtpRequest();
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: 8,
-                  }}
-                >
-                  <input
-                    type="email"
-                    inputMode="email"
-                    value={guestEmail}
-                    onChange={(e) =>
-                      setGuestEmail(e.target.value)
-                    }
-                    placeholder="name@example.com"
-                    disabled={loading}
-                    autoComplete="email"
-                    style={{
-                      flex: 1,
-                      padding:
-                        '13px 14px',
-                      borderRadius: 10,
-                      border:
-                        '1px solid rgba(var(--rz-cream-4-rgb), 0.35)',
-                      background:
-                        'rgba(var(--rz-ink-rgb), 0.45)',
-                      color: 'var(--rz-white)',
-                      fontSize: 15,
-                      fontFamily:
-                        'inherit',
-                      outline: 'none',
-                      textAlign: 'right',
-                    }}
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={
-                      loading ||
-                      !guestEmail.trim()
-                    }
-                    style={{
-                      padding:
-                        '13px 18px',
-                      borderRadius: 10,
-                      border: 'none',
-                      background:
-                        'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
-                      color: 'var(--rz-white)',
-                      fontWeight: 900,
-                      fontSize: 14,
-                      cursor:
-                        loading
-                          ? 'wait'
-                          : 'pointer',
-                      fontFamily:
-                        'inherit',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {loading
-                      ? 'جاري الإرسال...'
-                      : 'إرسال الرمز'}
-                  </button>
-                </div>
-              </form>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setGuestEntryOpen(false)
-                }
-                disabled={loading}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  marginTop: 10,
-                  background:
-                    'transparent',
-                  border: 'none',
-                  color: 'var(--rz-primary)',
-                  fontSize: 13,
-                  fontWeight:  700,
-                  cursor: 'pointer',
-                  fontFamily:
-                    'inherit',
-                }}
-              >
-                إلغاء
-              </button>
-            </div>
-          </div>
-        )}
-
-        {otpModal && (
-          <OtpModal
-            email={otpModal.email}
-            purpose={otpModal.purpose}
-            loading={loading}
-            onVerified={
-              otpModal.onVerified
-            }
-            onClose={() =>
-              setOtpModal(null)
-            }
-          />
         )}
 
         <div className="rl-official">

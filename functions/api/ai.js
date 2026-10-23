@@ -305,6 +305,42 @@ export async function onRequest({ request, env }) {
      * رسالة الترحيب التلقائية تُعرض من AIChatWidget.jsx عند فتح المحادثة.
      * نمنع تكرار نص الترحيب الطويل فقط، ونسمح برد السلام والتحية الطبيعية.
      */
+    // بيانات التواصل تُقرأ من متغيرات Cloudflare (wrangler.toml) — لا نصوص ثابتة.
+    const envStr = (v) => (typeof v === 'string' ? v.trim() : '');
+    const contactLines = [];
+    const phones = [
+      envStr(env.VITE_CONTACT_WHATSAPP_1) || envStr(env.VITE_PHONE_1),
+      envStr(env.VITE_CONTACT_WHATSAPP_2) || envStr(env.VITE_PHONE_2),
+    ].filter(Boolean);
+    if (phones.length) {
+      contactLines.push(`- أرقام التواصل (واتساب واتصال): ${phones.join(' / ')}`);
+    }
+    const contactEmail = envStr(env.VITE_CONTACT_EMAIL);
+    if (contactEmail) contactLines.push(`- البريد: ${contactEmail}`);
+    const banks = [
+      {
+        name: envStr(env.VITE_BANK_RAJHI_NAME),
+        iban: envStr(env.VITE_BANK_RAJHI_IBAN),
+        account: envStr(env.VITE_BANK_RAJHI_ACCOUNT),
+      },
+      {
+        name: envStr(env.VITE_BANK_ARABI_NAME),
+        iban: envStr(env.VITE_BANK_ARABI_IBAN),
+        account: envStr(env.VITE_BANK_ARABI_ACCOUNT),
+      },
+    ];
+    for (const b of banks) {
+      if (b.iban || b.account) {
+        const parts = [];
+        if (b.iban) parts.push(`آيبان: ${b.iban}`);
+        if (b.account) parts.push(`حساب: ${b.account}`);
+        contactLines.push(`- ${b.name || 'حساب بنكي'} — ${parts.join(' — ')}`);
+      }
+    }
+    const contactInfo = contactLines.length
+      ? contactLines.join('\n')
+      : '- (معلومات التواصل غير مضبوطة حالياً — وجّهي المستخدم لصفحة «تواصل معنا»)';
+
     const systemPrompt = `
 أنت "فهد" — المساعد الذكي لمتجر المسيمير | ALMUSAYMIR.
 
@@ -349,11 +385,8 @@ export async function onRequest({ request, env }) {
 - إذا طلب المستخدم رد السلام أو التحية: ردي السلام مباشرة بأدب.
 
 ## معلومات الموقع الرسمية (يجوز ذكرها)
-- أرقام التواصل (واتساب واتصال): 00966536667222 / 00966507882771
-- البريد: kal6667222@gmail.com
+${contactInfo}
 - سناب شات: pmp.u — https://snapchat.com/t/HPkkIfUp
-- بنك الراجحي — آيبان: SA0980000509608010069017 — حساب: 09608010069017
-- البنك العربي — آيبان: SA9830400108088851870011 — حساب: 0108088851870011
 - المنصة: المسيمير | ALMUSAYMIR — متجر شامل + قسم حراج للإعلانات
 - صاحب الموقع (معلن للعامة): فهد بن حمود بن فهد الشمري
 - نسبة الموقع التقريبية المعلنة: حوالي 2٪ للسلع الجديدة و 1٪ للمستعملة (ذكّري أنها في ذمة المعلن عند البيع)

@@ -5,9 +5,9 @@ import { AuthProvider } from './context/AuthContext';
 import App from './App';
 import useStore from './store/useStore';
 
-// اختبار انحدار: الزائر كان محصوراً في حلقة توجيه بين "/" (blockGuest)
-// و "/login" (يعيد التوجيه لأن isAuthenticated يشمل الزائر) فتتجمّد الصفحة.
-describe('توجيه الزائر — منع حلقة / و /login', () => {
+// أُلغي دخول الزوار نهائياً. حتى لو حُقنت جلسة زائر قديمة في المتجر، يجب
+// ألا تمنح أي وصول: تبقى الصفحات المحمية على /login بلا حلقة توجيه.
+describe('توجيه الزائر — جلسة الزائر ملغاة', () => {
   beforeEach(() => {
     useStore.setState({
       guestSession: {
@@ -18,10 +18,11 @@ describe('توجيه الزائر — منع حلقة / و /login', () => {
         warnedAt: null,
       },
       userRole: 'guest',
+      user: null,
     });
   });
 
-  it('يعرض نموذج الدخول للزائر على /login بدل تحويله إلى /', async () => {
+  it('يبقى على /login بجلسة زائر محقونة ولا يحوّل إلى /', async () => {
     render(
       <MemoryRouter initialEntries={['/login']}>
         <AuthProvider>
@@ -30,6 +31,18 @@ describe('توجيه الزائر — منع حلقة / و /login', () => {
       </MemoryRouter>
     );
 
-    expect(await screen.findByText('دخول الزوار المؤقت')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('example@mail.com')).toBeInTheDocument();
+  });
+
+  it('لا يمنح جلسة الزائر وصولاً للصفحة الرئيسية المحمية', async () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByPlaceholderText('example@mail.com')).toBeInTheDocument();
   });
 });

@@ -126,7 +126,7 @@ describe('بطاقتا اختيار الدور', () => {
 });
 
 describe('الدخول الرسمي لإيميلات المالك', () => {
-  it('يفتح مودال OTP إجبارياً لجميع المستخدمين بما فيهم المالك', async () => {
+  it('يوجّه العضو غير الموثّق إلى إثبات الملكية بدل فتح الموقع (بلا بوابة OTP)', async () => {
     renderLogin();
 
     fireEvent.change(screen.getByPlaceholderText('example@mail.com'), {
@@ -141,14 +141,12 @@ describe('الدخول الرسمي لإيميلات المالك', () => {
       .closest('form');
     fireEvent.submit(form);
 
-    // OTP إجباري — يجب أن يظهر مودال كود التحقق لجميع المستخدمين
-    // ملاحظة: لم يعد يُستدعى signOut قبل فتح المودال (أزيل عمداً في
-    // إصلاح iOS لمنع سباق تسجيل الدخول المزدوج)
+    // أُزيلت بوابة OTP: تُرسل Firebase رسالة توثيق البريد ولا يُفتح الموقع
+    // حتى تُضغط. لا مودال كود تحقق بعد الآن.
     await waitFor(() => {
-      expect(screen.getByText('أدخل كود التحقق')).toBeTruthy();
+      expect(screen.queryByText('أدخل كود التحقق')).toBeNull();
     });
     expect(signOut).not.toHaveBeenCalled();
-    expect(screen.getByText('تم إرسال كود التحقق إلى بريدك')).toBeTruthy();
   });
 });
 

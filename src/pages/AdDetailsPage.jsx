@@ -15,7 +15,6 @@ import {
   setDoc,
   arrayUnion,
 } from 'firebase/firestore';
-import { signInAnonymously } from 'firebase/auth';
 import { ensureFirebaseSession } from '../utils/firebaseSession';
 import { notifyOwner } from '../utils/visitorNotify';
 import { db, auth } from '../firebase/config';
@@ -214,8 +213,15 @@ export default function AdDetailsPage() {
     setChatError('');
     (async () => {
       try {
-        if (!auth.currentUser) await signInAnonymously(auth);
-        if (cancelled) return;
+        // لا دخول مجهول: الدردشة تتطلب عضواً موثّق البريد (ProtectedRoute
+        // يمنع الوصول أصلاً). نرفض بأمان بدل إنشاء جلسة مجهولة.
+        if (!auth.currentUser?.emailVerified) {
+          if (!cancelled) {
+            setChatError('يلزم تسجيل الدخول بحساب موثّق لعرض المحادثة.');
+            setChatReady(true);
+          }
+          return;
+        }
         const msgsRef = collection(db, 'chats', chatId, 'messages');
         unsub = onSnapshot(
           query(msgsRef, orderBy('createdAt', 'asc')),

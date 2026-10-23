@@ -24,7 +24,6 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInAnonymously,
   sendEmailVerification,
   signOut,
   updateProfile,
@@ -702,42 +701,14 @@ const useStore = create(
     return { success: true };
   },
 
-  // تسجيل دخول الزائر — البريد الموثق عبر OTP إلزامي (يُمرَّر بعد التحقق)
-  guestLogin: async (verifiedEmail = null) => {
-    const guestPhone = "زائر-" + Math.floor(Math.random() * 9000 + 1000);
-    try {
-      // استخدام Firebase Anonymous auth كما طُلب
-      try {
-        const authInstance = getAuth();
-        await signInAnonymously(authInstance);
-      } catch {
-        // المتابعة حتى لو تعذّر Anonymous (التخزين المحلي يكفي للزائر)
-      }
-      await get().startGuestSession(guestPhone);
-      const prevGuest = get().guestSession || {};
-      set({
-        user: {
-          uid: "guest-" + Date.now(),
-          phone: guestPhone,
-          email: verifiedEmail || undefined,
-          isGuest: true,
-        },
-        guestSession: {
-          ...prevGuest,
-          email: verifiedEmail || undefined,
-        },
-        userRole: "guest",
-        isAuthenticated: true,
-        loading: false,
-        error: null,
-      });
-      await get().notifyOwners(`دخول زائر جديد: ${guestPhone}${verifiedEmail ? ` (${verifiedEmail})` : ''}`, { action: "GUEST_LOGIN" });
-      return { success: true };
-    } catch (err) {
-      set({ error: err.message, loading: false });
-      return { success: false, error: err.message };
-    }
-  },
+  // دخول الزوار أُلغي نهائياً: لا جلسة زائر ولا جلسة مجهولة.
+  // لا تُفتح أي صفحة إلا بحساب Email/Password بريده موثّق (emailVerified).
+  // نُبقي الدالة موجودة (بلا حذف) لكنها ترفض دائماً حتى لا يبقى أي مسار
+  // يستدعيها يمنح وصولاً ضمنياً.
+  guestLogin: async () => ({
+    success: false,
+    error: "دخول الزوار أُلغي — يلزم إنشاء حساب وتوثيق البريد للدخول",
+  }),
 
   getGuestRemaining: () => {
     const s = get().guestSession;
@@ -1121,13 +1092,23 @@ const useStore = create(
         guestExpired: state.guestExpired,
       }),
       onRehydrateStorage: () => (state) => {
-        // بعد استرجاع الحالة من التخزين: أعد جدولة المؤقتات إذا كانت الجلسة فعّالة
-        if (state?.guestSession?.active) {
-          try {
-            state.rescheduleGuestTimers?.();
-          } catch {
-            // non-critical
-          }
+        // أُلغي دخول الزوار نهائياً: أي أثر محفوظ (جلسة/تحذير/انتهاء) يُصفَّر
+        // عند كل تحميل حتى لا يمنح وصولاً ولا يُظهر مودال الزوار القديم.
+        if (state) {
+          state.guestSession = {
+            active: false,
+            phone: "",
+            startedAt: null,
+            expiresAt: null,
+            warnedAt: null,
+          };
+          state.guestWarning = false;
+          state.guestExpired = false;
+        }
+        try {
+          localStorage.removeItem('chic-guest-session');
+        } catch {
+          // non-critical
         }
       },
     }
