@@ -5,7 +5,8 @@
 // عند غياب صورة الموضع يظهر اسم الموقع بدلاً منها، وعند حذفها يعود الاسم.
 //
 // زر «إدارة العروض» يظهر لصاحب الموقع فقط (userRole === 'owner').
-// الإخفاء عن غيره واجهي فقط؛ الفرض الحقيقي في قواعد Storage/Firestore.
+// الإخفاء عن غيره واجهي فقط؛ الحفظ في Firestore تحت settings/homeOffers.
+// الصور تُضغط على الجهاز ولا تستخدم Firebase Storage.
 import { useRef, useState } from 'react';
 import { Pencil, X, Upload, Trash2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -142,8 +143,9 @@ const HomeOffersSlider = () => {
             </div>
 
             <p className="hos-modal-hint">
-              ارفع صورة لأي موضع فتظهر في الشريط المتحرك بدل اسم الموقع. حذف
-              الصورة يعيد اسم الموقع مكانها. الحد الأقصى 5 ميجابايت للصورة.
+              اختر صورة من جهازك لأي موضع فتُضغط وتظهر في الشريط بدل اسم الموقع،
+              بلا رسوم وبدون Firebase Storage. حذف الصورة يعيد اسم الموقع.
+              الحد قبل الضغط 5 ميجابايت.
             </p>
 
             <div className="hos-grid">
