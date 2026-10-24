@@ -16,6 +16,7 @@ import {
   doc, addDoc, onSnapshot, serverTimestamp, deleteDoc
 } from '../firebase'
 import CloseButton from '../components/CloseButton'
+import FreeImageField from '../components/FreeImageField'
 import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
 
@@ -657,7 +658,11 @@ const ProductForm = ({ product, onClose, onSave }) => {
           <textarea placeholder="الوصف" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full bg-[var(--rz-white)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 focus:border-pink-500 focus:outline-none h-24" />
           <input type="number" min="0" step="0.01" placeholder="السعر" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
           <input type="text" placeholder="التصنيف" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
-          <input type="url" placeholder="رابط الصورة" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" />
+          <FreeImageField
+            value={form.image}
+            onChange={(image) => setForm({ ...form, image })}
+            label="صورة المنتج"
+          />
           <label className="flex items-center gap-3">
             <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-5 h-5" />
             <span>مفعل</span>
@@ -936,7 +941,11 @@ const BannerForm = ({ onClose, onSave }) => {
         </div>
         <form onSubmit={submit} className="p-6 space-y-4">
           <input type="text" placeholder="العنوان" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
-          <input type="url" placeholder="رابط الصورة" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
+          <FreeImageField
+            value={form.image}
+            onChange={(image) => setForm({ ...form, image })}
+            label="صورة الإعلان"
+          />
           <input type="url" placeholder="رابط النقر" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
           <div className="flex gap-4 pt-4">
             <button type="button" onClick={onClose} className="flex-1 py-3 bg-[var(--rz-white)] hover:bg-[var(--rz-ivory)] hover:border-pink-500/50 rounded-lg border border-[rgba(var(--rz-ink-rgb),0.10)] transition-all duration-200">إلغاء</button>
