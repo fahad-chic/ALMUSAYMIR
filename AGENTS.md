@@ -272,3 +272,62 @@ FULL AUDIT **66/66 (0 أخطاء، 0 تحذيرات)** ✓ · XML sitemap صال
   0 في `src` و0 في `dist`) · `src/permissions/requirePerm.js` (4K) · `src/utils/wcag.js` (4K،
   اختبار وحدة فقط) · `public/favicon.ico` (96K، مُبقى بقرار المالك — `favicon.png` 7.4K يكفي
   للمتصفحات الحديثة).
+
+## جولة الافتتاح (بنود ب1–ب10 + ج) — 2026-10-24
+**سياق**: بعد دمج PR #19 (`f66578a`)، نُفِّذت بنود القسم (ب) و(ج) من طلب المالك مباشرة على
+`main` في الالتزام **`1e1bca4`** (مدفوع → Cloudflare نشر تلقائياً).
+
+### ما نُفِّذ فعلاً (مُتحقَّق منه حيًّا)
+- **ب1 `OwnerTextEdit.jsx`**: صار يقرأ `useAuth()` ويظهر الزر فقط إذا
+  `isAuthenticated === true && userRole === 'owner'` — لم يعد يعتمد على `can('INLINE_TEXT_EDIT')`.
+  لا يراه الزائر ولا المشرف. + ملف اختبار جديد `src/components/OwnerTextEdit.test.jsx` (5 اختبارات).
+- **ب2 `CatalogPage.jsx`**: `isOwner = userRole === 'owner'` — كل أزرار الإضافة/التعديل/الحذف
+  والإعدادات محجوبة على `isOwner` فقط (لا `isAdmin`).
+- **ب3 `NovHomePage.jsx`**: `OwnerTextEdit` لنص الهيرو (`home.hero_sub`) ووسم التذييل
+  (`home.footer_tag`)؛ القيم الافتراضية عربية سليمة من `BRAND`؛ شريط العروض `HomeOffersSlider`
+  وزر إدارته للمالك **لم يُكسَرا** (كما كانا).
+- **ب4 `FAQ.jsx`**: العنوان من `texts['faq.page_title']` + `OwnerTextEdit`.
+- **ب5 `ContactPage.jsx`**: جملة التواصل من `contact.hero_subtitle` + البنوك من `BANK_ACCOUNTS`
+  في `src/utils/constants.js` (لا قيم ثابتة في JSX).
+- **ب6 `TermsPage.jsx`**: `OwnerTextEdit` لـ `terms.page_title` بلا مساس بفقرات الشروط.
+- **ب7 `AdDetailsPage.jsx`** (أهم تغيير):
+  - أي **عضو موثّق (uid)** يراسل المعلن مباشرة — أُزيل إجبار «سجّل في منصة الحراج».
+    زر الحجب الآن يوجّه لـ `/login` بدل `/haraj`.
+  - هوية المحادثة بالـ **uid**: `buyerKey = memberUid`، `buyerUid`،
+    `participantUids = arrayUnion(memberUid)`، و`senderUid` في كل رسالة.
+  - `isSeller` يتحقق أولاً بمطابقة `ad.userId === uid` ثم بالهاتف.
+  - زر **«حذف إعلاني»** للمعلن فقط (`isSeller && !isOwner`)؛ زر المشرف لأصحاب
+    `HARAJ_POST_DELETE` أو المالك فقط.
+- **ب8 `AdFormPage.jsx`**: تأكيد أن `publisherName`/`publisherPhone` إلزاميان، التحقق 9–15 رقمًا،
+  و`userPhone` من النموذج فقط (لا سقوط على أرقام المالك). رسائل الخطأ كلها معروضة أسفل الحقول.
+- **ب9 `ProductCard.jsx`**: تأكيد رسالة الشراء الحقيقية (`store_purchase_inquiry` في `messages`
+  إلى owner باسم المنتج والسعر) + البنوك من `BANK_ACCOUNTS` (لا `IBAN: —`).
+- **ب10 `LoginNova.css`**: شعار بطاقة المالك في الدخول 42px (أكبر من بطاقة المشرفين 36px).
+- **ج**:
+  - لا أثر ظاهر لـ«أناقة ROOZ» أو «علياء» (المراجع المتبقية أسماء ملفات/`localStorage`/مفاتيح
+    داخلية فقط، و`VITE_ALIAA_*` في `wrangler.toml` **غير مستخدمة في الكود** = 0 مرجع في `src`).
+  - اسم المساعد من `import.meta.env.VITE_AI_NAME || BRAND.ASSISTANT` («فهد») ونص الترحيب من
+    `BRAND.FULL` في `AIChatWidget.jsx`.
+  - مراسلة صاحب الموقع متاحة لكل عضو غير المالك (`RoyalHeader` + `ContactOwnerModal`).
+  - الحراج يُنشر `status: 'active'` فوراً.
+  - لا `signInAnonymously` (مذكور في تعليق توثيقي فقط).
+
+### البوابات (كلها خضراء)
+LINT exit 0 · BUILD OK · VITEST **16 ملفًا/120 اختبارًا** · CONTRAST **OVERALL PASS**
+(933 عنصرًا، 0 مخالفة) · FULL AUDIT محليًا **65 فحصًا، 0 أخطاء، OVERALL PASS** ·
+FULL AUDIT على الموقع الحي **OVERALL PASS**.
+**CI على `main` للالتزام `1e1bca4`: 4/4 خضراء** (lint · test · build · contrast).
+
+### تحقق حيّ من النشر
+- الموقع الحي يحمل البناء الجديد: `index-Bhfy93jy.js` **لم يتغيّر اسمه** (المدخل ثابت)، لكن
+  المقاطع الكسولة تغيّرت فعلاً وتحمل التعديلات: `AdDetailsPage-DxT4-ibk.js` (يحتوي «حذف إعلاني»
+  و`participantUids` و**لا** يحتوي «سجّل في منصة الحراج»)، و`NovHomePage-DhQNZWim.js` (يحتوي
+  `home.hero_sub`/`home.footer_tag`)، و`ContactPage-C1exEph8.js` (`contact.hero_subtitle`)،
+  و`TermsPage-D4F8Eqrp.js` (`terms.page_title`)، و`CatalogPage-UGZErIBx.js` (`store_purchase_inquiry`).
+- **درس مهم**: `index-*.js` قد لا تتغيّر بصمته بين بناءين (الأسماء ثابتة للمقاطع المشتركة)؛
+  تحقّق من محتوى **المقاطع الكسولة** (`AdDetailsPage-*.js` …) لا من اسم المدخل وحده.
+
+### ما لم يُنفَّذ (يحتاج بيانات اعتماد)
+- **`firebase deploy --only firestore:rules`**: لا يوجد Firebase CLI مثبّت ولا
+  `FIREBASE_TOKEN`/حساب خدمة في هذه البيئة. المالك ينفّذه من جهازه:
+  `npx firebase-tools deploy --only firestore:rules`
