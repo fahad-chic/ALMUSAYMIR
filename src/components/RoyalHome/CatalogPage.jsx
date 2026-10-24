@@ -1277,29 +1277,16 @@ const AddProductModal = ({
             </div>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label
-              style={{
-                display: 'block',
-                color: 'var(--rz-muted)',
-                marginBottom: '0.3rem',
-                fontFamily: 'Tajawal',
-              }}
-            >
-              رابط الصورة
-            </label>
-
-            <input
-              type="url"
+                   <div style={{ marginBottom: '1rem' }}>
+            <FreeImageField
               value={form.image}
-              onChange={(event) =>
+              onChange={(url) =>
                 setForm((current) => ({
                   ...current,
-                  image: event.target.value,
+                  image: url,
                 }))
               }
-              style={inputStyle}
-              placeholder="https://..."
+              label="صورة المنتج"
             />
           </div>
 
