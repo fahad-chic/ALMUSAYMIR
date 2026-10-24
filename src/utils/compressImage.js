@@ -1,5 +1,5 @@
-// ضغط صورة على جهاز الزائر إلى JPEG صغير قابل للحفظ داخل Firestore
-// بلا Firebase Storage وبلا بطاقة. الناتج Data URL جاهز لـ <img src>.
+// ضغط صورة على جهاز الزائر إلى JPEG صغير قابل// ضغط صورة على جهاز الزائر إلى JPEG صغير قابل للحفظ داخل Firestore
+// بلا Firebase Storage وبلا بطاقة. الناتج Data URL جاهز للحفظ.
 
 const DEFAULT_MAX_BYTES = 5 * 1024 * 1024;
 
