@@ -3,7 +3,18 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ============ الدوال المساعدة ============
+    // الجلسة الصالحة = حساب Firebase ببريد مُوثّق (email_verified). سياسة
+    // الموقع تمنع الزائر/المجهول وتُلزم التوثيق قبل فتح أي صفحة، لذا لا مسار
+    // مشروع لحساب غير موثّق. بدون هذا الشرط يستطيع أي شخص إنشاء حساب عبر
+    // واجهة Firebase REST العامة ثم الكتابة في المجموعات قبل التوثيق.
     function isSignedIn() {
+      return request.auth != null
+        && request.auth.token.email_verified == true;
+    }
+
+    // جلسة موجودة بغض النظر عن التوثيق — تُستخدم فقط حيث يجب أن تنجح كتابة
+    // لحظة إنشاء الحساب (ملف المستخدم يُنشأ قبل وصول رسالة التوثيق).
+    function isAuthed() {
       return request.auth != null;
     }
 
@@ -51,6 +62,14 @@ service cloud.firestore {
           || hasPerm('INLINE_BOX_SHAPE_MOD') || hasPerm('INLINE_TICKER_CONTROL')
           || hasPerm('INLINE_ELEMENT_DELETE') || hasPerm('INLINE_IMAGE_DESIGN_MOD')
           || hasPerm('INLINE_IMAGE_REPLACE');
+    }
+
+    // مرسل الرسالة: صاحب الجلسة نفسه، أو علامة 'admin' المحجوزة للمشرفين.
+    // بدون هذا الشرط يستطيع أي مسجّل انتحال هوية غيره بكتابة senderId عشوائي.
+    function isMessageSender() {
+      return isSignedIn()
+        && (request.resource.data.senderId == request.auth.uid
+            || (request.resource.data.senderId == 'admin' && hasUserAdminPerm()));
     }
 
     // ============ هوية مشارك المحادثة (V1) ============
@@ -132,7 +151,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner()
                   || (isSignedIn() && request.auth.uid == userId);
-      allow create: if isSignedIn() && request.auth.uid == userId
+      allow create: if isAuthed() && request.auth.uid == userId
                     && (!request.resource.data.keys().hasAny(['role'])
                         || request.resource.data.role == 'user');
       // المفوَّضون (حظر/توثيق/تجميد) يعدّلون الحالة لكن لا يمسّون الدور —
@@ -197,7 +216,7 @@ service cloud.firestore {
                   || hasPerm('MONITOR_PRIVATE_MESSAGES')
                   || (isSignedIn() && (resource.data.senderId == request.auth.uid
                                        || resource.data.receiverId == request.auth.uid));
-      allow create: if isSignedIn();
+      allow create: if isMessageSender();
       allow update, delete: if isOwner() || hasPerm('MONITOR_PRIVATE_MESSAGES');
     }
 
@@ -206,7 +225,7 @@ service cloud.firestore {
                   || hasPerm('MONITOR_PRIVATE_MESSAGES')
                   || (isSignedIn() && (resource.data.senderId == request.auth.uid
                                        || resource.data.receiverId == request.auth.uid));
-      allow create: if isSignedIn();
+      allow create: if isMessageSender();
       allow update, delete: if isOwner() || hasPerm('MONITOR_PRIVATE_MESSAGES');
     }
 
@@ -343,26 +362,37 @@ service cloud.firestore {
     match /comments/{docId} {
       allow read: if true;
 
-      // إنشاء التعليق للزوار/المستخدمين كما كان.
-      allow create: if request.resource.data.keys().hasAll(['text']);
+      // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة وحالة إلزامية
+      // 'pending'. بدون ذلك يستطيع أي زائر كتابة status:'approved' فيُنشر
+      // تعليقه فوراً متجاوزاً مراجعة المالك.
+      allow create: if request.resource.data.keys().hasAll(['text'])
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 250
+                    && request.resource.data.keys().hasOnly([
+                         'text','name','email','city','status','likes','createdAt'
+                       ])
+                    && request.resource.data.status == 'pending';
 
       // التعديل:
       // - المالك يستطيع تعديل كل شيء.
-      // - صاحب HARAJ_COMMENT_EDIT يستطيع تعديل التعليق،
-      //   لكن لا يستطيع تغيير حالة status.
-      // - تحديث likes فقط يبقى مسموحاً.
+      // - صاحب HARAJ_COMMENT_EDIT يستطيع تعديل التعليق أو تغيير حالته
+      //   (اعتماد/رفض) — وهو ما يفعله CommentsReviewPanel فعلاً. منعه هنا
+      //   كان يُبقي كل تعليق معلّقاً في «قيد المراجعة» بلا إمكانية اعتماد.
+      //   لا يُسمح له بمسح نص التعليق أو حقوله.
+      // - تحديث likes فقط يبقى مسموحاً للجميع.
       allow update: if isOwner()
                     || (
-                      hasPerm('HARAJ_COMMENT_EDIT') &&
-                      !request.resource.data.diff(resource.data)
-                        .affectedKeys().hasAny(['status'])
+                      hasPerm('HARAJ_COMMENT_EDIT')
+                      && request.resource.data.diff(resource.data)
+                           .affectedKeys().hasOnly(['status'])
+                      && request.resource.data.status in ['approved','rejected','pending']
                     )
                     || request.resource.data.diff(resource.data)
                          .affectedKeys().hasOnly(['likes']);
 
-      // الحذف: المالك فقط.
-      // لا توجد أي صلاحية RBAC أخرى تسمح بحذف التعليقات.
-      allow delete: if isOwner();
+      // الحذف: المالك أو صاحب صلاحية حذف التعليقات (يطابق زر «رفض» في اللوحة).
+      allow delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
     }
 
     // ============ طلبات الفستان (wanted_dresses) — عام + خاص ============

@@ -120,6 +120,16 @@ export async function onRequest(context) {
     }
 
     try {
+      // جدول البث يُنشأ كسولاً حتى لا يعتمد على إنشاء يدوي خارج المستودع.
+      await env.DB.prepare(
+        `CREATE TABLE IF NOT EXISTS broadcasts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          type TEXT NOT NULL DEFAULT 'general',
+          message TEXT NOT NULL,
+          created_at INTEGER NOT NULL
+        )`
+      ).run().catch(() => {});
+
       const inserted = await env.DB.prepare(
         `INSERT INTO broadcasts
           (type, message, created_at)

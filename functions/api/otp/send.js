@@ -169,6 +169,20 @@ export async function onRequest(context) {
   try {
     const now = Math.floor(Date.now() / 1000);
 
+    // جدول الرموز يُنشأ كسولاً (نمط otp_attempts/ai_rate_limits) حتى لا تعتمد
+    // إرسال الرمز على جدول أُنشئ يدوياً خارج المستودع — كان غيابه يُفشل الإرسال.
+    await env.DB.prepare(
+      `CREATE TABLE IF NOT EXISTS otps (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL,
+        code TEXT NOT NULL,
+        purpose TEXT NOT NULL DEFAULT 'login',
+        expires_at INTEGER NOT NULL,
+        used INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )`
+    ).run().catch(() => {});
+
     // حد إرسال: رمز واحد كل 60 ثانية لنفس البريد والغرض — يمنع إغراق البريد
     // وإساءة استخدام خدمة Resend (الرمز الحديث يبقى صالحاً 10 دقائق)
     const recent = await env.DB.prepare(

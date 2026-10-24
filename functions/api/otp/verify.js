@@ -109,7 +109,13 @@ export async function onRequest(context) {
 
     let attempts = Number(att?.attempts || 0);
     let windowStart = Number(att?.window_start || nowSec);
-    if (nowSec - windowStart > WINDOW) attempts = 0;
+    // عند انتهاء النافذة نُصفّر العدّاد ونبدأ نافذة جديدة. بدون إعادة تعيين
+    // window_start يبقى الفارق دائماً أكبر من النافذة فيُصفَّر العدّاد في كل
+    // طلب، فتصبح حماية التخمين بلا أثر بعد أول 15 دقيقة.
+    if (nowSec - windowStart > WINDOW) {
+      attempts = 0;
+      windowStart = nowSec;
+    }
 
     if (attempts >= MAX_ATTEMPTS) {
       await env.DB.prepare(
