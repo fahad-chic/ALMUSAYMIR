@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AdminContext } from '../context/AdminContext';
 import { Plus, Trash2, Eye, EyeOff, X } from 'lucide-react';
+import FreeImageField from '../components/FreeImageField';
 
 export const AdvertisementsPage = () => {
   const ctx = useContext(AdminContext) || {};
@@ -413,12 +414,10 @@ export const AdvertisementsPage = () => {
               </div>
 
               <div className="form-group">
-                <label>رابط الصورة</label>
-                <input
-                  type="url"
+                <FreeImageField
                   value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
+                  onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
+                  label="صورة الإعلان"
                 />
               </div>
 
