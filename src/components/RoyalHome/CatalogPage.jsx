@@ -35,9 +35,9 @@ import {
 import { db } from '../../firebase/config';
 import { AuthContext } from '../../context/AuthContext';
 import ProductCard from './ProductCard';
+import FreeImageField from '../FreeImageField';
 import { ROYAL_SECTIONS } from './sectionsData';
 import '../../styles/RoyalHome.css';
-
 const WHATSAPP_NUMBER = '966507882771';
 
 const DEFAULT_CATALOG_SETTINGS = {
