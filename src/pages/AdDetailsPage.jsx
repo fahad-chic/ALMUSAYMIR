@@ -95,11 +95,12 @@ export default function AdDetailsPage() {
   const bottomRef = useRef(null);
 
   // canonical موحّد للإعلان — يمنع ازدواج المحتوى بين /ad/:id و /haraj/ad/:id
+  // النطاق يُقرأ من الصفحة نفسها حتى يبقى صحيحاً عند ربط نطاق مخصّص لاحقاً.
   useEffect(() => {
     if (!id) return;
     const link = document.createElement('link');
     link.rel = 'canonical';
-    link.href = 'https://rooz-store.pages.dev/ad/' + id;
+    link.href = `${window.location.origin}/ad/${id}`;
     document.head.appendChild(link);
     return () => link.remove();
   }, [id]);
@@ -113,7 +114,7 @@ export default function AdDetailsPage() {
     const description =
       `${ad.description || ''}`.slice(0, 155) ||
       `إعلان في حراج المسيمير — ${ad.category || 'أصناف متعددة'}${ad.city ? ' في ' + ad.city : ''}`;
-    const url = 'https://rooz-store.pages.dev/ad/' + id;
+    const url = `${window.location.origin}/ad/${id}`;
     document.title = title;
     const setMeta = (selector, value) => {
       let el = document.head.querySelector(selector);

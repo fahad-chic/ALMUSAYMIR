@@ -4,6 +4,7 @@ import { Ruler, ShoppingBag, Ban, Pencil, X, MessageCircle, Building2, Copy, Che
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import useStore from '../../store/useStore';
+import { BANK_ACCOUNTS } from '../../utils/constants';
 
 const ProductIcon = ({ size = '4rem', color = 'var(--rz-primary)' }) => (
   <ShoppingBag size={size === '4rem' ? 64 : 40} color={color} />
@@ -14,6 +15,9 @@ const ProductCard = ({
   style = 'square', // 'square' | 'wide' | 'circle'
   onEdit,
   isOwner = false,
+  compact = false,
+  showPrices = true,
+  showDescriptions = true,
 }) => {
   const [imageError, setImageError] = useState(false);
   const [guestBlocked, setGuestBlocked] = useState(false);
@@ -24,6 +28,10 @@ const ProductCard = ({
   const [bankOpen, setBankOpen] = useState(false);
   const [msgStatus, setMsgStatus] = useState('idle');
   const [copied, setCopied] = useState('');
+
+  // أنماط العرض في الكتالوج أوسع من الأنماط المرسومة هنا (square/wide/circle).
+  // نُسقط أي نمط غير مرسوم على 'square' بدل إرجاع بطاقة فارغة تماماً.
+  const layout = style === 'wide' || style === 'circle' ? style : 'square';
 
   const GuestBlockOverlay = () =>
     guestBlocked
@@ -147,16 +155,9 @@ const ProductCard = ({
     return `${numericPrice.toLocaleString('ar-SA')} ر.س`;
   };
 
-  const bankRajhi = {
-    name: import.meta.env.VITE_BANK_RAJHI_NAME || 'بنك الراجحي',
-    iban: import.meta.env.VITE_BANK_RAJHI_IBAN || '',
-    account: import.meta.env.VITE_BANK_RAJHI_ACCOUNT || '',
-  };
-  const bankArabi = {
-    name: import.meta.env.VITE_BANK_ARABI_NAME || 'البنك العربي',
-    iban: import.meta.env.VITE_BANK_ARABI_IBAN || '',
-    account: import.meta.env.VITE_BANK_ARABI_ACCOUNT || '',
-  };
+  // الحسابات البنكية من المصدر الواحد (src/utils/constants.js) بدل تكرار
+  // قيم import.meta.env هنا — التكرار كان يُظهر آيباناً فارغاً بغياب متغيّر البيئة.
+  const [bankRajhi, bankArabi] = BANK_ACCOUNTS;
 
   const handleMessageOwner = async () => {
     if (isGuest || !isAuthed) {
@@ -175,7 +176,7 @@ const ProductCard = ({
         (product?.id ? `رمز المنتج: ${product.id}\n` : '') +
         `أرغب بالشراء والتواصل لإتمام الطلب.`;
       await addDoc(collection(db, 'messages'), {
-        senderId: user?.uid || user?.email || 'member',
+        senderId: user?.uid || '',
         uid: user?.uid || null,
         senderEmail: user?.email || null,
         senderPhone: user?.phone || null,
@@ -228,7 +229,7 @@ const ProductCard = ({
           fontFamily: 'Tajawal',
           fontWeight: 800,
           fontSize: '0.8rem',
-          background: 'linear-gradient(135deg, var(--rz-primary), #1e293b)',
+          background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-ink))',
           color: 'var(--rz-white)',
         }}
       >
@@ -334,7 +335,7 @@ const ProductCard = ({
                       borderRadius: 10,
                       padding: '8px 12px',
                       background: 'var(--rz-primary)',
-                      color: '#fff',
+                      color: 'var(--rz-white)',
                       fontWeight: 800,
                       fontSize: 12,
                       cursor: b.iban ? 'pointer' : 'not-allowed',
@@ -423,7 +424,7 @@ const ProductCard = ({
   // ═══════════════════════════════════════════
   // STYLE: Square (مربع)
   // ═══════════════════════════════════════════
-  if (style === 'square') {
+  if (layout === 'square') {
     return (
       <div
         style={{
@@ -439,7 +440,7 @@ const ProductCard = ({
         <div
           style={{
             position: 'relative',
-            paddingTop: '100%',
+            paddingTop: compact ? '62%' : '100%',
             background: 'var(--rz-ivory)',
           }}
         >
@@ -461,22 +462,24 @@ const ProductCard = ({
             imageFallback('3rem')
           )}
 
-          <div
-            style={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-              background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
-              color: 'var(--rz-white)',
-              padding: '0.4rem 0.8rem',
-              borderRadius: 12,
-              fontWeight: 800,
-              fontSize: '0.85rem',
-              boxShadow: '0 4px 12px rgba(var(--rz-ink-rgb), 0.25)',
-            }}
-          >
-            {formatPrice(product?.price)}
-          </div>
+          {showPrices && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                color: 'var(--rz-white)',
+                padding: '0.4rem 0.8rem',
+                borderRadius: 12,
+                fontWeight: 800,
+                fontSize: '0.85rem',
+                boxShadow: '0 4px 12px rgba(var(--rz-ink-rgb), 0.25)',
+              }}
+            >
+              {formatPrice(product?.price)}
+            </div>
+          )}
 
           {isOwner && onEdit && (
             <div
@@ -543,20 +546,22 @@ const ProductCard = ({
             </div>
           )}
 
-          <p
-            style={{
-              margin: 0,
-              fontSize: '0.8rem',
-              color: 'var(--rz-primary)',
-              lineHeight: 1.55,
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
-            {product?.description || 'بدون وصف'}
-          </p>
+          {showDescriptions && (
+            <p
+              style={{
+                margin: 0,
+                fontSize: '0.8rem',
+                color: 'var(--rz-muted)',
+                lineHeight: 1.55,
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
+              {product?.description || 'بدون وصف'}
+            </p>
+          )}
 
           <button
             type="button"
@@ -580,11 +585,9 @@ const ProductCard = ({
           </button>
         </div>
 
-        <>
         <StoreActions />
         <BankModal />
         <GuestBlockOverlay />
-      </>
       </div>
     );
   }
@@ -592,7 +595,7 @@ const ProductCard = ({
   // ═══════════════════════════════════════════
   // STYLE: Wide (عريض)
   // ═══════════════════════════════════════════
-  if (style === 'wide') {
+  if (layout === 'wide') {
     return (
       <div
         style={{
@@ -685,20 +688,22 @@ const ProductCard = ({
           }}
         >
           <div>
-            <div
-              style={{
-                display: 'inline-block',
-                background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
-                color: 'var(--rz-white)',
-                padding: '0.3rem 0.7rem',
-                borderRadius: 10,
-                fontWeight: 800,
-                fontSize: '1rem',
-                marginBottom: '0.75rem',
-              }}
-            >
-              {formatPrice(product?.price)}
-            </div>
+            {showPrices && (
+              <div
+                style={{
+                  display: 'inline-block',
+                  background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                  color: 'var(--rz-white)',
+                  padding: '0.3rem 0.7rem',
+                  borderRadius: 10,
+                  fontWeight: 800,
+                  fontSize: '1rem',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                {formatPrice(product?.price)}
+              </div>
+            )}
 
             <h3
               style={{
@@ -739,16 +744,18 @@ const ProductCard = ({
               )}
             </div>
 
-            <p
-              style={{
-                margin: 0,
-                fontSize: '0.85rem',
-                color: 'var(--rz-primary)',
-                lineHeight: 1.5,
-              }}
-            >
-              {product?.description || 'بدون وصف'}
-            </p>
+            {showDescriptions && (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '0.85rem',
+                  color: 'var(--rz-muted)',
+                  lineHeight: 1.5,
+                }}
+              >
+                {product?.description || 'بدون وصف'}
+              </p>
+            )}
           </div>
 
           <button
@@ -767,11 +774,9 @@ const ProductCard = ({
           </button>
         </div>
 
-        <>
         <StoreActions />
         <BankModal />
         <GuestBlockOverlay />
-      </>
       </div>
     );
   }
@@ -779,7 +784,7 @@ const ProductCard = ({
   // ═══════════════════════════════════════════
   // STYLE: Circle (دائري)
   // ═══════════════════════════════════════════
-  if (style === 'circle') {
+  if (layout === 'circle') {
     return (
       <div
         style={{
@@ -833,22 +838,24 @@ const ProductCard = ({
             </div>
           )}
 
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
-              color: 'var(--rz-white)',
-              padding: '0.3rem',
-              textAlign: 'center',
-              fontWeight: 800,
-              fontSize: '0.85rem',
-            }}
-          >
-            {formatPrice(product?.price)}
-          </div>
+          {showPrices && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'linear-gradient(135deg, var(--rz-primary), var(--rz-primary))',
+                color: 'var(--rz-white)',
+                padding: '0.3rem',
+                textAlign: 'center',
+                fontWeight: 800,
+                fontSize: '0.85rem',
+              }}
+            >
+              {formatPrice(product?.price)}
+            </div>
+          )}
 
           {isOwner && onEdit && (
             <div
@@ -927,20 +934,30 @@ const ProductCard = ({
           </button>
         </div>
 
-        <>
         <StoreActions />
         <BankModal />
         <GuestBlockOverlay />
-      </>
       </div>
     );
   }
 
+  // غير قابل للوصول بعد تطبيع layout — احتياط آمن يمنع أي بطاقة فارغة.
   return (
-    <>
+    <div
+      style={{
+        background: 'var(--rz-white)',
+        border: '1px solid rgba(var(--rz-ink-rgb), 0.08)',
+        borderRadius: 8,
+        padding: '1rem',
+      }}
+    >
+      {imageFallback('3rem')}
+      <h3 style={{ margin: '0.75rem 0 0', fontSize: '1rem', color: 'var(--rz-ink)' }}>
+        {product?.name || 'منتج'}
+      </h3>
       <BankModal />
       <GuestBlockOverlay />
-    </>
+    </div>
   );
 };
 

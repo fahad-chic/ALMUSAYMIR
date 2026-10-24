@@ -799,7 +799,7 @@ const AdFormPage = () => {
                   width: '100%',
                   background: 'var(--rz-ivory)',
                   border: errors.name
-                    ? '1px solid var(--rz-primary)'
+                    ? '1px solid var(--rz-error)'
                     : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                   borderRadius: 12,
                   padding: '0.85rem 1rem',
@@ -810,6 +810,18 @@ const AdFormPage = () => {
                   boxSizing: 'border-box',
                 }}
               />
+
+              {errors.name && (
+                <p
+                  style={{
+                    color: 'var(--rz-error)',
+                    fontSize: '0.8rem',
+                    margin: '0.25rem 0 0',
+                  }}
+                >
+                  {errors.name}
+                </p>
+              )}
 
               <label style={{ display: 'block', marginTop: '0.85rem', marginBottom: 6, color: 'var(--rz-gold)', fontWeight: 700, fontSize: '0.9rem' }}>
                 اسم المعلن *
@@ -823,7 +835,9 @@ const AdFormPage = () => {
                 style={{
                   width: '100%',
                   background: 'var(--rz-ivory)',
-                  border: '1px solid rgba(var(--rz-primary-rgb), 0.2)',
+                  border: errors.publisherName
+                    ? '1px solid var(--rz-error)'
+                    : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                   borderRadius: 12,
                   padding: '0.85rem 1rem',
                   color: 'var(--rz-ink)',
@@ -833,6 +847,17 @@ const AdFormPage = () => {
                   boxSizing: 'border-box',
                 }}
               />
+              {errors.publisherName && (
+                <p
+                  style={{
+                    color: 'var(--rz-error)',
+                    fontSize: '0.8rem',
+                    margin: '0.25rem 0 0',
+                  }}
+                >
+                  {errors.publisherName}
+                </p>
+              )}
 
               <label style={{ display: 'block', marginTop: '0.85rem', marginBottom: 6, color: 'var(--rz-gold)', fontWeight: 700, fontSize: '0.9rem' }}>
                 جوال المعلن *
@@ -847,7 +872,9 @@ const AdFormPage = () => {
                 style={{
                   width: '100%',
                   background: 'var(--rz-ivory)',
-                  border: '1px solid rgba(var(--rz-primary-rgb), 0.2)',
+                  border: errors.publisherPhone
+                    ? '1px solid var(--rz-error)'
+                    : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                   borderRadius: 12,
                   padding: '0.85rem 1rem',
                   color: 'var(--rz-ink)',
@@ -857,21 +884,20 @@ const AdFormPage = () => {
                   boxSizing: 'border-box',
                 }}
               />
-              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--rz-muted)' }}>
-                يظهر رقمك للمشترين — لا يُستخدم رقم صاحب الموقع.
-              </p>
-
-              {errors.name && (
+              {errors.publisherPhone && (
                 <p
                   style={{
-                    color: 'var(--rz-primary)',
+                    color: 'var(--rz-error)',
                     fontSize: '0.8rem',
                     margin: '0.25rem 0 0',
                   }}
                 >
-                  {errors.name}
+                  {errors.publisherPhone}
                 </p>
               )}
+              <p style={{ margin: '0.35rem 0 0', fontSize: '0.75rem', color: 'var(--rz-muted)' }}>
+                يظهر رقمك للمشترين — لا يُستخدم رقم صاحب الموقع.
+              </p>
             </div>
             <div style={{ marginBottom: '1.5rem' }}>
               <label
@@ -893,7 +919,7 @@ const AdFormPage = () => {
                   width: '100%',
                   background: 'var(--rz-ivory)',
                   border: errors.category
-                    ? '1px solid var(--rz-primary)'
+                    ? '1px solid var(--rz-error)'
                     : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                   borderRadius: 12,
                   padding: '0.85rem 1rem',
@@ -915,7 +941,7 @@ const AdFormPage = () => {
               {errors.category && (
                 <p
                   style={{
-                    color: 'var(--rz-primary)',
+                    color: 'var(--rz-error)',
                     fontSize: '0.8rem',
                     margin: '0.25rem 0 0',
                   }}
@@ -990,7 +1016,7 @@ const AdFormPage = () => {
                     width: '100%',
                     background: 'var(--rz-ivory)',
                     border: errors.price
-                      ? '1px solid var(--rz-primary)'
+                      ? '1px solid var(--rz-error)'
                       : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                     borderRadius: 12,
                     padding: '0.85rem 1rem',
@@ -1004,7 +1030,7 @@ const AdFormPage = () => {
                 {errors.price && (
                   <p
                     style={{
-                      color: 'var(--rz-primary)',
+                      color: 'var(--rz-error)',
                       fontSize: '0.8rem',
                       margin: '0.25rem 0 0',
                     }}
@@ -1092,7 +1118,7 @@ const AdFormPage = () => {
                     width: '100%',
                     background: 'var(--rz-ivory)',
                     border: errors.location
-                      ? '1px solid var(--rz-primary)'
+                      ? '1px solid var(--rz-error)'
                       : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                     borderRadius: 12,
                     padding: '0.85rem 1rem',
@@ -1118,7 +1144,7 @@ const AdFormPage = () => {
               {errors.location && (
                 <p
                   style={{
-                    color: 'var(--rz-primary)',
+                    color: 'var(--rz-error)',
                     fontSize: '0.8rem',
                     margin: '0.25rem 0 0',
                   }}
@@ -1275,7 +1301,7 @@ const AdFormPage = () => {
               {errors.images && (
                 <p
                   style={{
-                    color: 'var(--rz-primary)',
+                    color: 'var(--rz-error)',
                     fontSize: '0.8rem',
                     margin: '0.5rem 0 0',
                   }}
@@ -1409,7 +1435,7 @@ const AdFormPage = () => {
                   width: '100%',
                   background: 'var(--rz-ivory)',
                   border: errors.description
-                    ? '1px solid var(--rz-primary)'
+                    ? '1px solid var(--rz-error)'
                     : '1px solid rgba(var(--rz-primary-rgb), 0.2)',
                   borderRadius: 12,
                   padding: '0.85rem 1rem',
@@ -1424,7 +1450,7 @@ const AdFormPage = () => {
               {errors.description && (
                 <p
                   style={{
-                    color: 'var(--rz-primary)',
+                    color: 'var(--rz-error)',
                     fontSize: '0.8rem',
                     margin: '0.25rem 0 0',
                   }}
