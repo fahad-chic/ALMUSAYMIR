@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import usePermissions from '../permissions/usePermissions';
 import { requirePerm, showIfCan } from '../permissions/rbacService';
+import { useAuth } from '../context/AuthContext';
 
 const ADMIN_NUMBER = '0536667222';
 
@@ -67,6 +68,7 @@ const timeAgo = (timestamp) => {
 
 export default function AdDetailsPage() {
   const { can, isOwner } = usePermissions();
+  const { user: authUser } = useAuth();
   const handleModDelete = async () => {
     if (!ad?.id) return;
     if (!window.confirm('تأكيد حذف هذا الإعلان؟')) return;
@@ -76,6 +78,18 @@ export default function AdDetailsPage() {
       window.history.back();
     } catch (e) {
       alert(e?.message || 'تعذر الحذف');
+    }
+  };
+
+  // حذف المعلن لإعلانه — مسموح في القواعد لمالك الإعلان (isAdOwner) فقط.
+  const handleSellerDelete = async () => {
+    if (!ad?.id) return;
+    if (!window.confirm('تأكيد حذف إعلانك؟ لا يمكن التراجع.')) return;
+    try {
+      await deleteDoc(doc(db, 'haraj_ads', ad.id));
+      window.history.back();
+    } catch {
+      alert('تعذر الحذف — تأكد أنك صاحب الإعلان.');
     }
   };
 
@@ -184,17 +198,27 @@ export default function AdDetailsPage() {
     return String(ad.harajUserId || ad.userPhone || ad.userId || ad.userEmail || ad.userName || 'seller');
   }, [ad]);
 
+  // هوية العضو الموثّق الحقيقية (uid) — تُفضّل على مفتاح الحراج المحلي
+  // حتى يتمكن أي عضو موثّق من المراسلة بلا إجباره على التسجيل في الحراج.
+  const memberUid = authUser?.uid || auth?.currentUser?.uid || '';
+  const isVerifiedMember =
+    !!memberUid && !(authUser?.isAnonymous || auth?.currentUser?.isAnonymous);
+
   const buyerKey = useMemo(() => {
+    if (memberUid) return String(memberUid);
     if (!harajUser) return '';
     return String(harajUser.phone || harajUser.userPhone || harajUser.email || harajUser.name || 'visitor');
-  }, [harajUser]);
+  }, [memberUid, harajUser]);
 
   const isSeller = useMemo(() => {
-    if (!ad || !harajUser) return false;
+    if (!ad) return false;
+    // ملكية الإعلان بالـ uid (المصدر الحقيقي)، أو بمطابقة الهاتف لحساب الحراج.
+    if (memberUid && ad.userId && String(ad.userId) === String(memberUid)) return true;
+    if (!harajUser) return false;
     const sellerPhone = String(ad.userPhone || '').replace(/\D/g, '');
     const myPhone = String(harajUser.phone || harajUser.userPhone || '').replace(/\D/g, '');
-    return sellerPhone && myPhone && sellerPhone === myPhone;
-  }, [ad, harajUser]);
+    return Boolean(sellerPhone && myPhone && sellerPhone === myPhone);
+  }, [ad, memberUid, harajUser]);
 
   const chatId = useMemo(() => {
     if (!ad || !buyerKey || !sellerKey) return '';
@@ -270,9 +294,12 @@ export default function AdDetailsPage() {
             adTitle: ad.title || '',
             sellerKey,
             buyerKey,
-            buyerName: harajUser?.name || 'زائر',
-            buyerUid: auth?.currentUser?.uid || '',
-            participantUids: auth?.currentUser?.uid ? [auth.currentUser.uid] : [],
+            buyerName:
+              harajUser?.name || authUser?.displayName || authUser?.email || 'عضو',
+            buyerUid: memberUid || '',
+            // المشاركون بأسمائهم (uid): نضيف uid المُرسل نفسه دائماً حتى
+            // تتحقّق قاعدة isChatParticipant في الرسائل (وأي مشارك آخر لاحقاً).
+            participantUids: memberUid ? arrayUnion(memberUid) : [],
             // V1: هوية البائع الحقيقية = ad.userId (uid مصادقة)، ليتمكن من القراءة.
             sellerUid: ad.userId || '',
             lastMessage: text,
@@ -289,7 +316,9 @@ export default function AdDetailsPage() {
       await addDoc(collection(db, 'chats', chatId, 'messages'), {
         text,
         senderKey: buyerKey,
-        senderName: harajUser?.name || harajUser?.userName || 'زائر',
+        senderUid: memberUid || '',
+        senderName:
+          harajUser?.name || authUser?.displayName || authUser?.email || 'عضو',
         createdAt: serverTimestamp(),
       });
 
@@ -613,6 +642,13 @@ export default function AdDetailsPage() {
           color: '#B3261E', fontWeight: 800, fontSize: 13, cursor: 'pointer'
         }}>حذف الإعلان (صلاحية مشرف)</button>
       )}
+      {isSeller && !isOwner && (
+        <button type="button" onClick={handleSellerDelete} style={{
+          marginBottom: 10, padding: '8px 12px', borderRadius: 10,
+          border: '1px solid rgba(var(--rz-primary-rgb), 0.35)', background: 'var(--rz-ivory)',
+          color: 'var(--rz-primary)', fontWeight: 800, fontSize: 13, cursor: 'pointer'
+        }}>حذف إعلاني</button>
+      )}
       <VerifiedBadge verified={ad.sellerVerified || ad.verified} withLabel />
             </div>
             {(ad.city || ad.location || ad.userRegion) && (
@@ -671,13 +707,13 @@ export default function AdDetailsPage() {
             <p style={{ textAlign: 'center', color: C.inkSoft, fontSize: 14, background: C.creamLight, borderRadius: 12, padding: 14 }}>
               هذا إعلانك أنت — رسائل المشترين تصلك هنا عند بدئهم المحادثة.
             </p>
-          ) : !harajUser ? (
+          ) : !isVerifiedMember ? (
             <div style={{ textAlign: 'center' }}>
               <p style={{ color: C.inkSoft, fontSize: 14, marginBottom: 12 }}>
-                سجّل في منصة الحراج أولاً لتتمكن من مراسلة المعلن مباشرة وسرّياً.
+                سجّل الدخول بحساب موثّق (بريد مُتحقَّق) لتتمكن من مراسلة المعلن مباشرة وسرّياً.
               </p>
-              <button type="button" onClick={() => navigate('/haraj')} style={goldBtn}>
-                التسجيل في الحراج
+              <button type="button" onClick={() => navigate('/login')} style={goldBtn}>
+                تسجيل الدخول
               </button>
             </div>
           ) : (

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { CONTACT_INFO as CI, BANK_ACCOUNTS as CONST_BANKS } from '../../utils/constants';
 import { useNavigate } from 'react-router-dom';
 import { colorAlpha } from '../../utils/color';
+import OwnerTextEdit from '../OwnerTextEdit';
+import useSiteTexts from '../../store/useSiteTexts';
 import {
   Phone,
   Mail,
@@ -35,6 +37,7 @@ const BANK_ACCOUNTS = CONST_BANKS.map((b) => ({
 const GOLD = 'var(--rz-primary)';
 const GOLD_LIGHT = 'var(--rz-ink)';
 const DARK = 'var(--rz-ink)';
+const CONTACT_SUBTITLE_DEFAULT = 'نحن هنا لخدمتكم والتواصل معكم';
 
 const buttonBaseStyle = {
   border: 'none',
@@ -48,6 +51,9 @@ const buttonBaseStyle = {
 
 const ContactPage = () => {
   const navigate = useNavigate();
+  const siteTexts = useSiteTexts((s) => s.texts);
+  const heroSubtitle =
+    siteTexts['contact.hero_subtitle'] || CONTACT_SUBTITLE_DEFAULT;
 
   const [copied, setCopied] = useState(null);
 
@@ -257,12 +263,17 @@ const ContactPage = () => {
           <p
             style={{
               margin: '0.5rem 0 0',
+              position: 'relative',
               fontSize: '0.9rem',
               color: 'var(--rz-muted)',
               lineHeight: 1.7,
             }}
           >
-            نحن هنا لخدمتكم والتواصل معكم
+            {heroSubtitle}
+            <OwnerTextEdit
+              textKey="contact.hero_subtitle"
+              defaultValue={CONTACT_SUBTITLE_DEFAULT}
+            />
           </p>
         </section>
 

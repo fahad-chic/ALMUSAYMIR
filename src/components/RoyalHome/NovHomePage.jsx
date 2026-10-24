@@ -25,10 +25,16 @@ import {
 import MarqueeBanner from './MarqueeBanner';
 import CommentsSection from './CommentsSection';
 import HomeOffersSlider from './HomeOffersSlider';
+import OwnerTextEdit from '../OwnerTextEdit';
+import useSiteTexts from '../../store/useSiteTexts';
 import { MARQUEE_BANNERS, MARQUEE_BANNERS_2 } from './sectionsData';
 import '../../styles/NovHome.css';
 
 const LOGO_SRC = BRAND.LOGO;
+
+const HERO_SUB_DEFAULT =
+  'متجرك الشامل — إلكترونيات وجوالات وأجهزة منزلية وأزياء وخدمات، بجودة وثقة وأسعار منافسة.';
+const FOOTER_TAG_DEFAULT = `${BRAND.FULL} — متجرك الشامل`;
 
 const FAQ_ITEMS = [
   { q: 'ما مدة الشحن؟', a: 'الشحن لجميع مناطق المملكة، ويستغرق عادة من 2 إلى 5 أيام عمل حسب المدينة.' },
@@ -42,6 +48,9 @@ const FAQ_ITEMS = [
 
 const NovHomePage = () => {
   const navigate = useNavigate();
+  const siteTexts = useSiteTexts((s) => s.texts);
+  const heroSub = siteTexts['home.hero_sub'] || HERO_SUB_DEFAULT;
+  const footerTag = siteTexts['home.footer_tag'] || FOOTER_TAG_DEFAULT;
   const [showAddHelp, setShowAddHelp] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [faqSectionOpen, setFaqSectionOpen] = useState(false);
@@ -77,9 +86,9 @@ const NovHomePage = () => {
             />
             <div>
               <h1 className="nov-hero-title">{BRAND.FULL}</h1>
-              <p className="nov-hero-sub">
-                متجرك الشامل — إلكترونيات وجوالات وأجهزة منزلية وأزياء
-                وخدمات، بجودة وثقة وأسعار منافسة.
+              <p className="nov-hero-sub" style={{ position: 'relative' }}>
+                {heroSub}
+                <OwnerTextEdit textKey="home.hero_sub" defaultValue={HERO_SUB_DEFAULT} />
               </p>
               <div className="nov-hero-cta nov-hero-cta--side">
                 <button
@@ -169,7 +178,10 @@ const NovHomePage = () => {
           <div className="rz-footer-inner">
             <div className="rz-footer-top">
               <img src={LOGO_SRC} alt={`شعار ${BRAND.FULL}`} className="rz-footer-logo" loading="lazy" />
-              <p className="rz-footer-tag">{BRAND.FULL} — متجرك الشامل</p>
+              <p className="rz-footer-tag" style={{ position: 'relative' }}>
+                  {footerTag}
+                  <OwnerTextEdit textKey="home.footer_tag" defaultValue={FOOTER_TAG_DEFAULT} />
+                </p>
             </div>
 
             <div className="rz-footer-fold">

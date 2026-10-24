@@ -1,17 +1,22 @@
 // src/components/OwnerTextEdit.jsx
 import { useState } from 'react';
 import { Pencil, X, Check } from 'lucide-react';
-import usePermissions from '../permissions/usePermissions';
+import { useAuth } from '../context/AuthContext';
 import useSiteTexts, { saveSiteText } from '../store/useSiteTexts';
 
 const OwnerTextEdit = ({ textKey, defaultValue }) => {
-  const { can } = usePermissions();
+  const { userRole, isAuthenticated } = useAuth();
   const texts = useSiteTexts((s) => s.texts);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
 
-  if (!can('INLINE_TEXT_EDIT') || !textKey) return null;
+  // زر تعديل النصوص للمالك فقط (userRole === 'owner').
+  // لا يكفي منح INLINE_TEXT_EDIT — المنحة قد تُسحب/تُمنح للمشرفين،
+  // والمطلوب صراحةً ألا يراه الزائر ولا المشرف.
+  const isOwner = isAuthenticated === true && userRole === 'owner';
+
+  if (!isOwner || !textKey) return null;
 
   const current = texts[textKey] ?? defaultValue ?? '';
 

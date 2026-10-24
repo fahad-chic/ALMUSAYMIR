@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
+import OwnerTextEdit from '../components/OwnerTextEdit';
+import useSiteTexts from '../store/useSiteTexts';
+
+const FAQ_TITLE_DEFAULT = 'الأسئلة الشائعة';
 
 function FAQ() {
+  const siteTexts = useSiteTexts((s) => s.texts);
+  const pageTitle = siteTexts['faq.page_title'] || FAQ_TITLE_DEFAULT;
   const faqs = [
     { q: "ما هو متجر المسيمير | ALMUSAYMIR؟", a: "المسيمير | ALMUSAYMIR متجر شامل ومنصة إعلانات (حراج) في السعودية: إلكترونيات، جوالات، أجهزة منزلية، أزياء، أطفال، جمال وعناية، رياضة، سيارات، خدمات وأكثر." },
     { q: "هل المنتجات أصلية؟", a: "نعم، يتم التحقق من جودة كل منتج قبل عرضه لضمان الموثوقية." },
@@ -199,7 +205,10 @@ function FAQ() {
           </div>
 
           <div>
-            <h1 className="faq-title">الأسئلة الشائعة</h1>
+            <h1 className="faq-title" style={{ position: 'relative' }}>
+              {pageTitle}
+              <OwnerTextEdit textKey="faq.page_title" defaultValue={FAQ_TITLE_DEFAULT} />
+            </h1>
             <p className="faq-subtitle">كل ما تحتاج معرفته عن المسيمير | ALMUSAYMIR</p>
           </div>
         </div>

@@ -13,7 +13,15 @@ export const TEXT_FIELDS = [
   { key: 'marquee1', label: 'الشريط المتحرك — اللافتة الأولى' },
   { key: 'marquee2', label: 'الشريط المتحرك — اللافتة الثانية' },
   { key: 'marquee3', label: 'الشريط المتحرك — اللافتة الثالثة' },
+  { key: 'marquee4', label: 'شريط العروض — اللافتة الأولى' },
+  { key: 'marquee5', label: 'شريط العروض — اللافتة الثانية' },
+  { key: 'marquee6', label: 'شريط العروض — اللافتة الثالثة' },
   { key: 'heroBanner', label: 'لافتة الخدمة (الشريط الثاني)' },
+  { key: 'home.hero_sub', label: 'الرئيسية — وصف الهيرو' },
+  { key: 'home.footer_tag', label: 'الرئيسية — وسم التذييل' },
+  { key: 'faq.page_title', label: 'الأسئلة الشائعة — العنوان' },
+  { key: 'contact.hero_subtitle', label: 'تواصل معنا — الجملة الرئيسية' },
+  { key: 'terms.page_title', label: 'شروط الاستخدام — العنوان' },
 ];
 
 const VALID_KEYS = new Set(TEXT_FIELDS.map((field) => field.key));

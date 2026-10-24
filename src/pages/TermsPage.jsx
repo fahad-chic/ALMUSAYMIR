@@ -2,6 +2,8 @@
 // صفحة مستقلة: شروط وأحكام استخدام منصة "المسيمير | ALMUSAYMIR"
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ScrollText, ShieldCheck } from 'lucide-react';
+import OwnerTextEdit from '../components/OwnerTextEdit';
+import useSiteTexts from '../store/useSiteTexts';
 
 const TERMS_SECTIONS = [
   {
@@ -55,8 +57,13 @@ const TERMS_SECTIONS = [
   },
 ];
 
+const TERMS_TITLE_DEFAULT =
+  'شروط وأحكام استخدام منصة "المسيمير | ALMUSAYMIR"';
+
 export default function TermsPage() {
   const navigate = useNavigate();
+  const siteTexts = useSiteTexts((s) => s.texts);
+  const pageTitle = siteTexts['terms.page_title'] || TERMS_TITLE_DEFAULT;
 
   return (
     <div
@@ -117,8 +124,9 @@ export default function TermsPage() {
           >
             <ScrollText size={30} color="var(--rz-ivory)" />
           </div>
-          <h1 style={{ margin: '0 0 10px', fontSize: 'clamp(1.3rem, 4vw, 1.85rem)', fontWeight: 900, color: 'var(--rz-primary)' }}>
-            شروط وأحكام استخدام منصة &quot;المسيمير | ALMUSAYMIR&quot;
+          <h1 style={{ margin: '0 0 10px', position: 'relative', fontSize: 'clamp(1.3rem, 4vw, 1.85rem)', fontWeight: 900, color: 'var(--rz-primary)' }}>
+            {pageTitle}
+            <OwnerTextEdit textKey="terms.page_title" defaultValue={TERMS_TITLE_DEFAULT} />
           </h1>
           <p style={{ margin: 0, lineHeight: 2, color: 'var(--rz-muted)', fontWeight: 600 }}>
             مرحباً بكم في &quot;المسيمير | ALMUSAYMIR&quot;. تُطبق هذه الشروط والأحكام على كافة

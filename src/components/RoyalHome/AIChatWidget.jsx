@@ -9,12 +9,16 @@ import {
   RotateCcw,
 } from 'lucide-react';
 
-const ASSISTANT_NAME = 'فهد';
+import { BRAND } from '../../data/brand';
+
+// اسم المساعد الذكي: قيمة حيّة من البيئة (VITE_AI_NAME) وإلا الاسم الرسمي
+// من مصدر العلامة الواحد (BRAND.ASSISTANT = «فهد»).
+const ASSISTANT_NAME = import.meta.env.VITE_AI_NAME || BRAND.ASSISTANT;
 
 const INITIAL_MESSAGE = {
   id: 'welcome',
   sender: 'bot',
-  text: 'أهلاً وسهلاً فيك نورت متجر المسيمير | ALMUSAYMIR 💐\nمعك فهد تفضل كيف أقدر أساعدك؟',
+  text: `أهلاً وسهلاً فيك نورت متجر ${BRAND.FULL} 💐\nمعك ${ASSISTANT_NAME} تفضل كيف أقدر أساعدك؟`,
 };
 
 const SMART_RESPONSES = {

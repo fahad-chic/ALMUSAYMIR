@@ -109,9 +109,8 @@ const CatalogPage = () => {
   const activeSize = location.state?.size || null;
   const activeSubName = location.state?.subName || null;
 
+  // أزرار التعديل والحذف وإضافة المنتجات للمالك فقط — محجوبة عن المشرفين والجميع
   const isOwner = userRole === 'owner';
-  // أزرار التعديل والحذف للمالك فقط — محجوبة عن المشرفين والجميع
-  const isAdmin = userRole === 'owner';
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -561,7 +560,7 @@ const CatalogPage = () => {
             </button>
           )}
 
-          {isAdmin && (
+          {isOwner && (
             <button
               type="button"
               onClick={openAddProduct}
@@ -632,7 +631,7 @@ const CatalogPage = () => {
             لا توجد منتجات في هذا القسم حالياً
           </p>
 
-          {isAdmin && (
+          {isOwner && (
             <button
               type="button"
               onClick={openAddProduct}
@@ -695,7 +694,7 @@ const CatalogPage = () => {
                 product={product}
                 style={cardStyle}
                 compact={currentDisplayStyle.compact}
-                isOwner={isAdmin}
+                isOwner={isOwner}
                 showPrices={catalogSettings.showPrices}
                 showDescriptions={catalogSettings.showDescriptions}
                 onEdit={openEditProduct}
