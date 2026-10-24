@@ -50,28 +50,27 @@ const FreeImageField = ({
     'w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all';
 
   return (
-    <div style={{ marginBottom: dark ? '1rem' : undefined }}>
-      <label
-        style={
-          dark
-            ? {
-                display: 'block',
-                color: 'var(--rz-muted)',
-                marginBottom: '0.3rem',
-                fontFamily: 'Tajawal',
-              }
-            : { display: 'block', marginBottom: 6, fontWeight: 700 }
-        }
-      >
-        {label}
-      </label>
+    <div style={{ width: '100%' }}>
+      {label ? (
+        <label
+          style={{
+            display: 'block',
+            marginBottom: '0.35rem',
+            fontFamily: 'Tajawal',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            color: dark ? 'var(--rz-white)' : 'var(--rz-muted)',
+          }}
+        >
+          {label}
+          {required ? ' *' : ''}
+        </label>
+      ) : null}
 
       <input
-        type="text"
-        inputMode="url"
+        type="url"
         value={text}
-        required={required && !value}
-        placeholder="أو الصق رابط الصورة المباشر https://..."
+        placeholder="رابط مباشر (اختياري) — أو اختر صورة من الجهاز"
         onChange={(event) => {
           setError('');
           onChange(event.target.value);
@@ -82,26 +81,27 @@ const FreeImageField = ({
 
       <label
         style={{
-          display: 'flex',
+          display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 8,
-          marginTop: 8,
-          padding: '0.7rem 0.9rem',
-          borderRadius: 12,
+          marginTop: '0.55rem',
+          padding: '0.55rem 0.9rem',
+          borderRadius: 10,
           cursor: busy ? 'wait' : 'pointer',
           fontFamily: 'Tajawal',
-          fontWeight: 700,
-          background: dark ? 'var(--rz-primary)' : 'var(--rz-primary, #6B1D2F)',
-          color: '#fff',
+          fontWeight: 800,
+          fontSize: '0.85rem',
+          background: dark ? 'rgba(var(--rz-gold-rgb), 0.18)' : 'var(--rz-primary)',
+          color: dark ? 'var(--rz-ivory)' : 'var(--rz-white)',
+          border: dark ? '1px solid rgba(var(--rz-gold-rgb), 0.45)' : 'none',
         }}
       >
         {busy ? 'جاري ضغط الصورة...' : 'اختيار صورة من الجهاز (مجاناً)'}
         <input
           type="file"
           accept="image/*"
-          onChange={pick}
           disabled={busy}
+          onChange={pick}
           style={{ display: 'none' }}
         />
       </label>
@@ -109,35 +109,37 @@ const FreeImageField = ({
       <p
         style={{
           margin: '0.45rem 0 0',
-          fontSize: 12,
-          lineHeight: 1.6,
-          color: dark ? 'var(--rz-muted)' : 'var(--rz-muted, #766D72)',
+          fontSize: '0.75rem',
+          color: dark ? 'rgba(255,255,255,0.7)' : 'var(--rz-muted)',
           fontFamily: 'Tajawal',
+          lineHeight: 1.45,
         }}
       >
         الصورة تُضغط على جهازك وتُحفظ مع السلعة. لا تحتاج بطاقة ولا Storage.
         الرابط اختياري إذا كانت الصورة مرفوعة على موقع آخر.
       </p>
 
-      {error && (
-        <p style={{ color: 'var(--rz-error, #b42318)', margin: '0.4rem 0 0', fontFamily: 'Tajawal' }}>
+      {error ? (
+        <p style={{ margin: '0.4rem 0 0', color: '#B3261E', fontSize: '0.8rem', fontFamily: 'Tajawal' }}>
           {error}
         </p>
-      )}
+      ) : null}
 
       {value ? (
-        <img
-          src={value}
-          alt=""
-          style={{
-            display: 'block',
-            width: '100%',
-            maxHeight: 180,
-            objectFit: 'cover',
-            borderRadius: 12,
-            marginTop: 10,
-          }}
-        />
+        <div style={{ marginTop: '0.6rem' }}>
+          <img
+            src={value}
+            alt="معاينة"
+            style={{
+              maxWidth: '100%',
+              maxHeight: 160,
+              objectFit: 'contain',
+              borderRadius: 10,
+              border: '1px solid rgba(0,0,0,0.08)',
+              background: '#fff',
+            }}
+          />
+        </div>
       ) : null}
     </div>
   );
