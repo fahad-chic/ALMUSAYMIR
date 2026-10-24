@@ -1,6 +1,5 @@
 // src/store/useOffers.js — صور شريط العروض (6 مواضع ثابتة)
 // تُحفظ مضغوطة داخل Firestore (settings/homeOffers) بلا Firebase Storage.
-import { useEffect } from 'react';
 import { create } from 'zustand';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
