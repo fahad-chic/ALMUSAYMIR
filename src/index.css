@@ -778,6 +778,16 @@ textarea.bg-gray-700 {
   color: var(--rz-white) !important;
 }
 
+/* يمنع تكبير iPhone التلقائي عند التركيز على حقول الإدخال،
+   مع إبقاء التكبير بالإصبع مفعلاً من إعداد viewport في index.html. */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 /* ═══════════════════ تقليل الحركة عند طلب المستخدم ═══════════════════ */
 @media (prefers-reduced-motion: reduce) {
   html {
