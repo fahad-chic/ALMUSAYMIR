@@ -1,5 +1,8 @@
 // src/permissions/logic.js — منطق حساب الصلاحيات الفعّالة (نقي وقابل للاختبار)
-import { PERMISSION_KEYS } from './catalog';
+import {
+  OWNER_ONLY_PERMISSION_KEYS,
+  PERMISSION_KEYS
+} from './catalog';
 
 // يحسب المصفوفة الفعّالة لحساب ما بناءً على دوره ووثيقة rbac الخاصة به.
 // - المالك (owner): كل الصلاحيات دائماً ولا يمكن تجميده أو سحبها منه.
@@ -20,11 +23,17 @@ export const computeEffectiveGrants = ({ role, rbacDoc }) => {
 
   const raw = rbacDoc?.grants && typeof rbacDoc.grants === 'object' ? rbacDoc.grants : {};
   for (const key of PERMISSION_KEYS) {
-    grants[key] = raw[key] === true;
+    grants[key] =
+      !OWNER_ONLY_PERMISSION_KEYS.has(key) &&
+      raw[key] === true;
   }
 
   if (grants.SUPER_ADMIN_FULL_ACCESS) {
-    for (const key of PERMISSION_KEYS) grants[key] = true;
+    for (const key of PERMISSION_KEYS) {
+      if (!OWNER_ONLY_PERMISSION_KEYS.has(key)) {
+        grants[key] = true;
+      }
+    }
   }
 
   return { grants, suspended: false, isOwner: false };
