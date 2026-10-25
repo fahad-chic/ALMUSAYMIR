@@ -11,6 +11,27 @@ import {
 } from 'firebase/storage';
 import { storage } from './config';
 
+// ============ IMAGE VALIDATION ============
+// يجب أن تطابق storage.rules: jpeg/png/gif/webp وحد أقصى 5MB.
+const IMAGE_EXT_BY_TYPE = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp'
+};
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+// يعيد نص الخطأ أو null إذا كانت الصورة مقبولة.
+const validateImageFile = (file) => {
+  if (!file || typeof file.size !== 'number') return 'الملف غير صالح.';
+  if (!IMAGE_EXT_BY_TYPE[file.type]) {
+    return 'نوع الملف غير مدعوم. المسموح: JPG أو PNG أو GIF أو WEBP.';
+  }
+  if (file.size <= 0) return 'الملف فارغ.';
+  if (file.size > MAX_IMAGE_BYTES) return 'حجم الصورة يتجاوز 5 ميجابايت.';
+  return null;
+};
+
 // ============ UPLOAD FUNCTIONS ============
 
 export const uploadFile = async (path, file, metadata = {}) => {
@@ -151,10 +172,12 @@ export const listFiles = async (path) => {
 // ============ PRODUCT IMAGE HELPERS ============
 
 export const uploadProductImage = async (productId, file) => {
+  const invalid = validateImageFile(file);
+  if (invalid) return { success: false, error: invalid };
   const timestamp = Date.now();
-  const ext = file.name.split('.').pop();
+  const ext = IMAGE_EXT_BY_TYPE[file.type];
   const path = `products/${productId}/${timestamp}.${ext}`;
-  return uploadFile(path, file);
+  return uploadFile(path, file, { contentType: file.type });
 };
 
 export const uploadProductImages = async (productId, files) => {
@@ -174,7 +197,10 @@ export const deleteProductImages = async (productId) => {
 // ============ USER AVATAR ============
 
 export const uploadAvatar = async (userId, file) => {
-  const ext = file.name.split('.').pop();
+  const invalid = validateImageFile(file);
+  if (invalid) return { success: false, error: invalid };
+  // الامتداد من نوع الملف (وليس من اسمه) ليطابق قاعدة avatars/{uid}.{ext}
+  const ext = IMAGE_EXT_BY_TYPE[file.type];
   const path = `avatars/${userId}.${ext}`;
   return uploadFile(path, file, {
     contentType: file.type,
@@ -195,24 +221,37 @@ export const deleteAvatar = async (userId) => {
 // ============ CATEGORY IMAGES ============
 
 export const uploadCategoryImage = async (categoryId, file) => {
-  const ext = file.name.split('.').pop();
+  const invalid = validateImageFile(file);
+  if (invalid) return { success: false, error: invalid };
+  const ext = IMAGE_EXT_BY_TYPE[file.type];
   const path = `categories/${categoryId}.${ext}`;
-  return uploadFile(path, file);
+  return uploadFile(path, file, { contentType: file.type });
 };
 
 // ============ BANNER IMAGES ============
 
 export const uploadBannerImage = async (bannerId, file) => {
-  const ext = file.name.split('.').pop();
+  const invalid = validateImageFile(file);
+  if (invalid) return { success: false, error: invalid };
+  const ext = IMAGE_EXT_BY_TYPE[file.type];
   const path = `banners/${bannerId}.${ext}`;
-  return uploadFile(path, file);
+  return uploadFile(path, file, { contentType: file.type });
 };
 
 // ============ CHAT ATTACHMENTS ============
 
+// المرفقات صور فقط (jpeg/png/gif/webp حتى 5MB) — تطابق storage.rules.
+// أي نوع آخر (PDF أو HEIC ...) يُرفض هنا برسالة واضحة بدل خطأ Firebase مبهم.
 export const uploadChatAttachment = async (chatId, file) => {
+  if (!chatId) return { success: false, error: 'معرّف المحادثة مفقود.' };
+  const invalid = validateImageFile(file);
+  if (invalid) return { success: false, error: invalid };
   const timestamp = Date.now();
-  const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-  const path = `chats/${chatId}/${timestamp}_${safeName}`;
-  return uploadFile(path, file);
+  const ext = IMAGE_EXT_BY_TYPE[file.type];
+  const base = String(file.name || 'image')
+    .replace(/\.[^.]*$/, '')
+    .replace(/[^a-zA-Z0-9]/g, '_')
+    .slice(0, 60) || 'image';
+  const path = `chats/${chatId}/${timestamp}_${base}.${ext}`;
+  return uploadFile(path, file, { contentType: file.type });
 };
