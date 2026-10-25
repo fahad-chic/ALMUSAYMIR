@@ -53,8 +53,7 @@ async function checkAiRateLimit(env, ip) {
       'SELECT count, window_start, last_at FROM ai_rate_limits WHERE key = ?1'
     )
       .bind(ip)
-      .first()
-      .catch(() => null);
+      .first();
 
     if (!row || nowSec - Number(row.window_start || 0) > AI_RATE_WINDOW_SECONDS) {
       await env.DB.prepare(
@@ -63,8 +62,7 @@ async function checkAiRateLimit(env, ip) {
          ON CONFLICT(key) DO UPDATE SET count = 1, window_start = ?2, last_at = ?3`
       )
         .bind(ip, nowSec, nowMs)
-        .run()
-        .catch(() => {});
+        .run();
       return { allowed: true };
     }
 
@@ -82,8 +80,7 @@ async function checkAiRateLimit(env, ip) {
       'UPDATE ai_rate_limits SET count = count + 1, last_at = ?2 WHERE key = ?1'
     )
       .bind(ip, nowMs)
-      .run()
-      .catch(() => {});
+      .run();
     return { allowed: true };
   } catch (err) {
     console.error('ai: فشل فحص تحديد المعدّل — رفض الطلب (fail-closed):', err);
@@ -495,6 +492,18 @@ ${contactInfo}
         )}`
       );
     }
+    if (!reply) {
+      return new Response(
+        JSON.stringify({ reply: '', error: 'تعذّر الحصول على إجابة الآن، حاول لاحقاً.' }),
+        {
+          status: 502,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
     return new Response(
       JSON.stringify({ reply }),
       {
@@ -521,3 +530,4 @@ ${contactInfo}
     );
   }
 }
+
