@@ -172,6 +172,13 @@ service cloud.firestore {
       allow write: if isOwner() || hasCatalogPerm();
     }
 
+    // إعدادات عرض كل كتالوج (نمط البطاقات/إظهار الأسعار...) — قراءة عامة، وكتابة للمالك أو صاحب صلاحية الكتالوج.
+    // كانت بلا قاعدة فيفشل حفظ «إعدادات العرض» في صفحة الكتالوج.
+    match /catalogSettings/{docId} {
+      allow read: if true;
+      allow write: if isOwner() || hasCatalogPerm();
+    }
+
     match /branches/{docId} {
       allow read: if true;
       allow write: if isOwner() || hasPerm('UPDATE_GLOBAL_SETTINGS');
