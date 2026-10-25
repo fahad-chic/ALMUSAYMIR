@@ -36,6 +36,32 @@ const isOwnerEmail = (email) =>
     String(email || '').trim().toLowerCase()
   )
 
+const OWNER_GATE_KEY = 'rooz_owner_gate_ok'
+const OWNER_GATE_TTL_MS = 15 * 60 * 1000
+
+const readOwnerGate = () => {
+  try {
+    const currentUid = auth?.currentUser?.uid
+    const raw = sessionStorage.getItem(OWNER_GATE_KEY)
+    const record = raw ? JSON.parse(raw) : null
+
+    if (
+      !currentUid ||
+      !record ||
+      record.uid !== currentUid ||
+      !Number.isFinite(record.expiresAt) ||
+      record.expiresAt <= Date.now()
+    ) {
+      sessionStorage.removeItem(OWNER_GATE_KEY)
+      return false
+    }
+
+    return true
+  } catch {
+    return false
+  }
+}
+
 const logSecurityEvent = async (type, details, severity = 'info') => {
   try {
     await addDoc(collection(db, 'security_logs'), {
@@ -88,11 +114,7 @@ const OwnerPrivateRoom = () => {
   const { can } = usePermissions()
 
   const [gatePassed, setGatePassed] = useState(() => {
-    try {
-      return sessionStorage.getItem('rooz_owner_gate_ok') === '1'
-    } catch {
-      return false
-    }
+    return readOwnerGate()
   })
 
   const [users, setUsers] = useState([])
@@ -187,6 +209,24 @@ const OwnerPrivateRoom = () => {
   // منع زر رجوع المتصفح من إخراج المالك من الغرفة بعد إدخال الرمز
   useEffect(() => {
     if (!gatePassed) return undefined
+
+    let expiresAt = Date.now() + OWNER_GATE_TTL_MS
+    try {
+      const raw = sessionStorage.getItem(OWNER_GATE_KEY)
+      const record = raw ? JSON.parse(raw) : null
+      if (Number.isFinite(record?.expiresAt)) {
+        expiresAt = record.expiresAt
+      }
+    } catch { /* use the safe fallback */ }
+
+    const remaining = Math.max(0, expiresAt - Date.now())
+    const expiryTimer = window.setTimeout(() => {
+      try {
+        sessionStorage.removeItem(OWNER_GATE_KEY)
+      } catch { /* ignore */ }
+      setGatePassed(false)
+    }, remaining)
+
     const lockState = () => {
       try {
         window.history.pushState({ roozOwnerRoom: true }, '', window.location.href)
@@ -199,7 +239,10 @@ const OwnerPrivateRoom = () => {
       goBackOneStep()
     }
     window.addEventListener('popstate', onPop)
-    return () => window.removeEventListener('popstate', onPop)
+    return () => {
+      window.clearTimeout(expiryTimer)
+      window.removeEventListener('popstate', onPop)
+    }
   }, [gatePassed])
 
 
@@ -237,6 +280,10 @@ const OwnerPrivateRoom = () => {
         isOwnerEmail(currentUser.email)
 
       if (!ownerAccess) {
+        try {
+          sessionStorage.removeItem(OWNER_GATE_KEY)
+        } catch { /* ignore */ }
+
         setUser(null)
 
         if (currentUser) {
@@ -891,7 +938,18 @@ const OwnerPrivateRoom = () => {
     return (
       <OwnerGatekeeper
         onPassed={() => {
-          try { sessionStorage.setItem('rooz_owner_gate_ok', '1') } catch { /* ignore */ }
+          try {
+            const uid = auth?.currentUser?.uid
+            if (uid) {
+              sessionStorage.setItem(
+                OWNER_GATE_KEY,
+                JSON.stringify({
+                  uid,
+                  expiresAt: Date.now() + OWNER_GATE_TTL_MS
+                })
+              )
+            }
+          } catch { /* ignore */ }
           setGatePassed(true)
         }}
         onCancel={() => safeStepBack('/')}
