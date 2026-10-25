@@ -29,7 +29,11 @@ if (firebaseConfig.projectId) {
   try {
     app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
     db = getFirestore(app);
-    storage = getStorage(app);
+    // Storage is optional. The current free image flow stores compressed
+    // data URLs in Firestore, so the app must not depend on a paid bucket.
+    if (firebaseConfig.storageBucket) {
+      storage = getStorage(app);
+    }
     auth = getAuth(app); // Initialize auth immediately
   } catch (error) {
     console.error('Firebase init error:', error);
