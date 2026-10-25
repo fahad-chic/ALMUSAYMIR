@@ -631,20 +631,6 @@ const Login = () => {
     }
   };
 
-  // الرمز السري لبوابة المالك المخفية — يُقرأ حصراً من متغير البناء VITE_OWNER_SECRET_CODE؛
-  // لا توجد قيمة افتراضية في الكود — إن لم يُضبط المتغير تبقى البوابة مقفلة تماماً.
-  // الحماية الفعلية مضاعفة حتى مع معرفة الرمز: البريد يجب أن يكون من
-  // إيميلات المالك المعتمدة + كلمة مرور Firebase + قفل 15د بعد 5 محاولات.
-  const OWNER_SECRET_CODE = String(
-    import.meta.env.VITE_OWNER_SECRET_CODE || ''
-  ).trim();
-
-  // عدّاد محاولات الرمز السري الفاشلة — يقفل المودال مؤقتاً ضد التخمين
-  const secretAttemptsRef = useRef({
-    count: 0,
-    lockedUntil: 0,
-  });
-
   const hiddenInputStyle = {
     width: '100%',
     padding: '12px 14px',
@@ -652,7 +638,7 @@ const Login = () => {
     border: '1px solid rgba(var(--rz-primary-rgb), 0.5)',
     background: 'rgba(var(--rz-ink-rgb), 0.6)',
     color: 'var(--rz-white)',
-    fontSize: 15,
+    fontSize: 16,
     textAlign: 'center',
     fontFamily: 'inherit',
     marginBottom: 10,
@@ -682,76 +668,36 @@ const Login = () => {
       return;
     }
 
-    const attempts =
-      secretAttemptsRef.current;
-
-    if (
-      Date.now() <
-      attempts.lockedUntil
-    ) {
-      setSecretError(
-        'محاولات كثيرة — انتظر دقائق ثم أعد المحاولة'
-      );
-
-      return;
-    }
-
-    if (
-      !OWNER_SECRET_CODE ||
-      secretCode.trim() !==
-        OWNER_SECRET_CODE
-    ) {
-      attempts.count += 1;
-
-      // 5 محاولات فاشلة = قفل 15 دقيقة ضد التخمين الآلي
-      if (attempts.count >= 5) {
-        attempts.count = 0;
-
-        attempts.lockedUntil =
-          Date.now() +
-          15 * 60 * 1000;
-
-        setSecretError(
-          'محاولات كثيرة — انتظر دقائق ثم أعد المحاولة'
-        );
-      } else {
-        setSecretError(
-          'الرمز السري غير صحيح'
-        );
-      }
-
-      setSecretCode('');
-
-      return;
-    }
-
-    attempts.count = 0;
-
-    // البريد نفسه يجب أن يكون مالكاً معتمداً — معرفة الرمز السري وحده
-    // لا تفتح صفحات المالك لأي حساب آخر.
-    if (
-      !OWNER_EMAIL_SET.has(
-        secretEmail
-          .trim()
-          .toLowerCase()
-      )
-    ) {
-      setSecretError(
-        'هذا البريد غير مصرّح له بدخول صفحة صاحب الموقع'
-      );
-
-      return;
-    }
-
     setSecretError('');
     setSecretLoading(true);
 
     try {
-      await signInWithEmailAndPassword(
+      const signInResult = await signInWithEmailAndPassword(
         auth,
         secretEmail.trim(),
         secretPassword
       );
+
+      // التحقق من الرمز يتم على الخادم فقط. لا نقرأ الرمز من import.meta.env
+      // ولا نقارنه داخل المتصفح، لأن أي قيمة VITE_ تصبح مكشوفة للزوار.
+      const idToken = await signInResult.user.getIdToken();
+
+      if (idToken) {
+        localStorage.setItem('auth_token', idToken);
+      }
+
+      try {
+        await apiCall('/owner-pin', 'POST', {
+          action: 'verify',
+          pin: secretCode,
+        });
+      } catch (pinError) {
+        markManualSignOut();
+        await signOut(auth);
+        localStorage.removeItem('auth_token');
+        setSecretCode('');
+        throw pinError;
+      }
 
       // امسح أي هوية زائر راكدة (إصلاح سباق «صوت فقط بلا رسالة»)
       try {
@@ -781,7 +727,8 @@ const Login = () => {
         err?.code ===
           'auth/invalid-credential'
           ? 'بيانات الدخول غير صحيحة'
-          : 'تعذّر الدخول، حاول لاحقاً'
+          : err?.message ||
+            'تعذّر الدخول، حاول لاحقاً'
       );
 
       setSecretLoading(false);
