@@ -1,21 +1,99 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-
-    // صور إعلانات حراج — قراءة عامة، وكتابة صور فقط حتى 10MB
-    match /haraj_ads/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null
-                   && request.resource.size < 10 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email_verified == true;
     }
 
-    // بقية الملفات — قراءة عامة، كتابة للمسجلين فقط، مع حد حجم ونوع صورة
-    match /{allPaths=**} {
+    function isOwner() {
+      return signedIn()
+        && request.auth.token.email in [
+          'f882771f@gmail.com',
+          'kal6667222@gmail.com'
+        ];
+    }
+
+    function validImage(maxBytes) {
+      return request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= maxBytes
+        && request.resource.contentType.matches('image/(jpeg|png|gif|webp)');
+    }
+
+    // الصور العامة قابلة للعرض، لكن تعديل كتالوج المتجر للمالك فقط.
+    match /products/{productId}/{fileName} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/.*');
+      allow create, update: if isOwner() && validImage(5 * 1024 * 1024);
+      allow delete: if isOwner();
+    }
+
+    match /categories/{fileName} {
+      allow read: if true;
+      allow create, update: if isOwner() && validImage(5 * 1024 * 1024);
+      allow delete: if isOwner();
+    }
+
+    match /banners/{fileName} {
+      allow read: if true;
+      allow create, update: if isOwner() && validImage(5 * 1024 * 1024);
+      allow delete: if isOwner();
+    }
+
+    // كل مستخدم موثّق يستطيع تعديل صورته فقط؛ مقارنة اسم الملف مباشرة
+    // تتجنب مشاكل تعبيرات regex مع أي UID أو امتداد بحروف كبيرة.
+    match /avatars/{fileName} {
+      allow read: if true;
+      allow create, update: if signedIn()
+        && (fileName == request.auth.uid + '.jpg'
+          || fileName == request.auth.uid + '.jpeg'
+          || fileName == request.auth.uid + '.png'
+          || fileName == request.auth.uid + '.gif'
+          || fileName == request.auth.uid + '.webp')
+        && validImage(5 * 1024 * 1024);
+      allow delete: if signedIn()
+        && (fileName == request.auth.uid + '.jpg'
+          || fileName == request.auth.uid + '.jpeg'
+          || fileName == request.auth.uid + '.png'
+          || fileName == request.auth.uid + '.gif'
+          || fileName == request.auth.uid + '.webp');
+    }
+
+    // الحفاظ على مسار صور الحراج القديم المستخدم في نسخ سابقة.
+    // الصور عامة، والرفع يتطلب حساباً موثقاً ونوع صورة وحجماً محدوداً.
+    match /haraj_ads/{allPaths=**} {
+      allow read: if true;
+      allow create, update: if signedIn()
+        && request.resource != null
+        && request.resource.size > 0
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isOwner();
+    }
+
+    // مرفقات المحادثات: لا تُقرأ إلا من المالك أو أحد أطراف المحادثة.
+    match /chats/{chatId}/{fileName} {
+      function chatPath() {
+        return /databases/(default)/documents/chats/$(chatId);
+      }
+      function isChatMember() {
+        return signedIn()
+          && firestore.exists(chatPath())
+          && (request.auth.uid in firestore.get(chatPath()).data.get('participantUids', [])
+            || firestore.get(chatPath()).data.get('buyerUid', '') == request.auth.uid
+            || firestore.get(chatPath()).data.get('sellerUid', '') == request.auth.uid);
+      }
+      allow read: if isOwner() || isChatMember();
+      allow create, update: if request.resource != null
+        && validImage(5 * 1024 * 1024)
+        && firestore.exists(chatPath())
+        && (isOwner() || isChatMember());
+      allow delete: if isOwner();
+    }
+
+    // المسارات غير المعروفة مغلقة افتراضياً؛ لا تجعلها عامة بالخطأ.
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }
