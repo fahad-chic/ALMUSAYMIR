@@ -17,7 +17,8 @@ name = "rooz-store"
 VITE_FIREBASE_API_KEY = "AIzaSyAHwlog-j66yWIOphisbm_an_QHO2FRdyM"
 VITE_FIREBASE_AUTH_DOMAIN = "anaqa-chic-4e437.firebaseapp.com"
 VITE_FIREBASE_PROJECT_ID = "anaqa-chic-4e437"
-VITE_FIREBASE_STORAGE_BUCKET = "anaqa-chic-4e437.appspot.com"
+# Firebase Storage is intentionally not configured for the free path.
+# Images are compressed in the browser and stored as bounded data URLs in Firestore.
 VITE_FIREBASE_MESSAGING_SENDER_ID = "173599362251"
 VITE_FIREBASE_APP_ID = "1:173599362251:web:83a32b32a0da157bcd1f4e"
 VITE_FIREBASE_MEASUREMENT_ID = "G-NDLJXV8KD8"
@@ -76,7 +77,6 @@ STORE_WORKING_HOURS = "من 10 صباحًا إلى 11 مساءً"
 #   Cloudflare Pages → Settings → Variables and secrets → Add → Secret
 # لا تُكتب هنا مطلقاً لأنها لا تظهر مشفّرة في اللوحة، ولا يجوز نشرها:
 #
-#   VITE_OWNER_SECRET_CODE       (الرمز السري لبوابة المالك المخفية)
 #   GROQ_API_KEY                 (سري — لخدمة الذكاء الاصطناعي)
 #   RESEND_API_KEY               (سري — لخدمة إرسال البريد/OTP)
 # =====================================================================
