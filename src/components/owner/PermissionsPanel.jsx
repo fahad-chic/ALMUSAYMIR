@@ -14,6 +14,7 @@ import {
   ShieldAlert, ScanEye, Palette, CaseSensitive, Image, SlidersHorizontal,
   Box, Repeat, EyeOff, MessageSquare
 } from 'lucide-react';
+import * as permissionCatalog from '../../permissions/catalog';
 import {
   PERMISSION_CATEGORIES,
   PERMISSIONS,
@@ -27,6 +28,18 @@ import {
   toggleGrant,
   logPermissionAudit
 } from '../../permissions/rbacService';
+
+const OWNER_ONLY_PERMISSION_KEYS =
+  permissionCatalog.OWNER_ONLY_PERMISSION_KEYS ||
+  new Set([
+    'MONITOR_PRIVATE_MESSAGES',
+    'VIEW_SYSTEM_AUDIT_LOGS',
+    'TRACK_EMPLOYEE_LIVE_SESSIONS',
+    'FIREBASE_MUTATION_LOGS',
+    'RECOVER_DELETED_ITEMS_ARCHIVE',
+    'TRACK_FAILED_LOGINS',
+    'MONITOR_USER_TRAFFIC_LIVE'
+  ]);
 
 // أيقونة مميزة لكل صلاحية على حدة — «لغة بصرية» تُميّز كل صندوق في المصفوفة
 const PERMISSION_ICONS = {
@@ -244,7 +257,8 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
     }
   };
 
-  const categoryPerms = permissionsByCategory(activeCategory);
+  const categoryPerms = permissionsByCategory(activeCategory)
+    .filter((permission) => !OWNER_ONLY_PERMISSION_KEYS.has(permission.key));
 
   return (
     <div className="space-y-5" dir="rtl" lang="ar">
@@ -406,6 +420,12 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
 
               {/* مفاتيح الصلاحيات — مع زر تعديل/حفظ */}
               <div className="space-y-3">
+                {activeCategory === 'spy' && categoryPerms.length === 0 && (
+                  <div className={`rounded-xl border px-4 py-4 text-sm ${textMuted}`}>
+                    صلاحيات المراقبة والسجلات الحساسة محجوزة لصاحب الموقع فقط،
+                    ولا يمكن منحها لأي مشرف أو موظف.
+                  </div>
+                )}
                 {categoryPerms.map((p) => {
                   const on = effective.grants[p.key] === true;
                   const saving = savingKey === p.key;
