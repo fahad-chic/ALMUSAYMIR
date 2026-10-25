@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase/config';
 import { useAuth } from '../../context/AuthContext';
+import { saveSiteText } from '../../store/useSiteTexts';
 import {
   collection,
   addDoc,
@@ -303,10 +304,14 @@ const handleDeleteAd = async (id) => {
 
 const handleMarquee = async () => {
   try {
-    await updateDoc(doc(db, 'siteSettings', 'global'), { marquee: marqueeText });
+    // الشريط المتحرك الفعلي يقرأ من settings/siteTexts (المفتاح marquee1)،
+    // أما siteSettings/global فلا يقرأه أي مكوّن ولا توجد له قاعدة أمان.
+    await saveSiteText('marquee1', marqueeText);
     await logAction('MARQUEE_UPDATE', marqueeText);
+    alert('تم نشر نص الشريط المتحرك');
   } catch (error) {
     console.error('خطأ في تحديث النص المتحرك:', error);
+    alert('تعذّر نشر نص الشريط المتحرك');
   }
 };
 
