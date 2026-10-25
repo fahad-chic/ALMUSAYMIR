@@ -31,6 +31,11 @@ const openHiddenModal = () => {
   fireEvent.click(trigger);
 };
 
+beforeEach(() => {
+  vi.clearAllMocks();
+  localStorage.clear();
+});
+
 describe('الدخول المخفي بالرمز السري', () => {
   it('يفتح مودالاً مكتفياً ذاتياً فيه بريد وكلمة مرور ورمز سري', () => {
     renderLogin();
