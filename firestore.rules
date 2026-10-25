@@ -261,7 +261,10 @@ service cloud.firestore {
     match /orders/{docId} {
       allow read: if isOwner()
                   || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isSignedIn();
+      // لا تسمح بإنشاء طلب باسم مستخدم آخر أو بحذف/تغيير الطلبات من العميل.
+      allow create: if isSignedIn()
+                    && request.resource.data.keys().hasAll(['userId'])
+                    && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isOwner();
     }
 
