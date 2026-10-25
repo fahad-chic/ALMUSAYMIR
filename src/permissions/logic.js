@@ -1,8 +1,18 @@
 // src/permissions/logic.js — منطق حساب الصلاحيات الفعّالة (نقي وقابل للاختبار)
-import {
-  OWNER_ONLY_PERMISSION_KEYS,
-  PERMISSION_KEYS
-} from './catalog';
+import * as permissionCatalog from './catalog';
+
+const PERMISSION_KEYS = permissionCatalog.PERMISSION_KEYS;
+const OWNER_ONLY_PERMISSION_KEYS =
+  permissionCatalog.OWNER_ONLY_PERMISSION_KEYS ||
+  new Set([
+    'MONITOR_PRIVATE_MESSAGES',
+    'VIEW_SYSTEM_AUDIT_LOGS',
+    'TRACK_EMPLOYEE_LIVE_SESSIONS',
+    'FIREBASE_MUTATION_LOGS',
+    'RECOVER_DELETED_ITEMS_ARCHIVE',
+    'TRACK_FAILED_LOGINS',
+    'MONITOR_USER_TRAFFIC_LIVE'
+  ]);
 
 // يحسب المصفوفة الفعّالة لحساب ما بناءً على دوره ووثيقة rbac الخاصة به.
 // - المالك (owner): كل الصلاحيات دائماً ولا يمكن تجميده أو سحبها منه.
