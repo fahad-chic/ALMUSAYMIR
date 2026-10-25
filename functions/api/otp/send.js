@@ -76,7 +76,7 @@ async function sendEmail(env, email, code, purpose) {
       </div>
 
       <p style="text-align:right;font-size:14px;line-height:1.9;color:#3a2a30;margin:0 0 10px">
-        هذا الرمز صالحة للاستخدام لمرة واحدة فقط وينتهي خلال 10 دقائق. يرجى عدم مشاركته مع أي شخص لضمان أمان حسابك.
+        هذا الرمز صالح للاستخدام لمرة واحدة فقط وينتهي خلال 10 دقائق. يرجى عدم مشاركته مع أي شخص لضمان أمان حسابك.
       </p>
 
       <p style="text-align:right;font-size:13px;line-height:1.9;color:#8a5560;margin:0 0 4px">
@@ -259,7 +259,7 @@ export async function onRequest(context) {
       success: true,
       message:
         "تم إرسال كود التحقق إلى بريدك الإلكتروني",
-      expiresIn: 300,
+      expiresIn: 600,
     });
   } catch (error) {
     console.error("otp/send error:", error);
@@ -267,9 +267,8 @@ export async function onRequest(context) {
     return json(
       {
         success: false,
-        error:
-          error?.message ||
-          "تعذر إرسال كود التحقق",
+        // لا نُرجع نص خطأ Resend/D1 الداخلي للمتصفح؛ التفاصيل في سجلات الخادم.
+        error: "تعذر إرسال كود التحقق، حاول مرة أخرى",
       },
       500
     );
