@@ -16,7 +16,7 @@ import {
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
-import { db } from './config';
+import { auth, db } from './config';
 
 // ============ COLLECTIONS ============
 export const COLLECTIONS = {
@@ -149,8 +149,15 @@ export const deleteProduct = async (productId) => {
 // ============ ORDERS ============
 export const createOrder = async (orderData) => {
   try {
+    const currentUser = auth?.currentUser;
+    if (!currentUser?.uid) {
+      return { success: false, error: 'يجب تسجيل الدخول قبل إنشاء الطلب.' };
+    }
+
+    // هوية صاحب الطلب مصدرها جلسة Firebase، لا بيانات يرسلها المتصفح.
     const docRef = await addDoc(collection(db, COLLECTIONS.ORDERS), {
       ...orderData,
+      userId: currentUser.uid,
       status: 'pending',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
