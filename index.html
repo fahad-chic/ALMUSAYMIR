@@ -1,55 +1,140 @@
+------------------------------
+--------- index.html ---------
+------------------------------
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8"/>
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+
   <meta name="theme-color" content="#0F172A"/>
   <meta name="google-site-verification" content="gc-cSgckNw5k6r31nw4kwYFkJgRiPax2W0-CZNBohwY"/>
   <meta name="description" content="المسيمير | ALMUSAYMIR: سوق متكامل يجمع بين حراج الإعلانات العام ومتجر المنتجات الحديثة بأسعار رخيصة للجميع. شحن سريع لجميع مناطق المملكة."/>
   <meta name="robots" content="index,follow"/>
   <meta name="author" content="المسيمير | ALMUSAYMIR"/>
-  <!-- Open Graph / Twitter: صورة المشاركة تظهر في واتساب وتويتر وتيليجرام -->
+
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="المسيمير | ALMUSAYMIR"/>
   <meta property="og:locale" content="ar_SA"/>
   <meta property="og:title" content="المسيمير | ALMUSAYMIR | حراج إعلانات ومتجر شامل"/>
   <meta property="og:description" content="سوق متكامل يجمع بين حراج الإعلانات العام ومتجر المنتجات الحديثة بأسعار رخيصة للجميع. شحن سريع لجميع مناطق المملكة."/>
-  <meta property="og:url" content="https://rooz-store.pages.dev/"/>
-  <meta property="og:image" content="https://rooz-store.pages.dev/assets/og-image.jpg"/>
+  <meta property="og:url" content="https://almusaymir.pages.dev/"/>
+  <meta property="og:image" content="https://almusaymir.pages.dev/assets/og-image.jpg"/>
   <meta property="og:image:width" content="1200"/>
   <meta property="og:image:height" content="630"/>
   <meta property="og:image:alt" content="المسيمير | ALMUSAYMIR"/>
+
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="المسيمير | ALMUSAYMIR | حراج إعلانات ومتجر شامل"/>
   <meta name="twitter:description" content="سوق متكامل يجمع بين حراج الإعلانات العام ومتجر المنتجات الحديثة. شحن سريع لجميع مناطق المملكة."/>
-  <meta name="twitter:image" content="https://rooz-store.pages.dev/assets/og-image.jpg"/>
+  <meta name="twitter:image" content="https://almusaymir.pages.dev/assets/og-image.jpg"/>
+
+  <link rel="canonical" href="https://almusaymir.pages.dev/"/>
   <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png"/>
   <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <link rel="manifest" href="/manifest.json"/>
+
   <title>المسيمير | ALMUSAYMIR | حراج إعلانات ومتجر شامل</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet"/>
+
   <style>
-    .rooz-boot{display:flex;flex-direction:column;align-items:center;gap:16px;opacity:0;animation:roozFadeIn .7s ease .05s forwards}
-    .rooz-boot img{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 8px 22px rgba(15,23,42,.22))}
-    .rooz-boot .rooz-boot-bar{width:132px;height:3px;border-radius:999px;background:rgba(15,23,42,.14);overflow:hidden;position:relative}
-    .rooz-boot .rooz-boot-bar::after{content:"";position:absolute;inset:0;width:40%;border-radius:999px;background:linear-gradient(90deg,#0F172A,#C9A227);animation:roozSlide 1.15s ease-in-out infinite}
-    @keyframes roozFadeIn{to{opacity:1}}
-    @keyframes roozSlide{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
-    @media(prefers-reduced-motion:reduce){.rooz-boot{animation:none;opacity:1}.rooz-boot .rooz-boot-bar::after{animation:none;width:100%}}
-    html,body{margin:0;padding:0;background:#F7F1E7}
+    .rooz-boot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      opacity: 0;
+      animation: roozFadeIn .7s ease .05s forwards;
+    }
+
+    .rooz-boot img {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 22px rgba(15, 23, 42, .22));
+    }
+
+    .rooz-boot .rooz-boot-bar {
+      width: 132px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, .14);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .rooz-boot .rooz-boot-bar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 40%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0F172A, #C9A227);
+      animation: roozSlide 1.15s ease-in-out infinite;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font-size: 16px;
+    }
+
+    @keyframes roozFadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes roozSlide {
+      0% {
+        transform: translateX(-120%);
+      }
+
+      100% {
+        transform: translateX(320%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rooz-boot {
+        animation: none;
+        opacity: 1;
+      }
+
+      .rooz-boot .rooz-boot-bar::after {
+        animation: none;
+        width: 100%;
+      }
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #F7F1E7;
+    }
   </style>
 </head>
+
 <body>
   <div id="root">
     <div class="rooz-boot" role="status" aria-label="جاري التحميل">
-      <img src="/assets/logo-almusaymir.png" alt="المسيمير | ALMUSAYMIR" width="96" height="96"/>
+      <img
+        src="/assets/logo-almusaymir.png"
+        alt="المسيمير | ALMUSAYMIR"
+        width="96"
+        height="96"
+      />
       <span class="rooz-boot-bar"></span>
     </div>
   </div>
+
   <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
