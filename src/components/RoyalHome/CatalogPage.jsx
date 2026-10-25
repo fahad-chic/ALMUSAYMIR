@@ -1032,7 +1032,7 @@ const AddProductModal = ({
         price: Number(form.price),
         size: form.size.trim(),
         description: form.description.trim(),
-        image: form.image.trim(),
+        image: (form.image || '').trim(),
         whatsapp: form.whatsapp.replace(/[^0-9]/g, ''),
       };
 
