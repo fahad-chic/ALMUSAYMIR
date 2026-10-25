@@ -63,7 +63,11 @@ describe('computeEffectiveGrants', () => {
       role: 'user',
       rbacDoc: { grants: { SUPER_ADMIN_FULL_ACCESS: true } }
     });
-    expect(countGranted(grants)).toBe(47);
+    // صلاحيات المراقبة والخصوصية السبع محجوزة للمالك حتى مع
+    // SUPER_ADMIN_FULL_ACCESS.
+    expect(countGranted(grants)).toBe(40);
+    expect(grants.MONITOR_PRIVATE_MESSAGES).toBe(false);
+    expect(grants.VIEW_SYSTEM_AUDIT_LOGS).toBe(false);
   });
 
   it('التجميد يسحب كل الصلاحيات حتى SUPER_ADMIN', () => {
