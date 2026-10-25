@@ -79,6 +79,19 @@ export const PERMISSIONS = [
 
 export const PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
 
+// بيانات المراقبة والخصوصية لا تُمنح للمشرفين أو الموظفين.
+// وجودها في الكتالوج يسمح للمالك بعرضها وفهمها، لكن طبقة القواعد تمنع
+// استخدامها خارج حسابات المالك المعتمدة.
+export const OWNER_ONLY_PERMISSION_KEYS = new Set([
+  'MONITOR_PRIVATE_MESSAGES',
+  'VIEW_SYSTEM_AUDIT_LOGS',
+  'TRACK_EMPLOYEE_LIVE_SESSIONS',
+  'FIREBASE_MUTATION_LOGS',
+  'RECOVER_DELETED_ITEMS_ARCHIVE',
+  'TRACK_FAILED_LOGINS',
+  'MONITOR_USER_TRAFFIC_LIVE',
+]);
+
 const BY_KEY = new Map(PERMISSIONS.map((p) => [p.key, p]));
 
 export const getPermission = (key) => BY_KEY.get(key) || null;
