@@ -1,10 +1,10 @@
-name = "rooz-store"
+name = "almusaymir"
 compatibility_date = "2025-09-15"
 pages_build_output_dir = "dist"
 
 
 [env.production]
-name = "rooz-store"
+name = "almusaymir"
 
 # =====================================================================
 # ملاحظة: هذا الملف يدير متغيّرات البناء (vars) تلقائياً في Cloudflare.
@@ -81,7 +81,7 @@ database_name = "chic_users"
 database_id = "563b5a50-4e0d-4446-b3d7-5d88109f3fcb"
 
 [env.preview]
-name = "rooz-store-preview"
+name = "almusaymir-preview"
 
 [[env.preview.d1_databases]]
 binding = "DB"
