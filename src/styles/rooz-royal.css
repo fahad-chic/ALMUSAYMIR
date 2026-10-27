@@ -37,6 +37,7 @@ small, .rz-muted { color: var(--rz-muted) !important; }
   top: 0;
   z-index: 1200;
   width: 100%;
+  isolation: isolate;
 }
 
 /* الترويسة sticky وتحتل مساحتها داخل التدفق، لذا لا حاجة لحشوة تعويضية
