@@ -132,8 +132,8 @@ const MarqueeBanner = ({
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: "3px",
-        padding: "0 12px",
+        gap: "2px",
+        padding: "0 8px",
         margin: "0",
         transform: "translateY(-16px)",
         boxSizing: "border-box",
@@ -353,8 +353,8 @@ const MarqueeBanner = ({
         <span
           aria-hidden="true"
           style={{
-            width: 29,
-            height: 29,
+            width: 25,
+            height: 25,
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
@@ -363,12 +363,12 @@ const MarqueeBanner = ({
             color: palette.icon,
             background: palette.iconBackground,
             border: `1px solid ${palette.iconBorder}`,
-            borderRadius: "10px",
+            borderRadius: "8px",
             boxShadow: `0 4px 12px ${palette.glow}`,
             zIndex: 2,
           }}
         >
-          <Megaphone size={16} strokeWidth={2.35} />
+          <Megaphone size={14} strokeWidth={2.35} />
           <Sparkles
             className="rooz-badge-icon-sparkle"
             size={8}
@@ -439,7 +439,7 @@ const MarqueeBanner = ({
             style={{
               "--rooz-scroll-distance": `${scrollDistance}px`,
               fontFamily: "Tajawal, Tajawal, Arial, sans-serif",
-              fontSize: "0.93rem",
+            fontSize: "0.78rem",
               fontWeight: 950,
               color: palette.text,
               textShadow: palette.textShadow,
