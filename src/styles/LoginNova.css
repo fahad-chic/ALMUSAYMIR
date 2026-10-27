@@ -396,3 +396,92 @@
   background: rgba(255, 255, 255, 0.95) !important;
   color: var(--rz-ink) !important;
 }
+
+/* ضبط نهائي للجوال: بطاقة المالك أكبر بوضوح من بطاقة المشرفين،
+   مع تقليل ارتفاع الصفحة وحجم النصوص دون المساس بالربط. */
+.rl-head {
+  gap: 4px !important;
+  padding-top: 0 !important;
+}
+
+.rl-crown-ic img {
+  width: clamp(112px, 32vw, 148px) !important;
+  max-height: 112px !important;
+}
+
+.rl-tag {
+  max-width: 300px !important;
+  margin: 0 auto 4px !important;
+  font-size: 0.78rem !important;
+  line-height: 1.55 !important;
+  font-weight: 900 !important;
+}
+
+.rl-cards {
+  gap: 9px !important;
+  align-items: stretch !important;
+}
+
+.rl-card {
+  min-height: 158px !important;
+  padding: 11px 9px !important;
+  border-radius: 16px !important;
+}
+
+.rl-card--big {
+  flex: 1.14 1 0 !important;
+  min-height: 176px !important;
+}
+
+.rl-card:not(.rl-card--big) {
+  flex: 0.86 1 0 !important;
+  min-height: 148px !important;
+}
+
+.rl-card-logo {
+  width: 48px !important;
+  max-height: 48px !important;
+}
+
+.rl-card--big .rl-card-logo {
+  width: 56px !important;
+  max-height: 56px !important;
+}
+
+.rl-card-title,
+.rl-card--big .rl-card-title {
+  font-size: 0.76rem !important;
+  line-height: 1.35 !important;
+}
+
+.rl-card-sub,
+.rl-card--big .rl-card-sub {
+  font-size: 0.65rem !important;
+}
+
+.rl-card-phrase,
+.rl-card--big .rl-card-phrase {
+  font-size: 0.61rem !important;
+  line-height: 1.4 !important;
+}
+
+.rl-form-card {
+  padding: 10px !important;
+  border-radius: 15px !important;
+}
+
+.rl-form-title {
+  font-size: 1rem !important;
+}
+
+.rl-actions {
+  gap: 6px !important;
+}
+
+.rl-actions button,
+.rl-link,
+.rl-google {
+  min-height: 38px !important;
+  font-size: 0.72rem !important;
+  padding: 7px 8px !important;
+}
