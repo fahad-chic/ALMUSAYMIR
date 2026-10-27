@@ -446,3 +446,78 @@
 .nov-page {
   background: transparent !important;
 }
+
+/* روابط الصفحة الرئيسية: بطاقات واضحة بدل قائمة داكنة منخفضة التباين */
+.rz-footer-links-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.rz-footer-info-card {
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid rgba(201, 162, 39, 0.38);
+  border-radius: 14px;
+  background: rgba(255, 252, 247, 0.08);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.rz-footer-info-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--rz-gold);
+  font: inherit;
+  font-size: 0.83rem;
+  font-weight: 900;
+  text-align: right;
+  cursor: pointer;
+}
+
+.rz-footer-info-icon {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  color: var(--rz-ink);
+  background: linear-gradient(135deg, #f5e6b8, #d4af37);
+}
+
+.rz-footer-info-arrow {
+  margin-inline-start: auto;
+  font-size: 1rem;
+  opacity: 0.75;
+}
+
+.rz-footer-info-card p {
+  margin: 0.6rem 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.7rem;
+  line-height: 1.8;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .rz-footer-links-grid {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .rz-footer-info-card {
+    padding: 0.7rem;
+  }
+
+  .rz-footer-info-card p {
+    font-size: 0.68rem;
+    line-height: 1.75;
+  }
+}
