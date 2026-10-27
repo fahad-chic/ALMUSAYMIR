@@ -6,7 +6,6 @@ import { STORE_HOME_PATH } from '../../data/royalMenu';
 import { BRAND } from '../../data/brand';
 import {
   Crown,
-  Gem,
   Mail,
   Smartphone,
   Plus,
@@ -20,6 +19,12 @@ import {
   BadgeCheck,
   Headphones,
   ChevronDown,
+  Info,
+  BriefcaseBusiness,
+  Layers3,
+  FileText,
+  Users,
+  Shield,
 } from 'lucide-react';
 
 import MarqueeBanner from './MarqueeBanner';
@@ -35,6 +40,86 @@ const LOGO_SRC = BRAND.LOGO;
 const HERO_SUB_DEFAULT =
   'متجرك الشامل — إلكترونيات وجوالات وأجهزة منزلية وأزياء وخدمات، بجودة وثقة وأسعار منافسة.';
 const FOOTER_TAG_DEFAULT = `${BRAND.FULL} — متجرك الشامل`;
+
+const FOOTER_LINKS = [
+  {
+    title: 'لماذا نحن',
+    path: '/about',
+    icon: Info,
+    description:
+      'نحن الوجهة الرائدة التي تجمع بين الابتكار والموثوقية في تقديم الحلول السوقية المتكاملة، حيث نلتزم بأعلى معايير الجودة والشفافية. نتميز ببيئة تقنية متطورة تضمن للمستخدمين والشركاء تجربة استثنائية وآمنة، مدعومة برؤية استراتيجية تواكب تطلعات السوق المحلي والعالمي وتصنع الفارق في تلبية احتياجاتكم.',
+  },
+  {
+    title: 'وظائفنا',
+    path: '/contact',
+    icon: BriefcaseBusiness,
+    description:
+      'انضم إلى فريق عمل طموح يصنع المستقبل ويقود التغيير في قطاع التجارة الرقمية والخدمات. نحن نؤمن بأن رأس المال البشري هو ركيزة نجاحنا؛ لذا نوفر بيئة عمل محفزة، تنافسية، وحاضنة للإبداع والابتكار، مع تقديم فرص حقيقية للتطور المهني المستمر ومسارات وظيفية واعدة توافق تطلعات الكفاءات الوطنية والعالمية.',
+  },
+  {
+    title: 'كل الأقسام',
+    path: '/branches',
+    icon: Layers3,
+    description:
+      'بوابة متكاملة مصممة خصيصاً لتلبية كافة تطلعاتكم واحتياجاتكم المتنوعة في مكان واحد. بفضل هيكلتنا المنظمة وتصنيفاتنا الدقيقة، نتيح لكم تنقلاً سلساً واستكشافاً فورياً لشريحة واسعة من القطاعات والخدمات، مما يضمن لكم الوصول إلى ما تبحثون عنه بكفاءة متناهية وسرعة فائقة.',
+  },
+  {
+    title: 'الحراج',
+    path: '/haraj',
+    icon: StoreIcon,
+    description:
+      'المنصة التفاعلية الأكبر والسوق الرقمي الموثوق لعمليات البيع، الشراء، والمزايدة. نوفر مساحة حيوية وآمنة تتيح للمستخدمين عرض السلع والخدمات والتواصل المباشر مع المهتمين، مدعومة بأنظمة رقابية ذكية تضمن شفافية التعاملات وحفظ حقوق جميع الأطراف لتعزيز نمو وتدفق حركات البيع والشراء.',
+  },
+  {
+    title: 'شروط الاستخدام',
+    path: '/terms',
+    icon: FileText,
+    description:
+      'تمثل هذه الشروط الإطار القانوني والتنظيمي الذي يضمن بيئة تعامل عادلة وآمنة لجميع رواد المنصة. نحرص من خلال هذه السياسات على توضيح الحقوق والالتزام بالأنظمة المرعية، مما يعزز الموثوقية ويضمن استمرارية تقديم خدماتنا بأعلى مستويات النزاهة والاحترافية.',
+  },
+  {
+    title: 'شركاؤنا',
+    path: '/branches',
+    icon: Users,
+    description:
+      'نفخر ببناء تحالفات استراتيجية وثيقة تعزز ريادتنا في السوق، وتضم شبكة شركائنا النخبة 3 شركاء استراتيجيين داخل المملكة العربية السعودية: (شركة الاتصالات السعودية STC، مصرف الراجحي، وشركة علم)، الذين يساهمون في تحقيق مستهدفات رؤية 2030 وتعميق الأثر المحلي، بالإضافة إلى شريكين عالميين: (شركة Microsoft، وشركة Amazon Web Services - AWS) يرفدون عملياتنا بأحدث الخبرات والتقنيات الدولية لتقديم حلول بمعايير عالمية.',
+  },
+  {
+    title: 'جميع المنتجات',
+    path: STORE_HOME_PATH,
+    icon: ShoppingBag,
+    description:
+      'تصفح مجموعتنا الشاملة والمنسقة بعناية لتلبي أرقى الأذواق والمتطلبات اليومية والتجارية. نضمن لكم تنوعاً فريداً وخيارات متعددة تجمع بين الجودة العالية والأسعار التنافسية، مستندين إلى شبكة توريد قوية تضمن توفر المنتجات ومطابقتها للمواصفات والمقاييس المعتمدة.',
+  },
+  {
+    title: 'العروض',
+    path: '/advertisements',
+    icon: Sparkles,
+    description:
+      'فرصتكم الاستثمارية الكبرى للاستفادة من أقوى الخصومات والحملات الترويجية الحصرية. نلتزم بتقديم قيم مضافة حقيقية لعملائنا عبر باقات سعرية مدروسة ومزايا استثنائية متجددة، تمنحكم كفاءة الإنفاق وتجربة تسوق فريدة لا تُضاهى.',
+  },
+  {
+    title: 'أضف إعلانك',
+    path: '/haraj/post',
+    icon: Plus,
+    description:
+      'المنصة المثالية لتوسيع نطاق أعمالك والوصول المباشر إلى جمهورك المستهدف. نضع بين يديك أدوات إعلانية متطورة وخطوات بسيطة تمكنك من صياغة ونشر إعلانك خلال ثوانٍ، لتضمن ظهوراً مميزاً يحقق أعلى معدلات التفاعل والانتشار لسلعك أو خدماتك.',
+  },
+  {
+    title: 'تواصل معنا',
+    path: '/contact',
+    icon: Headphones,
+    description:
+      'فريق الدعم الفني وخدمة العملاء جاهز دائماً للوقوف على استفساراتكم وتقديم الدعم الفوري. نحن نضع عملائنا في مقدمة أولوياتنا، ونوفر قنوات اتصال متعددة ومباشرة لنضمن لكم تجربة مستخدم سلسة ومستدامة تلبي تطلعاتكم في أي وقت.',
+  },
+  {
+    title: 'الخصوصية',
+    path: '/terms',
+    icon: Shield,
+    description:
+      'نلتزم بأعلى معايير الحماية والتشفير لضمان سرية وأمان بياناتكم الشخصية. تعد خصوصية المستخدم خطاً أحمر، ونطبق سياسات صارمة تتوافق مع الأنظمة التشريعية لحماية البيانات، مما يمنحكم الأمان الكامل والثقة المطلقة أثناء استخدام منصتنا والاستفادة من خدماتنا.',
+  },
+];
 
 const FAQ_ITEMS = [
   { q: 'ما مدة الشحن؟', a: 'الشحن لجميع مناطق المملكة، ويستغرق عادة من 2 إلى 5 أيام عمل حسب المدينة.' },
@@ -54,7 +139,6 @@ const NovHomePage = () => {
   const [showAddHelp, setShowAddHelp] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [faqSectionOpen, setFaqSectionOpen] = useState(false);
-  const [footerLinksOpen, setFooterLinksOpen] = useState(false);
 
   return (
     <div className="ch-root" dir="rtl">
@@ -184,35 +268,22 @@ const NovHomePage = () => {
                 </p>
             </div>
 
-            <div className="rz-footer-fold">
-              <button
-                type="button"
-                className="rz-footer-fold-head"
-                aria-expanded={footerLinksOpen}
-                onClick={() => setFooterLinksOpen((v) => !v)}
-              >
-                <span>روابط سريعة</span>
-                <span aria-hidden="true">
-                  {footerLinksOpen ? <Minus size={15} /> : <Gem size={15} />}
-                </span>
-              </button>
-
-              {footerLinksOpen && (
-                <div className="rz-footer-fold-body">
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>لماذا نحن</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>شركاؤنا</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>وظائفنا</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate(STORE_HOME_PATH); }}>جميع المنتجات</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>كل الأقسام</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/advertisements'); }}>العروض</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/haraj'); }}>الحراج</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/haraj/post'); }}>أضف إعلانك</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/faq'); }}>الأسئلة الشائعة</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>تواصل معنا</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>شروط الاستخدام</a>
-                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>الخصوصية</a>
-                </div>
-              )}
+            <div className="rz-footer-links-grid" aria-label="روابط ومعلومات الموقع">
+              {FOOTER_LINKS.map(({ title, path, icon: Icon, description }) => (
+                <article className="rz-footer-info-card" key={title}>
+                  <button
+                    type="button"
+                    className="rz-footer-info-head"
+                    onClick={() => navigate(path)}
+                    aria-label={`فتح صفحة ${title}`}
+                  >
+                    <span className="rz-footer-info-icon"><Icon size={18} /></span>
+                    <span>{title}</span>
+                    <span className="rz-footer-info-arrow" aria-hidden="true">←</span>
+                  </button>
+                  <p>{description}</p>
+                </article>
+              ))}
             </div>
 
             <div className="rz-footer-bottom rz-footer-bottom--center">
