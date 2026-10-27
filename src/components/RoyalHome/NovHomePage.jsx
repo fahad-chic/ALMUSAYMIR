@@ -193,12 +193,15 @@ const NovHomePage = () => {
               >
                 <span>روابط سريعة</span>
                 <span aria-hidden="true">
-                  {footerLinksOpen ? <Minus size={15} /> : <Plus size={15} />}
+                  {footerLinksOpen ? <Minus size={15} /> : <Gem size={15} />}
                 </span>
               </button>
 
               {footerLinksOpen && (
                 <div className="rz-footer-fold-body">
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>لماذا نحن</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>شركاؤنا</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>وظائفنا</a>
                   <a href="/" onClick={(e) => { e.preventDefault(); navigate(STORE_HOME_PATH); }}>جميع المنتجات</a>
                   <a href="/" onClick={(e) => { e.preventDefault(); navigate('/branches'); }}>كل الأقسام</a>
                   <a href="/" onClick={(e) => { e.preventDefault(); navigate('/advertisements'); }}>العروض</a>
@@ -207,6 +210,7 @@ const NovHomePage = () => {
                   <a href="/" onClick={(e) => { e.preventDefault(); navigate('/faq'); }}>الأسئلة الشائعة</a>
                   <a href="/" onClick={(e) => { e.preventDefault(); navigate('/contact'); }}>تواصل معنا</a>
                   <a href="/" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>شروط الاستخدام</a>
+                  <a href="/" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>الخصوصية</a>
                 </div>
               )}
             </div>
