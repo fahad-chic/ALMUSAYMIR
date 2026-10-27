@@ -778,7 +778,7 @@ const Login = () => {
         </div>
 
         <div className="rl-tag">
-          المسيمير | ALMUSAYMIR
+          سوقٌ موثوق يجمع الجودة والأناقة ويصون ثقة عملائه
         </div>
       </header>
 
