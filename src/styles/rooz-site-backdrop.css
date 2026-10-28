@@ -1,11 +1,10 @@
 /* ============================================================
-   ROOZ / المسيمير — خلفية الرياض الليلية
-   /assets/bg-riyadh-night.jpg
-   حجاب خفيف جدًا لإظهار المدينة + وضوح النصوص على البطاقات
+   ALMUSAYMIR — خلفية عاجية هادئة موحّدة
+   الخلفية المصوّرة القديمة كانت تشتّت الترتيب وتنافس المحتوى.
    ============================================================ */
 
 html {
-  background-color: #060a12;
+  background-color: #F8F3EB;
 }
 
 body {
@@ -23,7 +22,10 @@ body::before {
   height: 100vh !important;
   height: 100dvh !important;
   z-index: -2 !important;
-  background: url('/assets/bg-riyadh-night.jpg') center center / cover no-repeat !important;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(216, 185, 138, 0.18), transparent 32%),
+    radial-gradient(circle at 92% 16%, rgba(194, 151, 137, 0.12), transparent 28%),
+    #F8F3EB !important;
   pointer-events: none !important;
 }
 
@@ -47,10 +49,9 @@ body::after {
   pointer-events: none !important;
   background: linear-gradient(
     180deg,
-    rgba(250, 246, 238, 0.42) 0%,
-    rgba(250, 246, 238, 0.32) 40%,
-    rgba(250, 246, 238, 0.40) 75%,
-    rgba(250, 246, 238, 0.52) 100%
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(248, 243, 235, 0.10) 45%,
+    rgba(220, 193, 176, 0.12) 100%
   ) !important;
 }
 
@@ -63,9 +64,9 @@ body::after {
 }
 
 :root {
-  --bg-deep: transparent;
-  --bg-mid: rgba(255, 250, 242, 0.82);
-  --bg-card: rgba(255, 250, 242, 0.88);
+  --bg-deep: #F8F3EB;
+  --bg-mid: rgba(255, 253, 249, 0.92);
+  --bg-card: rgba(255, 253, 249, 0.96);
 }
 
 .min-h-screen {
@@ -77,11 +78,14 @@ body::after {
    و.rh-bg كان يرسم تدرّجاً كريمياً فوقها. كلاهما يُفرَّغ الآن لتظهر
    صورة الرياض، مع بقاء حجاب body::after الخفيف لقراءة النصوص الداكنة. */
 .rh-root {
-  background: transparent !important;
+  background: #F8F3EB !important;
 }
 
 .rh-root .rh-bg {
-  background: transparent !important;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(216, 185, 138, 0.18), transparent 30%),
+    radial-gradient(circle at 88% 28%, rgba(194, 151, 137, 0.12), transparent 26%),
+    #F8F3EB !important;
 }
 
 .rh-root .rh-bg::after {
@@ -91,20 +95,20 @@ body::after {
 /* الحاويات الجذرية الأخرى كانت شفافة أصلاً — نثبّتها بلا خلفية */
 .ch-root,
 .nov-home {
-  background: transparent;
+  background: #F8F3EB;
 }
 
-/* القائمة الجانبية داكنة */
+/* القائمة الجانبية: موكا دافئ بدون كحلي */
 .rz-drawer {
-  background: linear-gradient(180deg, #161820 0%, #0f141c 100%) !important;
-  color: #ffffff !important;
+  background: linear-gradient(180deg, #8F6C52 0%, #73533F 100%) !important;
+  color: #FFFDF9 !important;
 }
 
 .rz-drawer-title,
 .rz-group-btn,
 .rz-drawer-close,
 .rz-drawer-logout {
-  color: #ffffff !important;
+  color: #FFFDF9 !important;
 }
 
 .rz-sub-item {
@@ -136,4 +140,41 @@ body::after {
       rgba(250, 246, 238, 0.55) 100%
     ) !important;
   }
+}
+
+/* طبقة الترتيب الموحدة: أسطح هادئة ومسافات واضحة بدل ازدحام الخلفية */
+.card,
+.glass-morphism-gold,
+.rz-panel,
+.panel,
+.modal-content,
+.dialog,
+.ad-card,
+.product-card {
+  background: rgba(255, 253, 249, 0.96) !important;
+  border-color: rgba(184, 147, 92, 0.28) !important;
+  box-shadow: 0 12px 30px rgba(91, 67, 48, 0.10) !important;
+}
+
+.btn-royal,
+.btn-primary,
+.btn-gold,
+.btn-here,
+.btn-next,
+.btn-prev {
+  background: linear-gradient(135deg, #B8935C, #8F6C52) !important;
+  border-color: rgba(143, 108, 82, 0.32) !important;
+  box-shadow: 0 8px 18px rgba(143, 108, 82, 0.18) !important;
+}
+
+.btn-glass,
+.btn-secondary {
+  background: rgba(255, 253, 249, 0.82) !important;
+  color: #6B4F3B !important;
+  border-color: rgba(184, 147, 92, 0.34) !important;
+}
+
+.rh-root button {
+  background: linear-gradient(135deg, #B8935C, #8F6C52) !important;
+  box-shadow: 0 8px 18px rgba(143, 108, 82, 0.18) !important;
 }
