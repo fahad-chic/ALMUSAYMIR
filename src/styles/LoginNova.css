@@ -2,7 +2,7 @@
    ALMUSAYMIR — LOGIN (هوية المسيمير الفخمة)
    ------------------------------------------------------------
    كل الألوان تأتي من src/styles/theme.css (المصدر الواحد) عبر var(--rz-*).
-   لا لون ثابت هنا. التسلسل البصري: المالك (أفخم، برواز ذهبي، كحلي)
+   لا لون ثابت هنا. التسلسل البصري: المالك (أفخم، برواز شامبانيا، موكا)
    ثم المشرفون (أفتح وأبسط) ثم النموذج (بطاقة عمل نظيفة).
    ============================================================ */
 
@@ -379,6 +379,138 @@
   color: var(--rz-muted) !important;
 }
 
+/* ===== ضبط نهائي: بطاقات مرتبة وغير ممتدة =====
+   بطاقة المالك هي العنصر الرئيسي: أعرض وأعلى وبإطار شامبانيا مزدوج.
+   بطاقة المشرفين تبقى أصغر بصريًا، مع مساحة تنفس حول البطاقتين. */
+.rl-wrap {
+  max-width: 620px !important;
+  padding-inline: 10px !important;
+}
+
+.rl-cards {
+  width: min(100%, 560px) !important;
+  margin-inline: auto !important;
+  gap: 14px !important;
+}
+
+.rl-card {
+  border-radius: 20px !important;
+  border-color: rgba(var(--rz-gold-rgb), 0.30) !important;
+  box-shadow: 0 16px 34px rgba(91, 67, 48, 0.10) !important;
+}
+
+.rl-card--big {
+  width: min(100%, 420px) !important;
+  min-height: 214px !important;
+  padding: 20px 18px 18px !important;
+  background: linear-gradient(145deg, #8F6C52 0%, #A98262 52%, #73533F 100%) !important;
+  border: 2px solid #D8B98A !important;
+  box-shadow:
+    0 0 0 4px rgba(216, 185, 138, 0.18),
+    0 20px 42px rgba(91, 67, 48, 0.22) !important;
+}
+
+.rl-card--big .rl-card-logo {
+  width: 76px !important;
+  height: 76px !important;
+  max-width: 76px !important;
+  max-height: 76px !important;
+}
+
+.rl-card--big .rl-card-title {
+  font-size: 1.08rem !important;
+  letter-spacing: 0.01em !important;
+}
+
+.rl-card--big .rl-card-sub {
+  font-size: 0.78rem !important;
+}
+
+.rl-card:not(.rl-card--big) {
+  width: min(100%, 360px) !important;
+  min-height: 176px !important;
+  padding: 16px 14px !important;
+  background: rgba(255, 253, 249, 0.98) !important;
+  border: 1px solid rgba(var(--rz-gold-rgb), 0.30) !important;
+}
+
+@media (min-width: 720px) {
+  .rl-cards {
+    align-items: stretch !important;
+  }
+
+  .rl-card--big {
+    width: calc(56% - 7px) !important;
+  }
+
+  .rl-card:not(.rl-card--big) {
+    width: calc(44% - 7px) !important;
+  }
+}
+
+@media (max-width: 719px) {
+  .rl-cards {
+    align-items: center !important;
+  }
+
+  .rl-card--big {
+    width: min(100%, 380px) !important;
+  }
+
+  .rl-card:not(.rl-card--big) {
+    width: min(100%, 320px) !important;
+  }
+}
+
+/* أولوية أخيرة بعد قواعد الجوال القديمة */
+.rl-cards {
+  width: min(100%, 560px) !important;
+  margin-inline: auto !important;
+  gap: 14px !important;
+}
+
+.rl-card--big {
+  width: min(100%, 420px) !important;
+  min-height: 214px !important;
+  padding: 20px 18px 18px !important;
+  background: linear-gradient(145deg, #8F6C52 0%, #A98262 52%, #73533F 100%) !important;
+  border: 2px solid #D8B98A !important;
+  box-shadow:
+    0 0 0 4px rgba(216, 185, 138, 0.18),
+    0 20px 42px rgba(91, 67, 48, 0.22) !important;
+}
+
+.rl-card--big .rl-card-logo {
+  width: 76px !important;
+  height: 76px !important;
+  max-width: 76px !important;
+  max-height: 76px !important;
+}
+
+.rl-card--big .rl-card-title {
+  font-size: 1.08rem !important;
+}
+
+.rl-card:not(.rl-card--big) {
+  width: min(100%, 360px) !important;
+  min-height: 176px !important;
+  padding: 16px 14px !important;
+  background: rgba(255, 253, 249, 0.98) !important;
+  border: 1px solid rgba(var(--rz-gold-rgb), 0.30) !important;
+}
+
+@media (min-width: 720px) {
+  .rl-cards { align-items: stretch !important; }
+  .rl-card--big { width: calc(56% - 7px) !important; }
+  .rl-card:not(.rl-card--big) { width: calc(44% - 7px) !important; }
+}
+
+@media (max-width: 719px) {
+  .rl-cards { align-items: center !important; }
+  .rl-card--big { width: min(100%, 380px) !important; }
+  .rl-card:not(.rl-card--big) { width: min(100%, 320px) !important; }
+}
+
 /* ===== GLASS LOGIN LOCK — خلفية الرياض ظاهرة ===== */
 .rl-root .rl-card:not(.rl-card--big) .rl-card-title {
   color: var(--rz-ink) !important;
@@ -614,4 +746,51 @@
   min-height: 42px !important;
   margin-top: 9px !important;
   font-size: 0.8rem !important;
+}
+
+/* أولوية أخيرة: الشكل النهائي لبطاقة المالك والمشرفين */
+.rl-cards {
+  width: min(100%, 560px) !important;
+  margin-inline: auto !important;
+  gap: 14px !important;
+}
+
+.rl-card--big {
+  width: min(100%, 420px) !important;
+  min-height: 214px !important;
+  padding: 20px 18px 18px !important;
+  background: linear-gradient(145deg, #8F6C52 0%, #A98262 52%, #73533F 100%) !important;
+  border: 2px solid #D8B98A !important;
+  box-shadow: 0 0 0 4px rgba(216, 185, 138, 0.18), 0 20px 42px rgba(91, 67, 48, 0.22) !important;
+}
+
+.rl-card--big .rl-card-logo {
+  width: 76px !important;
+  height: 76px !important;
+  max-width: 76px !important;
+  max-height: 76px !important;
+}
+
+.rl-card--big .rl-card-title {
+  font-size: 1.08rem !important;
+}
+
+.rl-card:not(.rl-card--big) {
+  width: min(100%, 360px) !important;
+  min-height: 176px !important;
+  padding: 16px 14px !important;
+  background: rgba(255, 253, 249, 0.98) !important;
+  border: 1px solid rgba(var(--rz-gold-rgb), 0.30) !important;
+}
+
+@media (min-width: 720px) {
+  .rl-cards { align-items: stretch !important; }
+  .rl-card--big { width: calc(56% - 7px) !important; }
+  .rl-card:not(.rl-card--big) { width: calc(44% - 7px) !important; }
+}
+
+@media (max-width: 719px) {
+  .rl-cards { align-items: center !important; }
+  .rl-card--big { width: min(100%, 380px) !important; }
+  .rl-card:not(.rl-card--big) { width: min(100%, 320px) !important; }
 }
