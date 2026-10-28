@@ -1,3 +1,6 @@
+------------------------------
+------- LoginNova.css --------
+------------------------------
 /* ============================================================
    ALMUSAYMIR — LOGIN (هوية المسيمير الفخمة)
    ------------------------------------------------------------
@@ -290,12 +293,12 @@
   display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important;
   width: 100% !important; margin-top: 10px !important; min-height: 44px !important; padding: 8px 12px !important;
   border-radius: 10px !important; border: 1px solid rgba(var(--rz-primary-rgb), 0.35) !important;
-  background: rgba(var(--rz-primary-rgb), 0.06) !important; color: var(--rz-primary) !important;
+  background: rgba(var(--rz-primary-rgb), 0.06) !important; color: #6B4F3B !important;
   font-size: 0.78rem !important; font-weight: 800 !important; cursor: pointer !important; font-family: inherit !important;
   line-height: 1.25 !important;
   transition: background 0.18s ease, border-color 0.18s ease !important;
 }
-.rl-haraj-gate:hover { background: rgba(var(--rz-primary-rgb), 0.12) !important; border-color: var(--rz-primary) !important; }
+.rl-haraj-gate:hover { background: rgba(var(--rz-primary-rgb), 0.12) !important; border-color: var(--rz-primary) !important; color: #6B4F3B !important; }
 .rl-cancel-link {
   display: inline-block !important; margin-top: 10px !important; background: none !important; border: none !important;
   color: var(--rz-muted) !important; font-size: 0.78rem !important; font-weight: 700 !important; cursor: pointer !important;
