@@ -504,6 +504,13 @@ function AppContent() {
     }
   }, [location.pathname]);
 
+  // تنقّل ثابت بين الصفحات: لا توجد شرائح أفقية أو صفحات متراكبة.
+  // عند اختيار رابط من الترويسة أو القائمة يبدأ المسار الجديد من أعلاه.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
+
   /* =======================================================
      Visitor notification
      ======================================================= */
