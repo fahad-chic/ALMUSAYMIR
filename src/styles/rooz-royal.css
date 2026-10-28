@@ -210,6 +210,37 @@ body.rooz-has-nav { padding-top: 0 !important; }
 }
 .rz-subbar-spacer { flex: 1; }
 
+/* حركات احترافية خفيفة داخل الترويسة فقط — التنقل بين الصفحات مباشر وثابت */
+.rz-nav-link,
+.rz-burger,
+.rz-icon-btn,
+.rz-drawer-close,
+.rz-group-btn,
+.rz-sub-item {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rz-nav-link {
+  position: relative;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease !important;
+}
+
+.rz-nav-link:hover {
+  transform: translateY(-1px);
+}
+
+.rz-nav-link:active,
+.rz-burger:active,
+.rz-icon-btn:active,
+.rz-group-btn:active,
+.rz-sub-item:active {
+  transform: scale(0.97);
+}
+
+.rz-drawer-overlay {
+  touch-action: pan-y;
+}
+
 /* ============================================================
    القائمة الجانبية الفخمة (+ الذكية)
    ============================================================ */
