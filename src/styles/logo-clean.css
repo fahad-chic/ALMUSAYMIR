@@ -35,3 +35,19 @@ img[src*="/assets/emblem"],
   content: none !important;
   display: none !important;
 }
+
+/* شعار واحد واضح: تكبيره في المواضع الرئيسية دون تكرار زخرفي */
+.nov-hero-logo,
+.rh-logo-large,
+.ch-hero-logo {
+  width: clamp(150px, 22vw, 260px) !important;
+  max-height: 150px !important;
+}
+
+.nov-brand-logo,
+.rh-brand-logo,
+.rh-logo-small,
+.ch-footer-logo {
+  width: clamp(82px, 12vw, 132px) !important;
+  max-height: 72px !important;
+}
