@@ -48,7 +48,7 @@ body.rooz-has-nav { padding-top: 0 !important; }
   /* يحترم Dynamic Island / شريط الحالة على iPhone دون تغطية الشعار */
   padding-top: env(safe-area-inset-top, 0px);
   padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
-  background: linear-gradient(180deg, var(--rz-burgundy) 0%, var(--rz-burgundy-deep) 100%);
+  background: linear-gradient(135deg, #8F6C52 0%, #A98262 52%, #73533F 100%);
   color: var(--rz-white);
   border-bottom: 1px solid var(--rz-line-gold);
 }
@@ -158,7 +158,7 @@ body.rooz-has-nav { padding-top: 0 !important; }
 
 /* الطبقة الثانية: شريط التنقل المختصر */
 .rz-subbar {
-  background: var(--rz-white);
+  background: rgba(255, 253, 249, 0.96);
   border-bottom: 1px solid var(--rz-line);
   box-shadow: var(--rz-shadow-sm);
 }
