@@ -19,7 +19,7 @@
     "icons": "node scripts/generate-icons.cjs"
   },
   "dependencies": {
-    "firebase": "^11.1.0",
+    "firebase": "^13.1.0",
     "lucide-react": "^0.469.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -47,5 +47,8 @@
     "vite": "^6.0.7",
     "vitest": "^2.1.4",
     "wrangler": "^4.119.0"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.13.6"
   }
 }
