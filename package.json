@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.12.0"
   },
   "scripts": {
     "dev": "vite --port 5173 --host",
@@ -14,6 +14,7 @@
     "test:contrast-unit": "vitest run src/utils/wcag.test.js",
     "contrast": "node e2e/contrast-audit.mjs",
     "contrast:strict": "node e2e/contrast-audit.mjs --strict",
+    "buttons": "node e2e/button-audit.mjs",
     "preview": "vite preview --port 4173 --host",
     "analyze": "vite build --mode analyze",
     "icons": "node scripts/generate-icons.cjs"
