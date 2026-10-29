@@ -1910,45 +1910,28 @@ const CenterPanel = ({
   onAdminPanel,
   onComplaints
 }) => {
-  const [openGroup, setOpenGroup] = useState('admin')
+  const [openGroup, setOpenGroup] = useState('dashboard')
 
   const groups = [
     {
-      id: 'admin',
-      title: 'الإدارة',
+      id: 'dashboard',
+      title: 'لوحة التحكم الكاملة',
+      icon: LayoutDashboard,
       items: [
-        { id: 'ads', label: 'إدارة الإعلانات', action: () => onTab('ads') },
-        { id: 'users', label: 'إدارة المستخدمين', action: () => onTab('users') },
-        { id: 'admin', label: 'لوحة الإدارة', action: onAdminPanel },
-        { id: 'settings', label: 'إعدادات الموقع', action: onSettings },
-      ],
-    },
-    {
-      id: 'monitor',
-      title: 'المراقبة',
-      items: [
-        { id: 'overview', label: 'نظرة عامة / الإحصائيات', action: () => onTab('overview') },
-        { id: 'live', label: 'النشاط اللحظي', action: () => onTab('live') },
-        { id: 'reports', label: 'البلاغات', action: () => onTab('reports') },
-        { id: 'security', label: 'سجلات الأمان', action: () => onTab('security') },
-      ],
-    },
-    {
-      id: 'comms',
-      title: 'التواصل والمراجعة',
-      items: [
-        { id: 'messages', label: 'الرسائل الخاصة', action: () => onTab('messages') },
-        { id: 'comments', label: 'مراجعة التقييمات', action: () => onTab('comments') },
-        { id: 'complaints', label: 'الشكاوى / المراسلات', action: onComplaints },
-        { id: 'broadcast', label: 'إرسال تنبيه جماعي', action: () => onTab('broadcast') },
-      ],
-    },
-    {
-      id: 'protect',
-      title: 'الحماية والصلاحيات',
-      items: [
-        { id: 'permissions', label: 'مصفوفة الصلاحيات (تشغيل / إيقاف)', action: () => onTab('permissions') },
-        { id: 'orders', label: 'الطلبات', action: () => onTab('orders') },
+        { id: 'overview', label: 'نظرة عامة / الإحصائيات', icon: BarChart3, action: () => onTab('overview') },
+        { id: 'live', label: 'النشاط اللحظي', icon: Gauge, action: () => onTab('live') },
+        { id: 'ads', label: 'إدارة الإعلانات', icon: ShoppingBag, action: () => onTab('ads') },
+        { id: 'users', label: 'إدارة المستخدمين', icon: Users, action: () => onTab('users') },
+        { id: 'messages', label: 'الرسائل الخاصة', icon: MessageSquare, action: () => onTab('messages') },
+        { id: 'comments', label: 'مراجعة التقييمات', icon: Star, action: () => onTab('comments') },
+        { id: 'complaints', label: 'الشكاوى / المراسلات', icon: AlertTriangle, action: onComplaints },
+        { id: 'broadcast', label: 'إرسال تنبيه جماعي', icon: Radio, action: () => onTab('broadcast') },
+        { id: 'reports', label: 'البلاغات', icon: Flag, action: () => onTab('reports') },
+        { id: 'security', label: 'سجلات الأمان', icon: Shield, action: () => onTab('security') },
+        { id: 'permissions', label: 'مصفوفة الصلاحيات (تشغيل / إيقاف)', icon: Key, action: () => onTab('permissions') },
+        { id: 'orders', label: 'الطلبات', icon: Activity, action: () => onTab('orders') },
+        { id: 'admin', label: 'لوحة الإدارة', icon: Settings, action: onAdminPanel },
+        { id: 'settings', label: 'إعدادات الموقع', icon: Settings, action: onSettings },
       ],
     },
   ]
@@ -1956,9 +1939,13 @@ const CenterPanel = ({
   return (
     <div className="space-y-4">
       <div className="text-center mb-1">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--rz-primary)]/25 bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] text-[11px] font-extrabold mb-2">
+          <Shield size={14} aria-hidden="true" />
+          وصول المالك فقط · غرفة محمية
+        </div>
         <h2 className="text-lg font-bold royal-text">غرفة صاحب الموقع</h2>
         <p className="text-xs royal-muted mt-1 font-medium">
-          افتح المجموعة ثم اختر القسم — زر الرجوع ينقلك للقسم السابق داخل الغرفة
+          افتح لوحة التحكم من زر (+/−) ثم اختر أي قسم — زر الرجوع ينقلك للقسم السابق داخل الغرفة
         </p>
       </div>
 
@@ -1973,7 +1960,10 @@ const CenterPanel = ({
                 className="w-full flex items-center justify-between gap-3 px-4 py-3 text-right hover:bg-[var(--rz-primary)]/5 transition-colors"
                 aria-expanded={open}
               >
-                <span className="font-extrabold text-sm royal-text">{g.title}</span>
+                <span className="flex items-center gap-2 font-extrabold text-sm royal-text">
+                  <g.icon size={16} className="text-[var(--rz-primary)]" aria-hidden="true" />
+                  {g.title}
+                </span>
                 <span className="text-xs font-bold text-[var(--rz-primary)] min-w-[1.5rem] text-center">
                   {open ? '−' : '+'}
                 </span>
@@ -1987,7 +1977,10 @@ const CenterPanel = ({
                       onClick={item.action}
                       className="w-full text-right px-3 py-2.5 rounded-lg text-sm font-bold royal-text hover:bg-[var(--rz-primary)]/10 transition-colors"
                     >
-                      {item.label}
+                      <span className="flex items-center gap-2">
+                        <item.icon size={15} className="text-[var(--rz-primary)]" aria-hidden="true" />
+                        {item.label}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -3198,5 +3191,3 @@ const BroadcastPanel = ({
     </div>
   </div>
 )
-
-export default OwnerPrivateRoom
