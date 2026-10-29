@@ -46,6 +46,12 @@ async function sendEmail(env, email, code, purpose) {
   const fromEmail =
     env.OTP_FROM_EMAIL || "onboarding@resend.dev";
 
+  if (!env.OTP_FROM_EMAIL || fromEmail === "onboarding@resend.dev") {
+    throw new Error(
+      "OTP_FROM_EMAIL يجب أن يكون عنواناً من نطاق موثّق في Resend"
+    );
+  }
+
   const purposeLabel =
     purpose === "register"
       ? "تسجيل حساب جديد"
