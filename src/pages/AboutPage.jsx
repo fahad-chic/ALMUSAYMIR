@@ -149,6 +149,18 @@ export const AboutPage = () => {
           padding: 0.5rem 0.6rem;
         }
 
+        .partner-box--featured {
+          grid-column: 1 / -1;
+          background: linear-gradient(135deg, rgba(var(--rz-primary-rgb), 0.12), var(--rz-white));
+          border: 1px solid rgba(var(--rz-primary-rgb), 0.34);
+          box-shadow: 0 6px 18px rgba(var(--rz-primary-rgb), 0.09);
+        }
+
+        .partner-box--featured .partner-name {
+          color: var(--rz-primary);
+          font-size: 0.86rem;
+        }
+
         .partner-name {
           color: var(--rz-ink);
           font-weight: 800;
@@ -158,6 +170,44 @@ export const AboutPage = () => {
         .partner-type {
           color: var(--rz-muted);
           font-size: 0.7rem;
+        }
+
+        .security-card {
+          border-color: rgba(var(--rz-primary-rgb), 0.25);
+          background: linear-gradient(145deg, var(--rz-white), var(--rz-ivory));
+        }
+
+        .security-card p {
+          margin: 0 0 0.55rem;
+          color: var(--rz-ink);
+          font-size: 0.8rem;
+          line-height: 1.75;
+        }
+
+        .security-card .security-lead {
+          font-weight: 800;
+          color: var(--rz-primary);
+        }
+
+        .security-notice {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 0.7rem;
+          padding: 0.7rem 0.75rem;
+          border-radius: 12px;
+          background: rgba(var(--rz-primary-rgb), 0.1);
+          border: 1px solid rgba(var(--rz-primary-rgb), 0.28);
+          color: var(--rz-ink);
+          font-size: 0.78rem;
+          font-weight: 800;
+          line-height: 1.7;
+        }
+
+        .security-notice svg {
+          flex: 0 0 auto;
+          color: var(--rz-primary);
+          margin-top: 0.15rem;
         }
 
         .two-col {
@@ -294,6 +344,10 @@ export const AboutPage = () => {
         <div className="about-card-content">
           <strong style={{ color: 'var(--rz-primary)', display: 'block', marginBottom: '0.25rem' }}>شركاء سعوديون:</strong>
           <div className="partners-grid">
+            <div className="partner-box partner-box--featured">
+              <div className="partner-name">مكتب الدولي للمحاماة والاستشارة</div>
+              <div className="partner-type">شريك قانوني واستشارات</div>
+            </div>
             <div className="partner-box">
               <div className="partner-name">شركة النخبة للتقنية</div>
               <div className="partner-type">دعم تقني</div>
@@ -322,6 +376,30 @@ export const AboutPage = () => {
               <div className="partner-name">Digital Bridge Co</div>
               <div className="partner-type">خدمات سحابية</div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* أمن البيانات والرقابة النظامية */}
+      <h2 className="section-title"><ShieldCheck size={16} /> أمن وتشفير البيانات</h2>
+      <div className="about-card security-card">
+        <div className="about-card-content">
+          <p className="security-lead">
+            نحرص على حماية بيانات ورسائل المستخدمين والزوار باستخدام بروتوكولات أمنية
+            موثوقة ومعايير صارمة لحماية المعلومات أثناء النقل والتخزين.
+          </p>
+          <p>
+            نعمل على منع أي وصول غير مصرح به، ولا نشارك بياناتكم مع أي طرف خارجي
+            إلا عند الحاجة النظامية أو وفقًا للأنظمة والتشريعات القانونية المعمول بها.
+            نلتزم بالحفاظ على سرية معلوماتكم وتعزيز أمان الموقع بشكل مستمر.
+          </p>
+          <div className="security-notice" role="note">
+            <ShieldCheck size={18} aria-hidden="true" />
+            <span>
+              الموقع مراقب لحماية المستخدمين ومكافحة الاحتيال والإساءة.
+              نرجو الالتزام بالأنظمة، وخافوا الله في أموال الناس وحقوقهم.
+              أي إساءة أو محاولة احتيال قد تُوثّق وتُحال للجهات المختصة وفق النظام.
+            </span>
           </div>
         </div>
       </div>
