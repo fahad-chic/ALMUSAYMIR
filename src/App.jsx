@@ -278,6 +278,7 @@ const UnauthorizedPage = () => {
 
 const ProtectedRoute = ({ children, roleRequired }) => {
   const { user, userRole, isAuthenticated } = useAuth();
+  const guestSession = useStore((state) => state.guestSession);
 
   const liveAuth =
     auth ||
@@ -297,6 +298,10 @@ const ProtectedRoute = ({ children, roleRequired }) => {
   const memberUser = currentFirebaseUser || user;
   const isVerifiedMember =
     !!memberUser?.emailVerified && !memberUser?.isAnonymous;
+  const isActiveGuest =
+    !!guestSession?.active &&
+    !!currentFirebaseUser?.isAnonymous &&
+    Number(guestSession.expiresAt || 0) > Date.now();
 
   const sessionPending =
     hasFirebaseSession &&
@@ -323,6 +328,9 @@ const ProtectedRoute = ({ children, roleRequired }) => {
 
   // عضو مسجّل لكن بريده لم يُوثَّق → شاشة إثبات الملكية، ولا محتوى للمتجر.
   if (hasFirebaseSession && !isVerifiedMember) {
+    if (isActiveGuest && !roleRequired) {
+      return children;
+    }
     return <VerifyEmailGate />;
   }
 
@@ -389,6 +397,8 @@ function AppContent() {
     logout,
     loading,
   } = useAuth();
+  const guestSession = useStore((state) => state.guestSession);
+  const guestWarning = useStore((state) => state.guestWarning);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -1084,6 +1094,37 @@ function AppContent() {
         src={OWNER_ALERT_SOUND_URL}
         preload="auto"
       />
+
+      {guestSession?.active && (
+        <div
+          role="status"
+          style={{
+            position: 'fixed',
+            top: 'calc(8px + env(safe-area-inset-top))',
+            left: 12,
+            right: 12,
+            zIndex: 1500,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            padding: '9px 12px',
+            borderRadius: 12,
+            background: guestWarning
+              ? 'rgba(179, 38, 30, 0.96)'
+              : 'rgba(var(--rz-primary-rgb), 0.96)',
+            color: 'var(--rz-white)',
+            fontSize: 12,
+            fontWeight: 800,
+            textAlign: 'center',
+            boxShadow: '0 8px 22px rgba(0,0,0,.18)',
+          }}
+        >
+          {guestWarning
+            ? 'تنبيه: تبقى أقل من 15 ثانية على انتهاء دخول الزائر.'
+            : 'دخولك مؤقت لمدة دقيقتين فقط. أنشئ حسابًا أو سجّل الدخول للاستفادة من جميع الخدمات.'}
+        </div>
+      )}
 
 
       {/* =================================================
