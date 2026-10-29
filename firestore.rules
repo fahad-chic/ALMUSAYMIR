@@ -120,14 +120,32 @@ service cloud.firestore {
                     || ( isSignedIn()
                          && request.resource.data.diff(resource.data)
                               .affectedKeys().hasOnly(['currentBid','bids','updatedAt','auctionEndsAt','escrow']) )
-                    || request.resource.data.diff(resource.data)
-                          .affectedKeys().hasOnly(['views', 'updatedAt'])
+                    || ( isSignedIn()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['views', 'updatedAt'])
+                         && request.resource.data.views is number
+                         && request.resource.data.views >= resource.data.views )
                     || hasPerm('HARAJ_POST_FORCE_EDIT')
                     || hasPerm('HARAJ_POST_APPROVE')
                     || hasPerm('HARAJ_POST_FEATURE')
                     || hasPerm('TRANSFER_POST_OWNERSHIP')
                     || hasPerm('HARAJ_POST_RESTORE');
       allow delete: if isOwner() || isAdOwner() || hasPerm('HARAJ_POST_DELETE');
+    }
+
+    // الرسالة العامة داخل إعلان الحراج — للأعضاء الموثقين فقط.
+    // المالك يستطيع المراجعة والحذف من غرفة صاحب الموقع.
+    match /ad_public_messages/{messageId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+                    && request.resource.data.authorUid == request.auth.uid
+                    && request.resource.data.adId is string
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 500;
+      allow update, delete: if isOwner()
+                            || (isSignedIn()
+                                && resource.data.authorUid == request.auth.uid);
     }
 
     // ============ مستخدمو حراج ============
@@ -250,7 +268,13 @@ service cloud.firestore {
                     || ( isChatParticipant(chatId)
                          && request.resource.data.keys().hasOnly(
                               ['adId','adTitle','sellerKey','buyerKey','buyerName','buyerUid',
-                               'sellerUid','participantUids','lastMessage','updatedAt','isPrivate','type','status']) );
+                               'sellerUid','participantUids','lastMessage','updatedAt','isPrivate','type','status'])
+                         && request.resource.data.adId == resource.data.adId
+                         && request.resource.data.sellerUid == resource.data.sellerUid
+                         && request.resource.data.buyerUid == resource.data.buyerUid
+                         && request.resource.data.participantUids == resource.data.participantUids
+                         && request.resource.data.sellerKey == resource.data.sellerKey
+                         && request.resource.data.buyerKey == resource.data.buyerKey );
       allow delete: if isOwner() || hasPerm('MONITOR_PRIVATE_MESSAGES');
 
       match /messages/{msgId} {
@@ -390,7 +414,7 @@ service cloud.firestore {
       //   (اعتماد/رفض) — وهو ما يفعله CommentsReviewPanel فعلاً. منعه هنا
       //   كان يُبقي كل تعليق معلّقاً في «قيد المراجعة» بلا إمكانية اعتماد.
       //   لا يُسمح له بمسح نص التعليق أو حقوله.
-      // - تحديث likes فقط يبقى مسموحاً للجميع.
+      // - تحديث likes يتطلب عضواً موثقاً، ويقبل زيادة واحدة فقط.
       allow update: if isOwner()
                     || (
                       hasPerm('HARAJ_COMMENT_EDIT')
@@ -398,8 +422,11 @@ service cloud.firestore {
                            .affectedKeys().hasOnly(['status'])
                       && request.resource.data.status in ['approved','rejected','pending']
                     )
-                    || request.resource.data.diff(resource.data)
-                         .affectedKeys().hasOnly(['likes']);
+                    || ( isSignedIn()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['likes'])
+                         && request.resource.data.likes is number
+                         && request.resource.data.likes == resource.data.likes + 1 );
 
       // الحذف: المالك أو صاحب صلاحية حذف التعليقات (يطابق زر «رفض» في اللوحة).
       allow delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
@@ -458,7 +485,9 @@ service cloud.firestore {
 
     // ============ مشتركو نشرة العروض ============
     match /subscribers/{emailId} {
-      allow create: if request.resource.data.keys().hasAll(['email']);
+      allow create: if request.resource.data.keys().hasOnly(['email'])
+                    && request.resource.data.email is string
+                    && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
       allow read, update, delete: if isOwner();
     }
 
