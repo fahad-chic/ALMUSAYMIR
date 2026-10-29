@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   query,
   orderBy,
+  where,
   onSnapshot,
   setDoc,
   arrayUnion,
@@ -106,6 +107,9 @@ export default function AdDetailsPage() {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [publicMessages, setPublicMessages] = useState([]);
+  const [publicDraft, setPublicDraft] = useState('');
+  const [publicSending, setPublicSending] = useState(false);
   const bottomRef = useRef(null);
 
   // canonical موحّد للإعلان — يمنع ازدواج المحتوى بين /ad/:id و /haraj/ad/:id
@@ -189,6 +193,29 @@ export default function AdDetailsPage() {
     return () => {
       cancelled = true;
     };
+  }, [id]);
+
+  // رسائل عامة خاصة بهذا الإعلان، منفصلة عن المحادثة السرية مع المعلن.
+  useEffect(() => {
+    if (!id || !db) return undefined;
+    const messagesQuery = query(
+      collection(db, 'ad_public_messages'),
+      where('adId', '==', id)
+    );
+    return onSnapshot(
+      messagesQuery,
+      (snap) => {
+        const next = snap.docs
+          .map((item) => ({ id: item.id, ...item.data() }))
+          .sort((a, b) => {
+            const left = a.createdAt?.toMillis?.() || 0;
+            const right = b.createdAt?.toMillis?.() || 0;
+            return left - right;
+          });
+        setPublicMessages(next);
+      },
+      () => setPublicMessages([])
+    );
   }, [id]);
 
   const sellerKey = useMemo(() => {
@@ -327,6 +354,29 @@ export default function AdDetailsPage() {
       setChatError('لم يتم إرسال الرسالة، حاول مرة أخرى.');
     } finally {
       setSending(false);
+    }
+  };
+
+  const sendPublicMessage = async () => {
+    const text = publicDraft.trim();
+    if (!text || !ad?.id || !isVerifiedMember || publicSending) return;
+    setPublicSending(true);
+    try {
+      await addDoc(collection(db, 'ad_public_messages'), {
+        adId: ad.id,
+        adTitle: ad.title || '',
+        text: text.slice(0, 500),
+        authorUid: memberUid,
+        authorName:
+          harajUser?.name || authUser?.displayName || authUser?.email || 'عضو موثّق',
+        createdAt: serverTimestamp(),
+        status: 'visible',
+      });
+      setPublicDraft('');
+    } catch {
+      alert('تعذر نشر الرسالة العامة. حاول مرة أخرى.');
+    } finally {
+      setPublicSending(false);
     }
   };
 
@@ -682,6 +732,59 @@ export default function AdDetailsPage() {
               <Copy size={16} /> نسخ الرابط
             </button>
           </div>
+        </div>
+
+        {/* الرسالة العامة داخل نفس الإعلان */}
+        <div
+          style={{
+            background: C.card,
+            border: `1px solid ${C.line}`,
+            borderRadius: 20,
+            padding: 20,
+            marginTop: 14,
+            boxShadow: '0 8px 30px rgba(var(--rz-ink-rgb), 0.10)',
+          }}
+        >
+          <h3 style={{ margin: '0 0 6px', fontSize: 18, fontWeight: 800, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <MessageCircle size={20} color={C.gold} /> الرسالة العامة للإعلان
+          </h3>
+          <p style={{ margin: '0 0 14px', textAlign: 'center', fontSize: 12, color: C.inkSoft }}>
+            يراها المشترون وأعضاء الإعلان نفسه، وليست بديلاً عن المراسلة الخاصة.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 240, overflowY: 'auto', background: C.creamLight, borderRadius: 14, padding: 12 }}>
+            {publicMessages.length === 0 ? (
+              <p style={{ textAlign: 'center', color: C.inkSoft, fontSize: 13, margin: 0 }}>لا توجد رسائل عامة بعد.</p>
+            ) : publicMessages.map((message) => (
+              <div key={message.id} style={{ background: 'var(--rz-white)', border: `1px solid ${C.line}`, borderRadius: 12, padding: '8px 10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 11, color: C.inkSoft, marginBottom: 3 }}>
+                  <strong>{message.authorName || 'عضو'}</strong>
+                  <span>عضو موثّق</span>
+                </div>
+                <div style={{ fontSize: 13, lineHeight: 1.65, color: C.ink }}>{message.text}</div>
+              </div>
+            ))}
+          </div>
+          {isVerifiedMember ? (
+            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+              <input
+                value={publicDraft}
+                onChange={(event) => setPublicDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') sendPublicMessage();
+                }}
+                maxLength={500}
+                placeholder="اكتب رسالة عامة عن هذا الإعلان..."
+                style={{ flex: 1, border: `1px solid ${C.line}`, borderRadius: 12, padding: '12px 14px', fontSize: 14, fontFamily: 'inherit', background: 'var(--rz-white)', color: C.ink, outline: 'none' }}
+              />
+              <button type="button" onClick={sendPublicMessage} disabled={publicSending || !publicDraft.trim()} style={{ ...goldBtn, width: 'auto', padding: '0 18px', opacity: publicSending || !publicDraft.trim() ? 0.6 : 1 }}>
+                <Send size={18} />
+              </button>
+            </div>
+          ) : (
+            <p style={{ textAlign: 'center', color: C.inkSoft, fontSize: 13, margin: '10px 0 0' }}>
+              سجّل الدخول بحساب موثّق للمشاركة في الرسالة العامة.
+            </p>
+          )}
         </div>
 
         {/* الرسائل الخاصة — إلزامية لكل إعلان */}
