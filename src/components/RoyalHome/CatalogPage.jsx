@@ -16,6 +16,10 @@ import {
   Settings,
   Save,
   X,
+  Search,
+  Heart,
+  GitCompare,
+  Share2,
 } from 'lucide-react';
 
 import {
@@ -37,6 +41,7 @@ import { AuthContext } from '../../context/AuthContext';
 import ProductCard from './ProductCard';
 import FreeImageField from '../FreeImageField';
 import { ROYAL_SECTIONS } from './sectionsData';
+import useStore from '../../store/useStore';
 import '../../styles/RoyalHome.css';
 
 const WHATSAPP_NUMBER = '966507882771';
@@ -105,6 +110,8 @@ const CatalogPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, userRole } = useContext(AuthContext);
+  const favorites = useStore((state) => state.favorites || []);
+  const toggleFavorite = useStore((state) => state.toggleFavorite);
 
   // فلتر المقاس القادم من القائمة الذكية (مثال: قسم معيّن -> مقاس M)
   const activeSize = location.state?.size || null;
@@ -116,6 +123,17 @@ const CatalogPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [catalogInfo, setCatalogInfo] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [compareIds, setCompareIds] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('almusaymir_compare_ids') || '[]');
+      return Array.isArray(saved) ? saved.slice(0, 3) : [];
+    } catch {
+      return [];
+    }
+  });
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -296,6 +314,45 @@ const CatalogPage = () => {
     setEditingProduct(null);
   };
 
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('almusaymir_recent_searches') || '[]');
+      if (Array.isArray(saved)) setRecentSearches(saved.slice(0, 5));
+    } catch {
+      setRecentSearches([]);
+    }
+  }, []);
+
+  const registerSearch = () => {
+    const value = searchText.trim();
+    if (!value) return;
+    const next = [value, ...recentSearches.filter((item) => item !== value)].slice(0, 5);
+    setRecentSearches(next);
+    localStorage.setItem('almusaymir_recent_searches', JSON.stringify(next));
+  };
+
+  const toggleCompare = (productId) => {
+    setCompareIds((current) => {
+      const next = current.includes(productId)
+        ? current.filter((id) => id !== productId)
+        : current.length < 3
+          ? [...current, productId]
+          : current;
+      localStorage.setItem('almusaymir_compare_ids', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const shareCatalog = async () => {
+    const url = window.location.href;
+    const data = { title: catalogInfo?.name || 'كتالوج المسيمير', url };
+    if (navigator.share) {
+      await navigator.share(data).catch(() => {});
+      return;
+    }
+    await navigator.clipboard?.writeText(url);
+  };
+
   // فلترة المنتجات حسب المقاس المختار من القائمة الذكية (إن وُجد)
   const sizeFilteredProducts = activeSize
     ? products.filter((product) => {
@@ -307,6 +364,15 @@ const CatalogPage = () => {
         return raw === wanted;
       })
     : products;
+
+  const visibleProducts = sizeFilteredProducts.filter((product) => {
+    const queryText = searchText.trim().toLowerCase();
+    const matchesSearch = !queryText || [product.name, product.description, product.brand, product.category]
+      .filter(Boolean)
+      .some((value) => String(value).toLowerCase().includes(queryText));
+    const matchesFavorites = !showFavoritesOnly || favorites.includes(product.id);
+    return matchesSearch && matchesFavorites;
+  });
 
   const currentDisplayStyle =
     DISPLAY_STYLES[cardStyle] || DISPLAY_STYLES.square;
@@ -517,6 +583,77 @@ const CatalogPage = () => {
           </div>
         </div>
 
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            registerSearch();
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            maxWidth: 460,
+            width: '100%',
+            margin: '0.75rem auto 0',
+            padding: '0.55rem 0.75rem',
+            borderRadius: 14,
+            border: '1px solid rgba(var(--rz-primary-rgb), 0.25)',
+            background: 'rgba(var(--rz-white-rgb), 0.72)',
+          }}
+        >
+          <Search size={17} color="var(--rz-primary)" aria-hidden="true" />
+          <input
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+            placeholder="ابحث داخل هذا القسم..."
+            aria-label="البحث داخل المنتجات"
+            style={{
+              flex: 1,
+              minWidth: 0,
+              border: 0,
+              outline: 0,
+              background: 'transparent',
+              color: 'var(--rz-ink)',
+              fontFamily: 'Tajawal',
+              fontSize: '0.85rem',
+            }}
+          />
+          {searchText && (
+            <button
+              type="button"
+              onClick={() => setSearchText('')}
+              aria-label="مسح البحث"
+              style={{ border: 0, background: 'transparent', cursor: 'pointer', color: 'var(--rz-muted)' }}
+            >
+              <X size={16} />
+            </button>
+          )}
+        </form>
+
+        {recentSearches.length > 0 && !searchText && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+            {recentSearches.map((term) => (
+              <button
+                key={term}
+                type="button"
+                onClick={() => setSearchText(term)}
+                style={{
+                  border: '1px solid rgba(var(--rz-primary-rgb), 0.18)',
+                  background: 'rgba(var(--rz-primary-rgb), 0.06)',
+                  color: 'var(--rz-primary)',
+                  borderRadius: 999,
+                  padding: '4px 10px',
+                  fontFamily: 'Tajawal',
+                  fontSize: '0.7rem',
+                  cursor: 'pointer',
+                }}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* عدد المنتجات */}
         <p
           style={{
@@ -526,8 +663,67 @@ const CatalogPage = () => {
             margin: 0,
           }}
         >
-          {sizeFilteredProducts.length} منتج
+          {visibleProducts.length} منتج
         </p>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+          <button
+            type="button"
+            onClick={() => setShowFavoritesOnly((value) => !value)}
+            aria-pressed={showFavoritesOnly}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              border: `1px solid ${showFavoritesOnly ? 'var(--rz-primary)' : 'rgba(var(--rz-primary-rgb), 0.22)'}`,
+              background: showFavoritesOnly ? 'rgba(var(--rz-primary-rgb), 0.14)' : 'rgba(var(--rz-white-rgb), 0.7)',
+              color: 'var(--rz-primary)',
+              borderRadius: 999,
+              padding: '7px 12px',
+              cursor: 'pointer',
+              fontFamily: 'Tajawal',
+              fontWeight: 800,
+              fontSize: '0.72rem',
+            }}
+          >
+            <Heart size={15} fill={showFavoritesOnly ? 'currentColor' : 'none'} />
+            المفضلة ({favorites.length})
+          </button>
+          <button
+            type="button"
+            onClick={shareCatalog}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              border: '1px solid rgba(var(--rz-primary-rgb), 0.22)',
+              background: 'rgba(var(--rz-white-rgb), 0.7)',
+              color: 'var(--rz-primary)',
+              borderRadius: 999,
+              padding: '7px 12px',
+              cursor: 'pointer',
+              fontFamily: 'Tajawal',
+              fontWeight: 800,
+              fontSize: '0.72rem',
+            }}
+          >
+            <Share2 size={15} />
+            مشاركة القسم
+          </button>
+          {compareIds.length > 0 && (
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              color: 'var(--rz-muted)',
+              fontSize: '0.72rem',
+              fontWeight: 800,
+            }}>
+              <GitCompare size={15} />
+              للمقارنة: {compareIds.length}/3
+            </span>
+          )}
+        </div>
 
         {/* أزرار الإدارة */}
         <div
@@ -600,7 +796,7 @@ const CatalogPage = () => {
         >
           جاري التحميل...
         </div>
-      ) : sizeFilteredProducts.length === 0 ? (
+      ) : visibleProducts.length === 0 ? (
         <div
           style={{
             maxWidth: 1200,
@@ -689,17 +885,67 @@ const CatalogPage = () => {
                   }),
             }}
           >
-            {sizeFilteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                style={cardStyle}
-                compact={currentDisplayStyle.compact}
-                isOwner={isOwner}
-                showPrices={catalogSettings.showPrices}
-                showDescriptions={catalogSettings.showDescriptions}
-                onEdit={openEditProduct}
-              />
+            {visibleProducts.map((product) => (
+              <div key={product.id} style={{ position: 'relative', minWidth: 0 }}>
+                <div style={{
+                  position: 'absolute',
+                  top: 10,
+                  insetInlineEnd: 10,
+                  zIndex: 3,
+                  display: 'flex',
+                  gap: 6,
+                }}>
+                  <button
+                    type="button"
+                    onClick={() => toggleFavorite(product.id)}
+                    aria-label={favorites.includes(product.id) ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+                    title={favorites.includes(product.id) ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+                    style={{
+                      width: 34,
+                      height: 34,
+                      display: 'grid',
+                      placeItems: 'center',
+                      borderRadius: '50%',
+                      border: '1px solid rgba(var(--rz-primary-rgb), 0.28)',
+                      background: 'rgba(255,255,255,0.92)',
+                      color: 'var(--rz-primary)',
+                      cursor: 'pointer',
+                      boxShadow: '0 5px 14px rgba(0,0,0,0.12)',
+                    }}
+                  >
+                    <Heart size={16} fill={favorites.includes(product.id) ? 'currentColor' : 'none'} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleCompare(product.id)}
+                    aria-label={compareIds.includes(product.id) ? 'إزالة من المقارنة' : 'إضافة إلى المقارنة'}
+                    title={compareIds.includes(product.id) ? 'إزالة من المقارنة' : 'إضافة إلى المقارنة'}
+                    style={{
+                      width: 34,
+                      height: 34,
+                      display: 'grid',
+                      placeItems: 'center',
+                      borderRadius: '50%',
+                      border: '1px solid rgba(var(--rz-primary-rgb), 0.28)',
+                      background: compareIds.includes(product.id) ? 'rgba(var(--rz-primary-rgb), 0.18)' : 'rgba(255,255,255,0.92)',
+                      color: 'var(--rz-primary)',
+                      cursor: 'pointer',
+                      boxShadow: '0 5px 14px rgba(0,0,0,0.12)',
+                    }}
+                  >
+                    <GitCompare size={16} />
+                  </button>
+                </div>
+                <ProductCard
+                  product={product}
+                  style={cardStyle}
+                  compact={currentDisplayStyle.compact}
+                  isOwner={isOwner}
+                  showPrices={catalogSettings.showPrices}
+                  showDescriptions={catalogSettings.showDescriptions}
+                  onEdit={openEditProduct}
+                />
+              </div>
             ))}
           </div>
         </div>
