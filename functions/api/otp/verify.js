@@ -122,9 +122,8 @@ export async function onRequest(context) {
         `UPDATE otps SET used = 1
          WHERE email = ?1 AND purpose = ?2 AND used = 0`
       ).bind(cleanEmail, cleanPurpose).run();
-      await env.DB.prepare(
-        `DELETE FROM otp_attempts WHERE key = ?1`
-      ).bind(attemptKey).run();
+      // لا نحذف سجل المحاولات عند الحظر؛ إبقاؤه يضمن استمرار المنع
+      // حتى انتهاء نافذة الـ 15 دقيقة، حتى لو طُلب رمز جديد.
 
       return json({
         success: false,
