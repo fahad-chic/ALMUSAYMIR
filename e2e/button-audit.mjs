@@ -1,3 +1,6 @@
+------------------------------
+------ button-audit.mjs ------
+------------------------------
 /**
  * تدقيق الأزرار والروابط والتكرار في الموقع.
  *
@@ -137,3 +140,62 @@ if (result.skipped.length) {
 }
 
 process.exitCode = result.errors.length ? 1 : 0;
+
+------------------------------
+-------- package.json --------
+------------------------------
+{
+  "name": "fahad-chic",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.12.0"
+  },
+  "scripts": {
+    "dev": "vite --port 5173 --host",
+    "build": "vite build",
+    "lint": "eslint . --ext .js,.jsx --quiet",
+    "test": "vitest run",
+    "test:contrast-unit": "vitest run src/utils/wcag.test.js",
+    "contrast": "node e2e/contrast-audit.mjs",
+    "contrast:strict": "node e2e/contrast-audit.mjs --strict",
+    "buttons": "node e2e/button-audit.mjs",
+    "preview": "vite preview --port 4173 --host",
+    "analyze": "vite build --mode analyze",
+    "icons": "node scripts/generate-icons.cjs"
+  },
+  "dependencies": {
+    "firebase": "^13.1.0",
+    "lucide-react": "^0.469.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.1",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@aklinker1/rollup-plugin-visualizer": "^5.12.0",
+    "@eslint/js": "^9.16.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.5.4",
+    "eslint": "^9.16.0",
+    "eslint-plugin-react": "^7.37.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^15.8.0",
+    "jsdom": "^26.0.0",
+    "playwright": "^1.49.1",
+    "postcss": "^8.5.26",
+    "sharp": "^0.35.3",
+    "tailwindcss": "^3.4.19",
+    "vite": "^6.0.7",
+    "vitest": "^2.1.4",
+    "wrangler": "^4.119.0"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.13.6"
+  }
+}
