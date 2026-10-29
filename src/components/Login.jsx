@@ -142,9 +142,30 @@ const Login = () => {
 
   const [timer, setTimer] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const handleGuestLogin = async () => {
+    if (guestLoading || loading) return;
+    setGuestLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const result = await store.guestLogin();
+      if (!result?.success) {
+        setError(result?.error || 'تعذر بدء دخول الزائر');
+        return;
+      }
+      setSuccess('دخلت كزائر مؤقت لمدة دقيقتين. أنشئ حسابًا لحفظ بياناتك والاستفادة من جميع الخدمات.');
+      navigate('/');
+    } catch {
+      setError('تعذر بدء جلسة الزائر، حاول مرة أخرى.');
+    } finally {
+      setGuestLoading(false);
+    }
+  };
 
   const [googleEmailConfirm, setGoogleEmailConfirm] = useState('');
   const [googleUserObj, setGoogleUserObj] = useState(null);
@@ -1195,6 +1216,15 @@ const Login = () => {
             }
           >
             الدخول عن طريق Google
+          </button>
+
+          <button
+            type="button"
+            className="rl-link rl-guest-entry"
+            onClick={handleGuestLogin}
+            disabled={loading || guestLoading}
+          >
+            {guestLoading ? 'جارٍ فتح الجلسة...' : 'الدخول كزائر لمدة دقيقتين'}
           </button>
         </div>
 
