@@ -23,6 +23,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithEmailAndPassword,
+  signInAnonymously,
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signOut,
@@ -539,16 +540,16 @@ const useStore = create(
     }
 
     try {
-      await addDoc(collection(db, "guestSessions"), {
+      void addDoc(collection(db, "guestSessions"), {
         startedAt: serverTimestamp(),
         status: "active",
-      });
+      }).catch(() => {});
     } catch {
       // Silently fail - guest session logging is non-critical
     }
 
     const started = Date.now();
-    const expiresAt = started + 30 * 60 * 1000; // 30 دقيقة
+    const expiresAt = started + 2 * 60 * 1000; // دقيقتان
     const warnedAt = expiresAt - 15000; // تحذير قبل 15 ثانية
 
     set({
@@ -560,7 +561,7 @@ const useStore = create(
     // جدولة مؤقتات التحذير/الانتهاء (تتحقق من الانتهاء الفوري)
     get()._scheduleGuestTimers();
 
-    await get().notifyOwners(`زائر دخل: ${phone}`, { action: "GUEST_ENTER" });
+    void get().notifyOwners(`زائر دخل: ${phone}`, { action: "GUEST_ENTER" }).catch(() => {});
     return { success: true };
   },
 
@@ -701,14 +702,18 @@ const useStore = create(
     return { success: true };
   },
 
-  // دخول الزوار أُلغي نهائياً: لا جلسة زائر ولا جلسة مجهولة.
-  // لا تُفتح أي صفحة إلا بحساب Email/Password بريده موثّق (emailVerified).
-  // نُبقي الدالة موجودة (بلا حذف) لكنها ترفض دائماً حتى لا يبقى أي مسار
-  // يستدعيها يمنح وصولاً ضمنياً.
-  guestLogin: async () => ({
-    success: false,
-    error: "دخول الزوار أُلغي — يلزم إنشاء حساب وتوثيق البريد للدخول",
-  }),
+  // دخول زائر مجاني ومؤقت — دقيقتان فقط. لا يُنشأ له ملف مستخدم
+  // ولا يحصل على صلاحيات العضو، وتُنهي المؤقتات الجلسة تلقائياً.
+  guestLogin: async () => {
+    try {
+      await get().endGuestSession('restart');
+      await signInAnonymously(getAuth());
+      await get().startGuestSession('guest');
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err?.message || 'تعذر بدء جلسة الزائر' };
+    }
+  },
 
   getGuestRemaining: () => {
     const s = get().guestSession;
