@@ -274,3 +274,37 @@
   --radius-lg: 20px;
   --radius-full: 999px;
 }
+
+/* الوضع الليلي العام — يحافظ على الهوية الموكا/الشامبانيا مع رفع وضوح النص */
+html[data-theme='dark'] {
+  --rz-ivory-rgb: 24, 21, 19;
+  --rz-ivory: rgb(var(--rz-ivory-rgb));
+  --rz-white-rgb: 38, 33, 29;
+  --rz-white: rgb(var(--rz-white-rgb));
+  --rz-ink-rgb: 248, 243, 235;
+  --rz-ink: rgb(var(--rz-ink-rgb));
+  --rz-muted-rgb: 214, 198, 184;
+  --rz-muted: rgb(var(--rz-muted-rgb));
+  --rz-border: #6f5a4b;
+  color-scheme: dark;
+}
+
+html[data-theme='dark'],
+html[data-theme='dark'] body {
+  background-color: #181513 !important;
+  color: var(--rz-ink) !important;
+}
+
+html[data-theme='dark'] .alm-appearance-controls button,
+html[data-theme='dark'] .alm-mobile-bottom-nav {
+  background: rgba(38, 33, 29, .94);
+  color: var(--rz-ink);
+}
+
+html[data-theme='dark'] input,
+html[data-theme='dark'] textarea,
+html[data-theme='dark'] select {
+  background-color: #26211d !important;
+  color: var(--rz-ink) !important;
+  border-color: #6f5a4b !important;
+}
