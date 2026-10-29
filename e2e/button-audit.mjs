@@ -1,6 +1,4 @@
-------------------------------
------- button-audit.mjs ------
-------------------------------
+
 // تدقيق الأزرار والروابط والتكرار في الموقع.
 // الاستخدام: BASE_URL=http://localhost:5173 npm run buttons
 import { chromium } from 'playwright';
