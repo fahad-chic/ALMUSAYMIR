@@ -24,6 +24,9 @@ import useNotifications from '../store/useNotifications';
 import ContactOwnerModal from './ContactOwnerModal';
 import BroadcastModal from './BroadcastModal';
 import RoyalHeader from './RoyalHeader';
+import MobileBottomNav from './MobileBottomNav';
+import ExperienceTools from './ExperienceTools';
+import AppearanceControls from './AppearanceControls';
 
 // ============================================================
 // ثوابت خارج المكوّن → لا يُعاد إنشاؤها في كل تصيير (تحسين أداء)
@@ -156,6 +159,10 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
         onOpenBroadcast={() => setShowBroadcast(true)}
         onOpenWelcome={() => setShowElegantWelcome(true)}
       />
+
+      <AppearanceControls />
+      <MobileBottomNav visible={Boolean(user)} />
+      <ExperienceTools />
 
       {showElegantWelcome && (
         <div
