@@ -3191,3 +3191,4 @@ const BroadcastPanel = ({
     </div>
   </div>
 )
+export default OwnerPrivateRoom;
