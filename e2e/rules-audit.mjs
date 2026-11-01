@@ -307,7 +307,8 @@ await expectDeny('مشرف لا يعدّل سجل تدقيق (تزوير الن�
   result: 'forged',
 }));
 await expectDeny('مشرف لا يحذف سجل تدقيق', deleteDoc(doc(adminA, 'audit_logs', 'log-1')));
-await expectAllow('المالك يحذف سجل تدقيق (تقادم/تنظيف)', deleteDoc(doc(owner, 'audit_logs', 'log-1')));
+// السجل append-only مطلق: لا يُحذف حتى من المالك (حماية أثر الحوادث الأمنية).
+await expectDeny('المالك لا يحذف سجل تدقيق (append-only مطلق)', deleteDoc(doc(owner, 'audit_logs', 'log-1')));
 
 console.log('\n=== 10) FORCE_LOGOUT_SESSION: إبطال الجلسة فعلياً ===');
 await testEnv.withSecurityRulesDisabled(async (ctx) => {
@@ -722,6 +723,9 @@ await expectAllow('مشرف مصرّح يكتب سجل تدقيق (create فقط
 await expectDeny('سجل التدقيق لا يُعدّل بعد الإنشاء', updateDoc(doc(logAdminA, 'audit_logs', 'mt-1'), { result: 'forged' }));
 await expectDeny('سجل التدقيق لا يُحذف (حتى من منشئه)', deleteDoc(doc(logAdminA, 'audit_logs', 'mt-1')));
 await expectDeny('سجل التدقيق لا يُعدّل حتى من المالك', updateDoc(doc(owner, 'audit_logs', 'mt-1'), { result: 'forged' }));
+await expectDeny('سجل التدقيق لا يُحذف حتى من المالك (append-only مطلق)', deleteDoc(doc(owner, 'audit_logs', 'mt-1')));
+await expectDeny('سجل التدقيق لا يُحذف من مشرف مصرّح', deleteDoc(doc(logAdminA, 'audit_logs', 'mt-1')));
+await expectDeny('سجل التدقيق لا يُعدّل من مشرف مصرّح', updateDoc(doc(logAdminA, 'audit_logs', 'mt-1'), { result: 'forged' }));
 
 // ============ 19) حراج: المخالفات تُسجَّل وتظهر للمالك ============
 console.log('\n=== 19) حراج: تسجيل المخالفات وظهورها للمالك ===');

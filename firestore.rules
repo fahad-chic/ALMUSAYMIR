@@ -410,14 +410,13 @@ service cloud.firestore {
     // كل إجراء صلاحيات يُكتب هنا ببنية موحّدة: actor/timestamp/target/result.
     // يُنشأ من العميل بعد أن ينجح الإجراء الفعلي (والذي تفرضه القواعد الأخرى)،
     // فالكتابة عليه لا تمنح أي قدرة — والقراءة للمالك أو صاحب صلاحية السجلات.
-    // السجل للإلحاق فقط (append-only): لا تعديل بعد الكتابة، والحذف للمالك
-    // وحده لأغراض التقادم/التنظيف. هذا يمنع أي تلاعب بأثر الحوادث الأمنية.
+    // السجل للإلحاق فقط (append-only) بشكل مطلق: لا تعديل ولا حذف بعد الإنشاء —
+    // حتى من المالك. هذا يضمن سلامة أثر الحوادث الأمنية على الدوام.
     match /audit_logs/{docId} {
       allow create: if isSignedIn()
                     && request.resource.data.keys().hasAll(['action', 'result']);
       allow read: if isOwner() || hasPerm('VIEW_SYSTEM_AUDIT_LOGS');
-      allow update: if false;
-      allow delete: if isOwner();
+      allow update, delete: if false;
     }
 
     // ============ الجلسات الحيّة (تتبّع الأجهزة المتصلة) ============
