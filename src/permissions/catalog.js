@@ -92,6 +92,15 @@ export const OWNER_ONLY_PERMISSION_KEYS = new Set([
   'MONITOR_USER_TRAFFIC_LIVE',
 ]);
 
+// صلاحيات مؤجلة: تبقى في الكتالوج لكنها خارج نطاق المرحلة الأولى المعتمد (23).
+// لا تُمنح من الواجهة ولا تُنفَّذ حتى تتوفر الحاجة الفعلية (لا شاشة ولا بيانات وهمية).
+// حالياً: VIEW_EMPLOYEE_SALARIES مؤجلة حتى تعيين موظفين فعلياً ووجود نظام رواتب.
+export const DEFERRED_PERMISSION_KEYS = new Set([
+  'VIEW_EMPLOYEE_SALARIES',
+]);
+
+export const isDeferredPermissionKey = (key) => DEFERRED_PERMISSION_KEYS.has(key);
+
 const BY_KEY = new Map(PERMISSIONS.map((p) => [p.key, p]));
 
 export const getPermission = (key) => BY_KEY.get(key) || null;

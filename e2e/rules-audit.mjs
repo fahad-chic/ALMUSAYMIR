@@ -424,7 +424,6 @@ await testEnv.withSecurityRulesDisabled(async (ctx) => {
       UPDATE_GLOBAL_SETTINGS: true,
       TOGGLE_MAINTENANCE_MODE: true,
       EDIT_EMPLOYEE_PROFILE: true,
-      VIEW_EMPLOYEE_SALARIES: true,
       SUSPEND_SUB_ADMIN_ACCOUNT: true,
       TRACK_EMPLOYEE_LIVE_SESSIONS: true,
       VIEW_SYSTEM_AUDIT_LOGS: true,
@@ -454,9 +453,18 @@ await expectDeny('TOGGLE_MAINTENANCE_MODE: غير المصرّح مرفوض', se
 await expectAllow('EDIT_EMPLOYEE_PROFILE: المصرّح يعدّل موظفاً', updateDoc(doc(adminA, 'employees', 'emp-1'), { name: 'معدّل' }));
 await expectDeny('EDIT_EMPLOYEE_PROFILE: غير المصرّح مرفوض', updateDoc(doc(adminB, 'employees', 'emp-1'), { name: 'y' }));
 
-// VIEW_EMPLOYEE_SALARIES (قراءة فقط)
-await expectAllow('VIEW_EMPLOYEE_SALARIES: المصرّح يقرأ ملف الموظف', getDoc(doc(adminA, 'employees', 'emp-1')));
-await expectDeny('VIEW_EMPLOYEE_SALARIES: غير المصرّح لا يقرأ', getDoc(doc(adminB, 'employees', 'emp-1')));
+// VIEW_EMPLOYEE_SALARIES مؤجلة: لا تمنح أي قراءة حتى لو وُجد المفتاح في الوثيقة.
+const SALARY_UID = uid('salary-admin');
+const salaryAdmin = testEnv.authenticatedContext(SALARY_UID, {
+  email: 'salary-admin@example.com', email_verified: true,
+}).firestore();
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'rbac', SALARY_UID), {
+    suspended: false, grants: { VIEW_EMPLOYEE_SALARIES: true },
+  });
+});
+await expectDeny('VIEW_EMPLOYEE_SALARIES (مؤجلة): لا تمنح قراءة employees', getDoc(doc(salaryAdmin, 'employees', 'emp-1')));
+await expectDeny('VIEW_EMPLOYEE_SALARIES (مؤجلة): غير المصرّح لا يقرأ', getDoc(doc(adminB, 'employees', 'emp-1')));
 
 // SUSPEND_SUB_ADMIN_ACCOUNT — يكتب rbac وهي owner-only: لا تفويض ممكن.
 await expectAllow('SUSPEND_SUB_ADMIN_ACCOUNT: المالك يجمّد مشرفاً (rbac)', setDoc(doc(owner, 'rbac', ADMIN_B), { suspended: true }, { merge: true }));
@@ -593,6 +601,141 @@ await expectAllow('المالك يحذف فهرس التفرد (تصحيح حا�
 await expectAllow('بعد تحرير الفهرس يمكن إنشاء ملف حراج', setDoc(doc(huser, 'haraj_users', 'hp-4'), {
   name: 'مستخدم', phone: '0555555555', email: 'haraj-user@example.com', authUid: HUSER,
 }));
+
+// ============ 17) مصفوفة الصلاحيات الـ23 المعتمدة (5 أدوار لكل صلاحية) ============
+// لكل صلاحية: المالك مسموح، مشرف مصرّح مسموح، مشرف بلا صلاحية مرفوض،
+// مستخدم مرفوض، زائر مرفوض. القرار يُقرأ من نتيجة المحاكي الفعلية.
+console.log('\n=== 17) مصفوفة الصلاحيات الـ23 المعتمدة (مالك/مصرّح/غير مصرّح/مستخدم/زائر) ===');
+
+const PHASE1_APPROVED = [
+  'SUPER_ADMIN_FULL_ACCESS', 'UPDATE_GLOBAL_SETTINGS', 'TOGGLE_MAINTENANCE_MODE',
+  'BAN_USER_TEMPORARY', 'BAN_USER_PERMANENT', 'UNBAN_USER_RESTORE',
+  'FORCE_LOGOUT_SESSION', 'BLOCK_USER_REGISTRATION', 'MANAGE_USER_VERIFICATION',
+  'VIEW_USER_IP_HISTORY',
+  'HARAJ_POST_APPROVE', 'HARAJ_POST_DELETE', 'HARAJ_POST_RESTORE', 'TRANSFER_POST_OWNERSHIP',
+  'ADD_NEW_EMPLOYEE', 'EDIT_EMPLOYEE_PROFILE', 'GRANT_SUB_ADMIN_PERMISSIONS',
+  'SUSPEND_SUB_ADMIN_ACCOUNT', 'TRACK_EMPLOYEE_LIVE_SESSIONS',
+  'VIEW_SYSTEM_AUDIT_LOGS', 'FIREBASE_MUTATION_LOGS', 'TRACK_FAILED_LOGINS',
+  'RECOVER_DELETED_ITEMS_ARCHIVE'
+]; // 23 — VIEW_EMPLOYEE_SALARIES مؤجلة ومستثناة.
+const OWNER_ONLY = new Set([
+  'VIEW_SYSTEM_AUDIT_LOGS', 'FIREBASE_MUTATION_LOGS', 'TRACK_FAILED_LOGINS',
+  'RECOVER_DELETED_ITEMS_ARCHIVE', 'TRACK_EMPLOYEE_LIVE_SESSIONS'
+]);
+if (PHASE1_APPROVED.length !== 23) throw new Error('قائمة المرحلة الأولى يجب أن تكون 23');
+
+// مجسّ لكل صلاحية: دالة تنفّذ العملية المحمية وتعود بـ Promise.
+let AD_ID = 'ad-m';
+const probe = {
+  SUPER_ADMIN_FULL_ACCESS: (db) => setDoc(doc(db, 'settings', 'siteTexts'), { hero: 'x' }, { merge: true }),
+  UPDATE_GLOBAL_SETTINGS: (db) => setDoc(doc(db, 'settings', 'siteTexts'), { hero: 'x' }, { merge: true }),
+  TOGGLE_MAINTENANCE_MODE: (db) => setDoc(doc(db, 'settings', 'maintenance'), { enabled: false }, { merge: true }),
+  BAN_USER_TEMPORARY: (db) => updateDoc(doc(db, 'users', 'uid-target'), { banned: true, status: 'banned', banType: 'temporary', banExpiresAt: new Date(Date.now() + 86400000) }),
+  BAN_USER_PERMANENT: (db) => updateDoc(doc(db, 'users', 'uid-target'), { banned: true, status: 'banned', banType: 'permanent' }),
+  UNBAN_USER_RESTORE: (db) => updateDoc(doc(db, 'users', 'uid-target'), { banned: false, status: 'active', banExpiresAt: null }),
+  FORCE_LOGOUT_SESSION: (db) => updateDoc(doc(db, 'users', 'uid-target'), { forceLogoutAt: Math.floor(Date.now() / 1000) }),
+  BLOCK_USER_REGISTRATION: (db) => setDoc(doc(db, 'settings', 'registrationGate'), { blocked: false, reason: '', updatedBy: 'x' }, { merge: true }),
+  MANAGE_USER_VERIFICATION: (db) => updateDoc(doc(db, 'users', 'uid-target'), { isVerified: true, verifiedAt: new Date(), verifiedBy: 'x' }),
+  VIEW_USER_IP_HISTORY: (db) => getDoc(doc(db, 'security_logs', 's-2')),
+  HARAJ_POST_APPROVE: (db) => updateDoc(doc(db, 'haraj_ads', AD_ID), { status: 'active', rejectionReason: 'x' }),
+  HARAJ_POST_DELETE: (db) => deleteDoc(doc(db, 'haraj_ads', AD_ID)),
+  HARAJ_POST_RESTORE: (db) => updateDoc(doc(db, 'haraj_ads', AD_ID), { status: 'active', restoredAt: new Date(), restoredBy: 'x' }),
+  TRANSFER_POST_OWNERSHIP: (db) => updateDoc(doc(db, 'haraj_ads', AD_ID), { userId: 'uid-other', transferredAt: new Date(), transferredBy: 'x' }),
+  ADD_NEW_EMPLOYEE: (db) => setDoc(doc(db, 'employees', 'emp-m'), { name: 'x', email: 'x@example.com' }),
+  EDIT_EMPLOYEE_PROFILE: (db) => updateDoc(doc(db, 'employees', 'emp-1'), { name: 'x' }),
+  GRANT_SUB_ADMIN_PERMISSIONS: (db) => setDoc(doc(db, 'rbac', 'uid-target'), { grants: { HARAJ_POST_DELETE: true } }),
+  SUSPEND_SUB_ADMIN_ACCOUNT: (db) => setDoc(doc(db, 'rbac', 'uid-target'), { suspended: true }, { merge: true }),
+  TRACK_EMPLOYEE_LIVE_SESSIONS: (db) => getDoc(doc(db, 'sessions', 'uid-target')),
+  VIEW_SYSTEM_AUDIT_LOGS: (db) => getDoc(doc(db, 'logs', 'l-1')),
+  FIREBASE_MUTATION_LOGS: (db) => getDoc(doc(db, 'logs', 'l-2')),
+  TRACK_FAILED_LOGINS: (db) => getDoc(doc(db, 'security_logs', 's-2')),
+  RECOVER_DELETED_ITEMS_ARCHIVE: (db) => getDoc(doc(db, 'deleted_archive', 'arch-m')),
+};
+
+// كل مفتاح: (المالك مسموح دائماً، المشرف المصرّح مسموح فقط إذا لم يكن owner-only،
+// غير المصرّح/المستخدم/الزائر مرفوضون دائماً).
+const ALL_GRANTS = Object.fromEntries(PHASE1_APPROVED.map((k) => [k, true]));
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  await setDoc(doc(db, 'users', 'uid-target'), { email: 'target@example.com', role: 'user' });
+  await setDoc(doc(db, 'users', 'uid-other'), { email: 'other@example.com', role: 'user' });
+  await setDoc(doc(db, 'rbac', ADMIN_A), { suspended: false, grants: ALL_GRANTS });
+  await setDoc(doc(db, 'employees', 'emp-1'), { name: 'موظف', email: 'emp@example.com' });
+  await setDoc(doc(db, 'logs', 'l-1'), { action: 'X' });
+  await setDoc(doc(db, 'logs', 'l-2'), { action: 'Y' });
+  await setDoc(doc(db, 'security_logs', 's-2'), { type: 'x' });
+  await setDoc(doc(db, 'deleted_archive', 'arch-m'), { sourceCollection: 'haraj_ads', sourceId: 'a', payload: {}, deletedAt: new Date() });
+  await setDoc(doc(db, 'sessions', 'uid-target'), { uid: 'uid-target', role: 'user', lastSeenAt: new Date() });
+});
+// الصلاحيات التي يُرفض فيها «المشرف المصرّح» على طبقة Firestore (بحكم التصميم):
+//  - owner-only        : المفتاح لا يُمنح أبداً لغير المالك (دفاع في العمق).
+//  - owner-account-only: تُفرض بحساب المالك حصراً (كتابة rbac).
+//  - api-enforced      : لا سطح Firestore يمنح المشرف (الفرض عبر Cloudflare Function).
+const ADMIN_DENIED_AT_RULES = new Set([
+  'VIEW_SYSTEM_AUDIT_LOGS', 'FIREBASE_MUTATION_LOGS', 'TRACK_FAILED_LOGINS',
+  'RECOVER_DELETED_ITEMS_ARCHIVE', 'TRACK_EMPLOYEE_LIVE_SESSIONS',
+  'GRANT_SUB_ADMIN_PERMISSIONS', 'SUSPEND_SUB_ADMIN_ACCOUNT',
+  'VIEW_USER_IP_HISTORY'
+]);
+const adminExpected = (key) =>
+  ADMIN_DENIED_AT_RULES.has(key) ? 'deny' : 'allow';
+
+const matrix = [
+  { name: 'مالك', db: owner, expect: 'allow' },
+  { name: 'مصرّح', db: adminA, expect: 'byKey' },
+  { name: 'غير مصرّح', db: adminB, expect: 'deny' },
+  { name: 'مستخدم', db: user, expect: 'deny' },
+  { name: 'زائر', db: visitor, expect: 'deny' },
+];
+
+for (const key of PHASE1_APPROVED) {
+  for (const role of matrix) {
+    // مستند إعلان فريد لكل صف + إعادة تهيئة الهدف (تجنّب إعادة إنشاء معرّف بعد حذفه).
+    AD_ID = `ad-${key}-${role.name}`;
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, 'haraj_ads', AD_ID), { title: 'x', price: 1, status: 'pending', userId: 'uid-third' });
+      await setDoc(doc(db, 'users', 'uid-target'), { email: 'target@example.com', role: 'user' });
+      await setDoc(doc(db, 'rbac', 'uid-target'), { suspended: false, grants: {} });
+      // USER استلم HARAJ_POST_DELETE في القسم 1 (اختبار منع المنح الذاتي) — نعيده فارغاً.
+      await setDoc(doc(db, 'rbac', USER), { suspended: false, grants: {} });
+    });
+    const label = `${key} — ${role.name}`;
+    const p = probe[key](role.db);
+    if (role.expect === 'allow') {
+      await expectAllow(label, p);
+    } else if (role.expect === 'byKey') {
+      if (adminExpected(key) === 'allow') await expectAllow(label, p);
+      else await expectDeny(label, p);
+    } else {
+      await expectDeny(label, p);
+    }
+  }
+}
+
+// ============ 18) سجل التدقيق: عدم القابلية للتعديل + تسجيل المخالفات ============
+console.log('\n=== 18) سجل التدقيق (append-only) وتسجيل المخالفات ===');
+const logAdminA = testEnv.authenticatedContext(ADMIN_A, { email: ADMIN_A_EMAIL, email_verified: true }).firestore();
+await expectAllow('مشرف مصرّح يكتب سجل تدقيق (create فقط)', setDoc(doc(logAdminA, 'audit_logs', 'mt-1'), {
+  action: 'PERMISSION_VIOLATION', actorUid: ADMIN_A, result: 'denied', targetType: 'server', targetId: 'x',
+}));
+await expectDeny('سجل التدقيق لا يُعدّل بعد الإنشاء', updateDoc(doc(logAdminA, 'audit_logs', 'mt-1'), { result: 'forged' }));
+await expectDeny('سجل التدقيق لا يُحذف (حتى من منشئه)', deleteDoc(doc(logAdminA, 'audit_logs', 'mt-1')));
+await expectDeny('سجل التدقيق لا يُعدّل حتى من المالك', updateDoc(doc(owner, 'audit_logs', 'mt-1'), { result: 'forged' }));
+
+// ============ 19) حراج: المخالفات تُسجَّل وتظهر للمالك ============
+console.log('\n=== 19) حراج: تسجيل المخالفات وظهورها للمالك ===');
+const attacker = testEnv.authenticatedContext(uid('attacker'), { email: 'attacker@example.com', email_verified: true }).firestore();
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'users', uid('attacker')), { email: 'attacker@example.com', role: 'user' });
+});
+await expectAllow('المستخدم المخالف يسجّل محاولته في audit_logs', setDoc(doc(attacker, 'audit_logs', 'att-1'), {
+  action: 'HARAJ_POST_DELETE', permissionKey: 'HARAJ_POST_DELETE', actorUid: uid('attacker'),
+  targetType: 'haraj_ad', targetId: 'ad-m', result: 'denied',
+}));
+await expectDeny('المستخدم المخالف لا يستطيع حذف إعلان غيره (مخالفة)', deleteDoc(doc(attacker, 'haraj_ads', 'ad-m')));
+await expectAllow('المالك يقرأ سجل المخالفة', getDoc(doc(owner, 'audit_logs', 'att-1')));
+await expectDeny('المستخدم المخالف لا يقرأ سجله', getDoc(doc(attacker, 'audit_logs', 'att-1')));
 
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);

@@ -4,6 +4,7 @@ import {
   PERMISSIONS,
   PERMISSION_KEYS,
   PERMISSION_CATEGORIES,
+  DEFERRED_PERMISSION_KEYS,
   isValidPermissionKey,
   permissionsByCategory
 } from './catalog';
@@ -23,22 +24,27 @@ describe('كتالوج الصلاحيات', () => {
     expect(new Set(PERMISSION_KEYS).size).toBe(47);
   });
 
-  it('كل مفاتيح صلاحيات المرحلة الأولى (24) موجودة في الكتالوج', () => {
-    const PHASE_1_KEYS = [
+  it('كل مفاتيح المرحلة الأولى المعتمدة (23) موجودة في الكتالوج', () => {
+    const PHASE_1_APPROVED_KEYS = [
       'SUPER_ADMIN_FULL_ACCESS', 'UPDATE_GLOBAL_SETTINGS', 'TOGGLE_MAINTENANCE_MODE',
       'BAN_USER_TEMPORARY', 'BAN_USER_PERMANENT', 'UNBAN_USER_RESTORE',
       'FORCE_LOGOUT_SESSION', 'BLOCK_USER_REGISTRATION', 'MANAGE_USER_VERIFICATION',
       'VIEW_USER_IP_HISTORY',
       'HARAJ_POST_APPROVE', 'HARAJ_POST_DELETE', 'HARAJ_POST_RESTORE', 'TRANSFER_POST_OWNERSHIP',
       'ADD_NEW_EMPLOYEE', 'EDIT_EMPLOYEE_PROFILE', 'GRANT_SUB_ADMIN_PERMISSIONS',
-      'SUSPEND_SUB_ADMIN_ACCOUNT', 'VIEW_EMPLOYEE_SALARIES', 'TRACK_EMPLOYEE_LIVE_SESSIONS',
+      'SUSPEND_SUB_ADMIN_ACCOUNT', 'TRACK_EMPLOYEE_LIVE_SESSIONS',
       'VIEW_SYSTEM_AUDIT_LOGS', 'FIREBASE_MUTATION_LOGS', 'TRACK_FAILED_LOGINS',
       'RECOVER_DELETED_ITEMS_ARCHIVE'
     ];
-    expect(PHASE_1_KEYS).toHaveLength(24);
-    for (const key of PHASE_1_KEYS) {
+    expect(PHASE_1_APPROVED_KEYS).toHaveLength(23);
+    for (const key of PHASE_1_APPROVED_KEYS) {
       expect(isValidPermissionKey(key), `مفتاح مفقود: ${key}`).toBe(true);
     }
+  });
+
+  it('VIEW_EMPLOYEE_SALARIES مصنّفة مؤجلة وتبقى في الكتالوج', () => {
+    expect(DEFERRED_PERMISSION_KEYS.has('VIEW_EMPLOYEE_SALARIES')).toBe(true);
+    expect(isValidPermissionKey('VIEW_EMPLOYEE_SALARIES')).toBe(true);
   });
 
   it('isValidPermissionKey يقبل المفاتيح المعروفة فقط', () => {
@@ -83,9 +89,21 @@ describe('computeEffectiveGrants', () => {
     });
     // صلاحيات المراقبة والخصوصية السبع محجوزة للمالك حتى مع
     // SUPER_ADMIN_FULL_ACCESS.
-    expect(countGranted(grants)).toBe(40);
+    // صلاحيات المراقبة والخصوصية السبع محجوزة للمالك، والصلاحية المؤجلة
+    // (الرواتب) لا تُمنح لأي حساب غير المالك => 39 بدل 47.
+    expect(countGranted(grants)).toBe(39);
     expect(grants.MONITOR_PRIVATE_MESSAGES).toBe(false);
     expect(grants.VIEW_SYSTEM_AUDIT_LOGS).toBe(false);
+    expect(grants.VIEW_EMPLOYEE_SALARIES).toBe(false);
+  });
+
+  it('الصلاحية المؤجلة VIEW_EMPLOYEE_SALARIES لا تُمنح حتى لو كُتبت في الوثيقة', () => {
+    const { grants } = computeEffectiveGrants({
+      role: 'user',
+      rbacDoc: { grants: { VIEW_EMPLOYEE_SALARIES: true } }
+    });
+    expect(grants.VIEW_EMPLOYEE_SALARIES).toBe(false);
+    expect(countGranted(grants)).toBe(0);
   });
 
   it('التجميد يسحب كل الصلاحيات حتى SUPER_ADMIN', () => {

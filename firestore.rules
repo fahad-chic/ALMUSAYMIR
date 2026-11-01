@@ -535,8 +535,9 @@ service cloud.firestore {
 
     // ============ الموظفون — الرواتب والملفات بصلاحيات مجهرة ============
     match /employees/{docId} {
+      // ملاحظة: صلاحية VIEW_EMPLOYEE_SALARIES مؤجلة (خارج نطاق المرحلة الأولى)،
+      // فلا تمنح قراءةً هنا. قراءة الموظفين متاحة للمالك أو صلاحيات الموظفين الفعلية.
       allow read: if isOwner()
-                  || hasPerm('VIEW_EMPLOYEE_SALARIES')
                   || hasPerm('ADD_NEW_EMPLOYEE')
                   || hasPerm('EDIT_EMPLOYEE_PROFILE')
                   || hasPerm('TRACK_EMPLOYEE_LIVE_SESSIONS');
@@ -725,9 +726,12 @@ service cloud.firestore {
       allow read, update, delete: if isOwner() || hasPerm('RECOVER_DELETED_ITEMS_ARCHIVE');
     }
 
-    // ============ أي وثيقة أخرى — للمالك فقط (وضع آمن) ============
+    // ============ أي وثيقة أخرى — قراءة للمالك فقط (وضع آمن) ============
+    // الكتابة لا تُمنح عشوائياً هنا: أي مجموعة بلا قاعدة صريحة تبقى مغلقة،
+    // وحتى المالك لا يمرّ عبر هذا المطاط لتعديل/حذف سجلات append-only
+    // (audit_logs) — فلا ثغرة تعديل سجل من المالك.
     match /{document=**} {
-      allow read, write: if isOwner();
+      allow read: if isOwner();
     }
   }
 }

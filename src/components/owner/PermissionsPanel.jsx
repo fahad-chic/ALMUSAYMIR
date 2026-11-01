@@ -225,6 +225,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
     try {
       const next = { ...rawGrants };
       for (const p of permissionsByCategory(categoryId)) {
+        if (permissionCatalog.DEFERRED_PERMISSION_KEYS?.has(p.key)) continue;
         if (enable) next[p.key] = true;
         else delete next[p.key];
       }
@@ -429,6 +430,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                 {categoryPerms.map((p) => {
                   const on = effective.grants[p.key] === true;
                   const saving = savingKey === p.key;
+                  const deferred = permissionCatalog.DEFERRED_PERMISSION_KEYS?.has(p.key) === true;
                   const ChipIcon = PERMISSION_ICONS[p.key] || Shield;
                   const chipColor =
                     CATEGORY_CHIP[activeCategory] ||
@@ -438,7 +440,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                       key={p.key}
                       className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3.5 transition-all duration-200 ${
                         on ? rowBgOn : rowBgOff
-                      } ${suspended ? 'opacity-50' : ''}`}
+                      } ${suspended || deferred ? 'opacity-50' : ''}`}
                     >
                       <div className="min-w-0 flex items-start gap-3">
                         <span
@@ -456,36 +458,43 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                             >
                               {p.key}
                             </code>
+                            {deferred && (
+                              <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-[var(--rz-primary)]/12 text-[var(--rz-primary)] border border-[var(--rz-primary)]/35">
+                                مؤجلة
+                              </span>
+                            )}
                           </p>
                           <p className={`text-xs ${textSub} leading-5 mt-0.5 font-medium`}>
-                            {p.desc}
+                            {deferred
+                              ? 'مؤجلة حتى تعيين موظفين فعلياً ووجود نظام رواتب — غير قابلة للمنح الآن.'
+                              : p.desc}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span className={`text-[11px] font-extrabold min-w-[3rem] text-center ${on ? 'text-[var(--rz-success)]' : 'text-[var(--rz-muted)]'}`}>
-                          {on ? 'تشغيل' : 'إيقاف'}
+                          {deferred ? 'مؤجلة' : on ? 'تشغيل' : 'إيقاف'}
                         </span>
                         <button
                           type="button"
                           role="switch"
-                          aria-checked={on}
+                          aria-checked={deferred ? false : on}
                           aria-label={`${on ? 'إيقاف' : 'تشغيل'} ${p.label}`}
-                          disabled={suspended || savingKey === 'bulk' || saving}
-                          onClick={() => handleToggle(p.key, !on)}
+                          disabled={suspended || deferred || savingKey === 'bulk' || saving}
+                          onClick={() => !deferred && handleToggle(p.key, !on)}
                           className={`relative w-12 h-7 rounded-full transition-colors ${
-                            on ? 'bg-[var(--rz-gold)]' : 'bg-[var(--rz-slate-300)]'
-                          } ${suspended ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            on && !deferred ? 'bg-[var(--rz-gold)]' : 'bg-[var(--rz-slate-300)]'
+                          } ${suspended || deferred ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                           <span
                             className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all flex items-center justify-center ${
-                              on ? 'right-1' : 'right-6'
+                              on && !deferred ? 'right-1' : 'right-6'
                             }`}
                           >
                             {saving ? (
                               <span className="w-3 h-3 border-2 border-[var(--rz-primary)] border-t-transparent rounded-full animate-spin" />
-                            ) : on ? (
+                            ) : on && !deferred ? (
                               <Check size={11} className="text-[var(--rz-primary)]" />
                             ) : (
                               <X size={11} className="text-[var(--rz-primary)]" />
