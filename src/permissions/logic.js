@@ -13,12 +13,22 @@ const OWNER_ONLY_PERMISSION_KEYS =
     'TRACK_FAILED_LOGINS',
     'MONITOR_USER_TRAFFIC_LIVE'
   ]);
+const DEFERRED_PERMISSION_KEYS = permissionCatalog.DEFERRED_PERMISSION_KEYS || new Set();
+const DISABLED_PERMISSION_KEYS = permissionCatalog.DISABLED_PERMISSION_KEYS || new Set();
+
+// صلاحية قابلة للمنح من الواجهة: ليست owner-only وليست مؤجلة وليست معطّلة.
+const isGrantableKey = (key) =>
+  !OWNER_ONLY_PERMISSION_KEYS.has(key) &&
+  !DEFERRED_PERMISSION_KEYS.has(key) &&
+  !DISABLED_PERMISSION_KEYS.has(key);
 
 // يحسب المصفوفة الفعّالة لحساب ما بناءً على دوره ووثيقة rbac الخاصة به.
-// - المالك (owner): كل الصلاحيات دائماً ولا يمكن تجميده أو سحبها منه.
-// - الحساب المجمّد (suspended): لا صلاحيات إطلاقاً مهما كانت منحه.
+// - المالك (owner): كل الصلاحيات دائماً ولا يمكن تجميده أو سحبه منه.
+// - الحساب المجمّد (suspended) أو المحظور (banned): لا صلاحيات إطلاقاً.
 // - SUPER_ADMIN_FULL_ACCESS: يفتح كل الصلاحيات الأخرى تلقائياً.
 // - أي منحة بمفتاح غير معروف في الكتالوج تُتجاهل (حماية من التلاعب بالبيانات).
+// ملاحظة: هذا حساب واجهة فقط — الفرض الإلزامي في قواعد Firestore (hasPerm)
+// التي تقرأ نفس الوثيقة من الخادم عند كل عملية.
 export const computeEffectiveGrants = ({ role, rbacDoc }) => {
   const grants = {};
   for (const key of PERMISSION_KEYS) grants[key] = false;
@@ -28,19 +38,19 @@ export const computeEffectiveGrants = ({ role, rbacDoc }) => {
     return { grants, suspended: false, isOwner: true };
   }
 
-  const suspended = rbacDoc?.suspended === true;
+  const suspended = rbacDoc?.suspended === true || rbacDoc?.banned === true;
   if (suspended) return { grants, suspended: true, isOwner: false };
 
   const raw = rbacDoc?.grants && typeof rbacDoc.grants === 'object' ? rbacDoc.grants : {};
   for (const key of PERMISSION_KEYS) {
     grants[key] =
-      !OWNER_ONLY_PERMISSION_KEYS.has(key) &&
+      isGrantableKey(key) &&
       raw[key] === true;
   }
 
   if (grants.SUPER_ADMIN_FULL_ACCESS) {
     for (const key of PERMISSION_KEYS) {
-      if (!OWNER_ONLY_PERMISSION_KEYS.has(key)) {
+      if (isGrantableKey(key)) {
         grants[key] = true;
       }
     }
@@ -50,11 +60,14 @@ export const computeEffectiveGrants = ({ role, rbacDoc }) => {
 };
 
 // يبني وثيقة منح نظيفة للكتابة في Firestore: مفاتيح معروفة فقط وقيم Boolean.
+// تُستثنى الصلاحيات المؤجلة والمعطّلة فلا تُكتب أبداً (لا تنفيذ ولا بيانات وهمية).
 export const sanitizeGrants = (input) => {
   const out = {};
   const raw = input && typeof input === 'object' ? input : {};
   for (const key of PERMISSION_KEYS) {
-    if (raw[key] === true) out[key] = true;
+    if (raw[key] === true && !DEFERRED_PERMISSION_KEYS.has(key) && !DISABLED_PERMISSION_KEYS.has(key)) {
+      out[key] = true;
+    }
   }
   return out;
 };

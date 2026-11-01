@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import ContactOwnerModal from './ContactOwnerModal';
 import { markManualSignOut, readKickLog, kickReasonLabel } from '../utils/kickLog';
+import { recordFailedLogin, recordLoginSuccess } from '../utils/authEvents';
 import '../styles/global.css';
 import '../styles/LoginNova.css';
 
@@ -368,6 +369,10 @@ const Login = () => {
 
       setSuccess('تم تسجيل الدخول بنجاح! جاري تحويلك...');
 
+      // سجل IP الحقيقي للعضو (يُشتق بريده من الرمز خادمياً) — لمراقبة
+      // VIEW_USER_IP_HISTORY في غرفة المالك. لا يُكسر الدخول إن فشل.
+      recordLoginSuccess();
+
       if (selectedRole === 'owner') {
         try {
           await handleOwnerBroadcast();
@@ -411,6 +416,16 @@ const Login = () => {
       }
 
       setError(msg);
+
+      // تسجيل محاولة الدخول الفاشلة خادمياً (IP الحقيقي) — يُقرأ لاحقاً في
+      // غرفة المالك عبر TRACK_FAILED_LOGINS. لا يُكسر الدخول إن فشل التسجيل.
+      if (
+        code === 'auth/invalid-credential' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/user-not-found'
+      ) {
+        recordFailedLogin(email.trim(), code);
+      }
     } finally {
       setLoading(false);
     }
@@ -566,6 +581,9 @@ const Login = () => {
           setSuccess(
             'تم تسجيل الدخول عبر Google بنجاح! '
           );
+
+          // سجل IP الحقيقي للعضو بعد إكمال دخول Google.
+          recordLoginSuccess();
 
           navigate('/');
         }

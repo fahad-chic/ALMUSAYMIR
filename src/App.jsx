@@ -29,6 +29,7 @@ import { startInlineStylesSync } from './store/useInlineStyles';
 import { startOffersSync } from './store/useOffers';
 import { notifyOwner, formatArTime } from './utils/visitorNotify';
 import { recordKick } from './utils/kickLog';
+import { startSessionTracking } from './store/useSessionTracking';
 
 import { Login } from './components/Login';
 import VerifyEmailGate from './components/VerifyEmailGate';
@@ -107,6 +108,7 @@ const AdvertisementsPage = safeLazy(() =>
   import('./pages/AdvertisementsPage')
 );
 const EmployeesPage = safeLazy(() => import('./pages/EmployeesPage'));
+const AdminRoom = safeLazy(() => import('./pages/AdminRoom'));
 const AboutPage = safeLazy(() => import('./pages/AboutPage'));
 const AIChat = safeLazy(() => import('./components/AIChat'));
 const AdDetailsPage = safeLazy(() => import('./pages/AdDetailsPage'));
@@ -162,6 +164,56 @@ const LoadingScreen = () => (
     }}
   >
     جاري التحميل...
+  </div>
+);
+
+/* شاشة «التسجيل مغلق»: حساب موثّق بلا عضوية فعّالة (رُفضت وثيقة users/{uid}
+   خادمياً لأن settings/registrationGate مغلق). لا يُعرض أي محتوى للمتجر. */
+const RegistrationClosedScreen = () => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 14,
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      padding: 24,
+      textAlign: 'center',
+      color: 'var(--rz-ink)',
+      fontFamily: 'Tajawal',
+      direction: 'rtl',
+    }}
+  >
+    <h2 style={{ margin: 0, fontWeight: 900 }}>التسجيل مغلق حالياً</h2>
+    <p style={{ margin: 0, color: 'var(--rz-muted)', lineHeight: 1.9 }}>
+      إنشاء العضويات الجديدة متوقف مؤقتاً. تواصل مع إدارة الموقع إذا كنت
+      تعتقد أن لديك حساباً فعّالاً.
+    </p>
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          const { signOut } = await import('firebase/auth');
+          await signOut(auth);
+        } catch {
+          /* غير حرج */
+        }
+        window.location.replace('/login');
+      }}
+      style={{
+        marginTop: 6,
+        padding: '10px 18px',
+        borderRadius: 10,
+        border: 'none',
+        cursor: 'pointer',
+        fontWeight: 800,
+        color: 'var(--rz-white)',
+        background: 'var(--rz-primary)',
+      }}
+    >
+      تسجيل الخروج
+    </button>
   </div>
 );
 
@@ -277,7 +329,7 @@ const UnauthorizedPage = () => {
    ========================================================= */
 
 const ProtectedRoute = ({ children, roleRequired }) => {
-  const { user, userRole, isAuthenticated } = useAuth();
+  const { user, userRole, isAuthenticated, membership } = useAuth();
   const guestSession = useStore((state) => state.guestSession);
 
   const liveAuth =
@@ -332,6 +384,12 @@ const ProtectedRoute = ({ children, roleRequired }) => {
       return children;
     }
     return <VerifyEmailGate />;
+  }
+
+  // عضو موثّق لكن بلا عضوية فعّالة (أُغلقت بوابة التسجيل فرُفضت وثيقة users)
+  // → لا محتوى. هذا انعكاس خادمي لحالة القواعد، وليس الحماية الوحيدة.
+  if (isVerifiedMember && membership === false) {
+    return <RegistrationClosedScreen />;
   }
 
   if (!isVerifiedMember) {
@@ -408,6 +466,14 @@ function AppContent() {
   const liveFirebaseUser = auth?.currentUser || user;
   const isVerifiedMember =
     !!liveFirebaseUser?.emailVerified && !liveFirebaseUser?.isAnonymous;
+
+  // تتبّع الجلسة الحيّة: نبضة دورية إلى sessions/{uid} تُظهر «من متصل الآن»
+  // في غرفة المالك (TRACK_EMPLOYEE_LIVE_SESSIONS). مراقبة فقط — بلا أي قدرة.
+  useEffect(() => {
+    if (!isVerifiedMember || !liveFirebaseUser?.uid) return undefined;
+    const stop = startSessionTracking(liveFirebaseUser.uid, userRole || 'user');
+    return () => stop();
+  }, [isVerifiedMember, liveFirebaseUser?.uid, userRole]);
 
   // ربط زر الإغلاق العام (❌) بمُوجّه react-router — فيتنقل خطوة للخلف
   // داخلياً دون إعادة تحميل أو مغادرة الموقع.
@@ -1485,6 +1551,18 @@ function AppContent() {
                     roleRequired="owner"
                   >
                     <AdminPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* غرفة المشرف — لغير المالك ممن يملك صلاحيات فعلية.
+                  الفتح مشروط بعضوية موثّقة، والأقسام تُفلتر بالصلاحيات
+                  (ومن لا يملك أي صلاحية يُحوَّل إلى /unauthorized). */}
+              <Route
+                path="/admin-room"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoom />
                   </ProtectedRoute>
                 }
               />

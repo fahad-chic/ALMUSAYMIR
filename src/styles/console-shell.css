@@ -1,0 +1,38 @@
+/* src/styles/console-shell.css — هيكل بصري مشترك لشاشات الإدارة (غرفة المشرف).
+   يعرّف فقط أصناف royal-* التي تستخدمها اللوحات المشتركة (ModerationPanels /
+   ContentPanels / MonitoringPanel) داخل حاوية .console-room — بلا تكرار لهوية
+   غرفة المالك كاملة ولا تعديل عليها. الألوان كلها من متغيّرات theme.css. */
+.console-room {
+  direction: rtl;
+  text-align: start;
+  background:
+    radial-gradient(circle at top right, rgba(var(--rz-primary-rgb), .16), transparent 32%),
+    radial-gradient(circle at bottom left, rgba(var(--rz-primary-rgb), .10), transparent 30%),
+    linear-gradient(160deg, var(--rz-ivory) 0%, var(--rz-ivory) 100%);
+  color: var(--rz-ink);
+}
+
+.console-room .royal-surface {
+  background: linear-gradient(165deg, rgba(var(--rz-ivory-rgb), .96), rgba(var(--rz-cream-4-rgb), .96));
+  border-color: rgba(var(--rz-primary-rgb), .28);
+  box-shadow: 0 10px 28px rgba(var(--rz-ink-rgb), .08);
+}
+
+.console-room .royal-surface p,
+.console-room .royal-surface h2,
+.console-room .royal-surface h3,
+.console-room .royal-surface h4 {
+  color: var(--rz-slate);
+  font-weight: 800;
+}
+
+.console-room .royal-text { color: var(--rz-ink); }
+.console-room .royal-muted { color: var(--rz-ink); }
+.console-room .royal-border { border-color: rgba(var(--rz-primary-rgb), .28); }
+
+.console-room .view-only-badge {
+  background: rgba(var(--rz-primary-rgb), .10);
+  color: var(--rz-ink);
+  border-color: rgba(var(--rz-primary-rgb), .25);
+  font-weight: 700;
+}

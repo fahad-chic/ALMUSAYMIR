@@ -4,7 +4,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import {
   Mail,
@@ -44,6 +44,7 @@ export const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [registrationClosed, setRegistrationClosed] = useState(false);
 
   const navigate = useNavigate();
   const store = useStore();
@@ -57,6 +58,19 @@ export const Register = () => {
         clearTimeout(redirectTimerRef.current);
       }
     };
+  }, []);
+
+  // قراءة بوابة التسجيل لعرض الحالة فقط. الفرض الفعلي خادمي: عند الإغلاق
+  // ترفض قواعد Firestore إنشاء وثيقة العضوية users/{uid}، فلا عضوية ولا فتح موقع.
+  useEffect(() => {
+    let alive = true;
+    if (!db) return undefined;
+    getDoc(doc(db, 'settings', 'registrationGate'))
+      .then((snap) => {
+        if (alive) setRegistrationClosed(snap.exists() && snap.data().blocked === true);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
   }, []);
 
   const showError = (message) => {
@@ -89,6 +103,9 @@ export const Register = () => {
         break;
       case 'auth/too-many-requests':
         showError('تمت محاولات كثيرة، يرجى الانتظار قليلًا ثم المحاولة مجددًا');
+        break;
+      case 'permission-denied':
+        showError('التسجيل مغلق حالياً — إنشاء العضويات الجديدة متوقف مؤقتاً.');
         break;
       default:
         showError(err?.message || 'حدث خطأ أثناء إنشاء الحساب');
@@ -142,6 +159,11 @@ export const Register = () => {
 
     setError('');
     setSuccess('');
+
+    if (registrationClosed) {
+      showError('التسجيل مغلق حالياً — إنشاء العضويات الجديدة متوقف مؤقتاً.');
+      return;
+    }
 
     const normalizedName = name.trim();
     const normalizedEmail = email.trim().toLowerCase();
@@ -217,6 +239,13 @@ export const Register = () => {
 
         <h1 style={title}>إنشاء حساب جديد</h1>
         <p style={subtitle}>انضم إلى المسيمير | ALMUSAYMIR</p>
+
+        {registrationClosed && (
+          <div style={alertError} role="alert">
+            <AlertCircle size={18} aria-hidden="true" />
+            <span>التسجيل مغلق حالياً — إنشاء العضويات الجديدة متوقف مؤقتاً.</span>
+          </div>
+        )}
 
         {error && (
           <div style={alertError} role="alert">

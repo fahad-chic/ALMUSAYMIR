@@ -1,5 +1,5 @@
 // src/permissions/catalog.js — مصفوفة الصلاحيات المجهرية (Granular Micro-Permissions)
-// 47 صلاحية موزعة على 7 أقسام. المنح الفعلية تُخزَّن في Firestore (rbac/{uid})
+// 61 صلاحية موزعة على 9 أقسام. المنح الفعلية تُخزَّن في Firestore (rbac/{uid})
 // ولا تُقرأ إلا لصاحبها أو المالك، والكتابة عليها للمالك فقط عبر قواعد الأمان —
 // إظهار/إخفاء الأزرار في الواجهة مجرد راحة استخدام، والفرض الحقيقي يتم في
 // الخادم (Security Rules) عند كل عملية قراءة/كتابة.
@@ -12,6 +12,8 @@ export const PERMISSION_CATEGORIES = [
   { id: 'staff', label: 'التوزيع والتحكم بالمشرفين والموظفين', icon: 'UserCheck' },
   { id: 'spy', label: 'مراقبة التحركات الشاملة والخصوصية', icon: 'Eye' },
   { id: 'inline', label: 'التعديل المباشر في نفس العنصر', icon: 'Pencil' },
+  { id: 'content', label: 'الكتالوج والمحتوى', icon: 'LayoutGrid' },
+  { id: 'comms', label: 'التواصل والدعم والبلاغات', icon: 'MessageSquare' },
 ];
 
 export const PERMISSIONS = [
@@ -75,6 +77,26 @@ export const PERMISSIONS = [
   { key: 'INLINE_BOX_SHAPE_MOD', category: 'inline', label: 'تعديل شكل المربع', desc: 'انحناء الحواف، تحويل لدائرة، أو إضافة ظلال للعنصر.' },
   { key: 'INLINE_TICKER_CONTROL', category: 'inline', label: 'التحكم بالشريط المتحرك', desc: 'تعديل الجمل المتحركة وتسريع أو إبطاء الحركة وتغيير اللون.' },
   { key: 'INLINE_ELEMENT_DELETE', category: 'inline', label: 'إخفاء عنصر', desc: 'زر حذف مجهري يخفي الكلمة أو الزر تماماً عن واجهة الزوار.' },
+
+  // ===== القسم الثامن: الكتالوج والمحتوى (المرحلة الثانية) =====
+  { key: 'MANAGE_CATEGORIES', category: 'content', label: 'إدارة التصنيفات', desc: 'إضافة وتعديل وحذف تصنيفات الحراج والكتالوج، مع أرشفة قبل الحذف.' },
+  { key: 'MANAGE_SITE_BANNERS', category: 'content', label: 'إدارة البنرات', desc: 'إنشاء وتعديل وإخفاء البنرات مع ترتيب وتاريخ بداية ونهاية.' },
+  { key: 'MANAGE_FEATURED_CONTENT', category: 'content', label: 'تمييز المحتوى', desc: 'تمييز المنتجات أو الإعلانات في الصفحة الرئيسية مع تاريخ انتهاء.' },
+  { key: 'MANAGE_MEDIA_LIBRARY', category: 'content', label: 'مكتبة الوسائط', desc: 'عرض الملفات المرفوعة وحذف غير المستخدم منها فقط.' },
+
+  // ===== القسم التاسع: التواصل والدعم والبلاغات (المرحلة الثانية) =====
+  { key: 'MANAGE_REPORTS', category: 'comms', label: 'إدارة البلاغات', desc: 'عرض البلاغات وتغيير حالتها وإضافة سبب المعالجة مع تسجيل المنفذ والوقت.' },
+  { key: 'MANAGE_NOTIFICATIONS', category: 'comms', label: 'إدارة التنبيهات', desc: 'إنشاء التنبيهات وتعديلها وإخفاؤها وحذفها وتحديد الجمهور ووقت الظهور.' },
+  { key: 'MANAGE_REVIEWS', category: 'comms', label: 'إدارة التقييمات', desc: 'مراجعة تقييمات العملاء وإخفاء المخالف أو إعادته مع سبب الإجراء.' },
+  { key: 'MANAGE_FAQ_CONTENT', category: 'comms', label: 'إدارة الأسئلة الشائعة', desc: 'إضافة وتعديل وحذف وترتيب الأسئلة الشائعة.' },
+  { key: 'MANAGE_SUPPORT_TICKETS', category: 'comms', label: 'طلبات الدعم', desc: 'عرض طلبات الدعم وتغيير حالتها وإسنادها لمشرف.' },
+  { key: 'MANAGE_CONTACT_MESSAGES', category: 'comms', label: 'رسائل تواصل معنا', desc: 'إدارة رسائل «تواصل معنا» وتغيير حالتها وإضافة ملاحظة داخلية.' },
+
+  // ===== القسم العاشر: النظام والتقارير (المرحلة الثانية) =====
+  { key: 'EXPORT_AUDIT_REPORTS', category: 'spy', label: 'تصدير تقارير التدقيق', desc: 'تصدير سجل التدقيق بصيغة CSV للمالك فقط، مع تسجيل عملية التصدير.' },
+  { key: 'VIEW_SYSTEM_HEALTH', category: 'master', label: 'حالة النظام', desc: 'عرض حالة الخدمات الأساسية وآخر فحص (قراءة فقط).' },
+  { key: 'MANAGE_HOMEPAGE_SECTIONS', category: 'master', label: 'أقسام الصفحة الرئيسية', desc: 'ترتيب أقسام الرئيسية وإظهارها أو إخفائها.' },
+  { key: 'MANAGE_REDIRECTS', category: 'master', label: 'إدارة التحويلات', desc: 'إدارة التحويلات الداخلية للروابط القديمة.' },
 ];
 
 export const PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
@@ -91,6 +113,51 @@ export const OWNER_ONLY_PERMISSION_KEYS = new Set([
   'TRACK_FAILED_LOGINS',
   'MONITOR_USER_TRAFFIC_LIVE',
 ]);
+
+// صلاحيات مؤجلة: تبقى في الكتالوج لكنها خارج نطاق التنفيذ الحالي.
+// لا تُمنح من الواجهة ولا تُنفَّذ حتى تتوفر الحاجة الفعلية (لا شاشة ولا بيانات وهمية).
+// - VIEW_EMPLOYEE_SALARIES: لا موظفون/رواتب فعليون بعد.
+// - CUSTOMIZE_CATALOG_LAYOUT: تفضيل عرض محلي لا يفرضه الخادم.
+// - MONITOR_USER_TRAFFIC_LIVE: يتطلب متتبّع زوار وسياسة خصوصية.
+// - MANAGE_FAQ_CONTENT: الأسئلة مثبّتة في الكود بلا مجموعة بيانات.
+// - MANAGE_SUPPORT_TICKETS / VIEW_SYSTEM_HEALTH / MANAGE_HOMEPAGE_SECTIONS /
+//   MANAGE_REDIRECTS: لا بيانات ولا واجهة فعلية في المشروع.
+// - MANAGE_CONTACT_MESSAGES: نموذج التواصل يكتب في messages المشتركة بلا حقل حالة.
+// - MANAGE_MEDIA_LIBRARY: لا تتبّع للملفات «غير المستخدمة» في البيانات.
+// - MANAGE_FEATURED_CONTENT: لا حقول featured/featuredUntil محفوظة على المنتجات/الإعلانات.
+// - EXPORT_AUDIT_REPORTS: لا عملية تصدير فعلية (لا CSV/تنزيل) — يبقى للمالك وحده
+//   عبر قواعد القراءة، فلا يُمنح كمفتاح مستقل.
+export const DEFERRED_PERMISSION_KEYS = new Set([
+  'VIEW_EMPLOYEE_SALARIES',
+  'CUSTOMIZE_CATALOG_LAYOUT',
+  'MONITOR_USER_TRAFFIC_LIVE',
+  'MANAGE_FAQ_CONTENT',
+  'MANAGE_SUPPORT_TICKETS',
+  'MANAGE_CONTACT_MESSAGES',
+  'MANAGE_MEDIA_LIBRARY',
+  'MANAGE_FEATURED_CONTENT',
+  'MANAGE_HOMEPAGE_SECTIONS',
+  'MANAGE_REDIRECTS',
+  'VIEW_SYSTEM_HEALTH',
+  // EXPORT_AUDIT_REPORTS: لا يوجد زر تصدير فعلي (لا CSV ولا تنزيل) — القراءة
+  // نفسها owner-only في القواعد، فلا قدرة مستقلة. يبقى مؤجلاً حتى تنفيذ تصدير حقيقي.
+  'EXPORT_AUDIT_REPORTS',
+]);
+
+// صلاحيات معطّلة نهائياً: تبقى في الكتالوج للتوثيق فقط، ولا تُمنح ولا تُنفَّذ
+// ولا تفتح أي قدرة على الخادم تحت أي اسم. BYPASS_FIREBASE_RULES تعارض حماية
+// القواعد، وCODE_SNIPPET_INJECTION تفتح حقن أكواد غير موثوق — كلاهما مرفوض.
+export const DISABLED_PERMISSION_KEYS = new Set([
+  'BYPASS_FIREBASE_RULES',
+  'CODE_SNIPPET_INJECTION',
+]);
+
+export const isDeferredPermissionKey = (key) => DEFERRED_PERMISSION_KEYS.has(key);
+export const isDisabledPermissionKey = (key) => DISABLED_PERMISSION_KEYS.has(key);
+
+// صلاحية قابلة للمنح فعلاً: ليست مؤجلة ولا معطّلة.
+export const isGrantablePermissionKey = (key) =>
+  !DEFERRED_PERMISSION_KEYS.has(key) && !DISABLED_PERMISSION_KEYS.has(key);
 
 const BY_KEY = new Map(PERMISSIONS.map((p) => [p.key, p]));
 

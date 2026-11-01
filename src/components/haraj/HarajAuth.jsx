@@ -6,12 +6,15 @@ import { colorAlpha } from '../../utils/color';
 import {
   collection,
   addDoc,
+  setDoc,
+  doc,
   getDocs,
   query,
   where,
   limit,
   serverTimestamp,
 } from 'firebase/firestore';
+import { logHarajDuplicate, logHarajLoginMismatch } from '../../utils/harajSecurity';
 
 // توحيد صيغة رقم الجوال (إزالة الفراغات والرموز)
 const normalizePhone = (raw) => String(raw || '').replace(/[\s\-()+]/g, '').trim();
@@ -76,6 +79,20 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
         setLoading(false);
         return;
       }
+      // رقم الجوال وحده ليس وسيلة دخول: يجب أن يطابق الرقم ملف الحساب الحالي
+      // (authUid). من يدخل برقم شخص آخر يُرفض ويُسجَّل الحدث وينبَّه المالك.
+      const currentUid = auth?.currentUser?.uid;
+      if (existing.authUid && existing.authUid !== currentUid) {
+        await logHarajLoginMismatch({
+          uid: currentUid,
+          email: auth?.currentUser?.email,
+          phone: cleanPhone,
+          ownerAuthUid: existing.authUid,
+        });
+        setError('هذا الرقم مرتبط بحساب آخر. سجّل الدخول من حسابك الأصلي.');
+        setLoading(false);
+        return;
+      }
       const userData = {
         uid: existing.uid,
         name: existing.name || 'مستخدم',
@@ -122,11 +139,28 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
         setLoading(false);
         return;
       }
+      // ملف حراج واحد لكل حساب Firebase (فهرس التفرد يمنع الثاني في القواعد).
+      const uid = auth.currentUser.uid;
+      const ownIndex = await getDocs(
+        query(collection(db, 'haraj_uid_index'), where('__name__', '==', uid), limit(1))
+      );
+      if (!ownIndex.empty) {
+        await logHarajDuplicate({ uid, email: auth.currentUser.email, phone: cleanPhone });
+        setError('لديك ملف حراج بالفعل لهذا الحساب.');
+        setLoading(false);
+        return;
+      }
       const ref = await addDoc(collection(db, 'haraj_users'), {
         name: cleanName,
         phone: cleanPhone,
         email: '',
         region: '',
+        authUid: uid,
+        createdAt: serverTimestamp(),
+      });
+      await setDoc(doc(db, 'haraj_uid_index', uid), {
+        phone: cleanPhone,
+        harajUserId: ref.id,
         createdAt: serverTimestamp(),
       });
       const userData = {
@@ -143,7 +177,17 @@ export default function HarajAuth({ isOpen, onClose, onSuccess, onCreateAccount 
       onClose?.();
     } catch (e) {
       console.error('haraj register error:', e);
-      setError('تعذّر إنشاء الحساب حالياً. تحقق من الاتصال وحاول مرة أخرى.');
+      if (e?.code === 'permission-denied') {
+        await logHarajDuplicate({
+          uid: auth?.currentUser?.uid,
+          email: auth?.currentUser?.email,
+          phone: normalizePhone(phone),
+          reason: 'رفضت القواعد إنشاء ملف حراج (تكرار أو عدم تطابق authUid)',
+        });
+        setError('لديك ملف حراج بالفعل لهذا الحساب.');
+      } else {
+        setError('تعذّر إنشاء الحساب حالياً. تحقق من الاتصال وحاول مرة أخرى.');
+      }
       setLoading(false);
     }
   };

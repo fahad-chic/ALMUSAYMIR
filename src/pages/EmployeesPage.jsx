@@ -1,8 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { AdminContext } from '../context/AdminContext';
-import { Plus, RotateCcw, Shield, X } from 'lucide-react';
+import { Plus, RotateCcw, Shield, X, Pencil } from 'lucide-react';
+import { db, doc, updateDoc, serverTimestamp, auth } from '../firebase';
 import usePermissions from '../permissions/usePermissions';
 import { requirePerm } from '../permissions/rbacService';
+import { writeAuditLog } from '../permissions/audit';
 
 export const EmployeesPage = () => {
   const { can, isOwner } = usePermissions();
@@ -17,12 +19,60 @@ export const EmployeesPage = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState('active');
+  const [editing, setEditing] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', role: 'موظف', branch: 1 });
+  const [editBusy, setEditBusy] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     role: 'موظف',
     branch: 1,
   });
+
+  // تعديل ملف موظف — يُفرض خادمياً بقاعدة employees (EDIT_EMPLOYEE_PROFILE)
+  // ولا يُسمح بتغيير الدور/الفرع إلا بالمفتاح المخصّص. يُسجَّل في audit_logs.
+  const openEdit = (employee) => {
+    setEditing(employee);
+    setEditForm({
+      name: employee.name || '',
+      role: employee.role || 'موظف',
+      branch: Number.isFinite(Number(employee.branch)) ? Number(employee.branch) : 1,
+    });
+  };
+
+  const saveEmployeeEdit = async (e) => {
+    e.preventDefault();
+    if (!editing || editBusy) return;
+    const name = String(editForm.name || '').trim();
+    const branch = Number(editForm.branch);
+    if (!name || !Number.isInteger(branch) || branch < 1) return;
+
+    setEditBusy(true);
+    try {
+      await requirePerm(can, 'EDIT_EMPLOYEE_PROFILE', 'تعديل ملف موظف', editing.id);
+      await updateDoc(doc(db, 'employees', editing.id), {
+        name,
+        role: editForm.role || 'موظف',
+        branch,
+        updatedAt: serverTimestamp(),
+        updatedBy: auth?.currentUser?.uid || null,
+      });
+      await writeAuditLog({
+        action: 'EDIT_EMPLOYEE_PROFILE',
+        permissionKey: 'EDIT_EMPLOYEE_PROFILE',
+        targetType: 'employee',
+        targetId: editing.id,
+        result: 'success',
+        details: `تعديل ملف الموظف: ${name} (${editForm.role} / فرع ${branch})`,
+        severity: 'high',
+      });
+      setEditing(null);
+    } catch (err) {
+      alert(err?.code === 'no-permission' ? err.message : 'تعذر تعديل ملف الموظف');
+    } finally {
+      setEditBusy(false);
+    }
+  };
 
   const handleAddEmployee = async (e) => {
     e.preventDefault();
@@ -46,6 +96,16 @@ export const EmployeesPage = () => {
       name,
       email,
       branch,
+    });
+
+    await writeAuditLog({
+      action: 'ADD_NEW_EMPLOYEE',
+      permissionKey: 'ADD_NEW_EMPLOYEE',
+      targetType: 'employee',
+      targetId: email,
+      result: 'success',
+      details: `إضافة موظف جديد: ${name} (${email})`,
+      severity: 'high',
     });
 
     setFormData({ name: '', email: '', role: 'موظف', branch: 1 });
@@ -393,6 +453,17 @@ export const EmployeesPage = () => {
                       <td><span className="status-badge status-active">نشط</span></td>
                       <td>
                         <div className="action-cell">
+                          {can('EDIT_EMPLOYEE_PROFILE') && (
+                            <button
+                              type="button"
+                              className="action-btn"
+                              style={{ background: 'var(--rz-ink)', color: 'var(--rz-ivory)' }}
+                              onClick={() => openEdit(employee)}
+                            >
+                              <Pencil size={16} />
+                              تعديل
+                            </button>
+                          )}
                           <button
                             type="button"
                             className="action-btn action-btn-ban"
@@ -534,6 +605,97 @@ export const EmployeesPage = () => {
 
                 <button type="submit" className="modal-btn modal-btn-submit">
                   إضافة الموظف
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editing && (
+        <div className="modal-overlay" onClick={() => setEditing(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+              <span>تعديل ملف الموظف</span>
+              <button
+                type="button"
+                onClick={() => setEditing(null)}
+                aria-label="إغلاق"
+                style={{
+                  background: 'rgba(var(--rz-ink-rgb), 0.06)',
+                  border: 'none',
+                  borderRadius: 8,
+                  width: 30,
+                  height: 30,
+                  flex: '0 0 30px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'var(--rz-white)',
+                }}
+              >
+                <X size={17} />
+              </button>
+            </div>
+
+            <form onSubmit={saveEmployeeEdit}>
+              <div className="form-group">
+                <label>اسم الموظف</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" value={editing.email || ''} disabled readOnly />
+              </div>
+
+              <div className="form-group">
+                <label>الوظيفة</label>
+                <select
+                  value={editForm.role}
+                  onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                >
+                  <option>موظف</option>
+                  <option>مدير فرع</option>
+                  <option>مسؤول نظام</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>رقم الفرع</label>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={editForm.branch}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setEditForm({
+                      ...editForm,
+                      branch: value === '' ? '' : Number(value),
+                    });
+                  }}
+                  required
+                />
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="modal-btn modal-btn-cancel"
+                  onClick={() => setEditing(null)}
+                >
+                  إلغاء
+                </button>
+
+                <button type="submit" className="modal-btn modal-btn-submit" disabled={editBusy}>
+                  {editBusy ? '...' : 'حفظ التعديل'}
                 </button>
               </div>
             </form>

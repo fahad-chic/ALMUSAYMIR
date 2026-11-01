@@ -41,6 +41,8 @@ import {
 } from 'lucide-react';
 import usePermissions from '../permissions/usePermissions';
 import { requirePerm, showIfCan } from '../permissions/rbacService';
+import { writeAuditLog } from '../permissions/audit';
+import { archiveAndDelete } from '../utils/archive';
 import { useAuth } from '../context/AuthContext';
 
 const ADMIN_NUMBER = '0536667222';
@@ -75,7 +77,19 @@ export default function AdDetailsPage() {
     if (!window.confirm('تأكيد حذف هذا الإعلان؟')) return;
     try {
       await requirePerm(can, 'HARAJ_POST_DELETE', 'حذف إعلان حراج', ad.id);
-      await deleteDoc(doc(db, 'haraj_ads', ad.id));
+      await archiveAndDelete('haraj_ads', ad.id, ad, {
+        uid: authUser?.uid,
+        email: authUser?.email,
+      });
+      await writeAuditLog({
+        action: 'HARAJ_POST_DELETE',
+        permissionKey: 'HARAJ_POST_DELETE',
+        targetType: 'haraj_ad',
+        targetId: ad.id,
+        result: 'success',
+        details: 'حذف إعلان حراج من صفحة التفاصيل',
+        severity: 'high',
+      });
       window.history.back();
     } catch (e) {
       alert(e?.message || 'تعذر الحذف');

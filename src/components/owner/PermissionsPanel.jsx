@@ -12,7 +12,7 @@ import {
   PenLine, ArrowLeftRight, FolderUp, FolderX, BadgeDollarSign, LayoutGrid, Tags,
   UserPlus, UserCog, KeyRound, Wallet, ScrollText, Radio, Archive,
   ShieldAlert, ScanEye, Palette, CaseSensitive, Image, SlidersHorizontal,
-  Box, Repeat, EyeOff, MessageSquare
+  Box, Repeat, EyeOff, MessageSquare, HelpCircle, Flag, Activity
 } from 'lucide-react';
 import * as permissionCatalog from '../../permissions/catalog';
 import {
@@ -97,6 +97,23 @@ const PERMISSION_ICONS = {
   INLINE_BOX_SHAPE_MOD: Box,
   INLINE_TICKER_CONTROL: Repeat,
   INLINE_ELEMENT_DELETE: EyeOff,
+  // content
+  MANAGE_CATEGORIES: Tags,
+  MANAGE_SITE_BANNERS: Image,
+  MANAGE_FEATURED_CONTENT: Star,
+  MANAGE_MEDIA_LIBRARY: FolderUp,
+  // comms
+  MANAGE_REPORTS: Flag,
+  MANAGE_NOTIFICATIONS: Radio,
+  MANAGE_REVIEWS: Star,
+  MANAGE_FAQ_CONTENT: HelpCircle,
+  MANAGE_SUPPORT_TICKETS: MessageSquare,
+  MANAGE_CONTACT_MESSAGES: MessageSquare,
+  // system
+  EXPORT_AUDIT_REPORTS: ScrollText,
+  VIEW_SYSTEM_HEALTH: Activity,
+  MANAGE_HOMEPAGE_SECTIONS: LayoutGrid,
+  MANAGE_REDIRECTS: Repeat,
 };
 
 // لون هدية الأيقونة حسب القسم — درجات بيج وذهبي دافئة متناسقة مع خلفية var(--rz-ivory)
@@ -108,6 +125,8 @@ const CATEGORY_CHIP = {
   staff: 'bg-[var(--rz-role-staff-bg)] text-[var(--rz-slate)] border-[var(--rz-role-staff-line)]',
   spy: 'bg-[var(--rz-role-spy-bg)] text-[var(--rz-slate)] border-[var(--rz-role-spy-line)]',
   inline: 'bg-[var(--rz-cream-8)] text-[var(--rz-slate)] border-[var(--rz-slate-300)]',
+  content: 'bg-[var(--rz-role-catalog-bg)] text-[var(--rz-slate)] border-[var(--rz-role-catalog-line)]',
+  comms: 'bg-[var(--rz-role-haraj-bg)] text-[var(--rz-slate)] border-[var(--rz-role-haraj-line)]',
 };
 
 // يطابق شكل الكتالوج الأصلي: cat.icon قد يكون اسم الأيقونة أو المعرف
@@ -120,6 +139,8 @@ const CATEGORY_ICONS = {
   staff: UserCheck,
   spy: Eye,
   inline: Pencil,
+  content: LayoutGrid,
+  comms: MessageSquare,
 };
 
 // البريدان المعتمدان فقط — لا يظهر أي بريد آخر في النظام
@@ -225,6 +246,8 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
     try {
       const next = { ...rawGrants };
       for (const p of permissionsByCategory(categoryId)) {
+        if (permissionCatalog.DEFERRED_PERMISSION_KEYS?.has(p.key)) continue;
+        if (permissionCatalog.DISABLED_PERMISSION_KEYS?.has(p.key)) continue;
         if (enable) next[p.key] = true;
         else delete next[p.key];
       }
@@ -267,7 +290,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
         <h3 className={`font-bold flex items-center gap-2 mb-2 ${textMain} text-base md:text-lg`}>
           <Shield size={20} className="text-[var(--rz-primary)]" />
           مصفوفة الصلاحيات المجهرية{' '}
-          <span className="text-[var(--rz-primary)]">(47 صلاحية)</span>
+          <span className="text-[var(--rz-primary)]">({PERMISSIONS.length} صلاحية)</span>
         </h3>
         <p className={`text-sm ${textSub} leading-6 font-medium`}>
           اختر حساب مشرف أو موظف ثم شغّل أو أوقف كل صلاحية مباشرة.
@@ -429,6 +452,9 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                 {categoryPerms.map((p) => {
                   const on = effective.grants[p.key] === true;
                   const saving = savingKey === p.key;
+                  const deferred = permissionCatalog.DEFERRED_PERMISSION_KEYS?.has(p.key) === true;
+                  const disabled = permissionCatalog.DISABLED_PERMISSION_KEYS?.has(p.key) === true;
+                  const locked = deferred || disabled;
                   const ChipIcon = PERMISSION_ICONS[p.key] || Shield;
                   const chipColor =
                     CATEGORY_CHIP[activeCategory] ||
@@ -438,7 +464,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                       key={p.key}
                       className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3.5 transition-all duration-200 ${
                         on ? rowBgOn : rowBgOff
-                      } ${suspended ? 'opacity-50' : ''}`}
+                      } ${suspended || locked ? 'opacity-50' : ''}`}
                     >
                       <div className="min-w-0 flex items-start gap-3">
                         <span
@@ -456,36 +482,50 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                             >
                               {p.key}
                             </code>
+                            {disabled && (
+                              <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-[var(--rz-ink)]/15 text-[var(--rz-ink)] border border-[var(--rz-ink)]/35">
+                                معطّلة نهائياً
+                              </span>
+                            )}
+                            {deferred && !disabled && (
+                              <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-[var(--rz-primary)]/12 text-[var(--rz-primary)] border border-[var(--rz-primary)]/35">
+                                مؤجلة
+                              </span>
+                            )}
                           </p>
                           <p className={`text-xs ${textSub} leading-5 mt-0.5 font-medium`}>
-                            {p.desc}
+                            {disabled
+                              ? 'معطّلة نهائياً: تتعارض مع حماية القواعد أو تفتح حقن أكواد غير موثوق — لا تُمنح ولا تُنفَّذ.'
+                              : deferred
+                                ? 'مؤجلة حتى تتوفر وظيفة حقيقية لها في المشروع — غير قابلة للمنح الآن (لا شاشة ولا بيانات وهمية).'
+                                : p.desc}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span className={`text-[11px] font-extrabold min-w-[3rem] text-center ${on ? 'text-[var(--rz-success)]' : 'text-[var(--rz-muted)]'}`}>
-                          {on ? 'تشغيل' : 'إيقاف'}
+                          {disabled ? 'معطّلة' : deferred ? 'مؤجلة' : on ? 'تشغيل' : 'إيقاف'}
                         </span>
                         <button
                           type="button"
                           role="switch"
-                          aria-checked={on}
+                          aria-checked={locked ? false : on}
                           aria-label={`${on ? 'إيقاف' : 'تشغيل'} ${p.label}`}
-                          disabled={suspended || savingKey === 'bulk' || saving}
-                          onClick={() => handleToggle(p.key, !on)}
+                          disabled={suspended || locked || savingKey === 'bulk' || saving}
+                          onClick={() => !locked && handleToggle(p.key, !on)}
                           className={`relative w-12 h-7 rounded-full transition-colors ${
-                            on ? 'bg-[var(--rz-gold)]' : 'bg-[var(--rz-slate-300)]'
-                          } ${suspended ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            on && !locked ? 'bg-[var(--rz-gold)]' : 'bg-[var(--rz-slate-300)]'
+                          } ${suspended || locked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                           <span
                             className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all flex items-center justify-center ${
-                              on ? 'right-1' : 'right-6'
+                              on && !locked ? 'right-1' : 'right-6'
                             }`}
                           >
                             {saving ? (
                               <span className="w-3 h-3 border-2 border-[var(--rz-primary)] border-t-transparent rounded-full animate-spin" />
-                            ) : on ? (
+                            ) : on && !locked ? (
                               <Check size={11} className="text-[var(--rz-primary)]" />
                             ) : (
                               <X size={11} className="text-[var(--rz-primary)]" />
