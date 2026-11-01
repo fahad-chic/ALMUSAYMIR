@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { sanitizeGrants } from './logic';
+import { writeAuditLog } from './audit';
 
 export const RBAC_COLLECTION = 'rbac';
 
@@ -63,6 +64,15 @@ export const setUserGrants = async (targetUid, grantsInput, extra = {}) => {
     },
     { merge: true }
   );
+  await writeAuditLog({
+    action: 'SET_USER_GRANTS',
+    permissionKey: 'GRANT_SUB_ADMIN_PERMISSIONS',
+    targetType: 'rbac',
+    targetId: targetUid,
+    result: 'success',
+    details: `كتابة مصفوفة صلاحيات كاملة للحساب ${targetUid}`,
+    severity: 'high',
+  });
   return grants;
 };
 
@@ -84,6 +94,15 @@ export const toggleGrant = async (targetUid, key, enabled, currentGrants = {}) =
     `${enabled ? 'منح' : 'سحب'} صلاحية ${key} ${enabled ? 'إلى' : 'من'} الحساب ${targetUid}`,
     'medium'
   );
+  await writeAuditLog({
+    action: enabled ? 'PERMISSION_GRANTED' : 'PERMISSION_REVOKED',
+    permissionKey: key,
+    targetType: 'rbac',
+    targetId: targetUid,
+    result: 'success',
+    details: `${enabled ? 'منح' : 'سحب'} الصلاحية ${key}`,
+    severity: 'high',
+  });
   return next;
 };
 
@@ -111,6 +130,15 @@ export const setSuspended = async (targetUid, suspended) => {
     `${isSuspended ? 'تجميد' : 'إعادة تفعيل'} حساب المشرف ${targetUid}`,
     'high'
   );
+  await writeAuditLog({
+    action: isSuspended ? 'SUB_ADMIN_SUSPENDED' : 'SUB_ADMIN_RESTORED',
+    permissionKey: 'SUSPEND_SUB_ADMIN_ACCOUNT',
+    targetType: 'rbac',
+    targetId: targetUid,
+    result: 'success',
+    details: isSuspended ? 'تجميد حساب مشرف وسحب كل صلاحياته' : 'إعادة تفعيل حساب مشرف',
+    severity: 'high',
+  });
 };
 
 /** يُستدعى عند رفض Firestore عملية (permission-denied) */
@@ -120,6 +148,14 @@ export const reportPermissionViolation = async (action, target) => {
     `محاولة تنفيذ مرفوضة من الخادم: ${action} على ${target} — تلاعب محتمل بكود المتصفح`,
     'high'
   );
+  await writeAuditLog({
+    action: 'PERMISSION_VIOLATION',
+    targetType: 'server',
+    targetId: String(target || '-'),
+    result: 'denied',
+    details: `رفض الخادم العملية: ${action || '-'} على ${target || '-'}`,
+    severity: 'high',
+  });
 };
 
 /**
@@ -134,16 +170,44 @@ export const guardedAction = async ({ can, permissionKey, action, target, run })
       `محاولة ${action || permissionKey} على ${target || '-'} بدون صلاحية ${permissionKey}`,
       'high'
     );
+    await writeAuditLog({
+      action: action || permissionKey || 'UNKNOWN_ACTION',
+      permissionKey: permissionKey || '',
+      targetType: 'action',
+      targetId: String(target || '-'),
+      result: 'denied',
+      details: `محاولة محجوبة محلياً لعدم وجود صلاحية ${permissionKey}`,
+      severity: 'high',
+    });
     throw new Error('لا تملك هذه الصلاحية — تم تسجيل المحاولة');
   }
   try {
-    return await run();
+    const outcome = await run();
+    await writeAuditLog({
+      action: action || permissionKey || 'UNKNOWN_ACTION',
+      permissionKey: permissionKey || '',
+      targetType: 'action',
+      targetId: String(target || '-'),
+      result: 'success',
+      details: `تم تنفيذ ${action || permissionKey}`,
+      severity: 'info',
+    });
+    return outcome;
   } catch (err) {
     const code = err?.code || '';
     if (code === 'permission-denied' || /permission/i.test(String(code))) {
       await reportPermissionViolation(action || permissionKey, target || '-');
       throw new Error('رفض الخادم العملية — تم تسجيل المحاولة كحادثة أمنية');
     }
+    await writeAuditLog({
+      action: action || permissionKey || 'UNKNOWN_ACTION',
+      permissionKey: permissionKey || '',
+      targetType: 'action',
+      targetId: String(target || '-'),
+      result: 'error',
+      details: `فشل تنفيذ ${action || permissionKey}: ${err?.message || 'خطأ غير معروف'}`,
+      severity: 'medium',
+    });
     throw err;
   }
 };
@@ -170,6 +234,16 @@ export async function requirePerm(can, key, actionLabel = key, target = '-') {
   } catch {
     /* ignore */
   }
+
+  await writeAuditLog({
+    action: actionLabel || key || 'UNKNOWN_ACTION',
+    permissionKey: key || '',
+    targetType: 'action',
+    targetId: String(target || '-'),
+    result: 'denied',
+    details: `محاولة محجوبة لعدم وجود صلاحية ${key}`,
+    severity: 'high',
+  });
 
   const err = new Error(denyMessage(key));
   err.code = 'no-permission';

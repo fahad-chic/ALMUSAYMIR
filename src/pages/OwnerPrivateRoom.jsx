@@ -8,23 +8,29 @@ import {
   Search, Trash2, Ban, UserCheck, AlertTriangle, Check,
   X, ChevronDown, Lock, Unlock, Key, Activity, Monitor,
   TrendingUp, Crown, Settings, LogOut, RefreshCw,
-  Send, Star, Flag, Edit3, Save, UserRound, ClipboardList,
+  Send, Star, Flag, Edit3, Save, UserRound, ClipboardList, UserX,
   Radio, LayoutDashboard, BarChart3,
-  Gauge, Moon, Sun, ArrowRight
+  Gauge, Moon, Sun, ArrowRight,
+  BadgeCheck, ArrowLeftRight, RotateCcw
 } from 'lucide-react'
 import {
   auth, db,
   COLLECTIONS,
   collection, getDocs, addDoc, updateDoc, deleteDoc,
-  doc, query, where, orderBy, onSnapshot, serverTimestamp
+  doc, query, where, orderBy, onSnapshot, serverTimestamp, Timestamp
 } from '../firebase'
 import OwnerGatekeeper from '../components/owner/OwnerGatekeeper'
 import PermissionsPanel from '../components/owner/PermissionsPanel'
 import CommentsReviewPanel from '../components/owner/CommentsReviewPanel'
 import OwnerConsoleMenu from '../components/owner/OwnerConsoleMenu'
+import MonitoringPanel from '../components/owner/MonitoringPanel'
+import MaintenancePanel from '../components/owner/MaintenancePanel'
+import RegistrationPanel from '../components/owner/RegistrationPanel'
 import CloseButton from '../components/CloseButton'
 import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
+import { writeAuditLog } from '../permissions/audit'
+import { archiveAndDelete } from '../utils/archive'
 
 const OWNER_EMAILS = [
   'f882771f@gmail.com',
@@ -415,27 +421,65 @@ const OwnerPrivateRoom = () => {
     await loadAllData()
   }
 
-  const banUser = async (userId, reason) => {
+  const banUser = async (userId, reason, banType = 'permanent', durationDays = 0) => {
     if (!userId) return
 
-    if (!window.confirm(`تأكيد حظر المستخدم?\nالسبب: ${reason}`)) return
+    const isTemporary = banType === 'temporary'
+    const permKey = isTemporary ? 'BAN_USER_TEMPORARY' : 'BAN_USER_PERMANENT'
+    const days = Math.max(1, Number(durationDays) || 0)
+
+    const label = isTemporary
+      ? `تأكيد الحظر المؤقت ${days} يوم?\nالسبب: ${reason}`
+      : `تأكيد الحظر النهائي?\nالسبب: ${reason}`
+
+    if (!window.confirm(label)) return
 
     try {
-      await requirePerm(can, 'BAN_USER_TEMPORARY', 'حظر مستخدم', userId)
-      await updateDoc(doc(db, COLLECTIONS.USERS, userId), {
+      await requirePerm(can, permKey, isTemporary ? 'حظر مؤقت' : 'حظر نهائي', userId)
+
+      const payload = {
         banned: true,
         bannedAt: serverTimestamp(),
-        banReason: reason
-      })
+        banReason: reason,
+        banType: isTemporary ? 'temporary' : 'permanent',
+        bannedBy: user?.email || null
+      }
+
+      if (isTemporary) {
+        payload.banExpiresAt = Timestamp.fromMillis(
+          Date.now() + days * 24 * 60 * 60 * 1000
+        )
+      }
+
+      await updateDoc(doc(db, COLLECTIONS.USERS, userId), payload)
 
       await logEvent(
         'user_banned',
-        `تم حظر مستخدم: ${userId}, السبب: ${reason}`
+        `تم ${isTemporary ? `حظر مؤقت ${days} يوم` : 'حظر نهائي'} لمستخدم: ${userId}, السبب: ${reason}`
       )
+
+      await writeAuditLog({
+        action: isTemporary ? 'BAN_USER_TEMPORARY' : 'BAN_USER_PERMANENT',
+        permissionKey: permKey,
+        targetType: 'user',
+        targetId: userId,
+        result: 'success',
+        details: `${isTemporary ? `حظر مؤقت ${days} يوم` : 'حظر نهائي'} — السبب: ${reason}`,
+        severity: 'high'
+      })
 
       showToast('تم حفظ التعديل بنجاح')
     } catch (error) {
       console.error(error)
+      await writeAuditLog({
+        action: isTemporary ? 'BAN_USER_TEMPORARY' : 'BAN_USER_PERMANENT',
+        permissionKey: permKey,
+        targetType: 'user',
+        targetId: userId,
+        result: 'error',
+        details: `فشل الحظر: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
       showToast(error?.message || 'حدث خطأ أثناء الحظر', 'error')
     }
   }
@@ -447,7 +491,10 @@ const OwnerPrivateRoom = () => {
       await requirePerm(can, 'UNBAN_USER_RESTORE', 'فك حظر مستخدم', userId)
       await updateDoc(doc(db, COLLECTIONS.USERS, userId), {
         banned: false,
-        unbannedAt: serverTimestamp()
+        status: 'active',
+        banExpiresAt: null,
+        unbannedAt: serverTimestamp(),
+        unbannedBy: user?.email || null
       })
 
       await logEvent(
@@ -455,9 +502,226 @@ const OwnerPrivateRoom = () => {
         `تم إلغاء حظر مستخدم: ${userId}`
       )
 
+      await writeAuditLog({
+        action: 'UNBAN_USER_RESTORE',
+        permissionKey: 'UNBAN_USER_RESTORE',
+        targetType: 'user',
+        targetId: userId,
+        result: 'success',
+        details: 'فك الحظر وإعادة تنشيط الحساب',
+        severity: 'high'
+      })
+
       showToast('تم حفظ التعديل بنجاح')
     } catch (error) {
       console.error(error)
+      await writeAuditLog({
+        action: 'UNBAN_USER_RESTORE',
+        permissionKey: 'UNBAN_USER_RESTORE',
+        targetType: 'user',
+        targetId: userId,
+        result: 'error',
+        details: `فشل فك الحظر: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
+      showToast(error?.message || 'حدث خطأ', 'error')
+    }
+  }
+
+  const forceLogoutUser = async (userId) => {
+    if (!userId) return
+
+    if (!window.confirm('إنهاء جلسة هذا المستخدم قسرياً؟ سيُمنع من كل العمليات حتى يعيد تسجيل الدخول.')) return
+
+    try {
+      await requirePerm(can, 'FORCE_LOGOUT_SESSION', 'إنهاء جلسة', userId)
+
+      // كتابة اللحظة (ثواني epoch) — قواعد Firestore تُبطل كل رمز هوية صدر
+      // قبلها عبر isForcedOut (auth_time)، فالإنهاء فعلي خادمياً لا تجميلي.
+      await updateDoc(doc(db, COLLECTIONS.USERS, userId), {
+        forceLogoutAt: Math.floor(Date.now() / 1000),
+        updatedAt: serverTimestamp(),
+        updatedBy: user?.email || null
+      })
+
+      await logEvent('user_force_logout', `تم إنهاء جلسة المستخدم: ${userId}`)
+
+      await writeAuditLog({
+        action: 'FORCE_LOGOUT_SESSION',
+        permissionKey: 'FORCE_LOGOUT_SESSION',
+        targetType: 'user',
+        targetId: userId,
+        result: 'success',
+        details: 'إنهاء جلسة قسري — إبطال رموز الهوية الأقدم',
+        severity: 'high'
+      })
+
+      showToast('تم إنهاء الجلسة بنجاح')
+    } catch (error) {
+      console.error(error)
+      await writeAuditLog({
+        action: 'FORCE_LOGOUT_SESSION',
+        permissionKey: 'FORCE_LOGOUT_SESSION',
+        targetType: 'user',
+        targetId: userId,
+        result: 'error',
+        details: `فشل إنهاء الجلسة: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
+      showToast(error?.message || 'حدث خطأ', 'error')
+    }
+  }
+
+  // توثيق/سحب توثيق حساب — MANAGE_USER_VERIFICATION.
+  // الحقول المكتوبة مطابقة تماماً لنطاق القاعدة على users (isVerified/verifiedAt/
+  // verifiedBy/updatedAt/updatedBy)، فالفرض الفعلي في Firestore لا في الواجهة.
+  const toggleUserVerification = async (userId, nextVerified) => {
+    if (!userId) return
+
+    const verified = nextVerified === true
+
+    try {
+      await requirePerm(
+        can,
+        'MANAGE_USER_VERIFICATION',
+        verified ? 'توثيق حساب' : 'سحب توثيق حساب',
+        userId
+      )
+
+      await updateDoc(doc(db, COLLECTIONS.USERS, userId), {
+        isVerified: verified,
+        verifiedAt: serverTimestamp(),
+        verifiedBy: user?.email || null,
+        updatedAt: serverTimestamp(),
+        updatedBy: user?.email || null
+      })
+
+      await logEvent(
+        'user_verification_changed',
+        `${verified ? 'تم توثيق' : 'تم سحب توثيق'} الحساب: ${userId}`
+      )
+
+      await writeAuditLog({
+        action: verified ? 'MANAGE_USER_VERIFICATION' : 'REVOKE_USER_VERIFICATION',
+        permissionKey: 'MANAGE_USER_VERIFICATION',
+        targetType: 'user',
+        targetId: userId,
+        result: 'success',
+        details: verified ? 'منح شارة التوثيق' : 'سحب شارة التوثيق',
+        severity: 'high'
+      })
+
+      showToast('تم حفظ التعديل بنجاح')
+    } catch (error) {
+      console.error(error)
+      await writeAuditLog({
+        action: 'MANAGE_USER_VERIFICATION',
+        permissionKey: 'MANAGE_USER_VERIFICATION',
+        targetType: 'user',
+        targetId: userId,
+        result: 'error',
+        details: `فشل تغيير التوثيق: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
+      showToast(error?.message || 'حدث خطأ', 'error')
+    }
+  }
+
+  // نقل ملكية إعلان حراج — TRANSFER_POST_OWNERSHIP.
+  // الحقول مطابقة لنطاق القاعدة (userId/transferredAt/transferredBy/updatedAt).
+  const transferAdOwnership = async (adId) => {
+    if (!adId) return
+
+    const targetUid = String(
+      window.prompt('معرّف المستخدم الجديد (uid) الذي ستُنقل إليه ملكية الإعلان:') || ''
+    ).trim()
+
+    if (!targetUid) return
+
+    if (!window.confirm(`نقل ملكية الإعلان إلى المستخدم ${targetUid}؟`)) return
+
+    try {
+      await requirePerm(can, 'TRANSFER_POST_OWNERSHIP', 'نقل ملكية إعلان', adId)
+
+      await updateDoc(doc(db, 'haraj_ads', adId), {
+        userId: targetUid,
+        transferredAt: serverTimestamp(),
+        transferredBy: user?.email || null,
+        updatedAt: serverTimestamp()
+      })
+
+      await logEvent(
+        'ad_ownership_transferred',
+        `تم نقل ملكية الإعلان ${adId} إلى ${targetUid}`
+      )
+
+      await writeAuditLog({
+        action: 'TRANSFER_POST_OWNERSHIP',
+        permissionKey: 'TRANSFER_POST_OWNERSHIP',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'success',
+        details: `نقل الملكية إلى ${targetUid}`,
+        severity: 'high'
+      })
+
+      showToast('تم نقل الملكية بنجاح')
+    } catch (error) {
+      console.error(error)
+      await writeAuditLog({
+        action: 'TRANSFER_POST_OWNERSHIP',
+        permissionKey: 'TRANSFER_POST_OWNERSHIP',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'error',
+        details: `فشل نقل الملكية: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
+      showToast(error?.message || 'حدث خطأ', 'error')
+    }
+  }
+
+  // استعادة إعلان محذوف/مرفوض ونشره — HARAJ_POST_RESTORE.
+  // الحقول مطابقة لنطاق القاعدة (status=active + restoredAt/restoredBy/updatedAt).
+  const restoreAd = async (adId) => {
+    if (!adId) return
+
+    if (!window.confirm('استعادة الإعلان ونشره مرة أخرى؟')) return
+
+    try {
+      await requirePerm(can, 'HARAJ_POST_RESTORE', 'استعادة إعلان', adId)
+
+      await updateDoc(doc(db, 'haraj_ads', adId), {
+        status: 'active',
+        restoredAt: serverTimestamp(),
+        restoredBy: user?.email || null,
+        updatedAt: serverTimestamp()
+      })
+
+      await logEvent('ad_restored', `تمت استعادة الإعلان: ${adId}`)
+
+      await writeAuditLog({
+        action: 'HARAJ_POST_RESTORE',
+        permissionKey: 'HARAJ_POST_RESTORE',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'success',
+        details: 'استعادة الإعلان ونشره',
+        severity: 'high'
+      })
+
+      showToast('تمت الاستعادة بنجاح')
+    } catch (error) {
+      console.error(error)
+      await writeAuditLog({
+        action: 'HARAJ_POST_RESTORE',
+        permissionKey: 'HARAJ_POST_RESTORE',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'error',
+        details: `فشل استعادة الإعلان: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
       showToast(error?.message || 'حدث خطأ', 'error')
     }
   }
@@ -531,9 +795,28 @@ const OwnerPrivateRoom = () => {
         `تم تعيين مستخدم كمدير: ${userId}`
       )
 
+      await writeAuditLog({
+        action: 'GRANT_SUB_ADMIN',
+        permissionKey: 'GRANT_SUB_ADMIN_PERMISSIONS',
+        targetType: 'user',
+        targetId: userId,
+        result: 'success',
+        details: 'منح دور المدير للحساب',
+        severity: 'high'
+      })
+
       showToast('تم حفظ التعديل بنجاح')
     } catch (error) {
       console.error(error)
+      await writeAuditLog({
+        action: 'GRANT_SUB_ADMIN',
+        permissionKey: 'GRANT_SUB_ADMIN_PERMISSIONS',
+        targetType: 'user',
+        targetId: userId,
+        result: 'error',
+        details: `فشل تعيين المدير: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
       showToast(error?.message || 'حدث خطأ', 'error')
     }
   }
@@ -553,9 +836,28 @@ const OwnerPrivateRoom = () => {
         `تم إزالة صلاحيات المدير من: ${userId}`
       )
 
+      await writeAuditLog({
+        action: 'REVOKE_SUB_ADMIN',
+        permissionKey: 'GRANT_SUB_ADMIN_PERMISSIONS',
+        targetType: 'user',
+        targetId: userId,
+        result: 'success',
+        details: 'إزالة دور المدير عن الحساب',
+        severity: 'high'
+      })
+
       showToast('تم حفظ التعديل بنجاح')
     } catch (error) {
       console.error(error)
+      await writeAuditLog({
+        action: 'REVOKE_SUB_ADMIN',
+        permissionKey: 'GRANT_SUB_ADMIN_PERMISSIONS',
+        targetType: 'user',
+        targetId: userId,
+        result: 'error',
+        details: `فشل إزالة المدير: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
       showToast(error?.message || 'حدث خطأ', 'error')
     }
   }
@@ -569,16 +871,43 @@ const OwnerPrivateRoom = () => {
       await requirePerm(can, 'HARAJ_POST_DELETE', 'حذف إعلان', adId)
       const ad = ads.find(a => a.id === adId)
 
-      await deleteDoc(doc(db, 'haraj_ads', adId))
+      // أرشفة نسخة كاملة قبل الحذف ليتمكن المالك من الاستعادة لاحقاً.
+      if (ad) {
+        await archiveAndDelete('haraj_ads', adId, ad, {
+          uid: user?.uid,
+          email: user?.email
+        })
+      } else {
+        await deleteDoc(doc(db, 'haraj_ads', adId))
+      }
 
       await logEvent(
         'ad_deleted',
         `تم حذف إعلان: ${adId}, السبب: ${reason}, المعلن: ${ad?.userId || ''}`
       )
 
+      await writeAuditLog({
+        action: 'HARAJ_POST_DELETE',
+        permissionKey: 'HARAJ_POST_DELETE',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'success',
+        details: `حذف إعلان — السبب: ${reason}`,
+        severity: 'high'
+      })
+
       showToast('تم حفظ التعديل بنجاح')
     } catch (error) {
       console.error(error)
+      await writeAuditLog({
+        action: 'HARAJ_POST_DELETE',
+        permissionKey: 'HARAJ_POST_DELETE',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'error',
+        details: `فشل حذف الإعلان: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'high'
+      })
       showToast(error?.message || 'حدث خطأ', 'error')
     }
   }
@@ -598,9 +927,28 @@ const OwnerPrivateRoom = () => {
         `تم تفعيل إعلان: ${adId}`
       )
 
+      await writeAuditLog({
+        action: 'HARAJ_POST_APPROVE',
+        permissionKey: 'HARAJ_POST_APPROVE',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'success',
+        details: 'اعتماد الإعلان ونشره',
+        severity: 'medium'
+      })
+
       showToast('تم حفظ التعديل بنجاح')
     } catch (error) {
       console.error(error)
+      await writeAuditLog({
+        action: 'HARAJ_POST_APPROVE',
+        permissionKey: 'HARAJ_POST_APPROVE',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'error',
+        details: `فشل اعتماد الإعلان: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'medium'
+      })
       showToast(error?.message || 'حدث خطأ', 'error')
     }
   }
@@ -622,9 +970,28 @@ const OwnerPrivateRoom = () => {
         `تم رفض إعلان: ${adId}, السبب: ${reason}`
       )
 
+      await writeAuditLog({
+        action: 'HARAJ_POST_REJECT',
+        permissionKey: 'HARAJ_POST_APPROVE',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'success',
+        details: `رفض الإعلان — السبب: ${reason}`,
+        severity: 'medium'
+      })
+
       showToast('تم حفظ التعديل بنجاح')
     } catch (error) {
       console.error(error)
+      await writeAuditLog({
+        action: 'HARAJ_POST_REJECT',
+        permissionKey: 'HARAJ_POST_APPROVE',
+        targetType: 'haraj_ad',
+        targetId: adId,
+        result: 'error',
+        details: `فشل رفض الإعلان: ${error?.message || 'خطأ غير معروف'}`,
+        severity: 'medium'
+      })
       showToast(error?.message || 'حدث خطأ', 'error')
     }
   }
@@ -1050,6 +1417,28 @@ const OwnerPrivateRoom = () => {
       category: 'viewOnly',
       categoryLabel: 'المشاهدة فقط',
       viewOnly: true
+    },
+    {
+      id: 'monitoring',
+      label: 'المراقبة والتدقيق',
+      icon: Radio,
+      category: 'viewOnly',
+      categoryLabel: 'المشاهدة فقط',
+      viewOnly: true
+    },
+    {
+      id: 'maintenance',
+      label: 'وضع الصيانة',
+      icon: Settings,
+      category: 'protect',
+      categoryLabel: 'الحماية والإدارة'
+    },
+    {
+      id: 'registration',
+      label: 'بوابة التسجيل',
+      icon: UserX,
+      category: 'protect',
+      categoryLabel: 'الحماية والإدارة'
     }
   ]
 
@@ -1719,6 +2108,8 @@ const OwnerPrivateRoom = () => {
               onUnban={unbanUser}
               onSetAdmin={setAsAdmin}
               onRemoveAdmin={removeAdmin}
+              onForceLogout={forceLogoutUser}
+              onToggleVerification={toggleUserVerification}
             />
           )}
 
@@ -1745,6 +2136,8 @@ const OwnerPrivateRoom = () => {
               onDelete={deleteAd}
               onApprove={approveAd}
               onReject={rejectAd}
+              onTransfer={transferAdOwnership}
+              onRestore={restoreAd}
             />
           )}
 
@@ -1770,6 +2163,18 @@ const OwnerPrivateRoom = () => {
 
           {activeTab === 'security' && (
             <SecurityPanel logs={securityLogs} />
+          )}
+
+          {activeTab === 'monitoring' && (
+            <MonitoringPanel can={can} showToast={showToast} />
+          )}
+
+          {activeTab === 'maintenance' && (
+            <MaintenancePanel showToast={showToast} />
+          )}
+
+          {activeTab === 'registration' && (
+            <RegistrationPanel showToast={showToast} />
           )}
 
           {activeTab === 'orders' && (
@@ -2299,6 +2704,7 @@ const EmptyState = ({ icon: Icon, text }) => (
 )
 
 const UsersPanel = ({
+  can,
   users,
   editingUserId,
   editingUserName,
@@ -2309,7 +2715,9 @@ const UsersPanel = ({
   onBan,
   onUnban,
   onSetAdmin,
-  onRemoveAdmin
+  onRemoveAdmin,
+  onForceLogout,
+  onToggleVerification
 }) => (
   <div className="space-y-4">
     <div className="flex items-center justify-between gap-3">
@@ -2475,14 +2883,35 @@ const UsersPanel = ({
                           const reason =
                             prompt('سبب الحظر:')
 
+                          const banTypeChoice = prompt(
+                            'نوع الحظر — اكتب: 1 = مؤقت (مدة محددة) أو 2 = نهائي دائم:',
+                            '2'
+                          )
+
+                          if (banTypeChoice === null) return
+
+                          const isTemp = String(banTypeChoice).trim() === '1'
+
+                          let days = 0
+                          if (isTemp) {
+                            const daysInput = prompt(
+                              'مدة الحظر المؤقت بالأيام (مثال: 7):',
+                              '7'
+                            )
+                            if (daysInput === null) return
+                            days = Math.max(1, Number(daysInput) || 0)
+                          }
+
                           onBan(
                             u.id,
                             reason?.trim() ||
-                            'مخالفة'
+                            'مخالفة',
+                            isTemp ? 'temporary' : 'permanent',
+                            days
                           )
                         }}
                         className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)]"
-                        title="حظر المستخدم"
+                        title="حظر المستخدم (مؤقت أو نهائي)"
                         aria-label="حظر المستخدم"
                       >
                         <Ban size={18} />
@@ -2512,6 +2941,43 @@ const UsersPanel = ({
                         aria-label="تعيين مدير"
                       >
                         <Crown size={18} />
+                      </button>
+                    )}
+
+                    {can && can('MANAGE_USER_VERIFICATION') && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onToggleVerification(
+                            u.id,
+                            !(u.isVerified === true)
+                          )
+                        }
+                        className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)]"
+                        title={
+                          u.isVerified
+                            ? 'سحب توثيق الحساب'
+                            : 'توثيق الحساب (شارة زرقاء)'
+                        }
+                        aria-label={
+                          u.isVerified
+                            ? 'سحب توثيق الحساب'
+                            : 'توثيق الحساب'
+                        }
+                      >
+                        <BadgeCheck size={18} />
+                      </button>
+                    )}
+
+                    {can && can('FORCE_LOGOUT_SESSION') && (
+                      <button
+                        type="button"
+                        onClick={() => onForceLogout(u.id)}
+                        className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)]"
+                        title="إنهاء الجلسة قسرياً"
+                        aria-label="إنهاء الجلسة قسرياً"
+                      >
+                        <LogOut size={18} />
                       </button>
                     )}
                   </div>
@@ -2545,7 +3011,9 @@ const AdsPanel = ({
   onSaveEdit,
   onDelete,
   onApprove,
-  onReject
+  onReject,
+  onTransfer,
+  onRestore
 }) => (
 
   <div className="space-y-4">
@@ -2712,6 +3180,28 @@ const AdsPanel = ({
                       <Trash2 size={15} />
                       حذف
                     </button>
+
+                    {can && can('TRANSFER_POST_OWNERSHIP') && (
+                      <button
+                        type="button"
+                        onClick={() => onTransfer(ad.id)}
+                        className="px-3 py-2 bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] rounded-lg text-xs flex items-center gap-1.5 font-bold"
+                      >
+                        <ArrowLeftRight size={15} />
+                        نقل الملكية
+                      </button>
+                    )}
+
+                    {can && can('HARAJ_POST_RESTORE') && ad.status !== 'active' && (
+                      <button
+                        type="button"
+                        onClick={() => onRestore(ad.id)}
+                        className="px-3 py-2 bg-[var(--rz-ink)]/10 text-[var(--rz-ink)] rounded-lg text-xs flex items-center gap-1.5 font-bold"
+                      >
+                        <RotateCcw size={15} />
+                        استعادة
+                      </button>
+                    )}
                   </div>
                 </>
               )}

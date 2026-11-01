@@ -6,12 +6,15 @@ import { SAUDI_CITIES, CITY_GROUPS } from '../../data/saudiCities';
 import {
   collection,
   addDoc,
+  setDoc,
+  doc,
   getDocs,
   query,
   where,
   limit,
   serverTimestamp,
 } from 'firebase/firestore';
+import { logHarajDuplicate } from '../../utils/harajSecurity';
 
 
 
@@ -87,12 +90,34 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
         return;
       }
 
+      // ملف حراج واحد لكل حساب Firebase: authUid إلزامي، وفهرس التفرد يمنع
+      // ملفاً ثانياً (الفرض في القواعد). هنا نتحقق مسبقاً لتجربة أوضح.
+      const uid = auth.currentUser.uid;
+
+      const ownIndex = await getDocs(
+        query(collection(db, 'haraj_uid_index'), where('__name__', '==', uid), limit(1))
+      );
+      if (!ownIndex.empty) {
+        await logHarajDuplicate({ uid, email: auth.currentUser.email, phone });
+        setErrors({ phone: 'لديك ملف حراج بالفعل لهذا الحساب.' });
+        setSubmitting(false);
+        return;
+      }
+
       // حفظ المستخدم في Firestore (حساب حقيقي)
       const ref = await addDoc(collection(db, 'haraj_users'), {
         name: formData.name.trim(),
         phone,
         email: formData.email.trim(),
         region: formData.region,
+        authUid: uid,
+        createdAt: serverTimestamp(),
+      });
+
+      // فهرس التفرد (يمنع ملفاً ثانياً لنفس الحساب على مستوى القواعد).
+      await setDoc(doc(db, 'haraj_uid_index', uid), {
+        phone,
+        harajUserId: ref.id,
         createdAt: serverTimestamp(),
       });
 
@@ -111,7 +136,18 @@ const HarajUserRegistration = ({ isOpen, onClose, onSuccess }) => {
       onSuccess(userData);
     } catch (err) {
       console.error('haraj registration error:', err);
-      setErrors({ phone: 'تعذّر إنشاء الحساب حالياً. تحقق من الاتصال وحاول مرة أخرى.' });
+      if (err?.code === 'permission-denied') {
+        // رفضتها القواعد (فهرس تفرد موجود أو authUid غير مطابق) — وثّق ونبّه.
+        await logHarajDuplicate({
+          uid: auth?.currentUser?.uid,
+          email: auth?.currentUser?.email,
+          phone: formData.phone.replace(/[\s\-()+]/g, '').trim(),
+          reason: 'رفضت القواعد إنشاء ملف حراج (تكرار أو عدم تطابق authUid)',
+        });
+        setErrors({ phone: 'لديك ملف حراج بالفعل لهذا الحساب.' });
+      } else {
+        setErrors({ phone: 'تعذّر إنشاء الحساب حالياً. تحقق من الاتصال وحاول مرة أخرى.' });
+      }
       setSubmitting(false);
     }
   };

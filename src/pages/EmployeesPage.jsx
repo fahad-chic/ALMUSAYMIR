@@ -3,6 +3,7 @@ import { AdminContext } from '../context/AdminContext';
 import { Plus, RotateCcw, Shield, X } from 'lucide-react';
 import usePermissions from '../permissions/usePermissions';
 import { requirePerm } from '../permissions/rbacService';
+import { writeAuditLog } from '../permissions/audit';
 
 export const EmployeesPage = () => {
   const { can, isOwner } = usePermissions();
@@ -46,6 +47,16 @@ export const EmployeesPage = () => {
       name,
       email,
       branch,
+    });
+
+    await writeAuditLog({
+      action: 'ADD_NEW_EMPLOYEE',
+      permissionKey: 'ADD_NEW_EMPLOYEE',
+      targetType: 'employee',
+      targetId: email,
+      result: 'success',
+      details: `إضافة موظف جديد: ${name} (${email})`,
+      severity: 'high',
     });
 
     setFormData({ name: '', email: '', role: 'موظف', branch: 1 });

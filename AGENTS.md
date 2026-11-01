@@ -331,3 +331,71 @@ FULL AUDIT على الموقع الحي **OVERALL PASS**.
 - **`firebase deploy --only firestore:rules`**: لا يوجد Firebase CLI مثبّت ولا
   `FIREBASE_TOKEN`/حساب خدمة في هذه البيئة. المالك ينفّذه من جهازه:
   `npx firebase-tools deploy --only firestore:rules`
+
+## RBAC المرحلة الأولى (Phase 1) — فرض حقيقي مُتحقَّق منه 2026-10-31
+**سياق**: طلب المالك إنشاء نظام RBAC حقيقي على `rbac/{uid}` لـ24 صلاحية، بفرض فعلي
++ قواعد Firebase + تسجيل كل إجراء (actor/timestamp/target/result) + منع تصعيد الصلاحيات.
+المرحلة الأولى فقط — لا تُنفَّذ صلاحيات مراحل لاحقة بلا طلب صريح.
+
+### ما كان موجوداً (لم يُعَد إنشاؤه — تجنّب التكرار)
+- كتالوج 47 صلاحية في `src/permissions/catalog.js` يشمل كل مفاتيح المرحلة الأولى.
+- منطق الحساب في `src/permissions/logic.js` + خطاف `usePermissions.js`.
+- **فرض خادمي قائم فعلاً** في `firestore.rules` عبر `hasPerm(key)` على مجموعات حقيقية
+  (haraj_ads, users, employees, settings, logs, deleted_archive…) — أي أنه لم يكن
+  «واجهة فقط» لمعظم الصلاحيات.
+
+### الثغرات الحقيقية التي أُصلحت (مُتحقَّق منها على محاكي Firestore)
+1. **الحظر كان وهمياً**: `banned:true` يُكتب في users لكن لا قاعدة تقرأه → المحظور يبقى
+   قادراً على القراءة/الكتابة. الآن `isSignedIn()` = موثّق + غير محظور، مع `isBannedUid`.
+2. **حظر مؤقت ≠ دائم**: أُضيف `banExpiresAt`، والحظر المؤقت المنتهي يُرفع تلقائياً في القواعد.
+3. **أقل صلاحية في haraj_ads**: كانت `hasPerm(...)` تفتح تعديل أي حقل. الآن كل صلاحية
+   مقيّدة بحقولها فقط (اعتماد=status، استعادة=status، نقل ملكية=userId، تعديل=محتوى، تمييز=featured).
+4. **users update**: كان `hasUserAdminPerm()` يفتح كل الحقول. الآن صلاحية الحظر ≠ صلاحية التوثيق،
+   وكلاهما لا يمسّ `role` (منع تصعيد).
+5. **دفاع في العمق**: `hasPerm` يرفض مفاتيح OWNER_ONLY حتى لو كُتبت في الوثيقة.
+6. **سجل تدقيق موحّد**: مجموعة `audit_logs` + `src/permissions/audit.js`
+   (`writeAuditLog`/`buildAuditEvent`) تسجّل actor/timestamp/target/result لكل إجراء
+   (نجاح/رفض/خطأ) من `rbacService` و`OwnerPrivateRoom` و`AdDetailsPage` و`EmployeesPage`.
+
+### الاختبار (فرض حقيقي، لا محاكاة وهمية)
+- `npm run test:rules` → `e2e/rules-audit.mjs` على محاكي Firestore الحقيقي:
+  **104/104 PASS، OVERALL: PASS** — يغطي المصفوفة الرباعية (مالك/مصرّح/غير مصرّح/زائر/محظور)
+  + إنهاء الجلسة + الجلسات + الأرشيف + الصيانة + منع التلاعب بالسجل.
+- يتطلب Java (openjdk-21 مثبّت في هذه البيئة) و`firebase-tools` (يُجلب بـnpx).
+- ملفات الاختبار: `firebase.rules-test.json` (إعداد المحاكي فقط، لا يمسّ `firebase.json`).
+- `npm test` = 21 ملفاً/142 اختباراً · `npm run lint` exit 0 · `npm run build` ✓.
+
+### إضافات هذه الجولة (فرض حقيقي مُتحقَّق منه)
+- **`FORCE_LOGOUT_SESSION`** (فرض فعلي): كتابة `forceLogoutAt` في users/{uid}، وقاعدة
+  `isBlockedUid` تُبطل كل رمز هوية صدر قبل اللحظة عبر `auth_time` — إعادة الدخول تُصدر
+  رمزاً أحدث فيعود العمل. زر «إنهاء الجلسة» في تبويب المستخدمين.
+- **`RECOVER_DELETED_ITEMS_ARCHIVE` + `HARAJ_POST_RESTORE`**: `src/utils/archive.js`
+  (`archiveAndDelete`/`restoreArchived`) يكتب في `deleted_archive` عند الحذف الفعلي
+  (OwnerPrivateRoom + AdDetailsPage)، ولوحة «المراقبة والتدقيق» تستعرض وتستعيد.
+- **`TRACK_EMPLOYEE_LIVE_SESSIONS`**: `src/store/useSessionTracking.js` نبضة كل دقيقة إلى
+  `sessions/{uid}` (مربوطة في App.jsx)، وقراءتها في لوحة المراقبة.
+- **`TRACK_FAILED_LOGINS` + `VIEW_USER_IP_HISTORY`**: `functions/api/auth-events.js` (D1)
+  + `src/utils/authEvents.js`؛ محاولات الدخول الفاشلة تُسجَّل خادمياً مع IP الحقيقي
+  (cf-connecting-ip)، وسجل IP يُسجَّل عند نجاح الدخول (بريد مُشتق من الرمز لا من العميل).
+  القراءة: المالك أو من يملك `VIEW_USER_IP_HISTORY` (يُتحقق منها بقراءة rbac خادمياً).
+- **`VIEW_SYSTEM_AUDIT_LOGS` + `FIREBASE_MUTATION_LOGS`**: `audit_logs` للإلحاق فقط
+  (create-only؛ لا تعديل من غير المالك)، وكل الإجراءات تُسجَّل actor/timestamp/target/result.
+- **`TOGGLE_MAINTENANCE_MODE`**: تبويب «وضع الصيانة» يكتب `settings/maintenance{enabled}`،
+  و`canWriteDuringMaintenance()` تُجمّد إنشاء المحتوى لغير المالك (القراءة تبقى متاحة).
+- **`UPDATE_GLOBAL_SETTINGS`**: مفروض بقواعد `settings`/`branches` (لوحة الإعدادات القديمة).
+
+### صلاحيات المرحلة الأولى — حالة الفرض
+- `BLOCK_USER_REGISTRATION`: **مفروض فعلاً (عضوية الموقع، لا حساب Firebase Auth)**.
+  بوابته `settings/registrationGate {blocked, reason}` — **الافتراضي مفتوح** (الغياب أو
+  `blocked=false` = التسجيل يعمل)، والمالك لا يُقفل نفسه. عند `blocked=true` ترفض قواعد
+  Firestore كتابة وثيقة العضوية `users/{uid}`، و`isSignedIn()` تشترط وجودها — فالحساب
+  الجديد لا يقرأ/يكتب أي شيء. زر الطوارئ في غرفة المالك (تبويب «بوابة التسجيل») مع سبب
+  إلزامي + سجل أمني + تنبيه. **القيد المتبقّي**: لا يمكن منع إنشاء كائن حساب Firebase Auth
+  نفسه (REST عام) — يُمنع **العضوية والوصول للبيانات** فقط، وهذا أقصى فرض ممكن دون خادم
+  خدمة/Identity Blocking Functions.
+- `VIEW_EMPLOYEE_SALARIES`: لا حقل/واجهة رواتب في المشروع أصلاً. القاعدة تسمح بالقراءة
+  لصاحب الصلاحية، لكن لا شاشة تعرض الرواتب (لا بيانات). **غير منفَّذ وظيفياً**.
+- `GRANT_SUB_ADMIN_PERMISSIONS`: إجراء الواجهة (تغيير `role`) مرفوض بقاعدة users لأي غير
+  مالك — فيبقى فعّالاً للمالك فقط (وهذا هو المقصود الأمني). تغيير مصفوفة rbac نفسه للمالك
+  فقط في القواعد، فلا يستطيع مشرف منح صلاحيات. **لا تصعيد ممكن**.
+- **لم تُضَف أي قاعدة تصف «من يملك الحق» فقط لتبدو مكتملة** — القاعدة غير القابلة للفرض لم تُكتب.

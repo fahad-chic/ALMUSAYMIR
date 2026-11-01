@@ -47,6 +47,10 @@ export const AuthProvider = ({ children }) => {
   const [userRole, setUserRole] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  // عضوية فعّالة (users/{uid}) — الفرض الفعلي لقاعدة التسجيل: عند إغلاق
+  // settings/registrationGate تُرفض كتابة وثيقة العضوية خادمياً، فيبقى الحساب
+  // بلا عضوية ولا يُفتح له الموقع. null = لم يُحسم بعد (قيد التحميل).
+  const [membership, setMembership] = useState(null);
 
   const [confirmationResult, setConfirmationResult] = useState(null);
 
@@ -108,6 +112,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setUserRole(null);
       setIsAuthenticated(false);
+      setMembership(null);
       return undefined;
     }
 
@@ -151,6 +156,11 @@ export const AuthProvider = ({ children }) => {
             }
           }
 
+          // العضوية تُحسم من وجود وثيقة users/{uid}: العضو الحقيقي = owner أو
+          // لديه وثيقة عضوية. غيابها (رُفض إنشاؤها بسبب إغلاق التسجيل) = لا عضوية.
+          // الزائر المجهول لا يُحسب عضواً.
+          setMembership(isAdmin ? true : null);
+
           // ثم نُثري الدور من Firestore في الخلفية دون حجب الجلسة
           // (يُتخطى للزائر المجهول — لا ملف مستخدم ولا سجل دخول له)
           if (!isAnonymous) {
@@ -178,9 +188,17 @@ export const AuthProvider = ({ children }) => {
                   }
                 }
               }
+
+              // العضوية فعّالة: owner دائماً، أو وُجدت/أُنشئت الوثيقة بنجاح.
+              setMembership(true);
             } catch (firestoreErr) {
-              // Firestore بطيء أو القواعد تمنع القراءة — الجلسة تبقى صالحة
+              // رفض القواعد (permission-denied) = الحالة القاطعة: لا وثيقة عضوية
+              // ورُفض إنشاؤها (تسجيل مغلق) => لا عضوية. أي خطأ آخر (شبكة/تأخير)
+              // لا يُسقط عضوية قائمة — نتركها قيد الحسم كما كان السلوك السابق.
               console.warn('Firestore user doc unavailable:', firestoreErr?.code);
+              if (!isAdmin && firestoreErr?.code === 'permission-denied') {
+                setMembership(false);
+              }
             }
 
             logAction('USER_LOGIN', firebaseUser.email).catch(() => {});
@@ -191,6 +209,7 @@ export const AuthProvider = ({ children }) => {
             setUser(null);
             setUserRole(null);
             setIsAuthenticated(false);
+            setMembership(null);
             setLoading(false);
           };
 
@@ -369,6 +388,7 @@ export const AuthProvider = ({ children }) => {
     user,
     userRole,
     isAuthenticated,
+    membership,
     loading,
 
     // مصادقة
@@ -401,6 +421,7 @@ export const useAuth = () => useContext(AuthContext) || {
   user: null,
   userRole: null,
   isAuthenticated: false,
+  membership: null,
   loading: false,
   logout: async () => {},
   login: async () => {},

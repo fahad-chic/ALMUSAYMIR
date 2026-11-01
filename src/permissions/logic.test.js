@@ -23,6 +23,24 @@ describe('كتالوج الصلاحيات', () => {
     expect(new Set(PERMISSION_KEYS).size).toBe(47);
   });
 
+  it('كل مفاتيح صلاحيات المرحلة الأولى (24) موجودة في الكتالوج', () => {
+    const PHASE_1_KEYS = [
+      'SUPER_ADMIN_FULL_ACCESS', 'UPDATE_GLOBAL_SETTINGS', 'TOGGLE_MAINTENANCE_MODE',
+      'BAN_USER_TEMPORARY', 'BAN_USER_PERMANENT', 'UNBAN_USER_RESTORE',
+      'FORCE_LOGOUT_SESSION', 'BLOCK_USER_REGISTRATION', 'MANAGE_USER_VERIFICATION',
+      'VIEW_USER_IP_HISTORY',
+      'HARAJ_POST_APPROVE', 'HARAJ_POST_DELETE', 'HARAJ_POST_RESTORE', 'TRANSFER_POST_OWNERSHIP',
+      'ADD_NEW_EMPLOYEE', 'EDIT_EMPLOYEE_PROFILE', 'GRANT_SUB_ADMIN_PERMISSIONS',
+      'SUSPEND_SUB_ADMIN_ACCOUNT', 'VIEW_EMPLOYEE_SALARIES', 'TRACK_EMPLOYEE_LIVE_SESSIONS',
+      'VIEW_SYSTEM_AUDIT_LOGS', 'FIREBASE_MUTATION_LOGS', 'TRACK_FAILED_LOGINS',
+      'RECOVER_DELETED_ITEMS_ARCHIVE'
+    ];
+    expect(PHASE_1_KEYS).toHaveLength(24);
+    for (const key of PHASE_1_KEYS) {
+      expect(isValidPermissionKey(key), `مفتاح مفقود: ${key}`).toBe(true);
+    }
+  });
+
   it('isValidPermissionKey يقبل المفاتيح المعروفة فقط', () => {
     expect(isValidPermissionKey('SUPER_ADMIN_FULL_ACCESS')).toBe(true);
     expect(isValidPermissionKey('INLINE_ELEMENT_DELETE')).toBe(true);
@@ -74,6 +92,15 @@ describe('computeEffectiveGrants', () => {
     const { grants, suspended } = computeEffectiveGrants({
       role: 'user',
       rbacDoc: { suspended: true, grants: { SUPER_ADMIN_FULL_ACCESS: true } }
+    });
+    expect(suspended).toBe(true);
+    expect(countGranted(grants)).toBe(0);
+  });
+
+  it('الحظر (banned) يُصفّر كل الصلاحيات حتى مع وثيقة كاملة', () => {
+    const { grants, suspended } = computeEffectiveGrants({
+      role: 'user',
+      rbacDoc: { banned: true, grants: { SUPER_ADMIN_FULL_ACCESS: true } }
     });
     expect(suspended).toBe(true);
     expect(countGranted(grants)).toBe(0);
