@@ -132,10 +132,17 @@ service cloud.firestore {
       return isOwner() || (
         isSignedIn() && exists(rbacPath()) &&
         !isOwnerOnlyPerm(key) &&
+        !isDisabledPerm(key) &&
         get(rbacPath()).data.get('suspended', false) != true &&
         (get(rbacPath()).data.get('grants', {}).get(key, false) == true ||
          get(rbacPath()).data.get('grants', {}).get('SUPER_ADMIN_FULL_ACCESS', false) == true)
       );
+    }
+
+    // صلاحيات معطّلة نهائياً: لا تُمنح أبداً تحت أي اسم، ولا حتى لو كُتبت في
+    // وثيقة rbac خطأً. دفاع في العمق ضد أي تصعيد أو تفعيل عرضي.
+    function isDisabledPerm(key) {
+      return key in ['BYPASS_FIREBASE_RULES', 'CODE_SNIPPET_INJECTION'];
     }
 
     function isOwnerOnlyPerm(key) {
@@ -156,16 +163,24 @@ service cloud.firestore {
           || hasPerm('FORCE_LOGOUT_SESSION') || hasPerm('SUSPEND_SUB_ADMIN_ACCOUNT');
     }
 
-    function hasCatalogPerm() {
-      return hasPerm('CREATE_NEW_CATALOG') || hasPerm('DELETE_MAIN_CATALOG')
-          || hasPerm('EDIT_CATALOG_PRICING') || hasPerm('MANAGE_CATALOG_TAGS');
-    }
+    // صلاحيات المرحلة الثانية — كل واحدة تحمي عمليتها فقط.
+    function canManageCategories() { return hasPerm('MANAGE_CATEGORIES'); }
+    function canManageBanners() { return hasPerm('MANAGE_SITE_BANNERS'); }
+    function canManageReports() { return hasPerm('MANAGE_REPORTS'); }
+    function canManageNotifications() { return hasPerm('MANAGE_NOTIFICATIONS'); }
+    function canManageReviews() { return hasPerm('MANAGE_REVIEWS'); }
 
-    function hasInlineStylePerm() {
-      return hasPerm('INLINE_STYLE_COLOR') || hasPerm('INLINE_FONT_CUSTOMIZE')
-          || hasPerm('INLINE_BOX_SHAPE_MOD') || hasPerm('INLINE_TICKER_CONTROL')
-          || hasPerm('INLINE_ELEMENT_DELETE') || hasPerm('INLINE_IMAGE_DESIGN_MOD')
-          || hasPerm('INLINE_IMAGE_REPLACE');
+    // فصل قواعد INLINE: كل مفتاح يحمي العملية الخاصة به فقط. الوثيقة تُعلن
+    // المفتاح المستخدَم في الحقل perm، والقاعدة تتحقق من امتلاك ذلك المفتاح
+    // بالذات (لا يفتح مفتاح واحد بقية المفاتيح).
+    function inlineStyleAllowed() {
+      return request.resource.data.keys().hasAny(['perm'])
+        && request.resource.data.perm in [
+             'INLINE_STYLE_COLOR','INLINE_FONT_CUSTOMIZE','INLINE_BOX_SHAPE_MOD',
+             'INLINE_TICKER_CONTROL','INLINE_ELEMENT_DELETE','INLINE_IMAGE_DESIGN_MOD',
+             'INLINE_IMAGE_REPLACE'
+           ]
+        && hasPerm(request.resource.data.perm);
     }
 
     // مرسل الرسالة: صاحب الجلسة نفسه، أو علامة 'admin' المحجوزة للمشرفين.
@@ -363,16 +378,28 @@ service cloud.firestore {
     }
 
     // ============ المنتجات والفروع (الكتالوج) ============
+    // فصل كامل: كل صلاحية تحمي عمليتها وحقولها فقط — لا تمنح إحداها الأخرى.
+    // - CREATE_NEW_CATALOG: إنشاء منتج جديد فقط.
+    // - DELETE_MAIN_CATALOG: حذف منتج (يُؤرشف قبله من العميل).
+    // - EDIT_CATALOG_PRICING: تعديل حقول السعر/الخصم فقط.
+    // - MANAGE_CATALOG_TAGS: تعديل حقول الوسوم/SEO فقط.
     match /products/{docId} {
       allow read: if true;
-      allow write: if isOwner() || hasCatalogPerm();
+      allow create: if isOwner() || hasPerm('CREATE_NEW_CATALOG');
+      allow delete: if isOwner() || hasPerm('DELETE_MAIN_CATALOG');
+      allow update: if isOwner()
+                    || ( hasPerm('EDIT_CATALOG_PRICING')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['price','discount','salePrice','currency','updatedAt','updatedBy']) )
+                    || ( hasPerm('MANAGE_CATALOG_TAGS')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['tags','seoTitle','seoDescription','keywords','updatedAt','updatedBy']) );
     }
 
     // إعدادات عرض كل كتالوج (نمط البطاقات/إظهار الأسعار...) — قراءة عامة، وكتابة للمالك أو صاحب صلاحية الكتالوج.
-    // كانت بلا قاعدة فيفشل حفظ «إعدادات العرض» في صفحة الكتالوج.
     match /catalogSettings/{docId} {
       allow read: if true;
-      allow write: if isOwner() || hasCatalogPerm();
+      allow write: if isOwner() || hasPerm('EDIT_CATALOG_PRICING');
     }
 
     match /branches/{docId} {
@@ -444,11 +471,16 @@ service cloud.firestore {
       allow delete: if isOwner() || (isSignedIn() && request.auth.uid == uid);
     }
 
-    // ============ الإشعارات ============
+    // ============ التنبيهات ============
+    // الإنشاء العام مسموح (تنبيهات دخول الزوار للنظام) لكن بحقول محددة وبلا
+    // حقول إدارية. التنبيهات الإدارية (بجمهور/جدولة) لصاحب MANAGE_NOTIFICATIONS
+    // أو المالك. التعديل/الإخفاء/الحذف لصاحب الصلاحية أو المالك فقط.
     match /notifications/{docId} {
-      allow read: if isOwner();
-      allow create: if isSignedIn();
-      allow update, delete: if isOwner();
+      allow create: if isSignedIn()
+                    && request.resource.data.keys().hasAny(['title'])
+                    && !request.resource.data.keys().hasAny(['audience','publishAt','expiresAt']);
+      allow read: if isOwner() || canManageNotifications();
+      allow update, delete: if isOwner() || canManageNotifications();
     }
 
     // ============ الرسائل والدردشة — مراقبة الرسائل بصلاحية مجهرة ============
@@ -545,10 +577,18 @@ service cloud.firestore {
                    || hasPerm('EDIT_EMPLOYEE_PROFILE');
     }
 
-    // ============ التقارير ============
+    // ============ البلاغات ============
+    // الإنشاء لأي حساب موثّق. المعالجة (عرض/تغيير حالة/سبب) لصاحب MANAGE_REPORTS
+    // أو المالك. تغيير الحالة مقيّد بحقول المعالجة فقط (لا تزوير محتوى البلاغ).
     match /reports/{docId} {
-      allow create: if isSignedIn() && canWriteDuringMaintenance();
-      allow read, update, delete: if isOwner() || hasPerm('VIEW_SYSTEM_AUDIT_LOGS');
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['reason']);
+      allow read: if isOwner() || canManageReports();
+      allow update: if isOwner()
+                    || ( canManageReports()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['status','resolutionNote','handledBy','handledAt','updatedAt']) );
+      allow delete: if isOwner() || canManageReports();
     }
 
     // ============ جلسات الزوار ============
@@ -563,15 +603,18 @@ service cloud.firestore {
       allow write: if isOwner();
     }
 
-    // ============ البانرات والتصنيفات والكوبونات ============
+    // ============ البنرات ============
+    // مفتاح مستقل MANAGE_SITE_BANNERS (كان مربوطاً خطأً بـMANAGE_NAVIGATION_MENU).
+    // قراءة للمسجّلين، وكتابة لصاحب الصلاحية أو المالك.
     match /banners/{docId} {
       allow read: if isSignedIn();
-      allow write: if isOwner() || hasPerm('MANAGE_NAVIGATION_MENU');
+      allow write: if isOwner() || canManageBanners();
     }
 
     match /categories/{docId} {
       allow read: if isSignedIn();
-      allow write: if isOwner() || hasCatalogPerm();
+      // إدارة التصنيفات مفتاح مستقل عن صلاحيات الكتالوج (لا يمنح إحداها الأخرى).
+      allow write: if isOwner() || canManageCategories();
     }
 
     match /coupons/{docId} {
@@ -589,25 +632,39 @@ service cloud.firestore {
                          || (isSignedIn() && request.auth.uid == userId);
     }
 
-    // ============ التقييمات ============
+    // ============ تقييمات العملاء ============
+    // الإنشاء لأي حساب موثّق (لا يُسمح للزائر). الإشراف (إخفاء/إعادة/سبب) لصاحب
+    // MANAGE_REVIEWS أو المالك. الإخفاء يغيّر حقل hidden/reason فقط.
     match /reviews/{docId} {
       allow read: if true;
       allow create: if isSignedIn() && canWriteDuringMaintenance();
-      allow update, delete: if isOwner();
+      allow update: if isOwner()
+                    || ( canManageReviews()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['hidden','moderationReason','moderatedBy','moderatedAt','updatedAt']) );
+      allow delete: if isOwner() || canManageReviews();
     }
 
     // ============ إعدادات المتجر — مفصّلة حسب الوثيقة والصلاحية ============
+    // وثائق مخصّصة (siteTexts/inlineStyles/maintenance/registrationGate/
+    // cacheBuster/navigation/snippets) لا تُكتب إلا بالمفتاح المخصّص لها.
+    // UPDATE_GLOBAL_SETTINGS يغطي بقية الوثائق العامة فقط — وإلا لتجاوز
+    // صلاحيات مثل CODE_SNIPPET_INJECTION (تصعيد صلاحيات).
+    function isReservedSettingsDoc(docId) {
+      return docId in ['siteTexts','inlineStyles','maintenance',
+                       'registrationGate','cacheBuster','navigation','snippets'];
+    }
     match /settings/{docId} {
       allow read: if true;
       allow write: if isOwner()
                    || (docId == 'siteTexts' && hasPerm('INLINE_TEXT_EDIT'))
-                   || (docId == 'inlineStyles' && hasInlineStylePerm())
+                   || (docId == 'inlineStyles' && inlineStyleAllowed())
                    || (docId == 'maintenance' && hasPerm('TOGGLE_MAINTENANCE_MODE'))
                    || (docId == 'registrationGate' && hasPerm('BLOCK_USER_REGISTRATION'))
                    || (docId == 'cacheBuster' && hasPerm('FLUSH_SYSTEM_CACHE'))
                    || (docId == 'navigation' && hasPerm('MANAGE_NAVIGATION_MENU'))
                    || (docId == 'snippets' && hasPerm('CODE_SNIPPET_INJECTION'))
-                   || hasPerm('UPDATE_GLOBAL_SETTINGS');
+                   || (!isReservedSettingsDoc(docId) && hasPerm('UPDATE_GLOBAL_SETTINGS'));
     }
 
     // ============ تعليقات الرئيسية وحراج ============
@@ -647,7 +704,9 @@ service cloud.firestore {
                          && request.resource.data.likes is number
                          && request.resource.data.likes == resource.data.likes + 1 );
 
-      // الحذف: المالك أو صاحب صلاحية حذف التعليقات (يطابق زر «رفض» في اللوحة).
+      // الحذف: المالك أو صاحب صلاحية حذف التعليقات. الحذف حقيقي (delete) —
+      // ينسخ العميل الوثيقة إلى deleted_archive قبل الحذف. زر «رفض» في اللوحة
+      // صار يحذف فعلاً بدل تغيير الحالة (كان يُبقي التعليق في قاعدة البيانات).
       allow delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
     }
 
@@ -716,7 +775,9 @@ service cloud.firestore {
     match /deleted_archive/{docId} {
       allow create: if (isOwner()
                         || hasPerm('RECOVER_DELETED_ITEMS_ARCHIVE')
-                        || hasPerm('HARAJ_POST_DELETE'))
+                        || hasPerm('HARAJ_POST_DELETE')
+                        || hasPerm('HARAJ_COMMENT_DELETE')
+                        || hasPerm('DELETE_MAIN_CATALOG'))
                     && request.resource.data.keys().hasAll(
                          ['sourceCollection','sourceId','payload','deletedAt'])
                     && request.resource.data.sourceCollection is string

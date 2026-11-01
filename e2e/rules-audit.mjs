@@ -440,11 +440,13 @@ await testEnv.withSecurityRulesDisabled(async (ctx) => {
   });
 });
 
-// UPDATE_GLOBAL_SETTINGS
-await expectAllow('UPDATE_GLOBAL_SETTINGS: المصرّح يكتب settings/siteTexts', setDoc(doc(adminA, 'settings', 'siteTexts'), { hero: 'x' }, { merge: true }));
-await expectDeny('UPDATE_GLOBAL_SETTINGS: غير المصرّح مرفوض', setDoc(doc(adminB, 'settings', 'siteTexts'), { hero: 'y' }, { merge: true }));
-await expectDeny('UPDATE_GLOBAL_SETTINGS: الزائر مرفوض', setDoc(doc(visitor, 'settings', 'siteTexts'), { hero: 'z' }, { merge: true }));
-await expectAllow('UPDATE_GLOBAL_SETTINGS: المالك يكتب', setDoc(doc(owner, 'settings', 'siteTexts'), { hero: 'o' }, { merge: true }));
+// UPDATE_GLOBAL_SETTINGS — الإعدادات العامة غير المخصّصة (store/security/bank)
+await expectAllow('UPDATE_GLOBAL_SETTINGS: المصرّح يكتب settings/store', setDoc(doc(adminA, 'settings', 'store'), { name: 'x' }, { merge: true }));
+await expectDeny('UPDATE_GLOBAL_SETTINGS: غير المصرّح مرفوض', setDoc(doc(adminB, 'settings', 'store'), { name: 'y' }, { merge: true }));
+await expectDeny('UPDATE_GLOBAL_SETTINGS: الزائر مرفوض', setDoc(doc(visitor, 'settings', 'store'), { name: 'z' }, { merge: true }));
+await expectAllow('UPDATE_GLOBAL_SETTINGS: المالك يكتب', setDoc(doc(owner, 'settings', 'store'), { name: 'o' }, { merge: true }));
+// UPDATE_GLOBAL_SETTINGS لا يتجاوز وثيقة مخصّصة (siteTexts = INLINE_TEXT_EDIT)
+await expectDeny('UPDATE_GLOBAL_SETTINGS: لا يكتب siteTexts (مخصّص لـINLINE_TEXT_EDIT)', setDoc(doc(adminA, 'settings', 'siteTexts'), { hero: 'x' }, { merge: true }));
 
 // TOGGLE_MAINTENANCE_MODE
 await expectAllow('TOGGLE_MAINTENANCE_MODE: المصرّح يكتب settings/maintenance', setDoc(doc(adminA, 'settings', 'maintenance'), { enabled: false }, { merge: true }));
@@ -740,6 +742,134 @@ await expectAllow('المستخدم المخالف يسجّل محاولته ف�
 await expectDeny('المستخدم المخالف لا يستطيع حذف إعلان غيره (مخالفة)', deleteDoc(doc(attacker, 'haraj_ads', 'ad-m')));
 await expectAllow('المالك يقرأ سجل المخالفة', getDoc(doc(owner, 'audit_logs', 'att-1')));
 await expectDeny('المستخدم المخالف لا يقرأ سجله', getDoc(doc(attacker, 'audit_logs', 'att-1')));
+
+// ============ 20) المرحلة الثانية: البلاغات/التنبيهات/التقييمات/البنرات/التصنيفات/فصل الكتالوج/INLINE ============
+console.log('\n=== 20) المرحلة الثانية: صلاحيات المحتوى والتواصل ===');
+const PH2 = uid('phase2-admin');
+const ph2 = testEnv.authenticatedContext(PH2, { email: 'phase2@example.com', email_verified: true }).firestore();
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  await setDoc(doc(db, 'users', PH2), { email: 'phase2@example.com', role: 'admin' });
+  await setDoc(doc(db, 'rbac', PH2), {
+    suspended: false,
+    grants: {
+      MANAGE_REPORTS: true,
+      MANAGE_NOTIFICATIONS: true,
+      MANAGE_REVIEWS: true,
+      MANAGE_SITE_BANNERS: true,
+      MANAGE_CATEGORIES: true,
+      EDIT_CATALOG_PRICING: true,
+    },
+  });
+  await setDoc(doc(db, 'reports', 'rep-1'), { reason: 'بلاغ تجريبي', status: 'pending', reporterId: USER });
+  await setDoc(doc(db, 'reviews', 'rev-1'), { productId: 'p1', rating: 5, text: 'جيد' });
+  await setDoc(doc(db, 'banners', 'ban-1'), { title: 'بنر', image: 'x', active: true });
+  await setDoc(doc(db, 'categories', 'cat-1'), { name: 'تصنيف' });
+  await setDoc(doc(db, 'products', 'prod-1'), { name: 'منتج', price: 100, tags: [] });
+  await setDoc(doc(db, 'notifications', 'ntf-1'), { title: 'تنبيه', read: false });
+  // مشرف بلا صلاحيات المرحلة الثانية
+  await setDoc(doc(db, 'rbac', ADMIN_B), { suspended: false, grants: {} });
+});
+
+// MANAGE_REPORTS — عرض/تغيير الحالة/سبب المعالجة
+await expectAllow('MANAGE_REPORTS: المصرّح يقرأ البلاغات', getDoc(doc(ph2, 'reports', 'rep-1')));
+await expectAllow('MANAGE_REPORTS: المصرّح يغيّر الحالة', updateDoc(doc(ph2, 'reports', 'rep-1'), { status: 'resolved', resolutionNote: 'تم', handledBy: 'x', handledAt: new Date() }));
+await expectDeny('MANAGE_REPORTS: المصرّح لا يزور محتوى البلاغ', updateDoc(doc(ph2, 'reports', 'rep-1'), { reason: 'مزوّر' }));
+await expectDeny('MANAGE_REPORTS: غير المصرّح مرفوض (read)', getDoc(doc(adminB, 'reports', 'rep-1')));
+await expectDeny('MANAGE_REPORTS: غير المصرّح مرفوض (update)', updateDoc(doc(adminB, 'reports', 'rep-1'), { status: 'resolved' }));
+await expectDeny('MANAGE_REPORTS: المستخدم مرفوض', getDoc(doc(user, 'reports', 'rep-1')));
+await expectDeny('MANAGE_REPORTS: الزائر مرفوض', getDoc(doc(visitor, 'reports', 'rep-1')));
+await expectAllow('MANAGE_REPORTS: المالك مسموح', getDoc(doc(owner, 'reports', 'rep-1')));
+
+// MANAGE_NOTIFICATIONS
+await expectAllow('MANAGE_NOTIFICATIONS: المصرّح يقرأ التنبيهات', getDoc(doc(ph2, 'notifications', 'ntf-1')));
+await expectAllow('MANAGE_NOTIFICATIONS: المصرّح يعدّل تنبيهاً', updateDoc(doc(ph2, 'notifications', 'ntf-1'), { read: true }));
+await expectDeny('MANAGE_NOTIFICATIONS: غير المصرّح لا يقرأ', getDoc(doc(adminB, 'notifications', 'ntf-1')));
+await expectDeny('MANAGE_NOTIFICATIONS: غير المصرّح لا يعدّل', updateDoc(doc(adminB, 'notifications', 'ntf-1'), { read: true }));
+await expectAllow('MANAGE_NOTIFICATIONS: المالك مسموح', getDoc(doc(owner, 'notifications', 'ntf-1')));
+
+// MANAGE_REVIEWS
+await expectAllow('MANAGE_REVIEWS: المصرّح يخفي تقييماً', updateDoc(doc(ph2, 'reviews', 'rev-1'), { hidden: true, moderationReason: 'مخالف', moderatedBy: 'x', moderatedAt: new Date() }));
+await expectDeny('MANAGE_REVIEWS: المصرّح لا يغيّر نص التقييم', updateDoc(doc(ph2, 'reviews', 'rev-1'), { text: 'مزوّر' }));
+await expectDeny('MANAGE_REVIEWS: غير المصرّح مرفوض', updateDoc(doc(adminB, 'reviews', 'rev-1'), { hidden: true }));
+await expectAllow('MANAGE_REVIEWS: المالك مسموح', updateDoc(doc(owner, 'reviews', 'rev-1'), { hidden: false }));
+
+// MANAGE_SITE_BANNERS (كان مربوطاً خطأً بـMANAGE_NAVIGATION_MENU)
+await expectAllow('MANAGE_SITE_BANNERS: المصرّح ينشئ بنراً', setDoc(doc(ph2, 'banners', 'ban-2'), { title: 'بنر2', image: 'y' }));
+await expectDeny('MANAGE_SITE_BANNERS: غير المصرّح مرفوض', setDoc(doc(adminB, 'banners', 'ban-3'), { title: 'بنر3', image: 'z' }));
+await expectDeny('MANAGE_SITE_BANNERS: الزائر مرفوض', setDoc(doc(visitor, 'banners', 'ban-4'), { title: 'بنر4', image: 'w' }));
+await expectAllow('MANAGE_SITE_BANNERS: المالك مسموح', setDoc(doc(owner, 'banners', 'ban-5'), { title: 'بنر5', image: 'v' }));
+
+// MANAGE_CATEGORIES (مفتاح مستقل عن صلاحيات الكتالوج)
+await expectAllow('MANAGE_CATEGORIES: المصرّح ينشئ تصنيفاً', setDoc(doc(ph2, 'categories', 'cat-2'), { name: 'تصنيف2' }));
+await expectDeny('MANAGE_CATEGORIES: غير المصرّح مرفوض', setDoc(doc(adminB, 'categories', 'cat-3'), { name: 'تصنيف3' }));
+await expectDeny('MANAGE_CATEGORIES: الزائر مرفوض', setDoc(doc(visitor, 'categories', 'cat-4'), { name: 'تصنيف4' }));
+await expectAllow('MANAGE_CATEGORIES: المالك مسموح', setDoc(doc(owner, 'categories', 'cat-5'), { name: 'تصنيف5' }));
+
+// فصل صلاحيات الكتالوج: EDIT_CATALOG_PRICING لا تمنح CREATE/DELETE/الوسوم
+await expectDeny('فصل الكتالوج: صاحب PRICING لا ينشئ منتجاً (CREATE مرفوض)', setDoc(doc(ph2, 'products', 'prod-2'), { name: 'منتج2', price: 1 }));
+await expectDeny('فصل الكتالوج: صاحب PRICING لا يحذف منتجاً (DELETE مرفوض)', deleteDoc(doc(ph2, 'products', 'prod-1')));
+await expectAllow('فصل الكتالوج: صاحب PRICING يعدّل السعر', updateDoc(doc(ph2, 'products', 'prod-1'), { price: 150 }));
+await expectDeny('فصل الكتالوج: صاحب PRICING لا يعدّل حقلاً غير مسموح (name)', updateDoc(doc(ph2, 'products', 'prod-1'), { name: 'مزوّر' }));
+await expectDeny('فصل الكتالوج: صاحب PRICING لا يعدّل وسوماً (MANAGE_CATALOG_TAGS مرفوض)', updateDoc(doc(ph2, 'products', 'prod-1'), { tags: ['x'] }));
+
+// INLINE: كل مفتاح يحمي عمليته فقط — perm يُقرأ من الوثيقة. نبدأ بوثيقة فارغة.
+const INLINE_ADMIN = uid('inline-color');
+const inlineColor = testEnv.authenticatedContext(INLINE_ADMIN, { email: 'ic@example.com', email_verified: true }).firestore();
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'users', INLINE_ADMIN), { email: 'ic@example.com', role: 'admin' });
+  await setDoc(doc(ctx.firestore(), 'rbac', INLINE_ADMIN), { suspended: false, grants: { INLINE_STYLE_COLOR: true } });
+  await setDoc(doc(ctx.firestore(), 'settings', 'inlineStyles'), { styles: {} });
+});
+await expectDeny('INLINE مفصول: بلا حقل perm مرفوض', setDoc(doc(inlineColor, 'settings', 'inlineStyles'), { styles: {} }, { merge: true }));
+await expectAllow('INLINE مفصول: صاحب COLOR يحفظ تغيير لون', setDoc(doc(inlineColor, 'settings', 'inlineStyles'), { styles: {}, perm: 'INLINE_STYLE_COLOR' }, { merge: true }));
+await expectDeny('INLINE مفصول: صاحب COLOR لا يحفظ تعديل خط (مفتاح آخر)', setDoc(doc(inlineColor, 'settings', 'inlineStyles'), { styles: {}, perm: 'INLINE_FONT_CUSTOMIZE' }, { merge: true }));
+await expectDeny('INLINE مفصول: صاحب COLOR لا يحفظ إخفاء عنصر (مفتاح آخر)', setDoc(doc(inlineColor, 'settings', 'inlineStyles'), { styles: {}, perm: 'INLINE_ELEMENT_DELETE' }, { merge: true }));
+await expectDeny('INLINE مفصول: غير المصرّح مرفوض', setDoc(doc(adminB, 'settings', 'inlineStyles'), { styles: {}, perm: 'INLINE_STYLE_COLOR' }, { merge: true }));
+await expectAllow('INLINE مفصول: المالك مسموح', setDoc(doc(owner, 'settings', 'inlineStyles'), { styles: {}, perm: 'INLINE_STYLE_COLOR' }, { merge: true }));
+
+// الصلاحيات المعطّلة نهائياً: لا تُمنح ولا تنفّذ حتى لو كُتبت في الوثيقة
+const BYPASS_ADMIN = uid('bypass-attempt');
+const bypass = testEnv.authenticatedContext(BYPASS_ADMIN, { email: 'bp@example.com', email_verified: true }).firestore();
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'users', BYPASS_ADMIN), { email: 'bp@example.com', role: 'admin' });
+  await setDoc(doc(ctx.firestore(), 'rbac', BYPASS_ADMIN), {
+    suspended: false,
+    grants: { BYPASS_FIREBASE_RULES: true, CODE_SNIPPET_INJECTION: true, UPDATE_GLOBAL_SETTINGS: true },
+  });
+});
+await expectDeny('معطّلة: BYPASS_FIREBASE_RULES في الوثيقة لا يفتح settings/snippets', setDoc(doc(bypass, 'settings', 'snippets'), { code: 'x' }, { merge: true }));
+await expectAllow('معطّلة: بقية صلاحيات الحساب تعمل (UPDATE_GLOBAL_SETTINGS)', setDoc(doc(bypass, 'settings', 'store'), { a: 1 }, { merge: true }));
+
+// ============ 21) تعليقات الحراج: الاعتماد والتعديل والحذف الحقيقي والأرشفة ============
+console.log('\n=== 21) تعليقات الحراج: الاعتماد/التعديل/الحذف والأرشفة ===');
+const CM_EDIT = uid('comment-editor');
+const CM_DELETE = uid('comment-deleter');
+const cmEdit = testEnv.authenticatedContext(CM_EDIT, { email: 'ce@example.com', email_verified: true }).firestore();
+const cmDelete = testEnv.authenticatedContext(CM_DELETE, { email: 'cd@example.com', email_verified: true }).firestore();
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  await setDoc(doc(db, 'users', CM_EDIT), { email: 'ce@example.com', role: 'admin' });
+  await setDoc(doc(db, 'users', CM_DELETE), { email: 'cd@example.com', role: 'admin' });
+  await setDoc(doc(db, 'rbac', CM_EDIT), { suspended: false, grants: { HARAJ_COMMENT_EDIT: true } });
+  await setDoc(doc(db, 'rbac', CM_DELETE), { suspended: false, grants: { HARAJ_COMMENT_DELETE: true } });
+  await setDoc(doc(db, 'comments', 'cm-1'), { text: 'تعليق', status: 'pending' });
+  await setDoc(doc(db, 'comments', 'cm-2'), { text: 'تعليق2', status: 'pending' });
+  await setDoc(doc(db, 'comments', 'cm-3'), { text: 'تعليق3', status: 'pending' });
+});
+// الزائر ينشئ تعليقاً بحالة pending فقط (لا ينشره فوراً)
+await expectAllow('تعليق: الزائر ينشئ تعليقاً pending', setDoc(doc(visitor, 'comments', 'cm-v'), { text: 'زائر', status: 'pending' }));
+await expectDeny('تعليق: الزائر لا ينشر تعليقاً معتمداً مباشرة', setDoc(doc(visitor, 'comments', 'cm-v2'), { text: 'زائر', status: 'approved' }));
+// صاحب HARAJ_COMMENT_EDIT يعتمد (تغيير الحالة فقط)
+await expectAllow('تعليق: صاحب EDIT يعتمد تعليقاً', updateDoc(doc(cmEdit, 'comments', 'cm-1'), { status: 'approved' }));
+await expectDeny('تعليق: صاحب EDIT لا يمسح نص التعليق', updateDoc(doc(cmEdit, 'comments', 'cm-1'), { text: 'مزوّر' }));
+await expectDeny('تعليق: صاحب EDIT لا يحذف', deleteDoc(doc(cmEdit, 'comments', 'cm-2')));
+// صاحب HARAJ_COMMENT_DELETE يحذف فعلاً (حذف حقيقي) ويؤرشف في deleted_archive
+await expectAllow('تعليق: صاحب DELETE يؤرشف التعليق', setDoc(doc(cmDelete, 'deleted_archive', 'cm-arch-1'), { sourceCollection: 'comments', sourceId: 'cm-2', payload: { text: 'تعليق2' }, deletedAt: new Date() }));
+await expectAllow('تعليق: صاحب DELETE يحذف التعليق فعلاً', deleteDoc(doc(cmDelete, 'comments', 'cm-2')));
+await expectDeny('تعليق: غير المصرّح لا يحذف', deleteDoc(doc(adminB, 'comments', 'cm-3')));
+await expectDeny('تعليق: الزائر لا يحذف', deleteDoc(doc(visitor, 'comments', 'cm-3')));
+await expectAllow('تعليق: المالك يحذف', deleteDoc(doc(owner, 'comments', 'cm-3')));
 
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);

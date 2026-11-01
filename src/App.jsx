@@ -108,6 +108,7 @@ const AdvertisementsPage = safeLazy(() =>
   import('./pages/AdvertisementsPage')
 );
 const EmployeesPage = safeLazy(() => import('./pages/EmployeesPage'));
+const AdminRoom = safeLazy(() => import('./pages/AdminRoom'));
 const AboutPage = safeLazy(() => import('./pages/AboutPage'));
 const AIChat = safeLazy(() => import('./components/AIChat'));
 const AdDetailsPage = safeLazy(() => import('./pages/AdDetailsPage'));
@@ -1550,6 +1551,18 @@ function AppContent() {
                     roleRequired="owner"
                   >
                     <AdminPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* غرفة المشرف — لغير المالك ممن يملك صلاحيات فعلية.
+                  الفتح مشروط بعضوية موثّقة، والأقسام تُفلتر بالصلاحيات
+                  (ومن لا يملك أي صلاحية يُحوَّل إلى /unauthorized). */}
+              <Route
+                path="/admin-room"
+                element={
+                  <ProtectedRoute>
+                    <AdminRoom />
                   </ProtectedRoute>
                 }
               />

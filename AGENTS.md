@@ -399,3 +399,83 @@ FULL AUDIT على الموقع الحي **OVERALL PASS**.
   مالك — فيبقى فعّالاً للمالك فقط (وهذا هو المقصود الأمني). تغيير مصفوفة rbac نفسه للمالك
   فقط في القواعد، فلا يستطيع مشرف منح صلاحيات. **لا تصعيد ممكن**.
 - **لم تُضَف أي قاعدة تصف «من يملك الحق» فقط لتبدو مكتملة** — القاعدة غير القابلة للفرض لم تُكتب.
+
+## RBAC المرحلة الثانية (Phase 2) — صلاحيات المحتوى والتواصل والتقارير
+**النطاق**: إضافة 14 مفتاحاً جديداً (61 إجمالاً، 9 أقسام). لا صلاحية بلا عملية حقيقية +
+قاعدة خادم + سجل تدقيق + اختبار allow/deny (في `e2e/rules-audit.mjs` قسمان 20 و21).
+
+### مُنفَّذ فعلاً (عملية + قاعدة + تدقيق)
+- **`MANAGE_CATEGORIES`**: `categories` write. واجهة حقيقية (`CategoriesManager`) عبر
+  `requirePerm` + `writeAuditLog` في غرفة المالك وغرفة المشرف.
+- **`MANAGE_SITE_BANNERS`**: `banners` write (كان مربوطاً خطأً بـ`MANAGE_NAVIGATION_MENU`).
+  واجهة حقيقية `BannersManager` + `BannerForm` عبر `requirePerm` + تدقيق.
+- **`MANAGE_REPORTS`**: `reports` read/update(حقول المعالجة فقط)/delete. `ReportsPanel`
+  في غرفة المالك وغرفة المشرف (تغيير حالة + ملاحظة معالجة + تدقيق).
+- **`MANAGE_NOTIFICATIONS`**: `notifications` read/update/delete (الإنشاء العام مقيّد بحقول
+  غير إدارية: يجب `title`، وممنوع `audience/publishAt/expiresAt`). `NotificationsManager`.
+- **`MANAGE_REVIEWS`**: `reviews` update(حقول الإشراف فقط)/delete. `ReviewsPanel` في غرفة
+  المالك وغرفة المشرف (إخفاء/إعادة إظهار + سبب + تدقيق).
+- **`EDIT_EMPLOYEE_PROFILE`**: `employees` update. شاشة تعديل ملف موظف فعلية في
+  `EmployeesPage.jsx` (نموذج تعديل الاسم/الوظيفة/الفرع) عبر `requirePerm` + `writeAuditLog`.
+- **`EXPORT_AUDIT_REPORTS`**: **مؤجّل** — لا عملية تصدير فعلية (لا CSV/تنزيل)؛ قراءة
+  `audit_logs` مالك-فقط في القواعد، فلا قدرة مستقلة.
+
+### إصلاح تصعيد صلاحيات حقيقي (مُثبَت بقاعدة)
+- `UPDATE_GLOBAL_SETTINGS` كان catch-all يسمح بكتابة `settings/snippets` فيتجاوز
+  `CODE_SNIPPET_INJECTION`. الآن `isReservedSettingsDoc(docId)` يستثني الوثائق المخصّصة
+  (`siteTexts/inlineStyles/maintenance/registrationGate/cacheBuster/navigation/snippets`)،
+  فلا يمنح UPDATE_GLOBAL_SETTINGS أي قدرة على وثيقة يملكها مفتاح آخر.
+- **`inlineStyleAllowed()`**: وثيقة `settings/inlineStyles` تُعلن المفتاح في حقل `perm`
+  والقاعدة تتحقق من امتلاك ذلك المفتاح بالذات — لا يفتح مفتاح INLINE واحد بقية المفاتيح.
+- **فصل الكتالوج**: `products` صار `create`=`CREATE_NEW_CATALOG`، `delete`=`DELETE_MAIN_CATALOG`،
+  و`update` مقيّد بحقول السعر/الوسوم فقط (لا صلاحية تمنح الأخرى).
+- **`isDisabledPerm()`**: `BYPASS_FIREBASE_RULES` و`CODE_SNIPPET_INJECTION` معطّلتان نهائياً —
+  لا تُمنح حتى لو كُتبتا في وثيقة rbac (دفاع في العمق).
+- `rbac/{uid}` write = `isOwner()` فقط => **لا صلاحية تمنح نفسها** ولا تصعيد ممكن.
+
+### مؤجّل (لا عملية حقيقية — لا يُمنح ولا يُنفَّذ)
+`MANAGE_FEATURED_CONTENT`, `MANAGE_MEDIA_LIBRARY`, `MANAGE_FAQ_CONTENT`,
+`MANAGE_SUPPORT_TICKETS`, `MANAGE_CONTACT_MESSAGES`, `MANAGE_HOMEPAGE_SECTIONS`,
+`MANAGE_REDIRECTS`, `VIEW_SYSTEM_HEALTH`, `MONITOR_USER_TRAFFIC_LIVE`,
+`CUSTOMIZE_CATALOG_LAYOUT`, `VIEW_EMPLOYEE_SALARIES`.
+معطّلة نهائياً: `BYPASS_FIREBASE_RULES`, `CODE_SNIPPET_INJECTION`.
+كلها في `DEFERRED_PERMISSION_KEYS`/`DISABLED_PERMISSION_KEYS` — تُسقَط في
+`sanitizeGrants` ولا تُمنح من الواجهة.
+
+### البوابات
+LINT exit 0 · BUILD OK · VITEST 22 ملفاً/155 اختباراً · RULES AUDIT **279/279 OVERALL PASS**.
+
+### جولة المتابعة (Follow-up) — إكمال ما كان ناقصاً + غرفة المشرف + تنظيم الأقسام
+**1) تصحيح صادق**: `EXPORT_AUDIT_REPORTS` كان مُعلناً «مالك-فقط» لكن **بلا عملية تصدير
+فعلية** (لا CSV ولا تنزيل) — نُقل إلى `DEFERRED_PERMISSION_KEYS`. قراءة `audit_logs`
+تبقى مالك-فقط في القواعد، فلا قدرة مستقلة له.
+**2) واجهات حقيقية جديدة** (كانت القواعد موجودة بلا شاشة):
+- `src/components/owner/ModerationPanels.jsx` — `ReportsPanel` + `ReviewsPanel` (مشتركة،
+  كانتا مُعرَّفتين داخل `OwnerPrivateRoom.jsx` — نُقلتا بلا تكرار).
+- `src/components/admin/ContentPanels.jsx` — `CategoriesManager` + `BannersManager` +
+  `NotificationsManager` (مشتركة، نُقلت من `AdminDashboard.jsx`) مع `requirePerm` + تدقيق
+  لكل عملية. الآن `MANAGE_CATEGORIES`/`MANAGE_SITE_BANNERS`/`MANAGE_NOTIFICATIONS` لها
+  واجهة حقيقية في غرفة المالك (`content`/`comms`) وفي غرفة المشرف.
+- `src/pages/AdminRoom.jsx` — **غرفة مشرف مستقلة** على مسار `/admin-room` (لا تفتح غرفة
+  المالك): تعرض فقط الأقسام التي يملك المشرف صلاحيتها (بلاغات/تقييمات/تنبيهات/تصنيفات/
+  بنرات)، ومن لا يملك أي صلاحية يُحوَّل لـ`/unauthorized`. الفرض خادمي بالكامل.
+- `src/styles/console-shell.css` — أصناف `royal-*` اللازمة للوحات المشتركة داخل حاوية
+  `.console-room` (بلا تكرار هوية غرفة المالك ولا تعديل عليها). مُستورد في `main.jsx`.
+**3) تنظيم الأقسام**: غرفة المالك صارت **8 أقسام** واضحة (`tabGroups`):
+المركز الرئيسي · المستخدمون والأمان · الحراج · الكتالوج والمحتوى · البلاغات والتقييمات ·
+التنبيهات والتواصل · المراقبة والسجلات · الموظفون والصلاحيات. أُضيف تبويبان حقيقيان
+(`categories`, `banners`) إلى غرفة المالك.
+
+### ما لم يُنفَّذ ولماذا (يحتاج قرار المالك — لا تنفيذ بلا backend حقيقي)
+- `MANAGE_FAQ_CONTENT`: الأسئلة مثبّتة في `src/pages/FAQ.jsx` (لا مجموعة بيانات).
+- `MANAGE_CONTACT_MESSAGES`: «تواصل معنا» يفتح واتساب — لا نموذج يكتب رسائل.
+- `MANAGE_SUPPORT_TICKETS` / `VIEW_SYSTEM_HEALTH` / `MANAGE_HOMEPAGE_SECTIONS` /
+  `MANAGE_REDIRECTS` / `MANAGE_MEDIA_LIBRARY` / `MANAGE_FEATURED_CONTENT`: لا بيانات
+  ولا واجهة فعلية في المشروع.
+- `VIEW_EMPLOYEE_SALARIES`: لا نظام رواتب (لا حقول راتب ولا شاشة).
+- `MONITOR_USER_TRAFFIC_LIVE` / `CUSTOMIZE_CATALOG_LAYOUT`: يحتاجان متتبّع زوار/تفضيل عرض
+  لم يُبنَ بعد.
+كل هذه في `DEFERRED_PERMISSION_KEYS` (12 مفتاحاً) — لا تُمنح من الواجهة ولا تُنفَّذ.
+
+### البوابات بعد جولة المتابعة
+LINT exit 0 · BUILD OK · VITEST 22 ملفاً/155 اختباراً · RULES AUDIT **279/279 OVERALL PASS**.

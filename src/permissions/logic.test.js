@@ -11,17 +11,17 @@ import {
 import { computeEffectiveGrants, sanitizeGrants, countGranted } from './logic';
 
 describe('كتالوج الصلاحيات', () => {
-  it('يحوي 47 صلاحية بالضبط موزعة على 7 أقسام', () => {
-    expect(PERMISSIONS).toHaveLength(47);
-    expect(PERMISSION_CATEGORIES).toHaveLength(7);
+  it('يحوي 61 صلاحية بالضبط موزعة على 9 أقسام', () => {
+    expect(PERMISSIONS).toHaveLength(61);
+    expect(PERMISSION_CATEGORIES).toHaveLength(9);
     const sum = PERMISSION_CATEGORIES.reduce(
       (n, c) => n + permissionsByCategory(c.id).length, 0
     );
-    expect(sum).toBe(47);
+    expect(sum).toBe(61);
   });
 
   it('كل مفاتيح الصلاحيات فريدة', () => {
-    expect(new Set(PERMISSION_KEYS).size).toBe(47);
+    expect(new Set(PERMISSION_KEYS).size).toBe(61);
   });
 
   it('كل مفاتيح المرحلة الأولى المعتمدة (23) موجودة في الكتالوج', () => {
@@ -63,7 +63,7 @@ describe('computeEffectiveGrants', () => {
     });
     expect(isOwner).toBe(true);
     expect(suspended).toBe(false);
-    expect(countGranted(grants)).toBe(47);
+    expect(countGranted(grants)).toBe(61);
   });
 
   it('المستخدم العادي بلا وثيقة rbac لا يملك شيئاً', () => {
@@ -87,14 +87,16 @@ describe('computeEffectiveGrants', () => {
       role: 'user',
       rbacDoc: { grants: { SUPER_ADMIN_FULL_ACCESS: true } }
     });
-    // صلاحيات المراقبة والخصوصية السبع محجوزة للمالك حتى مع
-    // SUPER_ADMIN_FULL_ACCESS.
-    // صلاحيات المراقبة والخصوصية السبع محجوزة للمالك، والصلاحية المؤجلة
-    // (الرواتب) لا تُمنح لأي حساب غير المالك => 39 بدل 47.
-    expect(countGranted(grants)).toBe(39);
+    // صلاحيات المراقبة/التدقيق السبع محجوزة للمالك حتى مع
+    // SUPER_ADMIN_FULL_ACCESS، والصلاحيات المؤجلة (12، تتقاطع مع المحجوزة في
+    // MONITOR_USER_TRAFFIC_LIVE) والمعطّلة نهائياً (2) لا تُمنح لأي حساب غير
+    // المالك => 61 - 7 - 12 - 2 + 1 = 41.
+    expect(countGranted(grants)).toBe(41);
     expect(grants.MONITOR_PRIVATE_MESSAGES).toBe(false);
     expect(grants.VIEW_SYSTEM_AUDIT_LOGS).toBe(false);
+    expect(grants.EXPORT_AUDIT_REPORTS).toBe(false);
     expect(grants.VIEW_EMPLOYEE_SALARIES).toBe(false);
+    expect(grants.BYPASS_FIREBASE_RULES).toBe(false);
   });
 
   it('الصلاحية المؤجلة VIEW_EMPLOYEE_SALARIES لا تُمنح حتى لو كُتبت في الوثيقة', () => {
@@ -104,6 +106,24 @@ describe('computeEffectiveGrants', () => {
     });
     expect(grants.VIEW_EMPLOYEE_SALARIES).toBe(false);
     expect(countGranted(grants)).toBe(0);
+  });
+
+  it('الصلاحيات المعطّلة نهائياً لا تُمنح حتى لو كُتبت في الوثيقة', () => {
+    const { grants } = computeEffectiveGrants({
+      role: 'user',
+      rbacDoc: { grants: { BYPASS_FIREBASE_RULES: true, CODE_SNIPPET_INJECTION: true } }
+    });
+    expect(grants.BYPASS_FIREBASE_RULES).toBe(false);
+    expect(grants.CODE_SNIPPET_INJECTION).toBe(false);
+    expect(countGranted(grants)).toBe(0);
+  });
+
+  it('EXPORT_AUDIT_REPORTS محجوز للمالك ولا يُمنح لمشرف', () => {
+    const { grants } = computeEffectiveGrants({
+      role: 'user',
+      rbacDoc: { grants: { EXPORT_AUDIT_REPORTS: true } }
+    });
+    expect(grants.EXPORT_AUDIT_REPORTS).toBe(false);
   });
 
   it('التجميد يسحب كل الصلاحيات حتى SUPER_ADMIN', () => {

@@ -8,10 +8,15 @@ import {
   orderBy,
   doc,
   updateDoc,
+  deleteDoc,
+  getDoc,
+  addDoc,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import usePermissions from '../../permissions/usePermissions';
 import { requirePerm } from '../../permissions/rbacService';
+import { writeAuditLog } from '../../permissions/audit';
 const CommentsReviewPanel = () => {
   const { can } = usePermissions();
   const [pending, setPending] = useState([]);
@@ -49,23 +54,42 @@ const CommentsReviewPanel = () => {
       await updateDoc(doc(db, 'comments', id), {
         status: 'approved',
       });
+      await writeAuditLog({
+        action: 'HARAJ_COMMENT_APPROVE', permissionKey: 'HARAJ_COMMENT_EDIT',
+        targetType: 'comments', targetId: id, result: 'success',
+        details: 'اعتماد تعليق ونشره', severity: 'info',
+      });
     } catch (error) {
       console.error(error);
       alert('حدث خطأ أثناء الموافقة على التعليق');
     }
   };
 
+  // الرفض حذف حقيقي: يُؤرشف التعليق في deleted_archive أولاً ثم يُحذف من
+  // قاعدة البيانات (بدل تغيير الحالة الذي كان يُبقي التعليق مخزّناً).
   const reject = async (id) => {
-    try { await requirePerm(can, 'HARAJ_COMMENT_DELETE', 'رفض تعليق', id); } catch (e) { alert(e.message); return; }
-    if (!window.confirm('هل أنت متأكد من رفض هذا التعليق؟')) return;
+    try { await requirePerm(can, 'HARAJ_COMMENT_DELETE', 'حذف تعليق', id); } catch (e) { alert(e.message); return; }
+    if (!window.confirm('هل أنت متأكد من حذف هذا التعليق؟ سيُؤرشف قبل الحذف.')) return;
 
     try {
-      await updateDoc(doc(db, 'comments', id), {
-        status: 'rejected',
+      const snap = await getDoc(doc(db, 'comments', id));
+      const payload = snap.exists() ? snap.data() : {};
+      await addDoc(collection(db, 'deleted_archive'), {
+        sourceCollection: 'comments',
+        sourceId: id,
+        payload,
+        deletedAt: serverTimestamp(),
+        deletedBy: 'owner-room',
+      });
+      await deleteDoc(doc(db, 'comments', id));
+      await writeAuditLog({
+        action: 'HARAJ_COMMENT_DELETE', permissionKey: 'HARAJ_COMMENT_DELETE',
+        targetType: 'comments', targetId: id, result: 'success',
+        details: 'حذف تعليق وأرشفته في deleted_archive', severity: 'medium',
       });
     } catch (error) {
       console.error(error);
-      alert('حدث خطأ أثناء رفض التعليق');
+      alert('حدث خطأ أثناء حذف التعليق');
     }
   };
 
@@ -122,7 +146,7 @@ const CommentsReviewPanel = () => {
                     className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm font-bold flex items-center gap-1 transition"
                   >
                     <X size={15} />
-                    رفض
+                    حذف
                   </button>
                 </div>
               </div>

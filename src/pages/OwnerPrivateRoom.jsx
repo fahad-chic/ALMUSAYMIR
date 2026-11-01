@@ -11,7 +11,7 @@ import {
   Send, Star, Flag, Edit3, Save, UserRound, ClipboardList, UserX,
   Radio, LayoutDashboard, BarChart3,
   Gauge, Moon, Sun, ArrowRight,
-  BadgeCheck, ArrowLeftRight, RotateCcw
+  BadgeCheck, ArrowLeftRight, RotateCcw, Image, LayoutGrid
 } from 'lucide-react'
 import {
   auth, db,
@@ -26,6 +26,8 @@ import OwnerConsoleMenu from '../components/owner/OwnerConsoleMenu'
 import MonitoringPanel from '../components/owner/MonitoringPanel'
 import MaintenancePanel from '../components/owner/MaintenancePanel'
 import RegistrationPanel from '../components/owner/RegistrationPanel'
+import { ReportsPanel, ReviewsPanel } from '../components/owner/ModerationPanels'
+import { CategoriesManager, BannersManager } from '../components/admin/ContentPanels'
 import CloseButton from '../components/CloseButton'
 import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
@@ -133,6 +135,7 @@ const OwnerPrivateRoom = () => {
   const [securityLogs, setSecurityLogs] = useState([])
   const [orders, setOrders] = useState([])
   const [reports, setReports] = useState([])
+  const [reviews, setReviews] = useState([])
 
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('all')
@@ -344,7 +347,8 @@ const OwnerPrivateRoom = () => {
         notifSnap,
         logsSnap,
         ordersSnap,
-        reportsSnap
+        reportsSnap,
+        reviewsSnap
       ] = await Promise.all([
         getDocs(collection(db, COLLECTIONS.USERS)),
         getDocs(collection(db, 'haraj_ads')),
@@ -364,7 +368,8 @@ const OwnerPrivateRoom = () => {
           )
         ),
         getDocs(collection(db, COLLECTIONS.ORDERS)),
-        getDocs(collection(db, 'reports'))
+        getDocs(collection(db, 'reports')),
+        getDocs(collection(db, 'reviews'))
       ])
 
       setUsers(usersSnap.docs.map(d => ({ id: d.id, ...d.data() })))
@@ -375,6 +380,7 @@ const OwnerPrivateRoom = () => {
       setSecurityLogs(logsSnap.docs.map(d => ({ id: d.id, ...d.data() })))
       setOrders(ordersSnap.docs.map(d => ({ id: d.id, ...d.data() })))
       setReports(reportsSnap.docs.map(d => ({ id: d.id, ...d.data() })))
+      setReviews(reviewsSnap.docs.map(d => ({ id: d.id, ...d.data() })))
     } catch (error) {
       console.error('Error loading data:', error)
       showToast('تعذر تحميل بعض بيانات الغرفة', 'error')
@@ -1330,146 +1336,138 @@ const OwnerPrivateRoom = () => {
   }
 
   // تبويبات منفصلة — لا صفحة طويلة
+  // كل تبويب ينتمي لقسم واحد واضح (group) — لا بعثرة ولا تكرار.
+  const GROUP_LABELS = {
+    center: 'المركز الرئيسي',
+    users: 'المستخدمون والأمان',
+    haraj: 'الحراج',
+    content: 'الكتالوج والمحتوى',
+    review: 'البلاغات والتقييمات',
+    comms: 'التنبيهات والتواصل',
+    monitor: 'المراقبة والسجلات',
+    staff: 'الموظفون والصلاحيات'
+  }
   const tabs = [
     {
       id: 'center',
       label: 'المركز الرئيسي',
       icon: LayoutDashboard,
-      category: 'monitor',
-      categoryLabel: 'المراقبة'
+      group: 'center'
     },
     {
       id: 'overview',
       label: 'نظرة عامة',
       icon: BarChart3,
-      category: 'monitor',
-      categoryLabel: 'المراقبة'
+      group: 'monitor'
     },
     {
       id: 'live',
       label: 'النشاط اللحظي',
       icon: Gauge,
-      category: 'monitor',
-      categoryLabel: 'المراقبة'
-    },
-    {
-      id: 'messages',
-      label: 'الرسائل الخاصة',
-      icon: MessageSquare,
-      category: 'monitor',
-      categoryLabel: 'المراقبة',
-      viewOnly: true
-    },
-    {
-      id: 'permissions',
-      label: 'الصلاحيات',
-      icon: Key,
-      category: 'protect',
-      categoryLabel: 'الحماية والإدارة'
-    },
-    {
-      id: 'users',
-      label: 'المستخدمون',
-      icon: Users,
-      category: 'admin',
-      categoryLabel: 'الإدارة'
-    },
-    {
-      id: 'ads',
-      label: 'الإعلانات',
-      icon: ShoppingBag,
-      category: 'admin',
-      categoryLabel: 'الإدارة'
-    },
-    {
-      id: 'comments',
-      label: 'آراء العملاء',
-      icon: Star,
-      category: 'review',
-      categoryLabel: 'المراجعة'
-    },
-    {
-      id: 'reports',
-      label: 'البلاغات',
-      icon: Flag,
-      category: 'review',
-      categoryLabel: 'المراجعة'
-    },
-    {
-      id: 'broadcast',
-      label: 'البث والتنبيهات',
-      icon: Bell,
-      category: 'comms',
-      categoryLabel: 'التواصل'
-    },
-    {
-      id: 'orders',
-      label: 'الطلبات',
-      icon: Activity,
-      category: 'viewOnly',
-      categoryLabel: 'المشاهدة فقط',
-      viewOnly: true
-    },
-    {
-      id: 'security',
-      label: 'سجل الأمان',
-      icon: Shield,
-      category: 'viewOnly',
-      categoryLabel: 'المشاهدة فقط',
-      viewOnly: true
+      group: 'monitor'
     },
     {
       id: 'monitoring',
       label: 'المراقبة والتدقيق',
       icon: Radio,
-      category: 'viewOnly',
-      categoryLabel: 'المشاهدة فقط',
-      viewOnly: true
+      group: 'monitor'
     },
     {
-      id: 'maintenance',
-      label: 'وضع الصيانة',
-      icon: Settings,
-      category: 'protect',
-      categoryLabel: 'الحماية والإدارة'
+      id: 'users',
+      label: 'المستخدمون',
+      icon: Users,
+      group: 'users'
+    },
+    {
+      id: 'security',
+      label: 'سجل الأمان',
+      icon: Shield,
+      group: 'users'
     },
     {
       id: 'registration',
       label: 'بوابة التسجيل',
       icon: UserX,
-      category: 'protect',
-      categoryLabel: 'الحماية والإدارة'
+      group: 'users'
+    },
+    {
+      id: 'maintenance',
+      label: 'وضع الصيانة',
+      icon: Settings,
+      group: 'users'
+    },
+    {
+      id: 'ads',
+      label: 'الإعلانات',
+      icon: ShoppingBag,
+      group: 'haraj'
+    },
+    {
+      id: 'comments',
+      label: 'تعليقات الحراج',
+      icon: Star,
+      group: 'haraj'
+    },
+    {
+      id: 'categories',
+      label: 'التصنيفات',
+      icon: LayoutGrid,
+      group: 'content'
+    },
+    {
+      id: 'banners',
+      label: 'البنرات',
+      icon: Image,
+      group: 'content'
+    },
+    {
+      id: 'orders',
+      label: 'الطلبات',
+      icon: Activity,
+      group: 'content'
+    },
+    {
+      id: 'reports',
+      label: 'البلاغات',
+      icon: Flag,
+      group: 'review'
+    },
+    {
+      id: 'reviews',
+      label: 'التقييمات',
+      icon: Star,
+      group: 'review'
+    },
+    {
+      id: 'broadcast',
+      label: 'البث والتنبيهات',
+      icon: Bell,
+      group: 'comms'
+    },
+    {
+      id: 'messages',
+      label: 'الرسائل الخاصة',
+      icon: MessageSquare,
+      group: 'comms'
+    },
+    {
+      id: 'permissions',
+      label: 'الصلاحيات والموظفون',
+      icon: Key,
+      group: 'staff'
     }
   ]
 
+  // الأقسام الثمانية — ترتيب ثابت واضح
   const tabGroups = [
-    {
-      title: 'المراقبة',
-      icon: Eye,
-      items: tabs.filter((tab) => tab.category === 'monitor')
-    },
-    {
-      title: 'الإدارة والحماية',
-      icon: Settings,
-      items: tabs.filter(
-        (tab) => tab.category === 'admin' || tab.category === 'protect'
-      )
-    },
-    {
-      title: 'المراجعة',
-      icon: ClipboardList,
-      items: tabs.filter((tab) => tab.category === 'review')
-    },
-    {
-      title: 'التواصل',
-      icon: Bell,
-      items: tabs.filter((tab) => tab.category === 'comms')
-    },
-    {
-      title: 'المشاهدة فقط',
-      icon: Eye,
-      items: tabs.filter((tab) => tab.category === 'viewOnly')
-    }
+    { title: 'المركز الرئيسي', icon: LayoutDashboard, items: tabs.filter((t) => t.group === 'center') },
+    { title: 'المستخدمون والأمان', icon: Users, items: tabs.filter((t) => t.group === 'users') },
+    { title: 'الحراج', icon: ShoppingBag, items: tabs.filter((t) => t.group === 'haraj') },
+    { title: 'الكتالوج والمحتوى', icon: LayoutGrid, items: tabs.filter((t) => t.group === 'content') },
+    { title: 'البلاغات والتقييمات', icon: ClipboardList, items: tabs.filter((t) => t.group === 'review') },
+    { title: 'التنبيهات والتواصل', icon: Bell, items: tabs.filter((t) => t.group === 'comms') },
+    { title: 'المراقبة والسجلات', icon: Eye, items: tabs.filter((t) => t.group === 'monitor') },
+    { title: 'الموظفون والصلاحيات', icon: UserCheck, items: tabs.filter((t) => t.group === 'staff') }
   ]
 
   return (
@@ -1984,7 +1982,7 @@ const OwnerPrivateRoom = () => {
                         </h2>
 
                         <p className="text-xs md:text-sm royal-muted font-medium">
-                          قسم {currentTab.categoryLabel || currentTab.category}
+                          قسم {GROUP_LABELS[currentTab.group] || ''}
                         </p>
                       </div>
                     </>
@@ -2158,7 +2156,11 @@ const OwnerPrivateRoom = () => {
           )}
 
           {activeTab === 'reports' && (
-            <ReportsPanel reports={reports} />
+            <ReportsPanel reports={reports} onChanged={loadAllData} />
+          )}
+
+          {activeTab === 'reviews' && (
+            <ReviewsPanel reviews={reviews} onChanged={loadAllData} />
           )}
 
           {activeTab === 'security' && (
@@ -2179,6 +2181,14 @@ const OwnerPrivateRoom = () => {
 
           {activeTab === 'orders' && (
             <OrdersPanel orders={orders} />
+          )}
+
+          {activeTab === 'categories' && (
+            <CategoriesManager />
+          )}
+
+          {activeTab === 'banners' && (
+            <BannersManager />
           )}
         </main>
       </div>
@@ -2328,10 +2338,13 @@ const CenterPanel = ({
         { id: 'ads', label: 'إدارة الإعلانات', icon: ShoppingBag, action: () => onTab('ads') },
         { id: 'users', label: 'إدارة المستخدمين', icon: Users, action: () => onTab('users') },
         { id: 'messages', label: 'الرسائل الخاصة', icon: MessageSquare, action: () => onTab('messages') },
-        { id: 'comments', label: 'مراجعة التقييمات', icon: Star, action: () => onTab('comments') },
+        { id: 'comments', label: 'تعليقات الحراج', icon: Star, action: () => onTab('comments') },
         { id: 'complaints', label: 'الشكاوى / المراسلات', icon: AlertTriangle, action: onComplaints },
         { id: 'broadcast', label: 'إرسال تنبيه جماعي', icon: Radio, action: () => onTab('broadcast') },
         { id: 'reports', label: 'البلاغات', icon: Flag, action: () => onTab('reports') },
+        { id: 'reviews', label: 'تقييمات المنتجات', icon: Star, action: () => onTab('reviews') },
+        { id: 'categories', label: 'التصنيفات', icon: LayoutGrid, action: () => onTab('categories') },
+        { id: 'banners', label: 'البنرات', icon: Image, action: () => onTab('banners') },
         { id: 'security', label: 'سجلات الأمان', icon: Shield, action: () => onTab('security') },
         { id: 'permissions', label: 'مصفوفة الصلاحيات (تشغيل / إيقاف)', icon: Key, action: () => onTab('permissions') },
         { id: 'orders', label: 'الطلبات', icon: Activity, action: () => onTab('orders') },
@@ -3344,76 +3357,6 @@ const MessagesPanel = ({
   </div>
   )
 }
-
-const ReportsPanel = ({ reports }) => (
-  <div className="space-y-4">
-    <div className="flex items-center justify-between gap-3">
-      <div>
-        <h2 className="text-xl font-bold royal-text">
-          البلاغات
-        </h2>
-
-        <p className="text-xs royal-muted mt-1 font-medium">
-          {formatNumber(reports.length)} بلاغ
-        </p>
-      </div>
-
-      <span className="px-3 py-1.5 rounded-full text-[10px] bg-[var(--rz-primary)]/10 text-[var(--rz-ink)] border border-[var(--rz-primary)]/25 font-bold">
-        مراجعة
-      </span>
-    </div>
-
-    <div className="space-y-3">
-      {reports.map(report => (
-        <div
-          key={report.id}
-          className="royal-surface rounded-xl p-4 border royal-border"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <span
-              className={`px-2 py-1 rounded-full text-xs font-bold ${
-                report.status === 'pending'
-                  ? 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
-                  : report.status === 'resolved'
-                    ? 'bg-[var(--rz-ink)]/10 text-[var(--rz-ink)]'
-                    : 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)]'
-              }`}
-            >
-              {report.status === 'pending'
-                ? 'قيد المراجعة'
-                : report.status === 'resolved'
-                  ? 'تم الحل'
-                  : 'مرفوض'}
-            </span>
-
-            <span className="text-xs royal-muted font-medium">
-              {formatDate(report.createdAt)}
-            </span>
-          </div>
-
-          <p className="royal-text font-medium">
-            {report.reason ||
-              report.description ||
-              'بلاغ'}
-          </p>
-
-          <p className="text-xs royal-muted mt-1 font-medium">
-            على الإعلان:{' '}
-            {String(report.adId || '').slice(0, 8) ||
-              '—'}
-          </p>
-        </div>
-      ))}
-
-      {reports.length === 0 && (
-        <EmptyState
-          icon={Flag}
-          text="لا توجد بلاغات"
-        />
-      )}
-    </div>
-  </div>
-)
 
 const SecurityPanel = ({ logs }) => (
   <div className="space-y-4">

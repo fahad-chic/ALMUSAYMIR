@@ -14,10 +14,13 @@ const OWNER_ONLY_PERMISSION_KEYS =
     'MONITOR_USER_TRAFFIC_LIVE'
   ]);
 const DEFERRED_PERMISSION_KEYS = permissionCatalog.DEFERRED_PERMISSION_KEYS || new Set();
+const DISABLED_PERMISSION_KEYS = permissionCatalog.DISABLED_PERMISSION_KEYS || new Set();
 
-// صلاحية قابلة للمنح من الواجهة: ليست owner-only وليست مؤجلة.
+// صلاحية قابلة للمنح من الواجهة: ليست owner-only وليست مؤجلة وليست معطّلة.
 const isGrantableKey = (key) =>
-  !OWNER_ONLY_PERMISSION_KEYS.has(key) && !DEFERRED_PERMISSION_KEYS.has(key);
+  !OWNER_ONLY_PERMISSION_KEYS.has(key) &&
+  !DEFERRED_PERMISSION_KEYS.has(key) &&
+  !DISABLED_PERMISSION_KEYS.has(key);
 
 // يحسب المصفوفة الفعّالة لحساب ما بناءً على دوره ووثيقة rbac الخاصة به.
 // - المالك (owner): كل الصلاحيات دائماً ولا يمكن تجميده أو سحبه منه.
@@ -57,12 +60,14 @@ export const computeEffectiveGrants = ({ role, rbacDoc }) => {
 };
 
 // يبني وثيقة منح نظيفة للكتابة في Firestore: مفاتيح معروفة فقط وقيم Boolean.
-// تُستثنى الصلاحيات المؤجلة فلا تُكتب أبداً (لا تنفيذ ولا بيانات وهمية).
+// تُستثنى الصلاحيات المؤجلة والمعطّلة فلا تُكتب أبداً (لا تنفيذ ولا بيانات وهمية).
 export const sanitizeGrants = (input) => {
   const out = {};
   const raw = input && typeof input === 'object' ? input : {};
   for (const key of PERMISSION_KEYS) {
-    if (raw[key] === true && !DEFERRED_PERMISSION_KEYS.has(key)) out[key] = true;
+    if (raw[key] === true && !DEFERRED_PERMISSION_KEYS.has(key) && !DISABLED_PERMISSION_KEYS.has(key)) {
+      out[key] = true;
+    }
   }
   return out;
 };
