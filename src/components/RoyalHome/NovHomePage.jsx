@@ -137,6 +137,7 @@ const NovHomePage = () => {
   const heroSub = siteTexts['home.hero_sub'] || HERO_SUB_DEFAULT;
   const footerTag = siteTexts['home.footer_tag'] || FOOTER_TAG_DEFAULT;
   const [showAddHelp, setShowAddHelp] = useState(false);
+  const [footerOpen, setFooterOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [faqSectionOpen, setFaqSectionOpen] = useState(false);
 
@@ -268,23 +269,33 @@ const NovHomePage = () => {
                 </p>
             </div>
 
-            <div className="rz-footer-links-grid" aria-label="روابط ومعلومات الموقع">
-              {FOOTER_LINKS.map(({ title, path, icon: Icon, description }) => (
-                <article className="rz-footer-info-card" key={title}>
+            <button
+              type="button"
+              className="rz-footer-links-toggle"
+              aria-expanded={footerOpen}
+              onClick={() => setFooterOpen((value) => !value)}
+            >
+              <span><Info size={16} /> روابط الموقع</span>
+              <ChevronDown size={17} className={footerOpen ? 'is-open' : ''} />
+            </button>
+
+            {footerOpen && (
+              <div className="rz-footer-links-grid" aria-label="روابط ومعلومات الموقع">
+                {FOOTER_LINKS.map(({ title, path, icon: Icon }) => (
                   <button
                     type="button"
                     className="rz-footer-info-head"
+                    key={title}
                     onClick={() => navigate(path)}
                     aria-label={`فتح صفحة ${title}`}
                   >
-                    <span className="rz-footer-info-icon"><Icon size={18} /></span>
+                    <span className="rz-footer-info-icon"><Icon size={16} /></span>
                     <span>{title}</span>
                     <span className="rz-footer-info-arrow" aria-hidden="true">←</span>
                   </button>
-                  <p>{description}</p>
-                </article>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             <div className="rz-footer-bottom rz-footer-bottom--center">
               جميع الحقوق محفوظة © 2026 {BRAND.FULL}
