@@ -210,6 +210,62 @@ body.rooz-has-nav { padding-top: 0 !important; }
 }
 .rz-subbar-spacer { flex: 1; }
 
+.rz-footer-links-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--rz-line);
+  border-radius: 12px;
+  background: var(--rz-ivory);
+  color: var(--rz-dark);
+  font: 800 0.82rem var(--rz-font);
+  cursor: pointer;
+}
+.rz-footer-links-toggle > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.rz-footer-links-toggle svg {
+  transition: transform .18s ease;
+}
+.rz-footer-links-toggle svg.is-open {
+  transform: rotate(180deg);
+}
+.rz-footer-links-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.rz-footer-links-grid .rz-footer-info-head {
+  min-height: 38px;
+  padding: 7px 8px;
+  border: 1px solid var(--rz-line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--rz-dark);
+  font: 700 0.75rem var(--rz-font);
+  cursor: pointer;
+}
+.rz-footer-links-grid .rz-footer-info-icon {
+  display: inline-flex;
+}
+.rz-footer-links-grid .rz-footer-info-head > p {
+  display: none;
+}
+@media (max-width: 720px) {
+  .rz-footer-links-grid {
+    grid-template-columns: 1fr;
+  }
+  .rz-footer {
+    padding-bottom: 18px !important;
+  }
+}
+
 /* حركات احترافية خفيفة داخل الترويسة فقط — التنقل بين الصفحات مباشر وثابت */
 .rz-nav-link,
 .rz-burger,
