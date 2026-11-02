@@ -693,6 +693,113 @@
   .rl-card:not(.rl-card--big) { width: min(100%, 320px) !important; }
 }
 
+/* ===== آخر طبقة: ألوان فاتحة وتوزيع ثابت للمعاينة ===== */
+.rl-root {
+  background:
+    radial-gradient(circle at 50% -12%, rgba(214, 174, 99, .16), transparent 34%),
+    linear-gradient(180deg, #fffdf8 0%, #f8f5ee 100%) !important;
+}
+
+.rl-cards {
+  display: grid !important;
+  grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr) !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  width: 100% !important;
+  direction: rtl !important;
+}
+
+.rl-card,
+.rl-card--big,
+.rl-card:not(.rl-card--big) {
+  width: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+  border-radius: 15px !important;
+}
+
+.rl-card--big {
+  padding: 15px 12px 12px !important;
+  background: linear-gradient(145deg, #fff 0%, #fffaf0 100%) !important;
+  border: 1.5px solid #c9a45c !important;
+  box-shadow: 0 0 0 3px rgba(201, 164, 92, .10), 0 12px 28px rgba(92, 70, 37, .11) !important;
+}
+
+.rl-card:not(.rl-card--big) {
+  padding: 12px 9px !important;
+  background: #fff !important;
+  border: 1px solid rgba(201, 164, 92, .48) !important;
+  box-shadow: 0 8px 20px rgba(92, 70, 37, .08) !important;
+}
+
+.rl-card-title,
+.rl-card--big .rl-card-title {
+  color: #6e5229 !important;
+  font-size: .86rem !important;
+}
+
+.rl-card-sub,
+.rl-card--big .rl-card-sub,
+.rl-card-phrase,
+.rl-card--big .rl-card-phrase {
+  color: #62594e !important;
+}
+
+.rl-card-sub,
+.rl-card--big .rl-card-sub { font-size: .68rem !important; }
+.rl-card-phrase,
+.rl-card--big .rl-card-phrase {
+  font-size: .64rem !important;
+  -webkit-line-clamp: 2 !important;
+  max-height: 2.6em !important;
+}
+
+.rl-owner-badge,
+.rl-owner-badge > span {
+  color: #765521 !important;
+}
+
+.rl-owner-badge {
+  background: #fff4d8 !important;
+  border-color: rgba(201, 164, 92, .62) !important;
+}
+
+.rl-contact-owner {
+  color: #765521 !important;
+  background: #fff7e6 !important;
+  border-color: rgba(201, 164, 92, .58) !important;
+}
+
+.rl-form-card {
+  background: rgba(255, 255, 255, .92) !important;
+  border-color: rgba(201, 164, 92, .58) !important;
+  box-shadow: 0 14px 32px rgba(92, 70, 37, .10) !important;
+}
+
+.rl-form-title { color: #785827 !important; }
+.rl-form-divider,
+.rl-form-divider b { color: #5e513f !important; }
+.rl-label,
+.rl-input { color: #3d382f !important; }
+.rl-input-wrap { background: #fffdf9 !important; }
+.rl-btn {
+  color: #3b2d18 !important;
+  background: linear-gradient(180deg, #e1bd72 0%, #c89a48 100%) !important;
+  border-color: #b4873e !important;
+}
+
+@media (max-width: 430px) {
+  .rl-cards { gap: 7px !important; }
+  .rl-card--big,
+  .rl-card:not(.rl-card--big) { padding-inline: 7px !important; }
+  .rl-card-title,
+  .rl-card--big .rl-card-title { font-size: .76rem !important; }
+  .rl-card-sub,
+  .rl-card--big .rl-card-sub { font-size: .61rem !important; }
+  .rl-card-phrase,
+  .rl-card--big .rl-card-phrase { font-size: .58rem !important; }
+}
+
 /* ===== GLASS LOGIN LOCK — خلفية الرياض ظاهرة ===== */
 .rl-root .rl-card:not(.rl-card--big) .rl-card-title {
   color: var(--rz-ink) !important;
