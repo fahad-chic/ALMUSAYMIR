@@ -157,11 +157,30 @@ const AIChatWidget = ({
 
   return (
     <>
+      <style>{`
+        .alm-ai-chat-dialog {
+          box-sizing: border-box;
+        }
+        @media (max-width: 720px) {
+          .alm-ai-chat-dialog {
+            top: calc(70px + env(safe-area-inset-top)) !important;
+            bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+            left: 8px !important;
+            right: 8px !important;
+            width: auto !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            border-radius: 16px !important;
+          }
+        }
+      `}</style>
       {/* Chat Window */}
       <div
         dir="rtl"
         role="dialog"
         aria-label="المساعد الذكي"
+        className="alm-ai-chat-dialog"
         style={{
           position: 'fixed',
           left: 'clamp(10px, 3vw, 24px)',
@@ -177,7 +196,7 @@ const AIChatWidget = ({
             '0 24px 70px rgba(var(--rz-ink-rgb), 0.22), 0 5px 18px rgba(var(--rz-ink-rgb), 0.08)',
           display: 'flex',
           flexDirection: 'column',
-          zIndex: 999,
+          zIndex: 2600,
           overflow: 'hidden',
           fontFamily: 'Tajawal, Arial, sans-serif',
         }}
