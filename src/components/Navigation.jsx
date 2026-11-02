@@ -24,7 +24,6 @@ import useNotifications from '../store/useNotifications';
 import ContactOwnerModal from './ContactOwnerModal';
 import BroadcastModal from './BroadcastModal';
 import RoyalHeader from './RoyalHeader';
-import MobileBottomNav from './MobileBottomNav';
 import ExperienceTools from './ExperienceTools';
 import AppearanceControls from './AppearanceControls';
 
@@ -161,7 +160,6 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
       />
 
       <AppearanceControls />
-      <MobileBottomNav visible={Boolean(user)} />
       <ExperienceTools />
 
       {showElegantWelcome && (
