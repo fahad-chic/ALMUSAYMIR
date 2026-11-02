@@ -118,7 +118,7 @@ const RoyalHeader = ({
                 <span className="rz-icon-badge">{unreadNotifications > 9 ? '9+' : unreadNotifications}</span>
               )}
             </button>
-            <button type="button" className="rz-icon-btn" aria-label="الحساب" title="الحساب"
+            <button type="button" className="rz-icon-btn" aria-label="الحساب والإعدادات" title="الحساب والإعدادات"
               onClick={() => go('/settings')}>
               <User size={19} />
             </button>
