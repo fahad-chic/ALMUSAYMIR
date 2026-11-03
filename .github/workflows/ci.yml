@@ -1,3 +1,6 @@
+------------------------------
+----------- ci.yml -----------
+------------------------------
 name: CI
 
 on:
@@ -9,59 +12,106 @@ on:
       - '**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24.12.0'
+  CI: true
+
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
         with:
-          node-version: '24.12.0'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
-      - run: npm run lint
+      - name: Install dependencies
+        run: npm ci
+      - name: Run ESLint
+        run: npm run lint
 
   test:
+    name: Unit tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
         with:
-          node-version: '24.12.0'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
-      - run: npm test
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
 
   build:
+    name: Production build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
         with:
-          node-version: '24.12.0'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
-      - run: npm run build
+      - name: Install dependencies
+        run: npm ci
+      - name: Build application
+        run: npm run build
 
   contrast:
+    name: WCAG contrast audit
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
         with:
-          node-version: '24.12.0'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - name: Install dependencies
+        run: npm ci
+      - name: Build application
+        run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
       - name: Start preview server
+        shell: bash
         run: |
+          set -Eeuo pipefail
           npm run preview -- --port 4173 > /tmp/preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill "$PREVIEW_PID" 2>/dev/null || true' EXIT
+
           for i in $(seq 1 40); do
-            if curl -sf http://localhost:4173/login > /dev/null; then echo "preview up"; break; fi
+            if curl --fail --silent --show-error http://localhost:4173/login > /dev/null; then
+              echo "Preview server is ready."
+              break
+            fi
             sleep 1
           done
-          curl -sf http://localhost:4173/login > /dev/null || (cat /tmp/preview.log; exit 1)
+          curl --fail --silent --show-error http://localhost:4173/login > /dev/null || {
+            cat /tmp/preview.log
+            exit 1
+          }
       - name: WCAG AA contrast audit
         run: npm run contrast
         env:
