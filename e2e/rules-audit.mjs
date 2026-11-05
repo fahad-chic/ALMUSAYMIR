@@ -17,7 +17,7 @@ import {
   assertSucceeds,
   assertFails,
 } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, collection, query, orderBy, where } from 'firebase/firestore';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -870,6 +870,44 @@ await expectAllow('تعليق: صاحب DELETE يحذف التعليق فعلا�
 await expectDeny('تعليق: غير المصرّح لا يحذف', deleteDoc(doc(adminB, 'comments', 'cm-3')));
 await expectDeny('تعليق: الزائر لا يحذف', deleteDoc(doc(visitor, 'comments', 'cm-3')));
 await expectAllow('تعليق: المالك يحذف', deleteDoc(doc(owner, 'comments', 'cm-3')));
+
+// ============ 22) قراءة التعليقات: منع كشف التعليقات المعلّقة وحقل البريد ============
+// الثغرة المُصلَحة: كانت allow read: if true تكشف تعليقات pending غير المراجَعة
+// ومعها email الخاص لأي عميل — حتى بلا حساب. هذه الفحوص تثبت الإصلاح وعدم كسر
+// الوصول المشروع (العام للمعتمد، والمشرف/المالك لكل الحالات).
+console.log('\n=== 22) قراءة التعليقات: السماح للمعتمد والرفض للمعلّق/البريد ===');
+const CM_READ_PUBLIC = 'cm-public-approved';
+const CM_READ_PENDING = 'cm-public-pending';
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  await setDoc(doc(db, 'comments', CM_READ_PUBLIC), {
+    name: 'زائر', email: 'public@example.com', text: 'منشور', status: 'approved', createdAt: new Date(),
+  });
+  await setDoc(doc(db, 'comments', CM_READ_PENDING), {
+    name: 'زائر', email: 'secret-pending@example.com', text: 'بانتظار المراجعة', status: 'pending', createdAt: new Date(),
+  });
+});
+// زائر مجهول (جلسة Firebase مجهولة) — هو ما يراه الموقع للزائر المؤقت
+const anonGuest = testEnv.authenticatedContext('uid-anon', {
+  firebase: { sign_in_provider: 'anonymous' },
+}).firestore();
+
+// رفض: لا أحد غير المخوّل يقرأ التعليق المعلّق (وبريده)
+await expectDeny('قراءة: غير المصادق لا يقرأ تعليقاً معلّقاً (وحقله email)', getDoc(doc(visitor, 'comments', CM_READ_PENDING)));
+await expectDeny('قراءة: العضو لا يقرأ تعليقاً معلّقاً', getDoc(doc(user, 'comments', CM_READ_PENDING)));
+await expectDeny('قراءة: الزائر المجهول لا يقرأ تعليقاً معلّقاً', getDoc(doc(anonGuest, 'comments', CM_READ_PENDING)));
+await expectDeny('قراءة: مشرف بلا صلاحية تعليقات لا يقرأ المعلّق', getDoc(doc(adminB, 'comments', CM_READ_PENDING)));
+// رفض: استعلام بلا شرط الحالة يُرفض للعضو (السبب الذي أوجب where(status==approved))
+await expectDeny('قراءة: عضو لا يستعلم التعليقات بلا شرط status (تسريب محتمل)', getDocs(query(collection(user, 'comments'), orderBy('createdAt', 'desc'))));
+// سماح: التعليق المعتمد مقروء للعضو وللزائر المجهول
+await expectAllow('قراءة: العضو يقرأ التعليق المعتمد', getDoc(doc(user, 'comments', CM_READ_PUBLIC)));
+await expectAllow('قراءة: الزائر المجهول يقرأ التعليق المعتمد', getDoc(doc(anonGuest, 'comments', CM_READ_PUBLIC)));
+await expectAllow('قراءة: العضو يستعلم المعتمد بشرط status (استعلام الصفحة الرئيسية)', getDocs(query(collection(user, 'comments'), where('status', '==', 'approved'), orderBy('createdAt', 'desc'))));
+// سماح: المالك ومشرفو التعليقات يرون المعلّق (لوحة المراجعة)
+await expectAllow('قراءة: المالك يقرأ التعليق المعلّق', getDoc(doc(owner, 'comments', CM_READ_PENDING)));
+await expectAllow('قراءة: صاحب HARAJ_COMMENT_EDIT يقرأ المعلّق', getDoc(doc(cmEdit, 'comments', CM_READ_PENDING)));
+await expectAllow('قراءة: صاحب HARAJ_COMMENT_DELETE يقرأ المعلّق', getDoc(doc(cmDelete, 'comments', CM_READ_PENDING)));
+await expectAllow('قراءة: مشرف التعليقات يستعلم كل الحالات بلا شرط status', getDocs(query(collection(cmEdit, 'comments'), orderBy('createdAt', 'desc'))));
 
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);

@@ -669,7 +669,15 @@ service cloud.firestore {
 
     // ============ تعليقات الرئيسية وحراج ============
     match /comments/{docId} {
-      allow read: if true;
+      // التعليقات تُعرض للزوار والأعضاء بحالة «معتمد» فقط. القراءة العامة
+      // المطلقة (allow read: if true) كانت تكشف تعليقات pending غير المراجَعة
+      // ومعها حقل email الخاص — لأي عميل حتى بلا حساب. المالك ومشرفو
+      // التعليقات (EDIT/DELETE) يرون كل الحالات لأن لوحة المراجعة تحتاجها.
+      allow read: if isOwner()
+                  || hasPerm('HARAJ_COMMENT_EDIT')
+                  || hasPerm('HARAJ_COMMENT_DELETE')
+                  || ((isSignedIn() || isAnonymousGuest())
+                      && resource.data.status == 'approved');
 
       // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة وحالة إلزامية
       // 'pending'. بدون ذلك يستطيع أي زائر كتابة status:'approved' فيُنشر

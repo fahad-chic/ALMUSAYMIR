@@ -274,15 +274,6 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // تشخيص مرئي فوري — يظهر حتى قبل فحص auth
-    console.log(
-      '[LOGIN] handleLogin called',
-      {
-        hasEmail: !!email,
-        hasPass: !!password,
-      }
-    );
-
     if (!auth) {
       // رسالة أوضح للمالك — تساعد على تشخيص إعدادات Firebase مباشرة
       const missing = [
@@ -322,22 +313,12 @@ const Login = () => {
     try {
       const authInstance = auth;
 
-      console.log(
-        '[LOGIN] Firebase signIn attempt for:',
-        email.trim()
-      );
-
       const signInResult =
         await signInWithEmailAndPassword(
           authInstance,
           email.trim(),
           password
         );
-
-      console.log(
-        '[LOGIN] Firebase signIn success, uid:',
-        signInResult.user.uid
-      );
 
       // امسح أي هوية زائر راكدة فور نجاح مصادقة Firebase — قبل فتح مودال
       // OTP حتى لا تستمر مؤقّتات الزائر القديمة بالعمل في الخلفية ولا تبقى
