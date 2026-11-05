@@ -23,7 +23,6 @@ import {
   Sparkles,
   UserPlus,
   KeyRound,
-  MailOpen,
   Phone,
 } from 'lucide-react';
 import ContactOwnerModal from './ContactOwnerModal';
@@ -274,15 +273,6 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // تشخيص مرئي فوري — يظهر حتى قبل فحص auth
-    console.log(
-      '[LOGIN] handleLogin called',
-      {
-        hasEmail: !!email,
-        hasPass: !!password,
-      }
-    );
-
     if (!auth) {
       // رسالة أوضح للمالك — تساعد على تشخيص إعدادات Firebase مباشرة
       const missing = [
@@ -322,22 +312,12 @@ const Login = () => {
     try {
       const authInstance = auth;
 
-      console.log(
-        '[LOGIN] Firebase signIn attempt for:',
-        email.trim()
-      );
-
       const signInResult =
         await signInWithEmailAndPassword(
           authInstance,
           email.trim(),
           password
         );
-
-      console.log(
-        '[LOGIN] Firebase signIn success, uid:',
-        signInResult.user.uid
-      );
 
       // امسح أي هوية زائر راكدة فور نجاح مصادقة Firebase — قبل فتح مودال
       // OTP حتى لا تستمر مؤقّتات الزائر القديمة بالعمل في الخلفية ولا تبقى
@@ -783,10 +763,9 @@ const Login = () => {
     {
       icon: Crown,
       role: 'owner',
-      title: 'دخول صاحب موقع “المسيمير | ALMUSAYMIR”',
+      title: 'دخول صاحب الموقع',
       subtitle: 'الإدارة والإشراف العام',
-      phrase:
-        'متجر المسيمير | ALMUSAYMIR يسعى لراحة الزوار وتلبية تطلعاتهم برؤية مبتكرة تجمع بين جودة الإدارة وثقة التعامل.',
+      phrase: '',
       big: true,
     },
     {
@@ -816,8 +795,14 @@ const Login = () => {
           />
         </div>
 
+        <div className="rl-brand-name" dir="rtl">
+          <span>متجر المسيمير</span>
+          <span aria-hidden="true">|</span>
+          <bdi dir="ltr">ALMUSAYMIR</bdi>
+        </div>
+
         <div className="rl-tag">
-          سوقٌ موثوق يجمع الجودة والأناقة ويصون ثقة عملائه
+          سوقٌ موثوق يسعى لراحة الزوار وتلبية تطلعاتهم برؤية مبتكرة تجمع بين جودة الإدارة وثقة التعامل
         </div>
       </header>
 
@@ -855,13 +840,6 @@ const Login = () => {
             }}
             aria-label={r.title}
           >
-            <span className="rl-card-crown-line">
-              <img
-                src={BRAND.LOGO}
-                alt=""
-                className="rl-card-logo"
-              />
-            </span>
             <span className="rl-card-title text-royal-gold font-bold">
               {r.title}
             </span>
@@ -870,9 +848,11 @@ const Login = () => {
               {r.subtitle}
             </span>
 
-            <span className="rl-card-phrase text-royal-white">
-              {r.phrase}
-            </span>
+            {r.phrase && (
+              <span className="rl-card-phrase text-royal-white">
+                {r.phrase}
+              </span>
+            )}
 
             {r.big && (
               <span className="rl-owner-badge text-royal-gold">
@@ -899,32 +879,6 @@ const Login = () => {
               </span>
             )}
 
-            {r.big &&
-              hiddenTapCount > 0 && (
-                <span
-                  aria-hidden="true"
-                  style={{
-                    display: 'block',
-                    marginTop: 6,
-                    fontSize: 11,
-                    color:
-                      'rgba(var(--rz-primary-rgb), 0.55)',
-                    letterSpacing: 1,
-                  }}
-                >
-                  {'●'.repeat(
-                    hiddenTapCount
-                  )}
-                  {'○'.repeat(
-                    Math.max(
-                      0,
-                      3 -
-                        hiddenTapCount
-                    )
-                  )}
-                </span>
-              )}
-
             {r.big && (
               <button
                 type="button"
@@ -936,11 +890,7 @@ const Login = () => {
                   );
                 }}
               >
-                <MailOpen
-                  size={16}
-                  aria-hidden="true"
-                />
-                لمراسلة صاحب الموقع اضغط هنا
+                <span>لمراسلة صاحب الموقع اضغط هنا</span>
               </button>
             )}
           </div>
@@ -966,7 +916,7 @@ const Login = () => {
         <div className="rl-form-divider">
           <span />
           <b>
-            دخول آمن إلى المسيمير | ALMUSAYMIR — تحقق ثنائي مفعّل
+            دخول آمن — تحقق ثنائي مفعّل
           </b>
           <span />
         </div>
@@ -1498,14 +1448,7 @@ const Login = () => {
             جميع بيانات المستخدمين
             مشفّرة وأمانٌ عالٍ.
           </b>
-
           <br />
-
-          المسيمير | ALMUSAYMIR — متجر شامل وحراج إعلانات
-          معتمدة،
-
-          <br />
-
           نلتزم بأعلى معايير الحماية
           والخصوصية لحماية حسابك
           وخصوصيتك.
@@ -1513,8 +1456,7 @@ const Login = () => {
       </section>
 
       <footer className="rl-foot">
-        جميع الحقوق محفوظة © المسيمير | ALMUSAYMIR
-        2026
+        جميع الحقوق محفوظة © 2026
       </footer>
 
       {showOwnerContact && (
