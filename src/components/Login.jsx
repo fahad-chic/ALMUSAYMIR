@@ -23,6 +23,7 @@ import {
   Sparkles,
   UserPlus,
   KeyRound,
+  UserRound,
   Phone,
 } from 'lucide-react';
 import ContactOwnerModal from './ContactOwnerModal';
@@ -816,7 +817,8 @@ const Login = () => {
             role="button"
             tabIndex={0}
             className={[
-              'rl-card',
+            'rl-card',
+              r.role === 'admin' ? 'rl-card--admin' : '',
               r.big
                 ? 'rl-card--big'
                 : '',
@@ -1160,7 +1162,8 @@ const Login = () => {
             }
             disabled={loading}
           >
-            نسيت كلمة المرور؟
+            <KeyRound size={14} aria-hidden="true" />
+            <span>نسيت كلمة المرور؟</span>
           </button>
 
           <button
@@ -1171,7 +1174,8 @@ const Login = () => {
             }
             disabled={loading}
           >
-            إنشاء حساب جديد
+            <UserPlus size={14} aria-hidden="true" />
+            <span>إنشاء حساب جديد</span>
           </button>
 
           <button
@@ -1183,7 +1187,8 @@ const Login = () => {
               !!googleUserObj
             }
           >
-            الدخول عن طريق Google
+            <span className="rl-google-mark" aria-hidden="true">G</span>
+            <span>الدخول عن طريق Google</span>
           </button>
 
           <button
@@ -1192,7 +1197,8 @@ const Login = () => {
             onClick={handleGuestLogin}
             disabled={loading || guestLoading}
           >
-            {guestLoading ? 'جارٍ فتح الجلسة...' : 'الدخول كزائر لمدة دقيقتين'}
+            <UserRound size={14} aria-hidden="true" />
+            <span>{guestLoading ? 'جارٍ فتح الجلسة...' : 'الدخول كزائر لمدة دقيقتين'}</span>
           </button>
         </div>
 
@@ -1203,16 +1209,16 @@ const Login = () => {
             navigate('/haraj')
           }
           className="rl-haraj-gate"
-          aria-label="الدخول إلى موقع حراج أونلاين"
-          title="الدخول إلى موقع حراج أونلاين"
+          aria-label="موقع حراج أونلاين"
+          title="موقع حراج أونلاين"
         >
           <Shield
-            size={18}
+            size={14}
             aria-hidden="true"
           />
 
           <span>
-            الدخول إلى موقع حراج أونلاين
+            موقع حراج أونلاين
           </span>
 
           <span
