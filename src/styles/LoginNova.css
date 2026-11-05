@@ -1,4 +1,4 @@
-------------------------------
+
 ------- LoginNova.css --------
 ------------------------------
 /* ============================================================
@@ -693,6 +693,250 @@
   .rl-card:not(.rl-card--big) { width: min(100%, 320px) !important; }
 }
 
+/* Final overrides: keep requested login branding and concise owner card. */
+.rl-crown-ic img {
+  width: clamp(148px, 42vw, 188px) !important;
+  max-height: 142px !important;
+}
+
+.rl-brand-name {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .3em !important;
+  margin-top: 2px !important;
+  color: #493a27 !important;
+  font-size: clamp(.9rem, 3.6vw, 1.08rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.4 !important;
+}
+
+.rl-tag {
+  max-width: 42rem !important;
+  margin-top: 3px !important;
+  color: #5e513f !important;
+  font-size: clamp(.72rem, 2.9vw, .86rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.55 !important;
+  text-wrap: balance;
+}
+
+.rl-card--big,
+.rl-card:not(.rl-card--big) {
+  min-height: 0 !important;
+}
+
+.rl-card--big {
+  padding: 13px 10px 12px !important;
+}
+
+.rl-card--big .rl-card-title {
+  font-size: .94rem !important;
+}
+
+.rl-card--big .rl-card-sub {
+  font-size: .72rem !important;
+}
+
+.rl-card--big .rl-owner-badge {
+  margin-top: 6px !important;
+  padding-inline: 7px !important;
+}
+
+.rl-card--big .rl-contact-owner {
+  display: flex !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  white-space: normal !important;
+  margin-top: 7px !important;
+  padding: 6px 5px !important;
+  font-size: .66rem !important;
+}
+
+.rl-card--big .rl-contact-owner > span {
+  display: block !important;
+  flex: 1 1 0 !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  white-space: normal !important;
+  text-align: center !important;
+}
+
+.rl-card--big .rl-contact-owner > span {
+  min-width: 0 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.3 !important;
+}
+
+.rl-card--big .rl-contact-owner > svg {
+  flex: 0 0 auto !important;
+}
+
+/* Final login refinements: larger brand mark and compact owner card. */
+.rl-crown-ic img {
+  width: clamp(148px, 42vw, 188px) !important;
+  max-height: 142px !important;
+}
+
+.rl-brand-name {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .3em !important;
+  margin-top: 2px !important;
+  color: #493a27 !important;
+  font-size: clamp(.9rem, 3.6vw, 1.08rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.4 !important;
+}
+
+.rl-tag {
+  max-width: 42rem !important;
+  margin-top: 3px !important;
+  color: #5e513f !important;
+  font-size: clamp(.72rem, 2.9vw, .86rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.55 !important;
+  text-wrap: balance;
+}
+
+.rl-card--big,
+.rl-card:not(.rl-card--big) {
+  min-height: 0 !important;
+}
+
+.rl-card--big {
+  padding: 13px 10px 12px !important;
+}
+
+.rl-card--big .rl-card-title {
+  font-size: .94rem !important;
+}
+
+.rl-card--big .rl-card-sub {
+  font-size: .72rem !important;
+}
+
+.rl-card--big .rl-owner-badge {
+  margin-top: 6px !important;
+  padding-inline: 7px !important;
+}
+
+.rl-card--big .rl-contact-owner {
+  margin-top: 7px !important;
+  padding: 6px 5px !important;
+  font-size: .66rem !important;
+}
+
+/* آخر طبقة: حجم الشعار ونسخة الدخول المختصرة */
+.rl-crown-ic img {
+  width: clamp(148px, 42vw, 188px) !important;
+  max-height: 142px !important;
+}
+
+.rl-brand-name {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .3em !important;
+  margin-top: 2px !important;
+  color: #493a27 !important;
+  font-size: clamp(.9rem, 3.6vw, 1.08rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.4 !important;
+}
+
+.rl-tag {
+  max-width: 42rem !important;
+  margin-top: 3px !important;
+  color: #5e513f !important;
+  font-size: clamp(.72rem, 2.9vw, .86rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.55 !important;
+  text-wrap: balance;
+}
+
+.rl-card--big,
+.rl-card:not(.rl-card--big) {
+  min-height: 0 !important;
+}
+
+.rl-card--big {
+  padding: 13px 10px 12px !important;
+}
+
+.rl-card--big .rl-card-title {
+  font-size: .94rem !important;
+}
+
+.rl-card--big .rl-card-sub {
+  font-size: .72rem !important;
+}
+
+.rl-card--big .rl-owner-badge {
+  margin-top: 6px !important;
+  padding-inline: 7px !important;
+}
+
+.rl-card--big .rl-contact-owner {
+  margin-top: 7px !important;
+  padding: 6px 5px !important;
+  font-size: .66rem !important;
+}
+
+/* تحسين أخير لهوية صفحة الدخول وبطاقة المالك المختصرة */
+.rl-head {
+  gap: 3px !important;
+}
+
+.rl-crown-ic img {
+  width: clamp(132px, 38vw, 172px) !important;
+  max-height: 126px !important;
+}
+
+.rl-brand-name {
+  margin-top: 1px !important;
+  color: #493a27 !important;
+  font-size: clamp(.88rem, 3.4vw, 1.05rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.35 !important;
+  letter-spacing: .01em !important;
+}
+
+.rl-tag {
+  max-width: 42rem !important;
+  margin-top: 2px !important;
+  color: #6e5736 !important;
+  font-size: clamp(.72rem, 2.9vw, .86rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.55 !important;
+  text-wrap: balance;
+}
+
+.rl-card--big {
+  min-height: 0 !important;
+  padding: 14px 14px 13px !important;
+}
+
+.rl-card--big .rl-card-title {
+  font-size: .98rem !important;
+}
+
+.rl-card--big .rl-card-sub {
+  font-size: .76rem !important;
+}
+
+.rl-card--big .rl-owner-badge {
+  margin-top: 7px !important;
+}
+
+.rl-card--big .rl-contact-owner {
+  margin-top: 8px !important;
+}
+
 /* ===== آخر طبقة: ألوان فاتحة وتوزيع ثابت للمعاينة ===== */
 .rl-root {
   background:
@@ -1082,4 +1326,58 @@
   .rl-cards { align-items: center !important; }
   .rl-card--big { width: min(100%, 380px) !important; }
   .rl-card:not(.rl-card--big) { width: min(100%, 320px) !important; }
+}
+
+/* Final requested login branding overrides */
+.rl-crown-ic img { width: clamp(176px, 50vw, 218px) !important; max-height: 165px !important; }
+.rl-brand-name {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .3em !important;
+  margin-top: 2px !important;
+  color: #493a27 !important;
+  font-size: clamp(.9rem, 3.6vw, 1.08rem) !important;
+  font-weight: 900 !important;
+  line-height: 1.4 !important;
+}
+.rl-tag {
+  max-width: 42rem !important;
+  margin-top: 3px !important;
+  color: #5e513f !important;
+  font-size: clamp(.72rem, 2.9vw, .86rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.55 !important;
+  text-wrap: balance;
+}
+.rl-card--big,
+.rl-card:not(.rl-card--big) { min-height: 0 !important; }
+.rl-card--big { padding: 13px 10px 12px !important; }
+.rl-card--big .rl-card-title { font-size: .94rem !important; }
+.rl-card--big .rl-card-sub { font-size: .72rem !important; }
+.rl-card--big .rl-owner-badge { margin-top: 6px !important; padding-inline: 7px !important; }
+.rl-card--big .rl-contact-owner {
+  margin-top: 7px !important;
+  padding: 6px 5px !important;
+  font-size: .66rem !important;
+}
+
+.rl-cards { align-items: start !important; }
+.rl-card--big {
+  align-self: start !important;
+  min-height: 0 !important;
+  padding: 8px 8px 9px !important;
+}
+.rl-card--big .rl-card-title { font-size: .84rem !important; line-height: 1.25 !important; }
+.rl-card--big .rl-card-sub { font-size: .65rem !important; line-height: 1.25 !important; }
+.rl-card--big .rl-owner-badge {
+  margin-top: 4px !important;
+  padding: 2px 7px !important;
+  font-size: .62rem !important;
+}
+.rl-card--big .rl-contact-owner {
+  margin-top: 5px !important;
+  padding: 5px 4px !important;
+  min-height: 0 !important;
+  font-size: .61rem !important;
 }
