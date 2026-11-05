@@ -103,10 +103,10 @@ describe('بطاقتا اختيار الدور', () => {
     renderLogin();
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'دخول صاحب موقع “المسيمير | ALMUSAYMIR”' })
+      screen.getByRole('button', { name: 'دخول صاحب الموقع' })
     );
 
-    expect(screen.getByText('دخول صاحب الموقع')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'دخول صاحب الموقع' })).toBeTruthy();
     await waitFor(() => {
       expect(document.activeElement).toBe(
         screen.getByPlaceholderText('example@mail.com')
@@ -178,7 +178,7 @@ describe('سجل التشخيص وإصدار الواجهة لا يظهران ف
       ])
     );
     renderLogin();
-    const ownerCard = screen.getByText(/دخول صاحب موقع/);
+    const ownerCard = screen.getByRole('button', { name: 'دخول صاحب الموقع' });
     fireEvent.click(ownerCard);
     // لوحة التشخيص أُزيلت من الواجهة نهائياً — لا تظهر لأي دور.
     expect(screen.queryByText(/إصدار الواجهة/)).toBeNull();
