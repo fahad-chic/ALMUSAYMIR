@@ -634,34 +634,71 @@ service cloud.firestore {
 
     // ============ تقييمات العملاء ============
     // الثغرة المُصلَحة: كان allow read: if true يكشف كل تقييم — بما فيه المخفي
-    // (hidden:true) وحقل userEmail الخاص — لأي عميل حتى بلا حساب. قواعد Firestore
-    // لا تُخفي حقولاً منفردة من مستند مسموح قراءته، لذلك نطبّق حاجزين:
-    //   1) المخفي لا يُقرأ إلا للمالك/صاحب MANAGE_REVIEWS (لوحة الإشراف).
-    //   2) أي مستند يحمل حقولاً شخصية (userEmail/email/phone/userPhone/userId)
-    //      لا يُقرأ علناً إطلاقاً — حتى لو كان منشوراً — دفاعاً عن البيانات
-    //      القديمة التي قد تحمل بريداً. الكتابة الجديدة تفصل البريد في
-    //      review_private فلا يحمله مستند reviews العام أصلاً.
-    // القراءة العامة للتقييم المنشور النظيف (hidden != true وبلا PII) تبقى مسموحة.
+    // (hidden:true) وحقل userEmail الخاص — لأي عميل حتى بلا حساب.
+    // الحاجز الفعّال علامة عامة واحدة: publicSafe == true. قواعد Firestore
+    // تقيّم الاستعلام (list) لا كل مستند على حدة، فشرطٌ غير مفروض في الاستعلام
+    // لا يحمي؛ لذلك أي كتابة جديدة تُلزَم publicSafe == true، والإخفاء يُبطلها،
+    // والمستندات القديمة التي تحمل بريداً لا تحمل العلامة فلا تُقرأ علناً.
+    // البريد/المعرّف يُفصلان في review_private/{docId} (المالك/المشرف فقط).
     match /reviews/{docId} {
+      // القراءة العامة تعتمد علامة واحدة قابلة للفرض في الاستعلام:
+      // publicSafe == true. لا تكفي إخفاء الحقول؛ لأن قواعد Firestore تقيّم
+      // الاستعلام (list) لا كل مستند، فأي شرط غير مفروض في الاستعلام يسمح
+      // بتسريب مستند لا يمرّ عبره. لذلك:
+      //   - أي كتابة جديدة تُلزَم publicSafe == true (والتقييم المخفي تُبطَل
+      //     علامته عند الإخفاء)، والمستندات القديمة التي تحمل بريداً لا تحمل
+      //     هذه العلامة فلا تُقرأ علناً.
+      //   - getReviews يستعلم where('publicSafe','==',true).
       allow read: if isOwner()
                   || canManageReviews()
-                  || ( resource.data.hidden != true
-                       && !resource.data.keys().hasAny(['userEmail','email','phone','userPhone','userId']) );
+                  || resource.data.publicSafe == true;
+      // الإنشاء: عضو موثّق فقط، بقائمة حقول مسموحة صريحة تمنع أي بيانات شخصية
+      // أو معرّفات (userEmail/email/phone/userPhone/userId/ownerUid)، وتُلزِم
+      // publicSafe == true. البيانات الشخصية تُكتب في review_private/{docId}.
       allow create: if isSignedIn() && canWriteDuringMaintenance()
-                    && !request.resource.data.keys().hasAny(['userEmail','email','phone','userPhone']);
+                    && request.resource.data.keys().hasAll(['productId','rating','publicSafe'])
+                    && request.resource.data.keys().hasOnly(['productId','rating','text','publicSafe','createdAt'])
+                    && request.resource.data.publicSafe == true
+                    && !request.resource.data.keys().hasAny(['userEmail','email','phone','userPhone','userId','ownerUid','hidden']);
+      // التعديل: المالك/المشرف فقط. الإخفاء يُلزم إبطال publicSafe فلا يبقى
+      // التقييم المخفي مقروءاً للعام من خلال الاستعلام.
       allow update: if isOwner()
                     || ( canManageReviews()
                          && request.resource.data.diff(resource.data)
-                              .affectedKeys().hasOnly(['hidden','moderationReason','moderatedBy','moderatedAt','updatedAt']) );
+                              .affectedKeys().hasOnly(['hidden','publicSafe','moderationReason','moderatedBy','moderatedAt','updatedAt'])
+                         && request.resource.data.publicSafe == (request.resource.data.hidden != true) );
       allow delete: if isOwner() || canManageReviews();
     }
 
-    // البيانات الشخصية للتقييم (البريد/المعرّف) — منفصلة عن مستند العرض العام
-    // حتى لا تُقرأ مع التقييم المنشور. المالك وصاحب MANAGE_REVIEWS فقط.
+    // ============ البيانات الشخصية للتقييم (منفصلة) ============
+    // لماذا منفصلة: قواعد Firestore لا تُخفي حقولاً منفردة من مستند مسموح
+    // قراءته، فلو بقي البريد في مستند reviews العام لَظهر مع أي قراءة عامة.
+    // المفتاح = نفس معرّف التقييم (docId) فيربط السجلَين دون كشف أي شيء علناً.
+    //
+    // الملكية غير قابلة للتزوير: يُلزَم الحقل ownerUid بأن يساوي uid المُنشئ
+    // (request.auth.uid). فلا يستطيع عضو إنشاء سجل خاص باسم عضو آخر، ولا تغيير
+    // مالكه لاحقاً (ownerUid ثابت في التعديل).
+    //
+    // من يستطيع ماذا (أضيق صلاحية):
+    //   إنشاء : عضو موثّق (isSignedIn) لنفسه فقط — ownerUid == request.auth.uid.
+    //   قراءة : مالك السجل نفسه (ownerUid == uid) أو حساب المالك أو MANAGE_REVIEWS.
+    //   تعديل : مالك السجل نفسه (دون تغيير ownerUid) أو حساب المالك أو MANAGE_REVIEWS.
+    //   حذف   : مالك السجل نفسه أو حساب المالك أو MANAGE_REVIEWS.
     match /review_private/{docId} {
-      allow read: if isOwner() || canManageReviews();
-      allow create: if isSignedIn() && canWriteDuringMaintenance();
-      allow update, delete: if isOwner() || canManageReviews();
+      allow read: if isOwner()
+                  || canManageReviews()
+                  || ( isSignedIn() && resource.data.ownerUid == request.auth.uid );
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['ownerUid'])
+                    && request.resource.data.keys().hasOnly(['ownerUid','productId','userEmail','userId','createdAt'])
+                    && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if ( isOwner()
+                         || canManageReviews()
+                         || ( isSignedIn() && resource.data.ownerUid == request.auth.uid ) )
+                    && request.resource.data.ownerUid == resource.data.ownerUid;
+      allow delete: if isOwner()
+                    || canManageReviews()
+                    || ( isSignedIn() && resource.data.ownerUid == request.auth.uid );
     }
 
     // ============ إعدادات المتجر — مفصّلة حسب الوثيقة والصلاحية ============
@@ -688,28 +725,36 @@ service cloud.firestore {
 
     // ============ تعليقات الرئيسية وحراج ============
     match /comments/{docId} {
-      // التعليقات تُعرض للزوار والأعضاء بحالة «معتمد» فقط. القراءة العامة
-      // المطلقة (allow read: if true) كانت تكشف تعليقات pending غير المراجَعة
-      // ومعها حقل email الخاص — لأي عميل حتى بلا حساب. المالك ومشرفو
-      // التعليقات (EDIT/DELETE) يرون كل الحالات لأن لوحة المراجعة تحتاجها.
+      // التعليقات تُعرض للزوار والأعضاء بحالة «معتمد» فقط. كانت القراءة العامة
+      // المطلقة (allow read: if true) تكشف تعليقات pending غير المراجَعة ومعها
+      // حقل email الخاص — لأي عميل حتى بلا حساب. المالك ومشرفو التعليقات
+      // (EDIT/DELETE) يرون كل الحالات لأن لوحة المراجعة تحتاجها.
+      //
+      // سبب علامة publicSafe: قواعد Firestore تقيّم الاستعلام (list) لا كل
+      // مستند، فشرط «لا يحمل بريداً» غير قابل للفرض في الاستعلام. لذلك أي
+      // تعليق جديد يُلزَم publicSafe == true (ولا يُسمح أصلاً بحقل email في
+      // المستند العام — البريد يُكتب في comment_private)، والتعليقات القديمة
+      // التي تحمل بريداً لا تحمل العلامة فلا تُقرأ علناً إطلاقاً.
       allow read: if isOwner()
                   || hasPerm('HARAJ_COMMENT_EDIT')
                   || hasPerm('HARAJ_COMMENT_DELETE')
                   || ((isSignedIn() || isAnonymousGuest())
-                      && resource.data.status == 'approved');
+                      && resource.data.status == 'approved'
+                      && resource.data.publicSafe == true);
 
-      // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة وحالة إلزامية
-      // 'pending'. بدون ذلك يستطيع أي زائر كتابة status:'approved' فيُنشر
-      // تعليقه فوراً متجاوزاً مراجعة المالك.
+      // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة (بلا email)
+      // وحالة إلزامية 'pending' وعلامة publicSafe إلزامية. بدون ذلك يستطيع أي
+      // زائر كتابة status:'approved' فيُنشر تعليقه فوراً متجاوزاً مراجعة المالك.
       allow create: if canWriteDuringMaintenance()
-                    && request.resource.data.keys().hasAll(['text'])
+                    && request.resource.data.keys().hasAll(['text','publicSafe'])
                     && request.resource.data.text is string
                     && request.resource.data.text.size() > 0
                     && request.resource.data.text.size() <= 250
                     && request.resource.data.keys().hasOnly([
-                         'text','name','email','city','status','likes','createdAt'
+                         'text','name','city','status','likes','createdAt','publicSafe'
                        ])
-                    && request.resource.data.status == 'pending';
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.publicSafe == true;
 
       // التعديل:
       // - المالك يستطيع تعديل كل شيء.
@@ -735,6 +780,20 @@ service cloud.firestore {
       // ينسخ العميل الوثيقة إلى deleted_archive قبل الحذف. زر «رفض» في اللوحة
       // صار يحذف فعلاً بدل تغيير الحالة (كان يُبقي التعليق في قاعدة البيانات).
       allow delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
+    }
+
+    // ============ البريد الخاص للتعليق (منفصل) ============
+    // لماذا: حقل email كان يُكتب في مستند comments العام، والتعليق المعتمد
+    // يُقرأ للزوار — فكان بريد المُعلِّق يُقرأ علناً. البريد الآن في مستند منفصل
+    // بنفس معرّف التعليق (docId) ليقرأه المالك/مشرفو التعليقات فقط.
+    // التعليقات المجهولة (بلا بريد) لا تُنشئ سجلاً خاصاً.
+    match /comment_private/{docId} {
+      allow read: if isOwner()
+                  || hasPerm('HARAJ_COMMENT_EDIT')
+                  || hasPerm('HARAJ_COMMENT_DELETE');
+      allow create: if canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasOnly(['email','createdAt']);
+      allow update, delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
     }
 
     // ============ طلبات الفستان (wanted_dresses) — عام + خاص ============

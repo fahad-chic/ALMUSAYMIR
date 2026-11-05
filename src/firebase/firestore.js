@@ -299,15 +299,30 @@ export const getFavorites = async (userId) => {
 // مسموح قراءته.
 export const addReview = async (productId, reviewData) => {
   try {
-    const { userEmail, userId, ...publicData } = reviewData || {};
+    // الملكية تُؤخذ من الجلسة الفعلية لا من الوسيط، فلا يستطيع أي مستدعٍ
+    // انتحال uid غيره. القاعدة تشترط ownerUid == request.auth.uid أيضاً.
+    const currentUid = auth?.currentUser?.uid || null;
+    const { userEmail, userId, ownerUid: _ignoredOwnerUid, ...rest } = reviewData || {};
+    const rating = Number(rest.rating);
+    if (!Number.isFinite(rating)) {
+      return { success: false, error: 'تقييم غير صالح' };
+    }
+    // قائمة حقول صريحة تطابق allow create في القواعد: لا يُكتب في المستند
+    // العام أي حقل شخصي أو معرّف أو hidden.
+    const publicData = {
+      text: typeof rest.text === 'string' ? rest.text : '',
+      rating,
+    };
     const docRef = await addDoc(collection(db, COLLECTIONS.REVIEWS), {
       productId,
       ...publicData,
+      publicSafe: true,
       createdAt: serverTimestamp()
     });
 
-    if (userEmail || userId) {
+    if (currentUid && (userEmail || userId)) {
       await setDoc(doc(db, 'review_private', docRef.id), {
+        ownerUid: currentUid,
         productId,
         userEmail: userEmail || null,
         userId: userId || null,
@@ -348,9 +363,12 @@ export const addReview = async (productId, reviewData) => {
 
 export const getReviews = async (productId) => {
   try {
+    // publicSafe == true إلزامي: القاعدة تمنح القراءة العامة لهذه العلامة فقط،
+    // وFirestore يشترط أن يعكس الاستعلام شرط القاعدة وإلا رُفض بالكامل.
     const q = query(
       collection(db, COLLECTIONS.REVIEWS),
       where('productId', '==', productId),
+      where('publicSafe', '==', true),
       orderBy('createdAt', 'desc')
     );
     const querySnapshot = await getDocs(q);

@@ -13,6 +13,8 @@ import {
 import {
   collection,
   addDoc,
+  setDoc,
+  doc,
   onSnapshot,
   query,
   orderBy,
@@ -22,6 +24,7 @@ import {
 import { db } from '../../firebase/config';
 
 const COMMENTS_COLLECTION = 'comments';
+const COMMENT_PRIVATE_COLLECTION = 'comment_private';
 const MAX_COMMENT_LENGTH = 250;
 
 const CommentsSection = () => {
@@ -51,12 +54,14 @@ const CommentsSection = () => {
 
     try {
       const commentsRef = collection(db, COMMENTS_COLLECTION);
-      // where(status=='approved') إلزامي: قاعدة القراءة تسمح بالحالة المعتمدة
-      // فقط للزوار/الأعضاء، وFirestore يشترط أن يعكس الاستعلام شرط القاعدة وإلا
-      // رُفض بالكامل. الفهرس comments(status, createdAt) يغطيه.
+      // where(status=='approved') + where(publicSafe==true) إلزاميان: قاعدة
+      // القراءة تسمح بالحالة المعتمدة والعلامة العامة فقط للزوار/الأعضاء،
+      // وFirestore يشترط أن يعكس الاستعلام شرط القاعدة وإلا رُفض بالكامل.
+      // الفهرس comments(status, publicSafe, createdAt) يغطيه.
       const commentsQuery = query(
         commentsRef,
         where('status', '==', 'approved'),
+        where('publicSafe', '==', true),
         orderBy('createdAt', 'desc')
       );
 
@@ -130,15 +135,24 @@ const CommentsSection = () => {
     setLoadError('');
 
     try {
-      await addDoc(collection(db, COMMENTS_COLLECTION), {
+      const trimmedEmail = email.trim();
+      const docRef = await addDoc(collection(db, COMMENTS_COLLECTION), {
         name: name.trim(),
-        email: email.trim() || '',
         city: city.trim() || '',
         text: text.trim(),
         status: 'pending',
+        publicSafe: true,
         likes: 0,
         createdAt: serverTimestamp(),
       });
+
+      // البريد لا يُكتب في المستند العام أبداً (كان يُقرأ مع التعليق المعتمد).
+      if (trimmedEmail) {
+        await setDoc(doc(db, COMMENT_PRIVATE_COLLECTION, docRef.id), {
+          email: trimmedEmail,
+          createdAt: serverTimestamp(),
+        });
+      }
 
       setSubmitSuccess(true);
       setForm({ name: '', email: '', city: '', text: '' });

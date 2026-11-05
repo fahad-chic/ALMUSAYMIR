@@ -222,6 +222,7 @@ export const ReviewsPanel = ({ reviews = [], onChanged }) => {
       await requirePerm(can, REVIEWS_PERM, hidden ? 'إخفاء تقييم' : 'إعادة تقييم', review.id);
       await updateDoc(doc(db, 'reviews', review.id), {
         hidden,
+        publicSafe: !hidden,
         moderationReason: hidden ? reason : '',
         moderatedBy: auth?.currentUser?.email || null,
         moderatedAt: serverTimestamp(),
