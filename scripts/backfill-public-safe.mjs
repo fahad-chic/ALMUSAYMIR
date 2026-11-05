@@ -22,9 +22,12 @@
 
 const PROJECT = process.env.FIREBASE_PROJECT_ID;
 const TOKEN = process.env.GOOGLE_OAUTH_ACCESS_TOKEN;
+const EMULATOR = process.env.FIRESTORE_EMULATOR_HOST;
 const APPLY = process.argv.includes('--apply');
 const CONFIRMED = process.env.CONFIRM_APPLY === 'yes';
-const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
+const BASE = EMULATOR
+  ? `http://${EMULATOR}/v1/projects/${PROJECT}/databases/(default)/documents`
+  : `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
 const REVIEW_PII = ['userEmail', 'userId', 'ownerUid'];
 const COMMENT_PII = ['email'];
@@ -33,8 +36,8 @@ if (!PROJECT) {
   console.error('✗ مطلوب FIREBASE_PROJECT_ID');
   process.exit(2);
 }
-if (!TOKEN) {
-  console.error('✗ مطلوب GOOGLE_OAUTH_ACCESS_TOKEN (صلاحية تجاوز القواعد)');
+if (!TOKEN && !EMULATOR) {
+  console.error('✗ مطلوب GOOGLE_OAUTH_ACCESS_TOKEN (صلاحية تجاوز القواعد)، أو FIRESTORE_EMULATOR_HOST للتجربة');
   process.exit(2);
 }
 if (APPLY && !CONFIRMED) {
@@ -42,7 +45,8 @@ if (APPLY && !CONFIRMED) {
   process.exit(2);
 }
 
-const authHeaders = { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' };
+const authHeaders = { 'Content-Type': 'application/json' };
+if (TOKEN) authHeaders.Authorization = `Bearer ${TOKEN}`;
 
 const toPlain = (fields = {}) =>
   Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, Object.values(v)[0]]));
