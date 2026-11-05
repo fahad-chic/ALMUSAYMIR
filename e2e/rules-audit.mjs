@@ -962,6 +962,15 @@ await expectDeny('تعليق خاص: الزائر لا يقرأ comment_private'
 await expectDeny('تعليق خاص: المستخدم لا يقرأ comment_private', getDoc(doc(user, 'comment_private', 'cm-appr')));
 await expectAllow('تعليق خاص: صاحب EDIT يقرأ comment_private', getDoc(doc(cmEdit, 'comment_private', 'cm-appr')));
 await expectAllow('تعليق خاص: المالك يقرأ comment_private', getDoc(doc(owner, 'comment_private', 'cm-appr')));
+// لوحة المراجعة تقرأ المجموعة كاملة: نتأكد أن استعلام القائمة نفسه مسموح للمخوّلين فقط
+await expectAllow('تعليق خاص: صاحب EDIT يستعلم كل comment_private',
+  getDocs(collection(cmEdit, 'comment_private')));
+await expectAllow('تعليق خاص: المالك يستعلم كل comment_private',
+  getDocs(collection(owner, 'comment_private')));
+await expectDeny('تعليق خاص: الزائر لا يستعلم comment_private',
+  getDocs(collection(guest, 'comment_private')));
+await expectDeny('تعليق خاص: المستخدم لا يستعلم comment_private',
+  getDocs(collection(user, 'comment_private')));
 await expectAllow('تعليق: صاحب HARAJ_COMMENT_EDIT يقرأ المعلّق', getDoc(doc(cmEdit, 'comments', 'cm-pend')));
 await expectAllow('تعليق: المالك يقرأ المعلّق', getDoc(doc(owner, 'comments', 'cm-pend')));
 // استعلام المجموعة: يشترط status==approved و publicSafe==true ليعكس شرط القاعدة
