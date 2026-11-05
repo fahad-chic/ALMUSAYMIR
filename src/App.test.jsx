@@ -30,8 +30,11 @@ describe('App smoke tests', () => {
       </MemoryRouter>
     );
 
-    const brand = await screen.findAllByText(/المسيمير | ALMUSAYMIR/i);
-    expect(brand.length).toBeGreaterThan(0);
+    const brand = await screen.findByText('متجر المسيمير', {
+      exact: true,
+    });
+    expect(brand).toBeTruthy();
+    expect(screen.getByText('ALMUSAYMIR', { exact: true })).toBeTruthy();
   });
 
   it('renders without crashing on the register route', async () => {
