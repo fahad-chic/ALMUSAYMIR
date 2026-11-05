@@ -602,14 +602,11 @@ const Login = () => {
    * ضغطة المفتاح مع onClick الخاص بمربع صاحب الموقع.
    */
 
-  // الزر المخفي: 3 ضغطات متتالية خلال 1.2 ثانية تفتح خانة الرمز السري
+  // الزر المخفي: 3 ضغطات متتالية خلال 2.5 ثانية تفتح مسار دخول المالك المعتاد.
   const hiddenTapRef = useRef({
     count: 0,
     timer: null,
   });
-
-  const [hiddenTapCount, setHiddenTapCount] =
-    useState(0);
 
   const [showOwnerContact, setShowOwnerContact] =
     useState(false);
@@ -621,8 +618,6 @@ const Login = () => {
 
     ref.count += 1;
 
-    setHiddenTapCount(ref.count);
-
     if (ref.timer) {
       clearTimeout(ref.timer);
     }
@@ -630,7 +625,6 @@ const Login = () => {
     ref.timer = setTimeout(() => {
       ref.count = 0;
       ref.timer = null;
-      setHiddenTapCount(0);
     }, 2500);
 
     if (ref.count >= 3) {
@@ -638,8 +632,6 @@ const Login = () => {
 
       ref.count = 0;
       ref.timer = null;
-
-      setHiddenTapCount(0);
 
       setHiddenMode(true);
       setSecretCode('');
@@ -775,7 +767,7 @@ const Login = () => {
       title: 'دخول المشرفين والمراقبين',
       subtitle: 'حراس الفخامة',
       phrase:
-        'طاقة العطاء الدائمة، يضبطون الإيقاع ويحسمون التفاصيل لتظل تجربة زوارنا مثالية بلا عيوب.',
+        'يحسمون التفاصيل لتظل تجربة زوارنا مثالية بلا عيوب.',
       big: false,
     },
   ];
@@ -803,7 +795,10 @@ const Login = () => {
         </div>
 
         <div className="rl-tag">
-          سوقٌ موثوق يسعى لراحة الزوار وتلبية تطلعاتهم برؤية مبتكرة تجمع بين جودة الإدارة وثقة التعامل
+          <span className="rl-tag-title">بوابتك نحو تجارة ذكية</span>
+          <span className="rl-tag-subtitle">
+            نجمع فيها بين رقي المتاجر الفاخرة ومرونة الأسواق الحرة.
+          </span>
         </div>
       </header>
 
@@ -857,28 +852,15 @@ const Login = () => {
             )}
 
             {r.big && (
-              <span className="rl-owner-badge text-royal-gold">
-                <span
-                  className="rl-badge-mark"
-                  aria-hidden="true"
-                >
-                  ®️
-                </span>
-
-                <span style={{ color: 'var(--rz-white)', fontWeight: 900 }}>المالك الرئيسي</span>
-
-                <button
-                  type="button"
-                  className="rl-badge-mark rl-hidden-trigger"
-                  onClick={
-                    handleHiddenTrigger
-                  }
-                  aria-label="دخول مخفي"
-                  title=" "
-                >
-                  ®️
-                </button>
-              </span>
+              <button
+                type="button"
+                className="rl-owner-badge rl-hidden-trigger"
+                onClick={handleHiddenTrigger}
+                aria-label="⚜️ دخول صاحب الموقع ⚜️ — اضغط ثلاث مرات"
+                title="دخول صاحب الموقع"
+              >
+                ⚜️ دخول صاحب الموقع ⚜️
+              </button>
             )}
 
             {r.big && (
