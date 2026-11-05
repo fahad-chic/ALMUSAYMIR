@@ -147,9 +147,13 @@ const CommentsSection = () => {
       });
 
       // البريد لا يُكتب في المستند العام أبداً (كان يُقرأ مع التعليق المعتمد).
+      // publicSafe/status مطلوبان بالقاعدة هنا أيضاً فلا يُكتب سجل بريد بلا
+      // علامة أمان أو بحالة مخالفة.
       if (trimmedEmail) {
         await setDoc(doc(db, COMMENT_PRIVATE_COLLECTION, docRef.id), {
           email: trimmedEmail,
+          publicSafe: true,
+          status: 'pending',
           createdAt: serverTimestamp(),
         });
       }

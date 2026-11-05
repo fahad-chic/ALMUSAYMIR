@@ -792,7 +792,9 @@ service cloud.firestore {
                   || hasPerm('HARAJ_COMMENT_EDIT')
                   || hasPerm('HARAJ_COMMENT_DELETE');
       allow create: if canWriteDuringMaintenance()
-                    && request.resource.data.keys().hasOnly(['email','createdAt']);
+                    && request.resource.data.keys().hasOnly(['email','createdAt','publicSafe','status'])
+                    && request.resource.data.publicSafe == true
+                    && request.resource.data.status == 'pending';
       allow update, delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
     }
 

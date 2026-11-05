@@ -971,6 +971,24 @@ await expectDeny('تعليق خاص: الزائر لا يستعلم comment_priv
   getDocs(collection(guest, 'comment_private')));
 await expectDeny('تعليق خاص: المستخدم لا يستعلم comment_private',
   getDocs(collection(user, 'comment_private')));
+// قيود الإنشاء: يجب publicSafe==true و status=='pending' وبلا حقول زائدة
+await expectAllow('تعليق خاص: الزائر ينشئ سجل بريد صالحاً',
+  setDoc(doc(guest, 'comment_private', 'cm-new'), { email: 'new@example.com', publicSafe: true, status: 'pending' }));
+await expectDeny('تعليق خاص: لا إنشاء بلا publicSafe',
+  setDoc(doc(guest, 'comment_private', 'cm-nosafe'), { email: 'x@y.com', status: 'pending' }));
+await expectDeny('تعليق خاص: لا إنشاء بحالة معتمدة مباشرة',
+  setDoc(doc(guest, 'comment_private', 'cm-appr-inject'), { email: 'x@y.com', publicSafe: true, status: 'approved' }));
+await expectDeny('تعليق خاص: لا إنشاء بحقول زائدة',
+  setDoc(doc(guest, 'comment_private', 'cm-extra'), { email: 'x@y.com', publicSafe: true, status: 'pending', role: 'owner' }));
+// التعديل/الحذف: المالك أو صلاحية DELETE فقط — لا الزائر ولا صاحب EDIT
+await expectDeny('تعليق خاص: الزائر لا يعدّل سجل البريد',
+  updateDoc(doc(guest, 'comment_private', 'cm-appr'), { email: 'hijack@x.com' }));
+await expectDeny('تعليق خاص: صاحب EDIT لا يعدّل سجل البريد',
+  updateDoc(doc(cmEdit, 'comment_private', 'cm-appr'), { email: 'hijack@x.com' }));
+await expectDeny('تعليق خاص: الزائر لا يحذف سجل البريد',
+  deleteDoc(doc(guest, 'comment_private', 'cm-appr')));
+await expectAllow('تعليق خاص: المالك يحذف سجل البريد',
+  deleteDoc(doc(owner, 'comment_private', 'cm-appr')));
 await expectAllow('تعليق: صاحب HARAJ_COMMENT_EDIT يقرأ المعلّق', getDoc(doc(cmEdit, 'comments', 'cm-pend')));
 await expectAllow('تعليق: المالك يقرأ المعلّق', getDoc(doc(owner, 'comments', 'cm-pend')));
 // استعلام المجموعة: يشترط status==approved و publicSafe==true ليعكس شرط القاعدة
