@@ -25,7 +25,9 @@ const renderLogin = () =>
   );
 
 const openHiddenModal = () => {
-  const trigger = screen.getByRole('button', { name: 'دخول مخفي' });
+  const trigger = screen.getByRole('button', {
+    name: /دخول صاحب الموقع.*اضغط ثلاث مرات/,
+  });
   fireEvent.click(trigger);
   fireEvent.click(trigger);
   fireEvent.click(trigger);
@@ -127,6 +129,14 @@ describe('بطاقتا اختيار الدور', () => {
         screen.getByPlaceholderText('example@mail.com')
       );
     });
+  });
+});
+
+describe('زر دخول صاحب الموقع المخفي', () => {
+  it('يفتح مسار الدخول المخفي بعد ثلاث ضغطات على عبارة ⚜️', () => {
+    renderLogin();
+    openHiddenModal();
+    expect(screen.getByPlaceholderText('الرمز السري')).toBeTruthy();
   });
 });
 
