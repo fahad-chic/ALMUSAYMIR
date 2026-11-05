@@ -765,7 +765,7 @@ const Login = () => {
       icon: Shield,
       role: 'admin',
       title: 'دخول المشرفين والمراقبين',
-      subtitle: 'حراس الفخامة',
+      subtitle: '',
       phrase:
         'يحسمون التفاصيل لتظل تجربة زوارنا مثالية بلا عيوب.',
       big: false,
@@ -841,9 +841,11 @@ const Login = () => {
               {r.title}
             </span>
 
-            <span className="rl-card-sub text-royal-goldSoft">
-              {r.subtitle}
-            </span>
+            {r.subtitle && (
+              <span className="rl-card-sub text-royal-goldSoft">
+                {r.subtitle}
+              </span>
+            )}
 
             {r.phrase && (
               <span className="rl-card-phrase text-royal-white">
