@@ -293,13 +293,27 @@ export const getFavorites = async (userId) => {
 };
 
 // ============ REVIEWS ============
+// ملاحظة خصوصية: مستند reviews عام (يُقرأ للتقييمات المنشورة)، فلا يحمل أي
+// بيانات شخصية. البريد/المعرّف يُفصلان في review_private/{reviewId} المقروء
+// للمالك/المشرف فقط — لأن قواعد Firestore لا تُخفي حقولاً منفردة من مستند
+// مسموح قراءته.
 export const addReview = async (productId, reviewData) => {
   try {
+    const { userEmail, userId, ...publicData } = reviewData || {};
     const docRef = await addDoc(collection(db, COLLECTIONS.REVIEWS), {
       productId,
-      ...reviewData,
+      ...publicData,
       createdAt: serverTimestamp()
     });
+
+    if (userEmail || userId) {
+      await setDoc(doc(db, 'review_private', docRef.id), {
+        productId,
+        userEmail: userEmail || null,
+        userId: userId || null,
+        createdAt: serverTimestamp()
+      });
+    }
 
     const productRef = doc(db, COLLECTIONS.PRODUCTS, productId);
     const productSnap = await getDoc(productRef);

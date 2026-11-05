@@ -58,6 +58,30 @@ jobs:
       - name: Run tests
         run: npm test
 
+  rules:
+    name: Firestore rules
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Set up Java 21 (required by the Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install dependencies
+        run: npm ci
+      - name: Show Java version
+        run: java -version
+      - name: Run Firestore rules tests
+        run: npm run test:rules
+
   build:
     name: Production build
     runs-on: ubuntu-latest

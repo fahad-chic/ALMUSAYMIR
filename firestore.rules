@@ -633,16 +633,35 @@ service cloud.firestore {
     }
 
     // ============ تقييمات العملاء ============
-    // الإنشاء لأي حساب موثّق (لا يُسمح للزائر). الإشراف (إخفاء/إعادة/سبب) لصاحب
-    // MANAGE_REVIEWS أو المالك. الإخفاء يغيّر حقل hidden/reason فقط.
+    // الثغرة المُصلَحة: كان allow read: if true يكشف كل تقييم — بما فيه المخفي
+    // (hidden:true) وحقل userEmail الخاص — لأي عميل حتى بلا حساب. قواعد Firestore
+    // لا تُخفي حقولاً منفردة من مستند مسموح قراءته، لذلك نطبّق حاجزين:
+    //   1) المخفي لا يُقرأ إلا للمالك/صاحب MANAGE_REVIEWS (لوحة الإشراف).
+    //   2) أي مستند يحمل حقولاً شخصية (userEmail/email/phone/userPhone/userId)
+    //      لا يُقرأ علناً إطلاقاً — حتى لو كان منشوراً — دفاعاً عن البيانات
+    //      القديمة التي قد تحمل بريداً. الكتابة الجديدة تفصل البريد في
+    //      review_private فلا يحمله مستند reviews العام أصلاً.
+    // القراءة العامة للتقييم المنشور النظيف (hidden != true وبلا PII) تبقى مسموحة.
     match /reviews/{docId} {
-      allow read: if true;
-      allow create: if isSignedIn() && canWriteDuringMaintenance();
+      allow read: if isOwner()
+                  || canManageReviews()
+                  || ( resource.data.hidden != true
+                       && !resource.data.keys().hasAny(['userEmail','email','phone','userPhone','userId']) );
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && !request.resource.data.keys().hasAny(['userEmail','email','phone','userPhone']);
       allow update: if isOwner()
                     || ( canManageReviews()
                          && request.resource.data.diff(resource.data)
                               .affectedKeys().hasOnly(['hidden','moderationReason','moderatedBy','moderatedAt','updatedAt']) );
       allow delete: if isOwner() || canManageReviews();
+    }
+
+    // البيانات الشخصية للتقييم (البريد/المعرّف) — منفصلة عن مستند العرض العام
+    // حتى لا تُقرأ مع التقييم المنشور. المالك وصاحب MANAGE_REVIEWS فقط.
+    match /review_private/{docId} {
+      allow read: if isOwner() || canManageReviews();
+      allow create: if isSignedIn() && canWriteDuringMaintenance();
+      allow update, delete: if isOwner() || canManageReviews();
     }
 
     // ============ إعدادات المتجر — مفصّلة حسب الوثيقة والصلاحية ============
@@ -669,7 +688,15 @@ service cloud.firestore {
 
     // ============ تعليقات الرئيسية وحراج ============
     match /comments/{docId} {
-      allow read: if true;
+      // التعليقات تُعرض للزوار والأعضاء بحالة «معتمد» فقط. القراءة العامة
+      // المطلقة (allow read: if true) كانت تكشف تعليقات pending غير المراجَعة
+      // ومعها حقل email الخاص — لأي عميل حتى بلا حساب. المالك ومشرفو
+      // التعليقات (EDIT/DELETE) يرون كل الحالات لأن لوحة المراجعة تحتاجها.
+      allow read: if isOwner()
+                  || hasPerm('HARAJ_COMMENT_EDIT')
+                  || hasPerm('HARAJ_COMMENT_DELETE')
+                  || ((isSignedIn() || isAnonymousGuest())
+                      && resource.data.status == 'approved');
 
       // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة وحالة إلزامية
       // 'pending'. بدون ذلك يستطيع أي زائر كتابة status:'approved' فيُنشر

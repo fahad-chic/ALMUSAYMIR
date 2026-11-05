@@ -16,6 +16,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  where,
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
@@ -50,7 +51,14 @@ const CommentsSection = () => {
 
     try {
       const commentsRef = collection(db, COMMENTS_COLLECTION);
-      const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc'));
+      // where(status=='approved') إلزامي: قاعدة القراءة تسمح بالحالة المعتمدة
+      // فقط للزوار/الأعضاء، وFirestore يشترط أن يعكس الاستعلام شرط القاعدة وإلا
+      // رُفض بالكامل. الفهرس comments(status, createdAt) يغطيه.
+      const commentsQuery = query(
+        commentsRef,
+        where('status', '==', 'approved'),
+        orderBy('createdAt', 'desc')
+      );
 
       unsubscribe = onSnapshot(
         commentsQuery,
