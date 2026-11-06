@@ -1023,6 +1023,25 @@ await expectDeny('تعليق: استعلام الزائر لغير المعتم�
 await expectAllow('تعليق: صاحب EDIT يستعلم كل الحالات',
   getDocs(collection(cmEdit, 'comments')));
 
+// ============ 24) حقل هوية فارغ: وجود المفتاح يمنع get حتى بلا قيمة ============
+console.log('\n=== 24) الحقول الفارغة: المفتاح الفارغ يمنع get ويُصلح بالتنقية ===');
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  // تعليق معتمد يحمل مفتاح email بقيمة فارغة (كما يكتب النموذج القديم دائماً)
+  await setDoc(doc(db, 'comments', 'cm-empty-email'), { text: 'نظيف', status: 'approved', publicSafe: true, email: '' });
+  // بعد التنقية: المفتاح الفارغ محذوف
+  await setDoc(doc(db, 'comments', 'cm-pruned'), { text: 'منقّى', status: 'approved', publicSafe: true });
+});
+// استعلام القائمة يعتمد publicSafe فقط → الحقل الفارغ لا يمنعه
+await expectAllow('فارغ: استعلام الزائر يجلب التعليق ذا البريد الفارغ',
+  getDocs(query(collection(guest, 'comments'), where('status', '==', 'approved'), where('publicSafe', '==', true))));
+// لكن القراءة المباشرة ترفضه لأن مفتاح الهوية موجود
+await expectDeny('فارغ: get يرفض تعليقاً يحمل مفتاح email فارغاً', getDoc(doc(guest, 'comments', 'cm-empty-email')));
+await expectDeny('فارغ: المستخدم لا يقرأ تعليقاً بمفتاح email فارغ', getDoc(doc(user, 'comments', 'cm-empty-email')));
+// بعد التنقية (حذف المفتاح الفارغ) تُسمح القراءة المباشرة
+await expectAllow('فارغ: get يسمح بعد حذف المفتاح الفارغ', getDoc(doc(guest, 'comments', 'cm-pruned')));
+await expectAllow('فارغ: المالك يقرأ الحقل الفارغ على أي حال', getDoc(doc(owner, 'comments', 'cm-empty-email')));
+
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} فحصاً ناجحاً`);

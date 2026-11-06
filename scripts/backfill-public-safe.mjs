@@ -12,6 +12,13 @@
 // publicSafe == true و userEmail معاً يبقى مقروءاً عبر استعلام المجموعة. لذلك
 // لا نضع العلامة إلا بعد نقل الحقول الشخصية وحذفها من المستند العام.
 //
+// تنقية الحقول الفارغة: حقل الهوية قد يكون موجوداً بمفتاحه بقيمة فارغة ('' أو
+// null) — كما يكتب نموذج التعليقات القديم email: '' دائماً. هذه القيمة لا تنقل
+// بيانات شخصية، لكن وجود المفتاح نفسه يمنع القراءة المباشرة (get) لأن قاعدة
+// hasNoPublicPII ترفض أي مستند يحمل مفتاح هوية. لذلك نحذف المفاتيح الفارغة
+// المعروفة فقط من المستندات الآمنة (بعد النسخ الاحتياطي). لا تُحذف أي قيمة غير
+// فارغة (تُنقل إلى المجموعة الخاصة) ولا أي حقل غير معروف.
+//
 // التشغيل (يتطلب صلاحية تجاوز القواعد: مالك/محرّر المشروع):
 //   export FIREBASE_PROJECT_ID=<project>
 //   export GOOGLE_OAUTH_ACCESS_TOKEN="$(gcloud auth print-access-token)"
@@ -24,6 +31,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const PROJECT = process.env.FIREBASE_PROJECT_ID;
 const TOKEN = process.env.GOOGLE_OAUTH_ACCESS_TOKEN;
@@ -36,33 +44,35 @@ const BASE = EMULATOR
   : `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
 // كل حقول الهوية والاتصال والحقول الخاصة — لا نكتفي بـ userEmail.
-const IDENTITY_FIELDS = [
+export const IDENTITY_FIELDS = [
   'userEmail', 'email', 'contactEmail', 'phone', 'userPhone', 'phoneNumber',
   'mobile', 'whatsapp', 'userId', 'ownerUid', 'uid', 'nationalId', 'iban',
   'accountNumber', 'userName',
 ];
 
-const REVIEW_META = { name: 'reviews', privateName: 'review_private', required: ['productId', 'rating'] };
-const COMMENT_META = { name: 'comments', privateName: 'comment_private', required: ['text'] };
+export const REVIEW_META = { name: 'reviews', privateName: 'review_private', required: ['productId', 'rating'] };
+export const COMMENT_META = { name: 'comments', privateName: 'comment_private', required: ['text'] };
 
 const log = [];
 const record = (entry) => log.push({ at: new Date().toISOString(), ...entry });
 
-if (!PROJECT) {
-  console.error('✗ مطلوب FIREBASE_PROJECT_ID');
-  process.exit(2);
-}
-if (!TOKEN && !EMULATOR) {
-  console.error('✗ مطلوب GOOGLE_OAUTH_ACCESS_TOKEN (صلاحية تجاوز القواعد)، أو FIRESTORE_EMULATOR_HOST للتجربة');
-  process.exit(2);
-}
-if (APPLY && !CONFIRMED) {
-  console.error('✗ الكتابة تتطلب --apply و CONFIRM_APPLY=yes معاً');
-  process.exit(2);
-}
-if (APPLY && !BACKUP_DIR) {
-  console.error('✗ الكتابة تتطلب --backup-dir=<dir> لأخذ نسخة احتياطية قبل أي تعديل');
-  process.exit(2);
+function validateEnv() {
+  if (!PROJECT) {
+    console.error('✗ مطلوب FIREBASE_PROJECT_ID');
+    process.exit(2);
+  }
+  if (!TOKEN && !EMULATOR) {
+    console.error('✗ مطلوب GOOGLE_OAUTH_ACCESS_TOKEN (صلاحية تجاوز القواعد)، أو FIRESTORE_EMULATOR_HOST للتجربة');
+    process.exit(2);
+  }
+  if (APPLY && !CONFIRMED) {
+    console.error('✗ الكتابة تتطلب --apply و CONFIRM_APPLY=yes معاً');
+    process.exit(2);
+  }
+  if (APPLY && !BACKUP_DIR) {
+    console.error('✗ الكتابة تتطلب --backup-dir=<dir> لأخذ نسخة احتياطية قبل أي تعديل');
+    process.exit(2);
+  }
 }
 
 const authHeaders = { 'Content-Type': 'application/json' };
@@ -70,7 +80,7 @@ if (TOKEN) authHeaders.Authorization = `Bearer ${TOKEN}`;
 // المحاكي يفرض القواعد على REST أيضاً؛ رمز owner يتجاوزها (تطوير فقط).
 else if (EMULATOR) authHeaders.Authorization = 'Bearer owner';
 
-function toPlain(fields = {}) {
+export function toPlain(fields = {}) {
   const out = {};
   for (const [k, v] of Object.entries(fields)) {
     const val = Object.values(v)[0];
@@ -96,7 +106,7 @@ async function listAll(collection) {
   return out;
 }
 
-function encodeValue(v) {
+export function encodeValue(v) {
   if (typeof v === 'boolean') return { booleanValue: v };
   if (typeof v === 'number') return { integerValue: String(v) };
   return { stringValue: String(v) };
@@ -104,7 +114,7 @@ function encodeValue(v) {
 
 // الكتابة تُحدِّث الحقول المعطاة فقط (updateMask) — لا تستبدل المستند كاملاً.
 // الحقول المطلوب حذفها تُمرَّر في نفس الـmask؛ تمريرها فارغة يحذفها من المستند.
-async function patchFields(collection, id, fields, deleteFields = []) {
+export async function patchFields(collection, id, fields, deleteFields = []) {
   const paths = [...Object.keys(fields), ...deleteFields];
   const mask = paths.map((f) => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
   const body = {
@@ -118,7 +128,7 @@ async function patchFields(collection, id, fields, deleteFields = []) {
   if (!res.ok) throw new Error(`patch ${collection}/${id}: ${res.status} ${await res.text()}`);
 }
 
-function pickPII(data) {
+export function pickPII(data) {
   const found = {};
   for (const f of IDENTITY_FIELDS) {
     const v = data[f];
@@ -127,8 +137,14 @@ function pickPII(data) {
   return found;
 }
 
+// حقول هوية موجودة بمفتاحها لكن قيمتها فارغة (''/null). وجود المفتاح يمنع get
+// عبر hasNoPublicPII، لكن لا قيمة شخصية فيه. نحذف المفتاح فقط.
+export function blankIdentityFields(data) {
+  return IDENTITY_FIELDS.filter((f) => data[f] === '' || data[f] === null);
+}
+
 // تصنيف رباعي. غير المؤكد لا يُوسم عاماً أبداً.
-function classify(docs, meta) {
+export function classify(docs, meta) {
   const buckets = {
     alreadyPublic: [], // منشور ومعتمد وخالٍ ويحمل العلامة أصلاً
     publicNoPII: [],   // منشور ومعتمد وخالٍ — يحتاج إضافة العلامة فقط
@@ -151,11 +167,43 @@ function classify(docs, meta) {
       continue;
     }
     const pii = pickPII(data);
-    if (data.publicSafe === true && Object.keys(pii).length === 0) { buckets.alreadyPublic.push(doc); continue; }
-    if (Object.keys(pii).length > 0) { buckets.publicWithPII.push({ ...doc, pii }); continue; }
-    buckets.publicNoPII.push(doc);
+    const blanks = blankIdentityFields(data);
+    if (data.publicSafe === true && Object.keys(pii).length === 0 && blanks.length === 0) {
+      buckets.alreadyPublic.push(doc);
+      continue;
+    }
+    if (Object.keys(pii).length > 0) { buckets.publicWithPII.push({ ...doc, pii, blanks }); continue; }
+    buckets.publicNoPII.push({ ...doc, blanks });
   }
   return buckets;
+}
+
+// تجميع أعداد بأسماء الحقول فقط — لا قيم ولا معرّفات مستندات.
+function tallyFields(rows, key) {
+  const tally = {};
+  for (const r of rows) {
+    const value = r[key];
+    const names = Array.isArray(value) ? value : Object.keys(value || {});
+    for (const f of names) tally[f] = (tally[f] || 0) + 1;
+  }
+  return tally;
+}
+
+function tallyReasons(rows) {
+  const tally = {};
+  for (const r of rows) {
+    const k = r.reason || 'غير محدد';
+    tally[k] = (tally[k] || 0) + 1;
+  }
+  return tally;
+}
+
+// يطبع (اسم: عدد) فقط. لا قيم ولا معرّفات — فالمخرجات قابلة للمشاركة كما هي.
+function printTally(label, tally) {
+  const keys = Object.keys(tally);
+  if (keys.length === 0) { console.log(`  ${label}: لا شيء`); return; }
+  console.log(`  ${label}:`);
+  for (const k of keys) console.log(`    - ${k}: ${tally[k]}`);
 }
 
 function report(meta, b) {
@@ -167,12 +215,13 @@ function report(meta, b) {
   console.log(`  3) مخفي أو معلّق أو مرفوض: ${b.notPublic.length} (يُترك غير عام)`);
   console.log(`  4) ناقص أو غير قابل للتصنيف: ${b.unknown.length} (يُترك غير عام)`);
   console.log(`  (إضافة) سبق وسمه عاماً وخالياً: ${b.alreadyPublic.length} (لا تغيير)`);
-  for (const r of b.publicWithPII.slice(0, 10)) {
-    console.log(`    - ${r.id}: ستنقل الحقول ${Object.keys(r.pii).join(', ')}`);
-  }
-  for (const r of b.unknown.slice(0, 10)) {
-    console.log(`    - ${r.id}: ${r.reason}`);
-  }
+
+  // تفصيل بالاسم فقط: ما سيُنقل، وما سيُحذف مفتاحه الفارغ، وأسباب عدم التصنيف.
+  // التنقية تخصّ المستندات التي ستُعاد كتابتها فعلاً (وسم/فصل) — لا alreadyPublic.
+  const pruneRows = [...b.publicNoPII, ...b.publicWithPII];
+  printTally(`حقول شخصية ستُنقل إلى ${meta.privateName} (اسم الحقل: عدد المستندات)`, tallyFields(b.publicWithPII, 'pii'));
+  printTally('حقل هوية فارغ سيُحذف مفتاحه فقط (اسم الحقل: عدد المستندات)', tallyFields(pruneRows, 'blanks'));
+  printTally('غير قابل للتصنيف (السبب: عدد المستندات)', tallyReasons(b.unknown));
   return total;
 }
 
@@ -184,7 +233,7 @@ async function backup(collection, docs) {
   return file;
 }
 
-function buildPrivateDoc(meta, r) {
+export function buildPrivateDoc(meta, r) {
   const priv = { ...r.pii };
   // reviews: الملكية تُلزَم على السجل الخاص (ownerUid == uid المُنشئ).
   if (meta.name === 'reviews') {
@@ -209,14 +258,18 @@ async function runCollection(meta) {
   record({ collection: meta.name, action: 'backup', file: backupFile, docs: docs.length });
 
   for (const r of b.publicNoPII) {
-    await patchFields(meta.name, r.id, { publicSafe: true });
-    record({ collection: meta.name, id: r.id, action: 'tag', fields: ['publicSafe'] });
+    // نحذف المفاتيح الفارغة المعروفة فقط (email:'' مثلاً) مع وضع العلامة.
+    const prune = r.blanks || [];
+    await patchFields(meta.name, r.id, { publicSafe: true }, prune);
+    record({ collection: meta.name, id: r.id, action: 'tag', fields: ['publicSafe'], pruned: prune });
   }
   for (const r of b.publicWithPII) {
     const priv = buildPrivateDoc(meta, r);
+    const prune = r.blanks || [];
     await patchFields(meta.privateName, r.id, priv);
-    await patchFields(meta.name, r.id, { publicSafe: true }, Object.keys(r.pii));
-    record({ collection: meta.name, id: r.id, action: 'split+tag', moved: Object.keys(r.pii), kept: Object.keys(priv) });
+    // تُنقل القيم غير الفارغة، وتُحذف المفاتيح الفارغة، ثم تُوضع العلامة.
+    await patchFields(meta.name, r.id, { publicSafe: true }, [...Object.keys(r.pii), ...prune]);
+    record({ collection: meta.name, id: r.id, action: 'split+tag', moved: Object.keys(r.pii), pruned: prune, kept: Object.keys(priv) });
   }
   for (const r of [...b.notPublic, ...b.unknown]) {
     record({ collection: meta.name, id: r.id, action: 'leave', reason: r.reason });
@@ -224,7 +277,8 @@ async function runCollection(meta) {
   for (const r of b.alreadyPublic) {
     record({ collection: meta.name, id: r.id, action: 'noop' });
   }
-  console.log(`  ✓ طُبّق: ${b.publicNoPII.length} وسم فقط + ${b.publicWithPII.length} فصل بيانات`);
+  const prunedCount = [...b.publicNoPII, ...b.publicWithPII].filter((r) => (r.blanks || []).length > 0).length;
+  console.log(`  ✓ طُبّق: ${b.publicNoPII.length} وسم فقط + ${b.publicWithPII.length} فصل بيانات + ${prunedCount} تنقية حقول فارغة`);
   return b;
 }
 
@@ -242,4 +296,9 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error('✗', e.message); process.exit(1); });
+// يُشغَّل كبرنامج فقط، لا عند الاستيراد في الاختبارات.
+const isEntry = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isEntry) {
+  validateEnv();
+  main().catch((e) => { console.error('✗', e.message); process.exit(1); });
+}
