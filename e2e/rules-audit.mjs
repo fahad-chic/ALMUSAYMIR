@@ -1042,6 +1042,26 @@ await expectDeny('فارغ: المستخدم لا يقرأ تعليقاً بمف
 await expectAllow('فارغ: get يسمح بعد حذف المفتاح الفارغ', getDoc(doc(guest, 'comments', 'cm-pruned')));
 await expectAllow('فارغ: المالك يقرأ الحقل الفارغ على أي حال', getDoc(doc(owner, 'comments', 'cm-empty-email')));
 
+// ============ 25) تحديث المستخدم لملفه: التعبير المدعوم يمنع تصعيد الدور ============
+// كان السطر يستخدم hasNone() غير المدعومة في لغة القواعد (Function not found)،
+// فكان المسار يُقيَّم خطأً ويُرفض. البديل المدعوم:
+//   diff().affectedKeys().hasAny(['role','status','banned']) == false
+// هذه الاختبارات تُثبته فعلياً على المحاكي.
+console.log('\n=== 25) تحديث المستخدم لملفه: التعبير المدعوم يمنع التصعيد ===');
+// مستخدم حقيقي يحمل وثيقة عضوية (isSignedIn يشترط وجودها وعدم الحظر)
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'users', USER), { email: USER_EMAIL, role: 'user', displayName: 'عضو' });
+});
+// 1) تعديل حقل عادي (غير محظور) من صاحب الوثيقة => مسموح
+await expectAllow('ملفي: صاحب الوثيقة يعدّل حقلاً عادياً', updateDoc(doc(user, 'users', USER), { displayName: 'عضو معدّل' }));
+// 2) تغيير الدور من صاحب الوثيقة => مرفوض (تصعيد)
+await expectDeny('ملفي: صاحب الوثيقة لا يغيّر الدور (تصعيد)', updateDoc(doc(user, 'users', USER), { role: 'owner' }));
+// 3) تغيير الحالة من صاحب الوثيقة => مرفوض
+await expectDeny('ملفي: صاحب الوثيقة لا يغيّر status', updateDoc(doc(user, 'users', USER), { status: 'banned' }));
+// 4) رفع الحظر بنفسه => مرفوض
+await expectDeny('ملفي: صاحب الوثيقة لا يغيّر banned', updateDoc(doc(user, 'users', USER), { banned: true }));
+
+
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} فحصاً ناجحاً`);

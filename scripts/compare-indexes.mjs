@@ -67,6 +67,11 @@ const canonicalIndex = (x) => {
       ? fields
       : [...explicit, { fieldPath: '__name__', order: lastExplicitOrder(explicit), arrayConfig: null }];
 
+  // فهرس مركّب بحقل صريح واحد فقط (ما عدا __name__) = غير لازمة: Firestore يغطي
+  // الحقول المفردة بفهرس تلقائي، والنشر يفشل بـ 400 "this index is not necessary".
+  const explicitCount = explicit.length;
+  const unnecessarySingleField = explicitCount === 1 && strayName.length === 0;
+
   return {
     cg: x.collectionGroup,
     scope: x.queryScope || 'COLLECTION',
@@ -75,6 +80,7 @@ const canonicalIndex = (x) => {
     multikey: x.multikey === true,
     fields: canonical,
     anomaly,
+    unnecessarySingleField,
   };
 };
 
@@ -114,6 +120,9 @@ const willCreate = fileC.filter((c) => !prodKeys.has(idxKey(c)));
 const inProdNotInFile = prodC.filter((c) => !fileKeys.has(idxKey(c)));
 const unchanged = fileC.filter((c) => prodKeys.has(idxKey(c)));
 const anomalies = [...fileC, ...prodC].filter((c) => c.anomaly);
+// تعريفات الملف المفردة-الحقل غير اللازمة (تفشل النشر). لا تُحسب "مشتركة" إن كانت في الإنتاج.
+const unnecessaryInFile = fileC.filter((c) => c.unnecessarySingleField);
+const unnecessaryInProd = prodC.filter((c) => c.unnecessarySingleField);
 
 const fileFoKeys = new Set(file.fieldOverrides.map(foKey));
 const prodFoKeys = new Set(prod.fieldOverrides.map(foKey));
@@ -142,11 +151,19 @@ console.log(`\n4) fieldOverrides — سيُضيفها: ${foToCreate.length} · �
 foToCreate.forEach((x) => console.log('   + ' + fmtFo(x)));
 foInProdNotInFile.forEach((x) => console.log('   ! ' + fmtFo(x)));
 
+if (unnecessaryInFile.length) {
+  console.log(`\n⚠️  فهارس مركّبة بحقل واحد في الملف (غير لازمة — تفشل النشر بـ 400): ${unnecessaryInFile.length}`);
+  unnecessaryInFile.forEach((c) => console.log(`   ⚠ ${c.cg} [${fmtFields(c)}]`));
+}
+if (unnecessaryInProd.length) {
+  console.log(`\n⚠️  فهارس مركّبة بحقل واحد منشورة فعلاً (لا تُحذف بلا موافقة): ${unnecessaryInProd.length}`);
+  unnecessaryInProd.forEach((c) => console.log(`   ⚠ ${c.cg} [${fmtFields(c)}]`));
+}
 if (anomalies.length) {
   console.log(`\n⚠️  فروق __name__ حقيقية (لا تُتجاهل): ${anomalies.length}`);
   anomalies.forEach((c) => console.log(`   ⚠ ${c.cg} [${fmtFields(c)}] ${c.anomaly}`));
 }
 
-const ok = inProdNotInFile.length === 0 && foInProdNotInFile.length === 0 && anomalies.length === 0;
+const ok = inProdNotInFile.length === 0 && foInProdNotInFile.length === 0 && anomalies.length === 0 && unnecessaryInFile.length === 0;
 console.log(`\nخلاصة: ${ok ? 'آمن — إضافة فقط بلا --force' : 'يوجد فرق حقيقي — راجع قبل النشر'}\n`);
 process.exit(ok ? 0 : 1);

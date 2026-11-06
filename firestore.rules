@@ -367,7 +367,7 @@ service cloud.firestore {
                     || (request.auth.uid == userId
                         && isSignedIn()
                         && request.resource.data.diff(resource.data)
-                             .affectedKeys().hasNone(['role', 'status', 'banned']))
+                             .affectedKeys().hasAny(['role', 'status', 'banned']) == false)
                     || (request.resource.data.diff(resource.data)
                             .affectedKeys().hasOnly([
                               'status','banned','bannedAt','banReason','banType',
