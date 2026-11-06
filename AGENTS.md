@@ -479,3 +479,11 @@ LINT exit 0 · BUILD OK · VITEST 22 ملفاً/155 اختباراً · RULES AU
 
 ### البوابات بعد جولة المتابعة
 LINT exit 0 · BUILD OK · VITEST 22 ملفاً/155 اختباراً · RULES AUDIT **279/279 OVERALL PASS**.
+
+### خصوصية القراءة العامة: `publicSafe` + فصل `get`/`list` (فرع `fix/reviews-privacy`)
+- `reviews` و`comments` لم تُعد تُقرأ علناً إلا بـ `resource.data.publicSafe == true` (و`comments` كذلك `status == 'approved'`).
+- **فُصل `get` عن `list`**: `get` يفرض `hasNoPublicPII(resource.data)` أيضًا، فيرفض أي مستند يحمل حقل هوية/اتصال حتى لو حمل العلامة. `list` يعتمد على العلامة وحدها لأن Firestore يقيّم الاستعلام لا كل مستند ولا يستطيع فرض «غياب حقل» في `where`.
+- البيانات الشخصية في `review_private`/`comment_private` (البريد والهاتف والمعرّفات). قواعد الإنشاء تُلزِم `publicSafe` وتمنع حقول الهوية، والاستعلامات المُفلترة مفروضة في `src/firebase/firestore.js`.
+- المستندات القديمة بلا العلامة **لا تُقرأ علناً** حتى يُشغَّل `scripts/backfill-public-safe.mjs` (معاينة افتراضية، الكتابة تتطلب `--apply` + `CONFIRM_APPLY=yes` + `--backup-dir`). التجربة على المحاكي فقط؛ الإنتاج يحتاج موافقة المالك.
+- `hasNoPublicPII` وقائمة الحقول في القاعدة والسكربت يجب أن تبقيا متطابقتين عند أي تعديل.
+
