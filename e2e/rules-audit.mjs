@@ -905,6 +905,17 @@ await expectDeny('تقييم: المستخدم لا يقرأ مستنداً يح
 await expectAllow('تقييم: المالك يقرأ التقييم المخفي', getDoc(doc(owner, 'reviews', 'rev-hidden')));
 await expectAllow('تقييم: صاحب MANAGE_REVIEWS يقرأ التقييم المخفي', getDoc(doc(ph2, 'reviews', 'rev-hidden')));
 await expectAllow('تقييم: صاحب MANAGE_REVIEWS يقرأ مستند البريد', getDoc(doc(ph2, 'reviews', 'rev-pii')));
+// دفاع في العمق: مستند يحمل العلامة AND حقلاً شخصياً يُرفض في القراءة المباشرة
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'reviews', 'rev-tagged-pii'), { productId: 'p1', rating: 5, text: 'علامة خاطئة', publicSafe: true, userEmail: 'oops@example.com' });
+  await setDoc(doc(ctx.firestore(), 'reviews', 'rev-tagged-phone'), { productId: 'p1', rating: 5, text: 'هاتف', publicSafe: true, phone: '0555555555' });
+  await setDoc(doc(ctx.firestore(), 'reviews', 'rev-tagged-owner'), { productId: 'p1', rating: 5, text: 'معرّف', publicSafe: true, ownerUid: USER });
+});
+await expectDeny('تقييم: get يرفض مستنداً يحمل العلامة + userEmail', getDoc(doc(visitor, 'reviews', 'rev-tagged-pii')));
+await expectDeny('تقييم: get يرفض مستنداً يحمل العلامة + phone', getDoc(doc(user, 'reviews', 'rev-tagged-phone')));
+await expectDeny('تقييم: get يرفض مستنداً يحمل العلامة + ownerUid', getDoc(doc(visitor, 'reviews', 'rev-tagged-owner')));
+await expectAllow('تقييم: المالك يقرأ مستند العلامة الخاطئة (مراجعة)', getDoc(doc(owner, 'reviews', 'rev-tagged-pii')));
+await expectAllow('تقييم: get يسمح بالمستند النظيف صاحب العلامة', getDoc(doc(visitor, 'reviews', 'rev-pub')));
 // review_private: البريد المفصول للمالك/المشرف فقط
 await expectDeny('تقييم خاص: الزائر لا يقرأ review_private', getDoc(doc(visitor, 'review_private', 'rev-priv')));
 await expectDeny('تقييم خاص: المستخدم لا يقرأ سجل مستخدم آخر', getDoc(doc(user, 'review_private', 'rev-other')));
@@ -957,6 +968,15 @@ await expectDeny('تعليق: جلسة غير مصادقة لا تقرأ الت�
 // إغلاق تسريب البريد: تعليق قديم معتمد يحمل email في المستند العام لا يُقرأ علناً
 await expectDeny('تعليق: الزائر لا يقرأ تعليقاً قديماً يحمل بريداً', getDoc(doc(guest, 'comments', 'cm-leak')));
 await expectDeny('تعليق: المستخدم لا يقرأ تعليقاً قديماً يحمل بريداً', getDoc(doc(user, 'comments', 'cm-leak')));
+// دفاع في العمق: تعليق يحمل العلامة AND حقلاً شخصياً يُرفض في القراءة المباشرة
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'comments', 'cm-tagged-pii'), { text: 'علامة خاطئة', status: 'approved', publicSafe: true, email: 'oops@x.com' });
+  await setDoc(doc(ctx.firestore(), 'comments', 'cm-tagged-phone'), { text: 'هاتف', status: 'approved', publicSafe: true, phone: '0555555555' });
+});
+await expectDeny('تعليق: get يرفض تعليقاً يحمل العلامة + email', getDoc(doc(guest, 'comments', 'cm-tagged-pii')));
+await expectDeny('تعليق: get يرفض تعليقاً يحمل العلامة + phone', getDoc(doc(user, 'comments', 'cm-tagged-phone')));
+await expectAllow('تعليق: المالك يقرأ تعليق العلامة الخاطئة', getDoc(doc(owner, 'comments', 'cm-tagged-pii')));
+await expectAllow('تعليق: get يسمح بالتعليق المعتمد النظيف', getDoc(doc(guest, 'comments', 'cm-appr')));
 // comment_private: البريد للصلاحيات المخوّلة فقط
 await expectDeny('تعليق خاص: الزائر لا يقرأ comment_private', getDoc(doc(guest, 'comment_private', 'cm-appr')));
 await expectDeny('تعليق خاص: المستخدم لا يقرأ comment_private', getDoc(doc(user, 'comment_private', 'cm-appr')));

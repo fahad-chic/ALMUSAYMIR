@@ -170,6 +170,20 @@ service cloud.firestore {
     function canManageNotifications() { return hasPerm('MANAGE_NOTIFICATIONS'); }
     function canManageReviews() { return hasPerm('MANAGE_REVIEWS'); }
 
+    // ============ فحص خلو المستند العام من البيانات الشخصية ============
+    // دفاع في العمق: علامة publicSafe قد تُكتب خطأً على مستند قديم يحمل بريداً
+    // أو هاتفاً أو معرّفاً خاصاً. هذا الفحص يمنع قراءة أي مستند يحمل حقلاً من
+    // حقول الهوية والاتصال — حتى لو حمل العلامة. يُطبَّق على القراءة المباشرة
+    // (get) لأنها تُقيَّم على المستند نفسه؛ أما الاستعلام (list) فلا يمكن فرض
+    // «غياب حقل» فيه، فيعتمد على علامة publicSafe وحدها (قابلة للفرض في where).
+    function hasNoPublicPII(data) {
+      return !data.keys().hasAny([
+        'userEmail','email','contactEmail','phone','userPhone','phoneNumber',
+        'mobile','whatsapp','userId','ownerUid','uid','nationalId','iban',
+        'accountNumber','userName'
+      ]);
+    }
+
     // فصل قواعد INLINE: كل مفتاح يحمي العملية الخاصة به فقط. الوثيقة تُعلن
     // المفتاح المستخدَم في الحقل perm، والقاعدة تتحقق من امتلاك ذلك المفتاح
     // بالذات (لا يفتح مفتاح واحد بقية المفاتيح).
@@ -649,7 +663,16 @@ service cloud.firestore {
       //     علامته عند الإخفاء)، والمستندات القديمة التي تحمل بريداً لا تحمل
       //     هذه العلامة فلا تُقرأ علناً.
       //   - getReviews يستعلم where('publicSafe','==',true).
-      allow read: if isOwner()
+      // القراءة المباشرة (get) تُقيَّم على المستند نفسه، فتُضاف لها حماية
+      // إضافية: يُرفض أي مستند يحمل حقلاً من حقول الهوية/الاتصال حتى لو حمل
+      // العلامة (دفاع في العمق ضد علامة كُتبت خطأً على مستند قديم). أما
+      // الاستعلام (list) فلا يمكن فرض «غياب حقل» فيه، فيعتمد على العلامة وحدها
+      // — وهي القابلة للفرض في where('publicSafe','==',true).
+      allow get: if isOwner()
+                 || canManageReviews()
+                 || ( resource.data.publicSafe == true
+                      && hasNoPublicPII(resource.data) );
+      allow list: if isOwner()
                   || canManageReviews()
                   || resource.data.publicSafe == true;
       // الإنشاء: عضو موثّق فقط، بقائمة حقول مسموحة صريحة تمنع أي بيانات شخصية
@@ -735,7 +758,17 @@ service cloud.firestore {
       // تعليق جديد يُلزَم publicSafe == true (ولا يُسمح أصلاً بحقل email في
       // المستند العام — البريد يُكتب في comment_private)، والتعليقات القديمة
       // التي تحمل بريداً لا تحمل العلامة فلا تُقرأ علناً إطلاقاً.
-      allow read: if isOwner()
+      // القراءة المباشرة (get) تُقيَّم على المستند، فتُرفض إن حمل أي حقل هوية/
+      // اتصال حتى مع العلامة (دفاع في العمق). والاستعلام (list) يعتمد على
+      // status=='approved' و publicSafe==true لأن غياب الحقول لا يُفرض في where.
+      allow get: if isOwner()
+                 || hasPerm('HARAJ_COMMENT_EDIT')
+                 || hasPerm('HARAJ_COMMENT_DELETE')
+                 || ((isSignedIn() || isAnonymousGuest())
+                     && resource.data.status == 'approved'
+                     && resource.data.publicSafe == true
+                     && hasNoPublicPII(resource.data));
+      allow list: if isOwner()
                   || hasPerm('HARAJ_COMMENT_EDIT')
                   || hasPerm('HARAJ_COMMENT_DELETE')
                   || ((isSignedIn() || isAnonymousGuest())

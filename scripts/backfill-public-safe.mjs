@@ -2,35 +2,51 @@
 //
 // خطة آمنة لإعادة إظهار المحتوى المنشور الخالي من البيانات الشخصية بعد إغلاق
 // تسريبي reviews/comments. يعمل افتراضياً في وضع المعاينة (dry-run) ولا يكتب
-// أي شيء. الكتابة تتطلب --apply صريحاً و CONFIRM_APPLY=yes.
+// أي شيء. الكتابة تتطلب --apply صريحاً و CONFIRM_APPLY=yes معاً، ونسخة احتياطية.
 //
 // الأثر: شرط القراءة العامة صار resource.data.publicSafe == true. المستندات
 // القديمة التي لا تحمل هذا الحقل لا تُقرأ علناً (وهو المقصود لإغلاق التسريب).
-// هذا السكربت يعيد إظهار ما يجوز إظهاره فقط:
-//   - approved + بلا بيانات شخصية  => إضافة publicSafe: true فقط.
-//   - approved + يحمل بيانات شخصية => نقل الحقول الشخصية إلى
-//     review_private/comment_private ثم إضافة publicSafe: true.
-//   - hidden / غير approved         => تُترك كما هي (تبقى غير عامة).
+//
+// لماذا يجب حذف الحقول الشخصية قبل وضع العلامة: قواعد Firestore تقيّم الاستعلام
+// (list) لا كل مستند، ولا تستطيع فرض «غياب حقل» في where. فمستند يحمل
+// publicSafe == true و userEmail معاً يبقى مقروءاً عبر استعلام المجموعة. لذلك
+// لا نضع العلامة إلا بعد نقل الحقول الشخصية وحذفها من المستند العام.
 //
 // التشغيل (يتطلب صلاحية تجاوز القواعد: مالك/محرّر المشروع):
 //   export FIREBASE_PROJECT_ID=<project>
 //   export GOOGLE_OAUTH_ACCESS_TOKEN="$(gcloud auth print-access-token)"
-//   node scripts/backfill-public-safe.mjs            # معاينة فقط
-//   CONFIRM_APPLY=yes node scripts/backfill-public-safe.mjs --apply
+//   node scripts/backfill-public-safe.mjs                 # معاينة فقط (dry-run)
+//   CONFIRM_APPLY=yes node scripts/backfill-public-safe.mjs --apply --backup-dir=./backup-2026-01-01
+//
+// للتجربة على المحاكي: اضبط FIRESTORE_EMULATOR_HOST (يكفي معه FIREBASE_PROJECT_ID).
 //
 // ملاحظة: لا يُشغَّل على الإنتاج إلا بموافقة صريحة من المالك.
+
+import fs from 'node:fs';
+import path from 'node:path';
 
 const PROJECT = process.env.FIREBASE_PROJECT_ID;
 const TOKEN = process.env.GOOGLE_OAUTH_ACCESS_TOKEN;
 const EMULATOR = process.env.FIRESTORE_EMULATOR_HOST;
 const APPLY = process.argv.includes('--apply');
 const CONFIRMED = process.env.CONFIRM_APPLY === 'yes';
+const BACKUP_DIR = (process.argv.find((a) => a.startsWith('--backup-dir=')) || '').split('=')[1] || '';
 const BASE = EMULATOR
   ? `http://${EMULATOR}/v1/projects/${PROJECT}/databases/(default)/documents`
   : `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
-const REVIEW_PII = ['userEmail', 'userId', 'ownerUid'];
-const COMMENT_PII = ['email'];
+// كل حقول الهوية والاتصال والحقول الخاصة — لا نكتفي بـ userEmail.
+const IDENTITY_FIELDS = [
+  'userEmail', 'email', 'contactEmail', 'phone', 'userPhone', 'phoneNumber',
+  'mobile', 'whatsapp', 'userId', 'ownerUid', 'uid', 'nationalId', 'iban',
+  'accountNumber', 'userName',
+];
+
+const REVIEW_META = { name: 'reviews', privateName: 'review_private', required: ['productId', 'rating'] };
+const COMMENT_META = { name: 'comments', privateName: 'comment_private', required: ['text'] };
+
+const log = [];
+const record = (entry) => log.push({ at: new Date().toISOString(), ...entry });
 
 if (!PROJECT) {
   console.error('✗ مطلوب FIREBASE_PROJECT_ID');
@@ -44,12 +60,25 @@ if (APPLY && !CONFIRMED) {
   console.error('✗ الكتابة تتطلب --apply و CONFIRM_APPLY=yes معاً');
   process.exit(2);
 }
+if (APPLY && !BACKUP_DIR) {
+  console.error('✗ الكتابة تتطلب --backup-dir=<dir> لأخذ نسخة احتياطية قبل أي تعديل');
+  process.exit(2);
+}
 
 const authHeaders = { 'Content-Type': 'application/json' };
 if (TOKEN) authHeaders.Authorization = `Bearer ${TOKEN}`;
+// المحاكي يفرض القواعد على REST أيضاً؛ رمز owner يتجاوزها (تطوير فقط).
+else if (EMULATOR) authHeaders.Authorization = 'Bearer owner';
 
-const toPlain = (fields = {}) =>
-  Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, Object.values(v)[0]]));
+function toPlain(fields = {}) {
+  const out = {};
+  for (const [k, v] of Object.entries(fields)) {
+    const val = Object.values(v)[0];
+    if (val && typeof val === 'object' && 'fields' in val) out[k] = toPlain(val.fields);
+    else out[k] = val;
+  }
+  return out;
+}
 
 async function listAll(collection) {
   const out = [];
@@ -67,12 +96,19 @@ async function listAll(collection) {
   return out;
 }
 
-async function patchFields(collection, id, fields) {
-  const mask = Object.keys(fields).map((f) => `updateMask.fieldPaths=${f}`).join('&');
+function encodeValue(v) {
+  if (typeof v === 'boolean') return { booleanValue: v };
+  if (typeof v === 'number') return { integerValue: String(v) };
+  return { stringValue: String(v) };
+}
+
+// الكتابة تُحدِّث الحقول المعطاة فقط (updateMask) — لا تستبدل المستند كاملاً.
+// الحقول المطلوب حذفها تُمرَّر في نفس الـmask؛ تمريرها فارغة يحذفها من المستند.
+async function patchFields(collection, id, fields, deleteFields = []) {
+  const paths = [...Object.keys(fields), ...deleteFields];
+  const mask = paths.map((f) => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join('&');
   const body = {
-    fields: Object.fromEntries(
-      Object.entries(fields).map(([k, v]) => [k, typeof v === 'boolean' ? { booleanValue: v } : { stringValue: v }])
-    ),
+    fields: Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, encodeValue(v)])),
   };
   const res = await fetch(`${BASE}/${collection}/${id}?${mask}`, {
     method: 'PATCH',
@@ -82,61 +118,128 @@ async function patchFields(collection, id, fields) {
   if (!res.ok) throw new Error(`patch ${collection}/${id}: ${res.status} ${await res.text()}`);
 }
 
-function classify(docs, piiFields) {
-  const buckets = { safe: [], needsSplit: [], skip: [] };
-  for (const { id, data } of docs) {
+function pickPII(data) {
+  const found = {};
+  for (const f of IDENTITY_FIELDS) {
+    const v = data[f];
+    if (v !== undefined && v !== null && v !== '') found[f] = v;
+  }
+  return found;
+}
+
+// تصنيف رباعي. غير المؤكد لا يُوسم عاماً أبداً.
+function classify(docs, meta) {
+  const buckets = {
+    alreadyPublic: [], // منشور ومعتمد وخالٍ ويحمل العلامة أصلاً
+    publicNoPII: [],   // منشور ومعتمد وخالٍ — يحتاج إضافة العلامة فقط
+    publicWithPII: [], // منشور أو معتمد لكنه يحمل بيانات شخصية
+    notPublic: [],     // مخفي أو معلّق أو مرفوض
+    unknown: [],       // ناقص أو غير قابل للتصنيف
+  };
+  for (const doc of docs) {
+    const { data } = doc;
+    const missing = meta.required.filter((f) => data[f] === undefined || data[f] === null || data[f] === '');
+    if (missing.length) { buckets.unknown.push({ ...doc, reason: `حقول ناقصة: ${missing.join(', ')}` }); continue; }
+    if (data.status !== undefined && !['approved', 'pending', 'rejected'].includes(data.status)) {
+      buckets.unknown.push({ ...doc, reason: `حالة غير معروفة: ${String(data.status)}` });
+      continue;
+    }
     const isHidden = data.hidden === true;
-    const isApproved = data.status === undefined ? !isHidden : data.status === 'approved';
-    if (isHidden || !isApproved) { buckets.skip.push({ id, data }); continue; }
-    if (data.publicSafe === true) { buckets.skip.push({ id, data }); continue; }
-    const pii = piiFields.filter((f) => data[f] !== undefined && data[f] !== null && data[f] !== '');
-    if (pii.length) buckets.needsSplit.push({ id, data, pii });
-    else buckets.safe.push({ id, data });
+    const isApproved = !isHidden && data.status !== 'pending' && data.status !== 'rejected';
+    if (!isApproved) {
+      buckets.notPublic.push({ ...doc, reason: isHidden ? 'hidden' : (data.status || 'غير معتمد') });
+      continue;
+    }
+    const pii = pickPII(data);
+    if (data.publicSafe === true && Object.keys(pii).length === 0) { buckets.alreadyPublic.push(doc); continue; }
+    if (Object.keys(pii).length > 0) { buckets.publicWithPII.push({ ...doc, pii }); continue; }
+    buckets.publicNoPII.push(doc);
   }
   return buckets;
 }
 
-function report(name, b, privateCollection) {
-  console.log(`\n=== ${name} ===`);
-  console.log(`  إجمالي المستندات: ${b.safe.length + b.needsSplit.length + b.skip.length}`);
-  console.log(`  غير ظاهرة حالياً (hidden/غير معتمد/لديها publicSafe): ${b.skip.length}`);
-  console.log(`  قابلة للإظهار بلا بيانات شخصية (تُضاف publicSafe فقط): ${b.safe.length}`);
-  console.log(`  قابلة للإظهار بعد نقل البيانات الشخصية إلى ${privateCollection}: ${b.needsSplit.length}`);
-  for (const r of b.needsSplit.slice(0, 5)) {
-    console.log(`    - ${r.id}: ستنقل الحقول ${r.pii.join(', ')}`);
+function report(meta, b) {
+  const total = Object.values(b).reduce((n, arr) => n + arr.length, 0);
+  console.log(`\n=== ${meta.name} ===`);
+  console.log(`  إجمالي المستندات: ${total}`);
+  console.log(`  1) منشور ومعتمد وخالٍ من البيانات الشخصية: ${b.publicNoPII.length} (يحتاج publicSafe فقط)`);
+  console.log(`  2) منشور/معتمد لكنه يحمل بيانات شخصية: ${b.publicWithPII.length} (يحتاج فصلاً إلى ${meta.privateName})`);
+  console.log(`  3) مخفي أو معلّق أو مرفوض: ${b.notPublic.length} (يُترك غير عام)`);
+  console.log(`  4) ناقص أو غير قابل للتصنيف: ${b.unknown.length} (يُترك غير عام)`);
+  console.log(`  (إضافة) سبق وسمه عاماً وخالياً: ${b.alreadyPublic.length} (لا تغيير)`);
+  for (const r of b.publicWithPII.slice(0, 10)) {
+    console.log(`    - ${r.id}: ستنقل الحقول ${Object.keys(r.pii).join(', ')}`);
   }
+  for (const r of b.unknown.slice(0, 10)) {
+    console.log(`    - ${r.id}: ${r.reason}`);
+  }
+  return total;
 }
 
-async function runCollection(name, piiFields, privateCollection, buildPrivate) {
-  const docs = await listAll(name);
-  const b = classify(docs, piiFields);
-  report(name, b, privateCollection);
+async function backup(collection, docs) {
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  const file = path.join(BACKUP_DIR, `${collection}.json`);
+  fs.writeFileSync(file, JSON.stringify(docs, null, 2));
+  console.log(`  💾 نسخة احتياطية: ${file} (${docs.length} مستنداً)`);
+  return file;
+}
+
+function buildPrivateDoc(meta, r) {
+  const priv = { ...r.pii };
+  // reviews: الملكية تُلزَم على السجل الخاص (ownerUid == uid المُنشئ).
+  if (meta.name === 'reviews') {
+    priv.ownerUid = r.pii.ownerUid || r.data.ownerUid || r.pii.userId || r.data.userId || '';
+    if (r.data.productId !== undefined) priv.productId = r.data.productId;
+  }
+  // comments: القاعدة تشترط publicSafe و status=='pending' عند إنشاء السجل الخاص.
+  if (meta.name === 'comments') {
+    priv.status = r.data.status || 'pending';
+    priv.publicSafe = true;
+  }
+  return priv;
+}
+
+async function runCollection(meta) {
+  const docs = await listAll(meta.name);
+  const b = classify(docs, meta);
+  report(meta, b);
   if (!APPLY) return b;
 
-  for (const r of b.safe) {
-    await patchFields(name, r.id, { publicSafe: true });
+  const backupFile = await backup(meta.name, docs);
+  record({ collection: meta.name, action: 'backup', file: backupFile, docs: docs.length });
+
+  for (const r of b.publicNoPII) {
+    await patchFields(meta.name, r.id, { publicSafe: true });
+    record({ collection: meta.name, id: r.id, action: 'tag', fields: ['publicSafe'] });
   }
-  for (const r of b.needsSplit) {
-    await patchFields(privateCollection, r.id, buildPrivate(r));
-    await patchFields(name, r.id, { publicSafe: true });
+  for (const r of b.publicWithPII) {
+    const priv = buildPrivateDoc(meta, r);
+    await patchFields(meta.privateName, r.id, priv);
+    await patchFields(meta.name, r.id, { publicSafe: true }, Object.keys(r.pii));
+    record({ collection: meta.name, id: r.id, action: 'split+tag', moved: Object.keys(r.pii), kept: Object.keys(priv) });
   }
-  console.log(`  ✓ طُبّق: ${b.safe.length} بلا تغيير بيانات + ${b.needsSplit.length} مع فصل البيانات`);
+  for (const r of [...b.notPublic, ...b.unknown]) {
+    record({ collection: meta.name, id: r.id, action: 'leave', reason: r.reason });
+  }
+  for (const r of b.alreadyPublic) {
+    record({ collection: meta.name, id: r.id, action: 'noop' });
+  }
+  console.log(`  ✓ طُبّق: ${b.publicNoPII.length} وسم فقط + ${b.publicWithPII.length} فصل بيانات`);
   return b;
 }
 
 async function main() {
   console.log(APPLY ? '⚠ وضع الكتابة (--apply)' : 'معاينة فقط (dry-run) — لا كتابة');
-  await runCollection('reviews', REVIEW_PII, 'review_private', (r) => ({
-    ownerUid: r.data.ownerUid || '',
-    userEmail: r.data.userEmail || '',
-    ...(r.data.userId ? { userId: r.data.userId } : {}),
-  }));
-  await runCollection('comments', COMMENT_PII, 'comment_private', (r) => ({
-    email: r.data.email || '',
-    status: r.data.status || 'pending',
-    publicSafe: true,
-  }));
-  if (!APPLY) console.log('\nللتطبيق (بموافقة المالك): CONFIRM_APPLY=yes node scripts/backfill-public-safe.mjs --apply');
+  if (EMULATOR) console.log(`  (محاكي Firestore: ${EMULATOR} — ليست بيانات إنتاج)`);
+  await runCollection(REVIEW_META);
+  await runCollection(COMMENT_META);
+  if (APPLY) {
+    const logFile = path.join(BACKUP_DIR, 'migration-log.json');
+    fs.writeFileSync(logFile, JSON.stringify(log, null, 2));
+    console.log(`\n📝 سجل الترحيل: ${logFile}`);
+  } else {
+    console.log('\nللتطبيق (بموافقة المالك): CONFIRM_APPLY=yes node scripts/backfill-public-safe.mjs --apply --backup-dir=<dir>');
+  }
 }
 
 main().catch((e) => { console.error('✗', e.message); process.exit(1); });
