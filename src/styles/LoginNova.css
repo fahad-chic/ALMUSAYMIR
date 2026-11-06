@@ -1397,8 +1397,7 @@
 }
 
 .rl-root .rl-card--big .rl-card-sub,
-.rl-card--admin .rl-card-sub,
-.rl-root .rl-card.rl-card--admin .rl-card-phrase {
+.rl-card--admin .rl-card-sub {
   color: #000000 !important;
 }
 
@@ -1414,8 +1413,9 @@
   overflow: visible !important;
   -webkit-line-clamp: unset !important;
   -webkit-box-orient: initial !important;
-  font-size: .72rem !important;
-  font-weight: 700 !important;
+  color: #000000 !important;
+  font-size: .68rem !important;
+  font-weight: 300 !important;
   line-height: 1.45 !important;
   overflow-wrap: anywhere !important;
 }
@@ -1609,14 +1609,8 @@
   color: #000000 !important;
   font-size: .68rem !important;
   font-weight: 300 !important;
-  line-height: 1.4 !important;
+  line-height: 1.45 !important;
   overflow-wrap: anywhere !important;
-}
-
-.rl-root .rl-card.rl-card--admin .rl-card-phrase.text-royal-white {
-  color: #000000 !important;
-  font-size: .68rem !important;
-  font-weight: 300 !important;
 }
 
 .rl-root .rl-card--big .rl-owner-badge.rl-hidden-trigger {
