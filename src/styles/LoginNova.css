@@ -1397,8 +1397,7 @@
 }
 
 .rl-root .rl-card--big .rl-card-sub,
-.rl-card--admin .rl-card-sub,
-.rl-root .rl-card.rl-card--admin .rl-card-phrase {
+.rl-card--admin .rl-card-sub {
   color: #000000 !important;
 }
 
@@ -1414,8 +1413,9 @@
   overflow: visible !important;
   -webkit-line-clamp: unset !important;
   -webkit-box-orient: initial !important;
-  font-size: .72rem !important;
-  font-weight: 700 !important;
+  color: #000000 !important;
+  font-size: .68rem !important;
+  font-weight: 300 !important;
   line-height: 1.45 !important;
   overflow-wrap: anywhere !important;
 }
@@ -1609,17 +1609,11 @@
   color: #000000 !important;
   font-size: .68rem !important;
   font-weight: 300 !important;
-  line-height: 1.4 !important;
+  line-height: 1.45 !important;
   overflow-wrap: anywhere !important;
 }
 
-.rl-root .rl-card.rl-card--admin .rl-card-phrase.text-royal-white {
-  color: #000000 !important;
-  font-size: .68rem !important;
-  font-weight: 300 !important;
-}
-
-.rl-owner-badge.rl-hidden-trigger {
+.rl-root .rl-card--big .rl-owner-badge.rl-hidden-trigger {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -1634,6 +1628,7 @@
   border-radius: 999px !important;
   background: #fff1cb !important;
   color: #674608 !important;
+  -webkit-text-fill-color: #674608 !important;
   font: 800 .67rem/1.25 var(--rz-font) !important;
   white-space: nowrap !important;
   cursor: pointer !important;
@@ -1643,7 +1638,7 @@
   .rl-root .rl-card--admin .rl-card-phrase {
     font-size: .63rem !important;
   }
-  .rl-owner-badge.rl-hidden-trigger {
+  .rl-root .rl-card--big .rl-owner-badge.rl-hidden-trigger {
     font-size: .61rem !important;
   }
 }
