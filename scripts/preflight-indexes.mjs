@@ -1,91 +1,103 @@
-// scripts/preflight-indexes.mjs — فحص قبل النشر (قراءة-فقط، بلا شبكة، بلا كتابة).
-// يفشل (exit 1) إذا وُجد أي فهرس مركّب أحادي الحقل — وهو ما يرفضه Firestore بـ
-// HTTP 400 "this index is not necessary, configure using single field indexes".
-// يتحقق أيضًا من أنك على الفرع الصحيح، ومن أن حالة Git نظيفة، ويقارن مع الإنتاج اختياريًا.
+// scripts/preflight-indexes.mjs — offline, read-only guard for Firestore indexes.
+// Run from the repository root on the intended branch. No Firebase calls/writes.
 //
-// الاستخدام (من جذر المشروع، على الفرع الصحيح):
-//   node scripts/preflight-indexes.mjs
-//   node scripts/preflight-indexes.mjs --expect-branch fix/reviews-privacy
-// وللمقارنة مع الإنتاج (اختياري):
-//   npx firebase-tools firestore:indexes --project <PROJECT> > /tmp/prod.json
-//   node scripts/preflight-indexes.mjs --prod /tmp/prod.json
+//   node scripts/preflight-indexes.mjs --expect-branch fix/firestore-index-preflight
+//   node scripts/preflight-indexes.mjs --config firebase.barrier.json
+//   node scripts/preflight-indexes.mjs --prod /tmp/prod-indexes.json
 import { readFileSync, existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { findUnnecessarySingleFieldIndexes, validateRequiredPrivacyIndexes } from './index-audit.mjs';
 
-const arg = (name, def = null) => {
-  const i = process.argv.indexOf(name);
-  return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : def;
+const args = process.argv.slice(2);
+const arg = (name, fallback = null) => {
+  const index = args.indexOf(name);
+  return index !== -1 && args[index + 1] ? args[index + 1] : fallback;
 };
+const root = path.resolve(arg('--root', process.cwd()));
+const configPath = path.resolve(root, arg('--config', 'firebase.json'));
+const explicitFile = arg('--file');
+const prodPath = arg('--prod') ? path.resolve(root, arg('--prod')) : null;
+const expectedBranch = arg('--expect-branch');
+let failed = false;
+const fail = (message) => { failed = true; console.error(`✗ ${message}`); };
+const ok = (message) => console.log(`✓ ${message}`);
 
-const filePath = arg('--file', 'firestore.indexes.json');
-const prodPath = arg('--prod', null);
-const expectBranch = arg('--expect-branch', null);
-
-let hardFail = false;
-const fail = (m) => { hardFail = true; console.log('   \u2717 ' + m); };
-const ok = (m) => console.log('   \u2713 ' + m);
-
-// ---------- 1) حالة Git ----------
-console.log('\n[1] حالة Git');
+console.log('\n[1] Repository identity');
+console.log(`  working directory: ${root}`);
 try {
-  const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim();
-  const sha = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
-  const dirty = execSync('git status --porcelain', { encoding: 'utf8' }).trim();
-  console.log(`   الفرع  : ${branch}`);
-  console.log(`   الالتزام: ${sha}`);
-  console.log(`   نظيف   : ${dirty ? 'لا (توجد تغييرات غير مُثبّتة)' : 'نعم'}`);
-  if (expectBranch && branch !== expectBranch) fail(`الفرع الحالي "${branch}" \u2260 المتوقع "${expectBranch}"`);
-  else if (expectBranch) ok('الفرع مطابق للمتوقع');
-} catch {
-  console.log('   (تعذّر قراءة Git — استمرار فحص الملف)');
+  const git = (command) => execFileSync('git', command, { cwd: root, encoding: 'utf8' }).trim();
+  const branch = git(['rev-parse', '--abbrev-ref', 'HEAD']);
+  const sha = git(['rev-parse', 'HEAD']);
+  console.log(`  branch: ${branch}`);
+  console.log(`  commit: ${sha}`);
+  console.log(`  worktree: ${git(['status', '--porcelain']) ? 'dirty' : 'clean'}`);
+  if (expectedBranch && expectedBranch !== branch) fail(`expected branch ${expectedBranch}, found ${branch}`);
+} catch (error) {
+  fail(`cannot identify Git checkout at ${root}: ${error.message}`);
 }
 
-// ---------- 2) فحص الملف الثابت ----------
-console.log(`\n[2] فحص الملف: ${filePath}`);
-if (!existsSync(filePath)) {
-  fail('الملف غير موجود في المسار الحالي — تأكّد أنك في جذر المشروع');
-} else {
-  const d = JSON.parse(readFileSync(filePath, 'utf8'));
-  const idx = d.indexes || [];
-  const single = idx.filter((x) => (x.fields || []).length === 1);
-  const multi = idx.filter((x) => (x.fields || []).length > 1);
-  console.log(`   إجمالي الفهارس: ${idx.length} (متعددة الحقول: ${multi.length} \u00b7 أحادية: ${single.length})`);
-  if (single.length) {
-    fail(`يوجد ${single.length} فهرس مركّب أحادي الحقل (يُفشل النشر بـ 400):`);
-    single.forEach((x) => console.log(`       - ${x.collectionGroup}: ${x.fields.map((f) => f.fieldPath).join(', ')}`));
-  } else {
-    ok('لا يوجد أي فهرس مركّب أحادي الحقل — النشر لن يفشل بهذا السبب');
+console.log('\n[2] Firebase CLI configuration');
+console.log(`  config: ${configPath}`);
+let definitionPath = null;
+if (!existsSync(configPath)) fail(`Firebase config not found: ${configPath}`);
+else {
+  try {
+    const config = JSON.parse(readFileSync(configPath, 'utf8'));
+    if (typeof config.firestore?.indexes !== 'string') fail('firebase config has no firestore.indexes path');
+    else {
+      definitionPath = path.resolve(root, config.firestore.indexes);
+      console.log(`  configured indexes: ${definitionPath}`);
+      if (explicitFile && path.resolve(root, explicitFile) !== definitionPath) {
+        fail(`--file resolves to ${path.resolve(root, explicitFile)}, but this Firebase config deploys ${definitionPath}`);
+      } else ok('the checked file is exactly the index file selected by this Firebase config');
+    }
+  } catch (error) {
+    fail(`cannot parse Firebase config: ${error.message}`);
+  }
+}
+if (explicitFile) definitionPath = path.resolve(root, explicitFile);
+
+let definition = null;
+if (!definitionPath || !existsSync(definitionPath)) fail(`index definition not found: ${definitionPath || '(unresolved)'}`);
+else {
+  console.log('\n[3] Static index validation');
+  console.log(`  file: ${definitionPath}`);
+  try {
+    definition = JSON.parse(readFileSync(definitionPath, 'utf8'));
+    const indexes = definition.indexes || [];
+    const unnecessary = findUnnecessarySingleFieldIndexes(definition);
+    console.log(`  indexes: ${indexes.length}; fieldOverrides: ${(definition.fieldOverrides || []).length}`);
+    if (unnecessary.length) {
+      fail(`${unnecessary.length} composite index(es) has only one explicit field`);
+      unnecessary.forEach((index) => console.error(`  - ${index.collectionGroup}: ${index.fields.map((field) => field.fieldPath).join(', ')}`));
+    } else ok('no one-explicit-field composite index');
+    const missingPrivacyIndexes = validateRequiredPrivacyIndexes(definition);
+    if (missingPrivacyIndexes.length) {
+      fail(`missing privacy-query composite index(es): ${missingPrivacyIndexes.map((index) => index.collectionGroup).join(', ')}`);
+    } else ok('reviews/comments publicSafe query indexes are present');
+  } catch (error) {
+    fail(`cannot parse index definition: ${error.message}`);
   }
 }
 
-// ---------- 3) المقارنة مع الإنتاج (اختياري) ----------
 if (prodPath) {
-  console.log(`\n[3] مقارنة مع الإنتاج: ${prodPath}`);
-  if (!existsSync(prodPath)) fail('ملف الإنتاج غير موجود');
+  console.log('\n[4] Production comparison input (read-only export supplied by operator)');
+  console.log(`  file: ${prodPath}`);
+  if (!existsSync(prodPath)) fail(`production export not found: ${prodPath}`);
+  else if (!definition) fail('cannot compare because the configured index file is invalid');
   else {
-    const lastOrder = (fs) => { let o = 'ASCENDING'; for (const f of fs) if (f.order) o = f.order; return o; };
-    const canon = (x) => {
-      let fs = (x.fields || []).map((f) => ({ p: f.fieldPath, o: f.order || f.arrayConfig || null }));
-      const last = fs[fs.length - 1];
-      if (last && last.p === '__name__') fs = fs.slice(0, -1);
-      fs = fs.filter((f) => f.p !== '__name__');
-      return { cg: x.collectionGroup, sc: x.queryScope || 'COLLECTION', fs: [...fs, { p: '__name__', o: lastOrder(fs) }] };
-    };
-    const key = (c) => JSON.stringify(c);
-    const f = JSON.parse(readFileSync(filePath, 'utf8')).indexes || [];
-    const p = JSON.parse(readFileSync(prodPath, 'utf8')).indexes || [];
-    const fk = new Set(f.map((x) => key(canon(x))));
-    const pk = new Set(p.map((x) => key(canon(x))));
-    const toAdd = f.filter((x) => !pk.has(key(canon(x))));
-    const prodOnly = p.filter((x) => !fk.has(key(canon(x))));
-    console.log(`   سيُضيفها النشر: ${toAdd.length}`);
-    toAdd.forEach((x) => console.log(`       + ${x.collectionGroup}: ${x.fields.map((q) => q.fieldPath).join(', ')}`));
-    console.log(`   في الإنتاج وليست في الملف (قد يُعرض حذفها — تُرفض): ${prodOnly.length}`);
-    prodOnly.forEach((x) => console.log(`       ! ${x.collectionGroup}: ${x.fields.map((q) => q.fieldPath).join(', ')}`));
-    if (prodOnly.length) fail('توجد فهارس إنتاجية غير موجودة في الملف — لا تنشر (أو ارفض الحذف)');
-    else ok('لا فهرس إنتاجي سيُحذف أو يتغيّر');
+    // Delegate comparison to the read-only CLI with an explicit project-root config path.
+    try {
+      execFileSync(process.execPath, [path.join(root, 'scripts/compare-indexes.mjs'), definitionPath, prodPath], {
+        cwd: root,
+        stdio: 'inherit',
+      });
+    } catch (error) {
+      fail(`production comparison found a blocking difference (exit ${error.status ?? 'unknown'})`);
+    }
   }
 }
 
-console.log(`\nالنتيجة: ${hardFail ? 'أوقف — لا تنشر' : 'جاهز للنشر (بعد موافقة المالك)'}\n`);
-process.exit(hardFail ? 1 : 0);
+console.log(`\nResult: ${failed ? 'STOP — do not deploy' : 'preflight passed; this did not contact or change Firebase'}\n`);
+process.exit(failed ? 1 : 0);
