@@ -1,82 +1,27 @@
-# طريقة ربط قواعد Firebase بعد إضافة الملفات
+# نشر فهارس Firestore (يدوي وبعد مراجعة المالك)
 
-## 1) فك ضغط الحزمة
+ابدأ دائمًا من جذر نسخة Git التي راجعتها، وعلى الفرع الذي يحمل التغيير المطلوب. لا تشغّل Firebase CLI من `~` أو من نسخة أقدم للمشروع؛ Firebase CLI يقرأ `firebase.json` من دليل العمل، وهذا الإعداد يشير إلى `firestore.indexes.json` بجواره.
 
-ضع الملفات في جذر مشروع GitHub، بجانب `package.json`:
-
-```text
-firestore.rules
-firestore.indexes.json
-firebase.json
-```
-
-لا تضعها داخل `src`.
-
-## 2) تثبيت Firebase CLI
+من جذر المستودع شغّل الفحص دون نشر:
 
 ```bash
-npm install -g firebase-tools
-firebase login
+node scripts/preflight-indexes.mjs --expect-branch fix/firestore-index-preflight
+npm run test:indexes
 ```
 
-سجّل الدخول بالحساب الذي يملك مشروع Firebase الصحيح.
-
-## 3) اختيار المشروع
-
-من جذر المشروع شغّل:
+ولمقارنة الإنتاج قراءةً فقط:
 
 ```bash
-firebase use --add
+npx firebase-tools firestore:indexes --project anaqa-chic-4e437 > /tmp/prod-indexes.json
+node scripts/compare-indexes.mjs firestore.indexes.json /tmp/prod-indexes.json
 ```
 
-ثم اختر مشروع Firebase المرتبط بالموقع، وتأكد من أن المعرّف هو نفسه الموجود في:
+راجع نتيجة المقارنة قبل أي نشر. `preflight` و`compare` لا تنشران ولا تحذفان شيئًا. إذا أظهر التقرير فهارس إنتاجية غير موجودة بالملف أو اختلافات `fieldOverrides`، أوقف النشر وراجعها مع المالك.
 
-```text
-VITE_FIREBASE_PROJECT_ID
-```
-
-## 4) فحص القواعد قبل النشر
+**أمر النشر المقترح للمراجعة فقط — لا تشغّله قبل مراجعة الفروع ونتيجة المقارنة وموافقة المالك:**
 
 ```bash
-firebase firestore:rules:release
+firebase deploy --only firestore:indexes --project anaqa-chic-4e437
 ```
 
-إذا كان هذا الأمر غير متاح في نسخة CLI لديك، استخدم النشر المباشر في الخطوة التالية.
-
-## 5) نشر القواعد والفهارس
-
-```bash
-firebase deploy --only firestore:rules,firestore:indexes
-```
-
-ولنشر قواعد Storage أيضًا:
-
-```bash
-firebase deploy --only firestore:rules,firestore:indexes,storage
-```
-
-## 6) التحقق
-
-بعد النشر:
-
-```bash
-firebase projects:list
-firebase use
-```
-
-ثم اختبر:
-
-- قراءة الإعلان.
-- إرسال الرسالة العامة داخل الإعلان.
-- قراءة الرسائل الخاصة.
-- المفضلة.
-- صلاحيات غرفة المالك.
-- حذف رسالة عامة من المالك.
-
-## مهم
-
-- لا تستبدل `firestore.rules` القديم إلا بعد حفظ نسخة احتياطية.
-- لا تنشر القواعد من مشروع Firebase خاطئ.
-- لا ترسل كلمات المرور أو مفاتيح Firebase أو Cloudflare.
-- الرسائل العامة لا تعمل فعليًا إلا بعد نشر `firestore.rules`.
-- ملف `firebase.json` يحدد أماكن القواعد والفهارس، لذلك يجب وضعه في جذر المشروع.
+لا يُستخدم `--force`؛ لا ينشر هذا الأمر قواعد Firestore أو التطبيق.
