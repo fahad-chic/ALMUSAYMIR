@@ -17,7 +17,7 @@ import {
   assertSucceeds,
   assertFails,
 } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -123,6 +123,12 @@ const user = testEnv.authenticatedContext(USER, {
   email_verified: true,
 }).firestore();
 const visitor = testEnv.unauthenticatedContext().firestore();
+// الزائر المجهول الحقيقي (anonymous auth) — هو من يستطيع الوصول للمسارات
+// العامة، وليس جلسة غير مصادقة إطلاقاً. يُستخدم لاختبار القراءة العامة.
+const guestCtx = testEnv.authenticatedContext(uid('guest'), {
+  firebase: { sign_in_provider: 'anonymous' },
+});
+const guest = guestCtx.firestore();
 
 console.log('\n=== 1) مصفوفة rbac: منع المنح الذاتي وتصعيد الصلاحيات ===');
 await expectAllow('المالك يكتب rbac لأي حساب', setDoc(doc(owner, 'rbac', USER), {
@@ -789,10 +795,10 @@ await expectDeny('MANAGE_NOTIFICATIONS: غير المصرّح لا يعدّل', 
 await expectAllow('MANAGE_NOTIFICATIONS: المالك مسموح', getDoc(doc(owner, 'notifications', 'ntf-1')));
 
 // MANAGE_REVIEWS
-await expectAllow('MANAGE_REVIEWS: المصرّح يخفي تقييماً', updateDoc(doc(ph2, 'reviews', 'rev-1'), { hidden: true, moderationReason: 'مخالف', moderatedBy: 'x', moderatedAt: new Date() }));
+await expectAllow('MANAGE_REVIEWS: المصرّح يخفي تقييماً', updateDoc(doc(ph2, 'reviews', 'rev-1'), { hidden: true, publicSafe: false, moderationReason: 'مخالف', moderatedBy: 'x', moderatedAt: new Date() }));
 await expectDeny('MANAGE_REVIEWS: المصرّح لا يغيّر نص التقييم', updateDoc(doc(ph2, 'reviews', 'rev-1'), { text: 'مزوّر' }));
 await expectDeny('MANAGE_REVIEWS: غير المصرّح مرفوض', updateDoc(doc(adminB, 'reviews', 'rev-1'), { hidden: true }));
-await expectAllow('MANAGE_REVIEWS: المالك مسموح', updateDoc(doc(owner, 'reviews', 'rev-1'), { hidden: false }));
+await expectAllow('MANAGE_REVIEWS: المالك مسموح', updateDoc(doc(owner, 'reviews', 'rev-1'), { hidden: false, publicSafe: true }));
 
 // MANAGE_SITE_BANNERS (كان مربوطاً خطأً بـMANAGE_NAVIGATION_MENU)
 await expectAllow('MANAGE_SITE_BANNERS: المصرّح ينشئ بنراً', setDoc(doc(ph2, 'banners', 'ban-2'), { title: 'بنر2', image: 'y' }));
@@ -853,13 +859,15 @@ await testEnv.withSecurityRulesDisabled(async (ctx) => {
   await setDoc(doc(db, 'users', CM_DELETE), { email: 'cd@example.com', role: 'admin' });
   await setDoc(doc(db, 'rbac', CM_EDIT), { suspended: false, grants: { HARAJ_COMMENT_EDIT: true } });
   await setDoc(doc(db, 'rbac', CM_DELETE), { suspended: false, grants: { HARAJ_COMMENT_DELETE: true } });
-  await setDoc(doc(db, 'comments', 'cm-1'), { text: 'تعليق', status: 'pending' });
-  await setDoc(doc(db, 'comments', 'cm-2'), { text: 'تعليق2', status: 'pending' });
-  await setDoc(doc(db, 'comments', 'cm-3'), { text: 'تعليق3', status: 'pending' });
+  await setDoc(doc(db, 'comments', 'cm-1'), { text: 'تعليق', status: 'pending', publicSafe: true });
+  await setDoc(doc(db, 'comments', 'cm-2'), { text: 'تعليق2', status: 'pending', publicSafe: true });
+  await setDoc(doc(db, 'comments', 'cm-3'), { text: 'تعليق3', status: 'pending', publicSafe: true });
 });
-// الزائر ينشئ تعليقاً بحالة pending فقط (لا ينشره فوراً)
-await expectAllow('تعليق: الزائر ينشئ تعليقاً pending', setDoc(doc(visitor, 'comments', 'cm-v'), { text: 'زائر', status: 'pending' }));
-await expectDeny('تعليق: الزائر لا ينشر تعليقاً معتمداً مباشرة', setDoc(doc(visitor, 'comments', 'cm-v2'), { text: 'زائر', status: 'approved' }));
+// الزائر ينشئ تعليقاً بحالة pending فقط (لا ينشره فوراً) وبعلامة publicSafe
+await expectAllow('تعليق: الزائر ينشئ تعليقاً pending', setDoc(doc(visitor, 'comments', 'cm-v'), { text: 'زائر', status: 'pending', publicSafe: true }));
+await expectDeny('تعليق: الزائر لا ينشر تعليقاً معتمداً مباشرة', setDoc(doc(visitor, 'comments', 'cm-v2'), { text: 'زائر', status: 'approved', publicSafe: true }));
+await expectDeny('تعليق: الزائر لا يكتب حقل email في المستند العام', setDoc(doc(visitor, 'comments', 'cm-v3'), { text: 'زائر', status: 'pending', publicSafe: true, email: 'leak@x.com' }));
+await expectDeny('تعليق: إنشاء تعليق بلا publicSafe مرفوض', setDoc(doc(visitor, 'comments', 'cm-v4'), { text: 'زائر', status: 'pending' }));
 // صاحب HARAJ_COMMENT_EDIT يعتمد (تغيير الحالة فقط)
 await expectAllow('تعليق: صاحب EDIT يعتمد تعليقاً', updateDoc(doc(cmEdit, 'comments', 'cm-1'), { status: 'approved' }));
 await expectDeny('تعليق: صاحب EDIT لا يمسح نص التعليق', updateDoc(doc(cmEdit, 'comments', 'cm-1'), { text: 'مزوّر' }));
@@ -870,6 +878,189 @@ await expectAllow('تعليق: صاحب DELETE يحذف التعليق فعلا�
 await expectDeny('تعليق: غير المصرّح لا يحذف', deleteDoc(doc(adminB, 'comments', 'cm-3')));
 await expectDeny('تعليق: الزائر لا يحذف', deleteDoc(doc(visitor, 'comments', 'cm-3')));
 await expectAllow('تعليق: المالك يحذف', deleteDoc(doc(owner, 'comments', 'cm-3')));
+
+// ============ 22) خصوصية التقييمات: منع المخفي وبيانات التعريف للعام ============
+console.log('\n=== 22) خصوصية التقييمات: المخفي والبيانات الشخصية ===');
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  // المنشور النظيف: publicSafe == true
+  await setDoc(doc(db, 'reviews', 'rev-pub'), { productId: 'p1', rating: 5, text: 'تقييم منشور', publicSafe: true });
+  // مخفي: العلامة مُبطلة
+  await setDoc(doc(db, 'reviews', 'rev-hidden'), { productId: 'p1', rating: 1, text: 'تقييم مخفي', hidden: true, publicSafe: false, moderationReason: 'مخالف' });
+  // مستند قديم يحمل بريداً ولا يحمل العلامة → لا يُقرأ علناً
+  await setDoc(doc(db, 'reviews', 'rev-pii'), { productId: 'p1', rating: 4, text: 'تقييم يحمل بريداً', hidden: false, userEmail: 'customer.private@example.com' });
+  await setDoc(doc(db, 'review_private', 'rev-priv'), { productId: 'p1', ownerUid: USER, userEmail: 'customer.private@example.com', userId: USER });
+  await setDoc(doc(db, 'review_private', 'rev-other'), { productId: 'p1', ownerUid: VICTIM, userEmail: 'victim.private@example.com', userId: VICTIM });
+});
+// السماح: التقييم المنشور النظيف يُقرأ للزائر والمستخدم
+await expectAllow('تقييم: الزائر يقرأ التقييم المنشور', getDoc(doc(visitor, 'reviews', 'rev-pub')));
+await expectAllow('تقييم: المستخدم يقرأ التقييم المنشور', getDoc(doc(user, 'reviews', 'rev-pub')));
+// الرفض: المخفي لا يُقرأ للزائر/المستخدم
+await expectDeny('تقييم: الزائر لا يقرأ التقييم المخفي', getDoc(doc(visitor, 'reviews', 'rev-hidden')));
+await expectDeny('تقييم: المستخدم لا يقرأ التقييم المخفي', getDoc(doc(user, 'reviews', 'rev-hidden')));
+// الرفض: المستند القديم الحامل لبيانات شخصية لا يُقرأ علناً (لا يحمل publicSafe)
+await expectDeny('تقييم: الزائر لا يقرأ مستنداً يحمل userEmail', getDoc(doc(visitor, 'reviews', 'rev-pii')));
+await expectDeny('تقييم: المستخدم لا يقرأ مستنداً يحمل userEmail', getDoc(doc(user, 'reviews', 'rev-pii')));
+// السماح: المالك وصاحب MANAGE_REVIEWS يقرآن المخفي وكل الحالات
+await expectAllow('تقييم: المالك يقرأ التقييم المخفي', getDoc(doc(owner, 'reviews', 'rev-hidden')));
+await expectAllow('تقييم: صاحب MANAGE_REVIEWS يقرأ التقييم المخفي', getDoc(doc(ph2, 'reviews', 'rev-hidden')));
+await expectAllow('تقييم: صاحب MANAGE_REVIEWS يقرأ مستند البريد', getDoc(doc(ph2, 'reviews', 'rev-pii')));
+// دفاع في العمق: مستند يحمل العلامة AND حقلاً شخصياً يُرفض في القراءة المباشرة
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'reviews', 'rev-tagged-pii'), { productId: 'p1', rating: 5, text: 'علامة خاطئة', publicSafe: true, userEmail: 'oops@example.com' });
+  await setDoc(doc(ctx.firestore(), 'reviews', 'rev-tagged-phone'), { productId: 'p1', rating: 5, text: 'هاتف', publicSafe: true, phone: '0555555555' });
+  await setDoc(doc(ctx.firestore(), 'reviews', 'rev-tagged-owner'), { productId: 'p1', rating: 5, text: 'معرّف', publicSafe: true, ownerUid: USER });
+});
+await expectDeny('تقييم: get يرفض مستنداً يحمل العلامة + userEmail', getDoc(doc(visitor, 'reviews', 'rev-tagged-pii')));
+await expectDeny('تقييم: get يرفض مستنداً يحمل العلامة + phone', getDoc(doc(user, 'reviews', 'rev-tagged-phone')));
+await expectDeny('تقييم: get يرفض مستنداً يحمل العلامة + ownerUid', getDoc(doc(visitor, 'reviews', 'rev-tagged-owner')));
+await expectAllow('تقييم: المالك يقرأ مستند العلامة الخاطئة (مراجعة)', getDoc(doc(owner, 'reviews', 'rev-tagged-pii')));
+await expectAllow('تقييم: get يسمح بالمستند النظيف صاحب العلامة', getDoc(doc(visitor, 'reviews', 'rev-pub')));
+// review_private: البريد المفصول للمالك/المشرف فقط
+await expectDeny('تقييم خاص: الزائر لا يقرأ review_private', getDoc(doc(visitor, 'review_private', 'rev-priv')));
+await expectDeny('تقييم خاص: المستخدم لا يقرأ سجل مستخدم آخر', getDoc(doc(user, 'review_private', 'rev-other')));
+await expectAllow('تقييم خاص: صاحب MANAGE_REVIEWS يقرأ review_private', getDoc(doc(ph2, 'review_private', 'rev-priv')));
+await expectAllow('تقييم خاص: المالك يقرأ review_private', getDoc(doc(owner, 'review_private', 'rev-priv')));
+// ربط الملكية: صاحب السجل يقرأ سجله الخاص
+await expectAllow('تقييم خاص: صاحب التقييم يقرأ سجله الخاص', getDoc(doc(user, 'review_private', 'rev-priv')));
+// ربط الملكية: لا إنشاء سجل خاص باسم مستخدم آخر
+await expectDeny('تقييم خاص: لا إنشاء سجل بمعرّف مستخدم آخر', setDoc(doc(user, 'review_private', 'rev-forge'), { ownerUid: VICTIM, productId: 'p1', userEmail: 'x@y.com' }));
+await expectDeny('تقييم خاص: لا إنشاء سجل بلا ownerUid', setDoc(doc(user, 'review_private', 'rev-nouid'), { productId: 'p1', userEmail: 'x@y.com' }));
+await expectAllow('تقييم خاص: العضو ينشئ سجله الخاص بمعرّفه', setDoc(doc(user, 'review_private', 'rev-own'), { ownerUid: USER, productId: 'p1', userEmail: 'me@example.com' }));
+// ربط الملكية: لا تغيير ownerUid لاحقاً (منع نقل الملكية)
+await expectDeny('تقييم خاص: لا يمكن تغيير مالك السجل', updateDoc(doc(user, 'review_private', 'rev-own'), { ownerUid: VICTIM }));
+// الاستعلام عن المجموعة محميّ: الشرط publicSafe مُلزَم في الاستعلام
+await expectAllow('تقييم: استعلام الزائر يجلب المنشور النظيف فقط (publicSafe==true)',
+  getDocs(query(collection(visitor, 'reviews'), where('productId', '==', 'p1'), where('publicSafe', '==', true))));
+await expectDeny('تقييم: استعلام الزائر لا يجلب المخفي (publicSafe==false)',
+  getDocs(query(collection(visitor, 'reviews'), where('publicSafe', '==', false))));
+await expectDeny('تقييم: استعلام الزائر لا يجلب مستنداً بلا العلامة (فلتر productId فقط)',
+  getDocs(query(collection(visitor, 'reviews'), where('productId', '==', 'p1'))));
+await expectDeny('تقييم خاص: استعلام المستخدم لا يجلب review_private',
+  getDocs(query(collection(user, 'review_private'), where('productId', '==', 'p1'))));
+await expectAllow('تقييم خاص: استعلام المالك يجلب review_private',
+  getDocs(query(collection(owner, 'review_private'), where('productId', '==', 'p1'))));
+// الإنشاء: يُلزَم publicSafe، ولا يُقبل تقييم يحمل بريداً
+await expectDeny('تقييم: إنشاء تقييم يحمل userEmail مرفوض', setDoc(doc(user, 'reviews', 'rev-new-pii'), { productId: 'p1', rating: 5, text: 'x', publicSafe: true, userEmail: 'x@y.com' }));
+await expectDeny('تقييم: إنشاء تقييم بلا publicSafe مرفوض', setDoc(doc(user, 'reviews', 'rev-new-nosafe'), { productId: 'p1', rating: 5, text: 'x' }));
+await expectDeny('تقييم: إنشاء تقييم بـ publicSafe=false مرفوض', setDoc(doc(user, 'reviews', 'rev-new-false'), { productId: 'p1', rating: 5, text: 'x', publicSafe: false }));
+await expectDeny('تقييم: إنشاء تقييم بحقل ownerUid مرفوض', setDoc(doc(user, 'reviews', 'rev-new-uid'), { productId: 'p1', rating: 5, text: 'x', publicSafe: true, ownerUid: VICTIM }));
+await expectAllow('تقييم: إنشاء تقييم نظيف مسموح', setDoc(doc(user, 'reviews', 'rev-new-ok'), { productId: 'p1', rating: 5, text: 'x', publicSafe: true }));
+// الإخفاء يُلزم إبطال العلامة (وإلا بقي المخفي مقروءاً عبر الاستعلام)
+await expectDeny('تقييم: الإخفاء دون إبطال publicSafe مرفوض', updateDoc(doc(ph2, 'reviews', 'rev-pub'), { hidden: true }));
+await expectAllow('تقييم: الإخفاء مع إبطال publicSafe مسموح', updateDoc(doc(ph2, 'reviews', 'rev-pub'), { hidden: true, publicSafe: false }));
+
+// ============ 23) قراءة التعليقات: المعتمد فقط للعام ============
+console.log('\n=== 23) قراءة التعليقات: المعتمد فقط للعام ===');
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  await setDoc(doc(db, 'comments', 'cm-appr'), { text: 'معتمد', status: 'approved', publicSafe: true });
+  await setDoc(doc(db, 'comments', 'cm-pend'), { text: 'قيد المراجعة', status: 'pending', publicSafe: true });
+  // تعليق قديم معتمد يحمل بريداً في المستند العام (لا يحمل publicSafe) → تسريب
+  await setDoc(doc(db, 'comments', 'cm-leak'), { text: 'قديم', status: 'approved', email: 'leak@x.com' });
+  await setDoc(doc(db, 'comment_private', 'cm-appr'), { email: 'author@example.com' });
+});
+await expectAllow('تعليق: الزائر المجهول يقرأ التعليق المعتمد', getDoc(doc(guest, 'comments', 'cm-appr')));
+await expectAllow('تعليق: المستخدم يقرأ التعليق المعتمد', getDoc(doc(user, 'comments', 'cm-appr')));
+await expectDeny('تعليق: الزائر المجهول لا يقرأ التعليق المعلّق', getDoc(doc(guest, 'comments', 'cm-pend')));
+await expectDeny('تعليق: المستخدم لا يقرأ التعليق المعلّق', getDoc(doc(user, 'comments', 'cm-pend')));
+await expectDeny('تعليق: جلسة غير مصادقة لا تقرأ التعليق المعتمد', getDoc(doc(visitor, 'comments', 'cm-appr')));
+// إغلاق تسريب البريد: تعليق قديم معتمد يحمل email في المستند العام لا يُقرأ علناً
+await expectDeny('تعليق: الزائر لا يقرأ تعليقاً قديماً يحمل بريداً', getDoc(doc(guest, 'comments', 'cm-leak')));
+await expectDeny('تعليق: المستخدم لا يقرأ تعليقاً قديماً يحمل بريداً', getDoc(doc(user, 'comments', 'cm-leak')));
+// دفاع في العمق: تعليق يحمل العلامة AND حقلاً شخصياً يُرفض في القراءة المباشرة
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'comments', 'cm-tagged-pii'), { text: 'علامة خاطئة', status: 'approved', publicSafe: true, email: 'oops@x.com' });
+  await setDoc(doc(ctx.firestore(), 'comments', 'cm-tagged-phone'), { text: 'هاتف', status: 'approved', publicSafe: true, phone: '0555555555' });
+});
+await expectDeny('تعليق: get يرفض تعليقاً يحمل العلامة + email', getDoc(doc(guest, 'comments', 'cm-tagged-pii')));
+await expectDeny('تعليق: get يرفض تعليقاً يحمل العلامة + phone', getDoc(doc(user, 'comments', 'cm-tagged-phone')));
+await expectAllow('تعليق: المالك يقرأ تعليق العلامة الخاطئة', getDoc(doc(owner, 'comments', 'cm-tagged-pii')));
+await expectAllow('تعليق: get يسمح بالتعليق المعتمد النظيف', getDoc(doc(guest, 'comments', 'cm-appr')));
+// comment_private: البريد للصلاحيات المخوّلة فقط
+await expectDeny('تعليق خاص: الزائر لا يقرأ comment_private', getDoc(doc(guest, 'comment_private', 'cm-appr')));
+await expectDeny('تعليق خاص: المستخدم لا يقرأ comment_private', getDoc(doc(user, 'comment_private', 'cm-appr')));
+await expectAllow('تعليق خاص: صاحب EDIT يقرأ comment_private', getDoc(doc(cmEdit, 'comment_private', 'cm-appr')));
+await expectAllow('تعليق خاص: المالك يقرأ comment_private', getDoc(doc(owner, 'comment_private', 'cm-appr')));
+// لوحة المراجعة تقرأ المجموعة كاملة: نتأكد أن استعلام القائمة نفسه مسموح للمخوّلين فقط
+await expectAllow('تعليق خاص: صاحب EDIT يستعلم كل comment_private',
+  getDocs(collection(cmEdit, 'comment_private')));
+await expectAllow('تعليق خاص: المالك يستعلم كل comment_private',
+  getDocs(collection(owner, 'comment_private')));
+await expectDeny('تعليق خاص: الزائر لا يستعلم comment_private',
+  getDocs(collection(guest, 'comment_private')));
+await expectDeny('تعليق خاص: المستخدم لا يستعلم comment_private',
+  getDocs(collection(user, 'comment_private')));
+// قيود الإنشاء: يجب publicSafe==true و status=='pending' وبلا حقول زائدة
+await expectAllow('تعليق خاص: الزائر ينشئ سجل بريد صالحاً',
+  setDoc(doc(guest, 'comment_private', 'cm-new'), { email: 'new@example.com', publicSafe: true, status: 'pending' }));
+await expectDeny('تعليق خاص: لا إنشاء بلا publicSafe',
+  setDoc(doc(guest, 'comment_private', 'cm-nosafe'), { email: 'x@y.com', status: 'pending' }));
+await expectDeny('تعليق خاص: لا إنشاء بحالة معتمدة مباشرة',
+  setDoc(doc(guest, 'comment_private', 'cm-appr-inject'), { email: 'x@y.com', publicSafe: true, status: 'approved' }));
+await expectDeny('تعليق خاص: لا إنشاء بحقول زائدة',
+  setDoc(doc(guest, 'comment_private', 'cm-extra'), { email: 'x@y.com', publicSafe: true, status: 'pending', role: 'owner' }));
+// التعديل/الحذف: المالك أو صلاحية DELETE فقط — لا الزائر ولا صاحب EDIT
+await expectDeny('تعليق خاص: الزائر لا يعدّل سجل البريد',
+  updateDoc(doc(guest, 'comment_private', 'cm-appr'), { email: 'hijack@x.com' }));
+await expectDeny('تعليق خاص: صاحب EDIT لا يعدّل سجل البريد',
+  updateDoc(doc(cmEdit, 'comment_private', 'cm-appr'), { email: 'hijack@x.com' }));
+await expectDeny('تعليق خاص: الزائر لا يحذف سجل البريد',
+  deleteDoc(doc(guest, 'comment_private', 'cm-appr')));
+await expectAllow('تعليق خاص: المالك يحذف سجل البريد',
+  deleteDoc(doc(owner, 'comment_private', 'cm-appr')));
+await expectAllow('تعليق: صاحب HARAJ_COMMENT_EDIT يقرأ المعلّق', getDoc(doc(cmEdit, 'comments', 'cm-pend')));
+await expectAllow('تعليق: المالك يقرأ المعلّق', getDoc(doc(owner, 'comments', 'cm-pend')));
+// استعلام المجموعة: يشترط status==approved و publicSafe==true ليعكس شرط القاعدة
+await expectAllow('تعليق: استعلام الزائر يجلب المعتمد الآمن فقط',
+  getDocs(query(collection(guest, 'comments'), where('status', '==', 'approved'), where('publicSafe', '==', true))));
+await expectDeny('تعليق: استعلام الزائر بلا فلتر مرفوض',
+  getDocs(collection(guest, 'comments')));
+await expectDeny('تعليق: استعلام الزائر بالحالة فقط (بلا publicSafe) مرفوض',
+  getDocs(query(collection(guest, 'comments'), where('status', '==', 'approved'))));
+await expectDeny('تعليق: استعلام الزائر لغير المعتمد مرفوض',
+  getDocs(query(collection(guest, 'comments'), where('status', '==', 'pending'))));
+await expectAllow('تعليق: صاحب EDIT يستعلم كل الحالات',
+  getDocs(collection(cmEdit, 'comments')));
+
+// ============ 24) حقل هوية فارغ: وجود المفتاح يمنع get حتى بلا قيمة ============
+console.log('\n=== 24) الحقول الفارغة: المفتاح الفارغ يمنع get ويُصلح بالتنقية ===');
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  // تعليق معتمد يحمل مفتاح email بقيمة فارغة (كما يكتب النموذج القديم دائماً)
+  await setDoc(doc(db, 'comments', 'cm-empty-email'), { text: 'نظيف', status: 'approved', publicSafe: true, email: '' });
+  // بعد التنقية: المفتاح الفارغ محذوف
+  await setDoc(doc(db, 'comments', 'cm-pruned'), { text: 'منقّى', status: 'approved', publicSafe: true });
+});
+// استعلام القائمة يعتمد publicSafe فقط → الحقل الفارغ لا يمنعه
+await expectAllow('فارغ: استعلام الزائر يجلب التعليق ذا البريد الفارغ',
+  getDocs(query(collection(guest, 'comments'), where('status', '==', 'approved'), where('publicSafe', '==', true))));
+// لكن القراءة المباشرة ترفضه لأن مفتاح الهوية موجود
+await expectDeny('فارغ: get يرفض تعليقاً يحمل مفتاح email فارغاً', getDoc(doc(guest, 'comments', 'cm-empty-email')));
+await expectDeny('فارغ: المستخدم لا يقرأ تعليقاً بمفتاح email فارغ', getDoc(doc(user, 'comments', 'cm-empty-email')));
+// بعد التنقية (حذف المفتاح الفارغ) تُسمح القراءة المباشرة
+await expectAllow('فارغ: get يسمح بعد حذف المفتاح الفارغ', getDoc(doc(guest, 'comments', 'cm-pruned')));
+await expectAllow('فارغ: المالك يقرأ الحقل الفارغ على أي حال', getDoc(doc(owner, 'comments', 'cm-empty-email')));
+
+// ============ 25) تحديث المستخدم لملفه: التعبير المدعوم يمنع تصعيد الدور ============
+// كان السطر يستخدم hasNone() غير المدعومة في لغة القواعد (Function not found)،
+// فكان المسار يُقيَّم خطأً ويُرفض. البديل المدعوم:
+//   diff().affectedKeys().hasAny(['role','status','banned']) == false
+// هذه الاختبارات تُثبته فعلياً على المحاكي.
+console.log('\n=== 25) تحديث المستخدم لملفه: التعبير المدعوم يمنع التصعيد ===');
+// مستخدم حقيقي يحمل وثيقة عضوية (isSignedIn يشترط وجودها وعدم الحظر)
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'users', USER), { email: USER_EMAIL, role: 'user', displayName: 'عضو' });
+});
+// 1) تعديل حقل عادي (غير محظور) من صاحب الوثيقة => مسموح
+await expectAllow('ملفي: صاحب الوثيقة يعدّل حقلاً عادياً', updateDoc(doc(user, 'users', USER), { displayName: 'عضو معدّل' }));
+// 2) تغيير الدور من صاحب الوثيقة => مرفوض (تصعيد)
+await expectDeny('ملفي: صاحب الوثيقة لا يغيّر الدور (تصعيد)', updateDoc(doc(user, 'users', USER), { role: 'owner' }));
+// 3) تغيير الحالة من صاحب الوثيقة => مرفوض
+await expectDeny('ملفي: صاحب الوثيقة لا يغيّر status', updateDoc(doc(user, 'users', USER), { status: 'banned' }));
+// 4) رفع الحظر بنفسه => مرفوض
+await expectDeny('ملفي: صاحب الوثيقة لا يغيّر banned', updateDoc(doc(user, 'users', USER), { banned: true }));
+
 
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);

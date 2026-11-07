@@ -1,0 +1,920 @@
+// ⚠️ ملف انتقالي — للاستخدام خلال نافذة الترحيل فقط، ثم يُستبدل بـ firestore.rules النهائي.
+// الغرض: منع كتابة أي PII جديد أثناء الإطلاق مع إبقاء القراءة العامة متوافقة مع العملاء القدامى.
+// لا تنشره بدل firestore.rules إلا بموافقة صريحة، وبعد الترحيل واختبار ما بعد النشر.
+// مُختبر على المحاكي: 9/9 (قراءة قديمة مسموحة، كتابة PII مرفوضة، كتابة نظيفة مسموحة).
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============ الدوال المساعدة ============
+    // الجلسة الموثّقة = حساب Firebase ببريد مُوثّق (email_verified). سياسة
+    // الموقع تمنع الزائر/المجهول وتُلزم التوثيق قبل فتح أي صفحة، لذا لا مسار
+    // مشروع لحساب غير موثّق. بدون هذا الشرط يستطيع أي شخص إنشاء حساب عبر
+    // واجهة Firebase REST العامة ثم الكتابة في المجموعات قبل التوثيق.
+    function isVerified() {
+      return request.auth != null
+        && request.auth.token.email_verified == true;
+    }
+
+    // الزائر المجهول: قراءة المحتوى العام فقط، بلا صلاحيات كتابة أو مراسلة.
+    function isAnonymousGuest() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'anonymous';
+    }
+
+    // جلسة موجودة بغض النظر عن التوثيق — تُستخدم فقط حيث يجب أن تنجح كتابة
+    // لحظة إنشاء الحساب (ملف المستخدم يُنشأ قبل وصول رسالة التوثيق).
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    // ============ وضع الصيانة (فرض فعلي للكتابة) ============
+    // عند تفعيل settings/maintenance {enabled:true} تُجمَّد كل الكتابات
+    // المُنشئة للمحتوى من غير المالك على مستوى الخادم — أي أن إظهار شاشة
+    // الصيانة في الواجهة ليس الحماية الوحيدة. المالك يعمل دائماً (كي لا يُقفل
+    // نفسه)، والقراءة تبقى متاحة حتى لا ينكسر العرض العام.
+    function maintenanceOn() {
+      return exists(/databases/$(database)/documents/settings/maintenance)
+        && get(/databases/$(database)/documents/settings/maintenance).data.get('enabled', false) == true;
+    }
+
+    function canWriteDuringMaintenance() {
+      return isOwner() || !maintenanceOn();
+    }
+
+    // ============ بوابة التسجيل (BLOCK_USER_REGISTRATION) ============
+    // settings/registrationGate { blocked: bool, reason: string }. الافتراضي
+    // مفتوح (الغياب أو blocked=false = التسجيل يعمل). عند blocked=true تُرفض
+    // كتابة users/{uid} (العضوية) خادمياً — فيبقى الحساب بلا عضوية فعّالة
+    // ولا يفتح الموقع. الحسابات القائمة (وثيقتها موجودة) تستمر بالدخول.
+    // لا يمكن حجب إنشاء حساب Firebase Auth نفسه (REST عام) لكن العضوية
+    // الفعّالة تُمنع هنا — فرض حقيقي لا مجرد إخفاء زر.
+    function registrationBlocked() {
+      return exists(/databases/$(database)/documents/settings/registrationGate)
+        && get(/databases/$(database)/documents/settings/registrationGate).data.get('blocked', false) == true;
+    }
+
+    // مالك بالبريد فقط (بلا شرط التوثيق) — يُستخدم حصراً للسماح للمالك بإنشاء
+    // وثيقة عضويته الخاصة حتى لو كان التسجيل مغلقاً، فلا يُقفل نفسه خارج الموقع.
+    function isOwnerToken() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'f882771f@gmail.com',
+          'kal6667222@gmail.com'
+        ];
+    }
+
+    // ============ فرض الحظر فعلياً على مستوى الخادم ============
+    // حالة الحظر تُقرأ من users/{uid} — الحقلان مدعومان لأن الواجهة تكتب
+    // 'banned: true' (غرفة المالك) و 'status: "banned"' (لوحة الشكاوى/المتجر).
+    // بدون هذا الفحص كان الحظر يظهر في الواجهة فقط بينما يبقى المحظور قادراً
+    // على الكتابة/القراءة فعلياً عبر REST أو بكود متصفح معدّل (حماية وهمية).
+    function userDocPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    // انتهت مدة الحظر المؤقت: حُدِّد banExpiresAt في الماضي.
+    // الحظر الدائم (BAN_USER_PERMANENT) لا يحمل banExpiresAt فيبقى فعّالاً.
+    // ملاحظة: Map.get في قواعد Firestore يتطلب وسيطين (المفتاح + القيمة الافتراضية).
+    function isBanExpired(uid) {
+      return get(userDocPath(uid)).data.keys().hasAny(['banExpiresAt'])
+        && get(userDocPath(uid)).data.get('banExpiresAt', null) != null
+        && get(userDocPath(uid)).data.get('banExpiresAt', null) <= request.time;
+    }
+
+    // ============ إنهاء الجلسة قسرياً (FORCE_LOGOUT_SESSION) ============
+    // عند كتابة forceLogoutAt (ثواني epoch) في users/{uid} يصبح كل رمز هوية
+    // صدر قبل تلك اللحظة غير صالح على مستوى القواعد (مطابقة auth_time)، وإعادة
+    // تسجيل الدخول تُصدر auth_time أحدث فتُبطل المطابقة — إنهاء حقيقي خادمياً.
+    // ندمج الفحصين في دالة واحدة بنفس قراءة وثيقة المستخدم (get مُخزّنة) حتى
+    // لا نتجاوز سقف تعبيرات قواعد Firestore في القواعد المركّبة (haraj_ads).
+    // محجوب = لا عضوية فعّالة (لا وثيقة users/{uid}) أو محظور/منتهٍ قسرياً.
+    // دمج شرط العضوية هنا (وليس دالة exists منفصلة) لأن القواعد قرأت وثيقة
+    // المستخدم أصلاً — فلا تُضاف قراءة ولا تعبيرات (سقف 1000 تعبير في القواعد
+    // المركّبة). المالك يُعفى عبر isOwner() في hasPerm وبقاء وثيقته موجودة.
+    function isBlockedUid(uid) {
+      return !exists(userDocPath(uid))
+        || ( get(userDocPath(uid)).data.get('status', '') == 'banned'
+             || ( get(userDocPath(uid)).data.get('banned', false) == true
+                  && !isBanExpired(uid) )
+             || ( get(userDocPath(uid)).data.keys().hasAny(['forceLogoutAt'])
+                  && get(userDocPath(uid)).data.get('forceLogoutAt', null) != null
+                  && get(userDocPath(uid)).data.get('forceLogoutAt', 0) > 0
+                  && request.auth.token.auth_time < get(userDocPath(uid)).data.get('forceLogoutAt', 0) ) );
+    }
+
+    // الجلسة الصالحة للعمل = موثّق وله عضوية فعّالة (users/{uid}) وغير محظور
+    // وغير منتهٍ قسرياً. اشتراط وثيقة العضوية هو الفرض الخادمي الحقيقي لبوابة
+    // التسجيل: حساب أُنشئ أثناء إيقاف التسجيل لا يملك وثيقة عضوية (رُفض إنشاؤها)
+    // فلا يستطيع قراءة/كتابة أي شيء — وليس مجرد إخفاء واجهة.
+    function isSignedIn() {
+      return isVerified() && !isBlockedUid(request.auth.uid);
+    }
+
+    function isOwner() {
+      return isVerified() &&
+        request.auth.token.email in [
+          'f882771f@gmail.com',
+          'kal6667222@gmail.com'
+        ];
+    }
+
+    // ============ نظام الصلاحيات المجهري (Micro-RBAC) ============
+    // المنح تُقرأ من rbac/{uid} — القراءة من الخادم في كل عملية، فأي تلاعب
+    // بكود المتصفح (إظهار زر مخفي) لا يمنح قدرة فعلية: القاعدة ترفض الكتابة.
+    // الحساب المجمّد (suspended) تُسحب منه كل الصلاحيات فوراً.
+    // SUPER_ADMIN_FULL_ACCESS يفتح كل الصلاحيات الأخرى.
+    function rbacPath() {
+      return /databases/$(database)/documents/rbac/$(request.auth.uid);
+    }
+
+    // && تعمل بقصر الدارة (short-circuit) في قواعد Firestore، فيصل get()
+    // فقط عند وجود الوثيقة — ونداءات get المتكررة لنفس المسار تُحسب قراءة واحدة.
+    // صلاحيات المراقبة/السجلات الحساسة (OWNER_ONLY) لا تُمنح لأي حساب غير مالك
+    // حتى لو وُجد المفتاح في الوثيقة — دفاع في العمق يمنع أي تصعيد صلاحيات.
+    function hasPerm(key) {
+      return isOwner() || (
+        isSignedIn() && exists(rbacPath()) &&
+        !isOwnerOnlyPerm(key) &&
+        !isDisabledPerm(key) &&
+        get(rbacPath()).data.get('suspended', false) != true &&
+        (get(rbacPath()).data.get('grants', {}).get(key, false) == true ||
+         get(rbacPath()).data.get('grants', {}).get('SUPER_ADMIN_FULL_ACCESS', false) == true)
+      );
+    }
+
+    // صلاحيات معطّلة نهائياً: لا تُمنح أبداً تحت أي اسم، ولا حتى لو كُتبت في
+    // وثيقة rbac خطأً. دفاع في العمق ضد أي تصعيد أو تفعيل عرضي.
+    function isDisabledPerm(key) {
+      return key in ['BYPASS_FIREBASE_RULES', 'CODE_SNIPPET_INJECTION'];
+    }
+
+    function isOwnerOnlyPerm(key) {
+      return key in [
+        'MONITOR_PRIVATE_MESSAGES',
+        'VIEW_SYSTEM_AUDIT_LOGS',
+        'TRACK_EMPLOYEE_LIVE_SESSIONS',
+        'FIREBASE_MUTATION_LOGS',
+        'RECOVER_DELETED_ITEMS_ARCHIVE',
+        'TRACK_FAILED_LOGINS',
+        'MONITOR_USER_TRAFFIC_LIVE'
+      ];
+    }
+
+    function hasUserAdminPerm() {
+      return hasPerm('BAN_USER_TEMPORARY') || hasPerm('BAN_USER_PERMANENT')
+          || hasPerm('UNBAN_USER_RESTORE') || hasPerm('MANAGE_USER_VERIFICATION')
+          || hasPerm('FORCE_LOGOUT_SESSION') || hasPerm('SUSPEND_SUB_ADMIN_ACCOUNT');
+    }
+
+    // صلاحيات المرحلة الثانية — كل واحدة تحمي عمليتها فقط.
+    function canManageCategories() { return hasPerm('MANAGE_CATEGORIES'); }
+    function canManageBanners() { return hasPerm('MANAGE_SITE_BANNERS'); }
+    function canManageReports() { return hasPerm('MANAGE_REPORTS'); }
+    function canManageNotifications() { return hasPerm('MANAGE_NOTIFICATIONS'); }
+    function canManageReviews() { return hasPerm('MANAGE_REVIEWS'); }
+
+    // ============ فحص خلو المستند العام من البيانات الشخصية ============
+    // دفاع في العمق: علامة publicSafe قد تُكتب خطأً على مستند قديم يحمل بريداً
+    // أو هاتفاً أو معرّفاً خاصاً. هذا الفحص يمنع قراءة أي مستند يحمل حقلاً من
+    // حقول الهوية والاتصال — حتى لو حمل العلامة. يُطبَّق على القراءة المباشرة
+    // (get) لأنها تُقيَّم على المستند نفسه؛ أما الاستعلام (list) فلا يمكن فرض
+    // «غياب حقل» فيه، فيعتمد على علامة publicSafe وحدها (قابلة للفرض في where).
+    function hasNoPublicPII(data) {
+      return !data.keys().hasAny([
+        'userEmail','email','contactEmail','phone','userPhone','phoneNumber',
+        'mobile','whatsapp','userId','ownerUid','uid','nationalId','iban',
+        'accountNumber','userName'
+      ]);
+    }
+
+    // فصل قواعد INLINE: كل مفتاح يحمي العملية الخاصة به فقط. الوثيقة تُعلن
+    // المفتاح المستخدَم في الحقل perm، والقاعدة تتحقق من امتلاك ذلك المفتاح
+    // بالذات (لا يفتح مفتاح واحد بقية المفاتيح).
+    function inlineStyleAllowed() {
+      return request.resource.data.keys().hasAny(['perm'])
+        && request.resource.data.perm in [
+             'INLINE_STYLE_COLOR','INLINE_FONT_CUSTOMIZE','INLINE_BOX_SHAPE_MOD',
+             'INLINE_TICKER_CONTROL','INLINE_ELEMENT_DELETE','INLINE_IMAGE_DESIGN_MOD',
+             'INLINE_IMAGE_REPLACE'
+           ]
+        && hasPerm(request.resource.data.perm);
+    }
+
+    // مرسل الرسالة: صاحب الجلسة نفسه، أو علامة 'admin' المحجوزة للمشرفين.
+    // بدون هذا الشرط يستطيع أي مسجّل انتحال هوية غيره بكتابة senderId عشوائي.
+    function isMessageSender() {
+      return isSignedIn()
+        && (request.resource.data.senderId == request.auth.uid
+            || (request.resource.data.senderId == 'admin' && hasUserAdminPerm()));
+    }
+
+    // ============ هوية مشارك المحادثة (V1) ============
+    // لا يكفي كون المستخدم مُسجّلاً: يجب أن يكون uid مطابقاً لأحد المشاركين
+    // المسجّلين في وثيقة المحادثة (participantUids) أو مشتريها (buyerUid).
+    // ملاحظة: هذه الهوية تُكتب من العميل عند إنشاء المحادثة (جلسة مجهولة)،
+    // لذا فهي تمنع فضول المستخدم العادي ولا تعتمد على سرية chatId.
+    function isChatParticipant(chatId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/chats/$(chatId))
+        && ( request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.get('participantUids', [])
+             || get(/databases/$(database)/documents/chats/$(chatId)).data.get('buyerUid', '') == request.auth.uid
+             || get(/databases/$(database)/documents/chats/$(chatId)).data.get('sellerUid', '') == request.auth.uid );
+    }
+
+    // ============ مصفوفة الصلاحيات نفسها — محجوبة ============
+    // القراءة: المالك أو صاحب الوثيقة فقط (لا يطّلع مشرف على مصفوفة غيره).
+    // الكتابة: المالك فقط — أي منح ذاتي من حساب آخر مرفوض خادمياً.
+    match /rbac/{uid} {
+      allow read: if isOwner() || (isSignedIn() && request.auth.uid == uid);
+      allow write: if isOwner();
+    }
+
+    // ============ إعلانات حراج ============
+    // V3: محتوى الإعلان (العنوان/الوصف/السعر/الحقول) لا يعدّله إلا مالكه
+    // (userId == request.auth.uid) أو المالك/الفوّض. المزايدة (currentBid/bids)
+    // والوساطة (escrow) ومشاهدات (views) سلوك قائم مفتوح للمسجّلين — لم يُقفل.
+    match /haraj_ads/{adId} {
+      function isAdOwner() {
+        return isSignedIn()
+          && resource.data.get('userId', '') != ''
+          && resource.data.userId == request.auth.uid;
+      }
+      // إعلانات الحراج ومرفقات صورها محتوى عام للعرض فقط.
+      // الزائر المجهول يقرأها، لكن لا يحصل على أي صلاحية تعديل أو نشر.
+      allow read: if isSignedIn() || isAnonymousGuest();
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['title', 'price'])
+                    && request.resource.data.status == 'active'
+                    && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner()
+                    || ( isAdOwner()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['title','price','description','condition',
+                                                       'location','city','size','defects','images',
+                                                       'imageCount','measurements','motionFrames',
+                                                       'motionDuration','isAuction','auctionEndsAt',
+                                                       'updatedAt']) )
+                    // المزايدة العامة وخطوات الوساطة (سلوك قائم — للمسجّلين)
+                    || ( isSignedIn()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['currentBid','bids','updatedAt','auctionEndsAt','escrow']) )
+                    || ( isSignedIn()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['views', 'updatedAt'])
+                         && request.resource.data.views is number
+                         && request.resource.data.views >= resource.data.views )
+                    // كل صلاحية مقيّدة بالحقول التي تخصّها فقط — لا تتقاطع مع غيرها.
+                    // اعتماد/رفض الإعلان: الحالة فقط (لا تعديل المحتوى أو الملكية).
+                    || ( hasPerm('HARAJ_POST_APPROVE')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['status','rejectionReason','rejectedAt','updatedAt'])
+                         && request.resource.data.status in ['active','pending','rejected'] )
+                    // استعادة إعلان محذوف/مؤرشف وإرجاعه نشطاً (بلا تغيير المحتوى).
+                    || ( hasPerm('HARAJ_POST_RESTORE')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['status','archivedAt','deletedAt','deletedBy',
+                                                       'deletionReason','restoredAt','restoredBy','updatedAt'])
+                         && request.resource.data.status == 'active' )
+                    // نقل الملكية: تغيير مالك الإعلان فقط (إلى حساب محدّد).
+                    || ( hasPerm('TRANSFER_POST_OWNERSHIP')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['userId','transferredAt','transferredBy','updatedAt'])
+                         && request.resource.data.userId is string
+                         && request.resource.data.userId.size() > 0 )
+                    || ( hasPerm('HARAJ_POST_FORCE_EDIT')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['title','price','description','condition',
+                                                       'location','city','size','defects','images',
+                                                       'imageCount','measurements','updatedAt']) )
+                    || ( hasPerm('HARAJ_POST_FEATURE')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['featured','pinned','premium','featuredAt','updatedAt']) );
+      allow delete: if isOwner() || isAdOwner() || hasPerm('HARAJ_POST_DELETE');
+    }
+
+    // الرسالة العامة داخل إعلان الحراج — للأعضاء الموثقين فقط.
+    // المالك يستطيع المراجعة والحذف من غرفة صاحب الموقع.
+    match /ad_public_messages/{messageId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.authorUid == request.auth.uid
+                    && request.resource.data.adId is string
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 500;
+      allow update, delete: if isOwner()
+                            || (isSignedIn()
+                                && resource.data.authorUid == request.auth.uid);
+    }
+
+    // ============ مستخدمو حراج ============
+    // V2: تعذّر تقييد قراءة haraj_users دون كسر «تسجيل الدخول بالهاتف»
+    // (استعلام where يتطلب اجتياز قاعدة القراءة — أُثبت بالمحاكي). لذلك تبقى
+    // القراءة للمسجّلين كما هي، وإغلاق V2 يتطلب ترحيلاً/دالة بحث (خارج النطاق).
+    //
+    // ملف حراج واحد لكل حساب: authUid إلزامي ويساوي صاحب الجلسة، ويُمنع إنشاء
+    // ملف ثانٍ عبر وثيقة فهرس التفرد haraj_uid_index/{uid} (لا يمكن لقواعد
+    // Firestore عدّ الاستعلامات، فالفهرس هو وسيلة الفرض الوحيدة). وauthUid/phone
+    // غير قابلين للتعديل بعد الإنشاء (منع سرقة الملف أو تغيير الرقم للتحايل).
+    match /haraj_users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+                    && request.resource.data.keys().hasAll(['name', 'phone', 'authUid'])
+                    && request.resource.data.authUid == request.auth.uid
+                    && request.resource.data.phone is string
+                    && request.resource.data.phone.size() >= 9
+                    && !exists(/databases/$(database)/documents/haraj_uid_index/$(request.auth.uid));
+      allow update: if isOwner() || hasUserAdminPerm()
+                    || ( isSignedIn()
+                         && resource.data.authUid == request.auth.uid
+                         && !request.resource.data.diff(resource.data)
+                              .affectedKeys().hasAny(['authUid','phone']) );
+      allow delete: if isOwner() || hasUserAdminPerm();
+    }
+
+    // فهرس التفرد: وثيقة معرّفها = uid صاحب الملف. وجودها يمنع إنشاء ملف حراج
+    // ثانٍ لنفس الحساب. لا يستطيع حساب إنشاء فهرس لغير uid نفسه، والحذف للمالك
+    // أو من يملك صلاحية إدارة مستخدمي الحراج (لتصحيح أي حالة).
+    match /haraj_uid_index/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if isOwner() || hasUserAdminPerm();
+    }
+
+    // ============ البث الملكي ============
+    match /broadcasts/{docId} {
+      allow read: if true;
+      allow create, update, delete: if isOwner();
+    }
+
+    // ============ المستخدمون ============
+    match /users/{userId} {
+      // الحساب المحظور يقرأ وثيقته الشخصية فقط ليرى سبب الحظر، وكل ما عداها
+      // ممنوع عليه عبر isSignedIn() (انظر isBlockedUid أعلاه).
+      allow read: if isOwner()
+                  || (isVerified() && request.auth.uid == userId);
+      allow create: if (isAuthed() && request.auth.uid == userId
+                        && (!request.resource.data.keys().hasAny(['role'])
+                            || request.resource.data.role == 'user')
+                        // بوابة التسجيل: عند blocked=true تُرفض عضوية أي حساب
+                        // غير المالك (فلا عضوية فعّالة ولا فتح للموقع).
+                        && (!registrationBlocked() || isOwnerToken()))
+                    // المالك يستعيد وثيقته دائماً (مسار رخيص) — لا يُقفل نفسه.
+                    || isOwner();
+      // المفوَّضون (حظر/توثيق/تجميد/إنهاء جلسة) يعدّلون الحالة لكن لا يمسّون
+      // الدور — تغيير role حكر على المالك وحده حتى لا يتصعّد مشرف بنفسه.
+      // كل صلاحية مقيّدة بحقولها فقط: صلاحية الحظر لا تمنح التوثيق، والعكس.
+      // ملاحظة أداء: نفحص نطاق الحقول (diff.hasOnly) قبل فحص الصلاحية حتى
+      // تُقصّر الدارة على المسار الصحيح ولا تتجاوز تعبيرات القاعدة السقف.
+      allow update: if isOwner()
+                    || (request.auth.uid == userId
+                        && isSignedIn()
+                        && request.resource.data.diff(resource.data)
+                             .affectedKeys().hasAny(['role', 'status', 'banned']) == false)
+                    || (request.resource.data.diff(resource.data)
+                            .affectedKeys().hasOnly([
+                              'status','banned','bannedAt','banReason','banType',
+                              'banExpiresAt','unbannedAt','suspensionReason',
+                              'updatedAt','updatedBy'
+                            ])
+                        && (hasPerm('BAN_USER_TEMPORARY')
+                            || hasPerm('BAN_USER_PERMANENT')
+                            || hasPerm('UNBAN_USER_RESTORE')))
+                    || (request.resource.data.diff(resource.data)
+                            .affectedKeys().hasOnly([
+                              'isVerified','verified','verifiedAt','verifiedBy',
+                              'updatedAt','updatedBy'
+                            ])
+                        && hasPerm('MANAGE_USER_VERIFICATION'))
+                    // إنهاء الجلسة قسرياً: يكتب فقط حقل forceLogoutAt (لا يمسّ
+                    // الدور أو الحظر) — والفرض الفعلي في isBlockedUid أعلاه.
+                    || (request.resource.data.diff(resource.data)
+                            .affectedKeys().hasOnly(['forceLogoutAt','updatedAt','updatedBy'])
+                        && hasPerm('FORCE_LOGOUT_SESSION'));
+      allow delete: if isOwner();
+    }
+
+    // ============ المنتجات والفروع (الكتالوج) ============
+    // فصل كامل: كل صلاحية تحمي عمليتها وحقولها فقط — لا تمنح إحداها الأخرى.
+    // - CREATE_NEW_CATALOG: إنشاء منتج جديد فقط.
+    // - DELETE_MAIN_CATALOG: حذف منتج (يُؤرشف قبله من العميل).
+    // - EDIT_CATALOG_PRICING: تعديل حقول السعر/الخصم فقط.
+    // - MANAGE_CATALOG_TAGS: تعديل حقول الوسوم/SEO فقط.
+    match /products/{docId} {
+      allow read: if true;
+      allow create: if isOwner() || hasPerm('CREATE_NEW_CATALOG');
+      allow delete: if isOwner() || hasPerm('DELETE_MAIN_CATALOG');
+      allow update: if isOwner()
+                    || ( hasPerm('EDIT_CATALOG_PRICING')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['price','discount','salePrice','currency','updatedAt','updatedBy']) )
+                    || ( hasPerm('MANAGE_CATALOG_TAGS')
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['tags','seoTitle','seoDescription','keywords','updatedAt','updatedBy']) );
+    }
+
+    // إعدادات عرض كل كتالوج (نمط البطاقات/إظهار الأسعار...) — قراءة عامة، وكتابة للمالك أو صاحب صلاحية الكتالوج.
+    match /catalogSettings/{docId} {
+      allow read: if true;
+      allow write: if isOwner() || hasPerm('EDIT_CATALOG_PRICING');
+    }
+
+    match /branches/{docId} {
+      allow read: if true;
+      allow write: if isOwner() || hasPerm('UPDATE_GLOBAL_SETTINGS');
+    }
+
+    // ============ الزوار ============
+    match /visitors/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isOwner() || hasPerm('MONITOR_USER_TRAFFIC_LIVE');
+    }
+
+    // ============ السجلات ============
+    match /logs/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isOwner()
+                                  || hasPerm('VIEW_SYSTEM_AUDIT_LOGS')
+                                  || hasPerm('FIREBASE_MUTATION_LOGS');
+    }
+
+    match /error_logs/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isOwner() || hasPerm('VIEW_SYSTEM_AUDIT_LOGS');
+    }
+
+    match /security_logs/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isOwner()
+                                  || hasPerm('VIEW_SYSTEM_AUDIT_LOGS')
+                                  || hasPerm('TRACK_FAILED_LOGINS');
+    }
+
+    // ============ سجل التدقيق الموحّد (Audit Log) ============
+    // كل إجراء صلاحيات يُكتب هنا ببنية موحّدة: actor/timestamp/target/result.
+    // يُنشأ من العميل بعد أن ينجح الإجراء الفعلي (والذي تفرضه القواعد الأخرى)،
+    // فالكتابة عليه لا تمنح أي قدرة — والقراءة للمالك أو صاحب صلاحية السجلات.
+    // السجل للإلحاق فقط (append-only) بشكل مطلق: لا تعديل ولا حذف بعد الإنشاء —
+    // حتى من المالك. هذا يضمن سلامة أثر الحوادث الأمنية على الدوام.
+    match /audit_logs/{docId} {
+      allow create: if isSignedIn()
+                    && request.resource.data.keys().hasAll(['action', 'result']);
+      allow read: if isOwner() || hasPerm('VIEW_SYSTEM_AUDIT_LOGS');
+      allow update, delete: if false;
+    }
+
+    // ============ الجلسات الحيّة (تتبّع الأجهزة المتصلة) ============
+    // وثيقة لكل مستخدم موثّق يحمل نبضة دورية (setDoc merge). القراءة للمالك أو
+    // صاحب صلاحية تتبّع الجلسات (أو صاحب الوثيقة). لا يمنح هذا أي قدرة تنفيذية —
+    // مراقبة فقط. الكتابة مقصورة على صاحب الجلسة، و uid يجب أن يطابق صاحبه
+    // والدور ضمن قائمة معروفة حتى لا تُلوَّث بيانات المراقبة.
+    match /sessions/{uid} {
+      allow read: if isOwner()
+                  || hasPerm('TRACK_EMPLOYEE_LIVE_SESSIONS')
+                  || (isSignedIn() && request.auth.uid == uid);
+      allow create: if isSignedIn()
+                    && request.auth.uid == uid
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.role in ['owner','admin','employee','user']
+                    && request.resource.data.keys().hasOnly([
+                         'uid','role','userAgent','lastSeenAt','ip'
+                       ]);
+      allow update: if isSignedIn()
+                    && request.auth.uid == uid
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.role in ['owner','admin','employee','user']
+                    && request.resource.data.diff(resource.data)
+                         .affectedKeys().hasOnly(['lastSeenAt','userAgent','role','ip']);
+      allow delete: if isOwner() || (isSignedIn() && request.auth.uid == uid);
+    }
+
+    // ============ التنبيهات ============
+    // الإنشاء العام مسموح (تنبيهات دخول الزوار للنظام) لكن بحقول محددة وبلا
+    // حقول إدارية. التنبيهات الإدارية (بجمهور/جدولة) لصاحب MANAGE_NOTIFICATIONS
+    // أو المالك. التعديل/الإخفاء/الحذف لصاحب الصلاحية أو المالك فقط.
+    match /notifications/{docId} {
+      allow create: if isSignedIn()
+                    && request.resource.data.keys().hasAny(['title'])
+                    && !request.resource.data.keys().hasAny(['audience','publishAt','expiresAt']);
+      allow read: if isOwner() || canManageNotifications();
+      allow update, delete: if isOwner() || canManageNotifications();
+    }
+
+    // ============ الرسائل والدردشة — مراقبة الرسائل بصلاحية مجهرة ============
+    match /messages/{docId} {
+      allow read: if isOwner()
+                  || hasPerm('MONITOR_PRIVATE_MESSAGES')
+                  || (isSignedIn() && (resource.data.senderId == request.auth.uid
+                                       || resource.data.receiverId == request.auth.uid));
+      allow create: if isMessageSender() && canWriteDuringMaintenance();
+      allow update, delete: if isOwner() || hasPerm('MONITOR_PRIVATE_MESSAGES');
+    }
+
+    match /privateMessages/{docId} {
+      allow read: if isOwner()
+                  || hasPerm('MONITOR_PRIVATE_MESSAGES')
+                  || (isSignedIn() && (resource.data.senderId == request.auth.uid
+                                       || resource.data.receiverId == request.auth.uid));
+      allow create: if isMessageSender() && canWriteDuringMaintenance();
+      allow update, delete: if isOwner() || hasPerm('MONITOR_PRIVATE_MESSAGES');
+    }
+
+    // محادثات خاصة بين المعلن والمشتري - V1: تقييد بالهوية الفعلية للمشاركين
+    // لا يُعتمد على سرية chatId كحماية: القراءة/الكتابة للمشارك المؤكّد
+    // (participantUids/buyerUid) أو المالك/المراقب فقط.
+    match /chats/{chatId} {
+      allow create: if isSignedIn() && canWriteDuringMaintenance();
+      allow read: if isOwner()
+                  || hasPerm('MONITOR_PRIVATE_MESSAGES')
+                  || isChatParticipant(chatId);
+      // المشارك المسجّل يمكنه تحديث الملخص (المشتري يوسّع المشاركين عند أول رسالة)
+      allow update: if isOwner()
+                    || hasPerm('MONITOR_PRIVATE_MESSAGES')
+                    || ( isChatParticipant(chatId)
+                         && request.resource.data.keys().hasOnly(
+                              ['adId','adTitle','sellerKey','buyerKey','buyerName','buyerUid',
+                               'sellerUid','participantUids','lastMessage','updatedAt','isPrivate','type','status'])
+                         && request.resource.data.adId == resource.data.adId
+                         && request.resource.data.sellerUid == resource.data.sellerUid
+                         && request.resource.data.buyerUid == resource.data.buyerUid
+                         && request.resource.data.participantUids == resource.data.participantUids
+                         && request.resource.data.sellerKey == resource.data.sellerKey
+                         && request.resource.data.buyerKey == resource.data.buyerKey );
+      allow delete: if isOwner() || hasPerm('MONITOR_PRIVATE_MESSAGES');
+
+      match /messages/{msgId} {
+        allow create: if isOwner()
+                      || hasPerm('MONITOR_PRIVATE_MESSAGES')
+                      || isChatParticipant(chatId);
+        allow read: if isOwner()
+                    || hasPerm('MONITOR_PRIVATE_MESSAGES')
+                    || isChatParticipant(chatId);
+        allow update, delete: if isOwner() || hasPerm('MONITOR_PRIVATE_MESSAGES');
+      }
+    }
+
+    // ============ الطلبات ============
+    match /orders/{docId} {
+      allow read: if isOwner()
+                  || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // لا تسمح بإنشاء طلب باسم مستخدم آخر أو بحذف/تغيير الطلبات من العميل.
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['userId'])
+                    && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isOwner();
+    }
+
+    // ============ الشكاوى ============
+    match /complaints/{docId} {
+      allow create: if isSignedIn() && canWriteDuringMaintenance();
+      allow read, update, delete: if isOwner();
+    }
+
+    // ============ الإعلانات العامة ============
+    match /advertisements/{docId} {
+      allow read: if true;
+      allow write: if isOwner() || hasPerm('HARAJ_POST_FORCE_EDIT');
+    }
+
+    match /ads/{docId} {
+      allow read: if true;
+      allow write: if isOwner() || hasPerm('HARAJ_POST_FORCE_EDIT');
+    }
+
+    // ============ الموظفون — الرواتب والملفات بصلاحيات مجهرة ============
+    match /employees/{docId} {
+      // ملاحظة: صلاحية VIEW_EMPLOYEE_SALARIES مؤجلة (خارج نطاق المرحلة الأولى)،
+      // فلا تمنح قراءةً هنا. قراءة الموظفين متاحة للمالك أو صلاحيات الموظفين الفعلية.
+      allow read: if isOwner()
+                  || hasPerm('ADD_NEW_EMPLOYEE')
+                  || hasPerm('EDIT_EMPLOYEE_PROFILE')
+                  || hasPerm('TRACK_EMPLOYEE_LIVE_SESSIONS');
+      allow write: if isOwner()
+                   || hasPerm('ADD_NEW_EMPLOYEE')
+                   || hasPerm('EDIT_EMPLOYEE_PROFILE');
+    }
+
+    // ============ البلاغات ============
+    // الإنشاء لأي حساب موثّق. المعالجة (عرض/تغيير حالة/سبب) لصاحب MANAGE_REPORTS
+    // أو المالك. تغيير الحالة مقيّد بحقول المعالجة فقط (لا تزوير محتوى البلاغ).
+    match /reports/{docId} {
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['reason']);
+      allow read: if isOwner() || canManageReports();
+      allow update: if isOwner()
+                    || ( canManageReports()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['status','resolutionNote','handledBy','handledAt','updatedAt']) );
+      allow delete: if isOwner() || canManageReports();
+    }
+
+    // ============ جلسات الزوار ============
+    match /guestSessions/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isOwner();
+    }
+
+    // ============ لوحة المالك ============
+    match /admin/{docId} {
+      allow read: if isOwner();
+      allow write: if isOwner();
+    }
+
+    // ============ البنرات ============
+    // مفتاح مستقل MANAGE_SITE_BANNERS (كان مربوطاً خطأً بـMANAGE_NAVIGATION_MENU).
+    // قراءة للمسجّلين، وكتابة لصاحب الصلاحية أو المالك.
+    match /banners/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner() || canManageBanners();
+    }
+
+    match /categories/{docId} {
+      allow read: if isSignedIn();
+      // إدارة التصنيفات مفتاح مستقل عن صلاحيات الكتالوج (لا يمنح إحداها الأخرى).
+      allow write: if isOwner() || canManageCategories();
+    }
+
+    match /coupons/{docId} {
+      allow read, write: if isOwner();
+    }
+
+    // ============ السلة والمفضلة ============
+    match /cart/{userId}/{item=**} {
+      allow read, write: if isOwner()
+                         || (isSignedIn() && request.auth.uid == userId);
+    }
+
+    match /favorites/{userId}/{item=**} {
+      allow read, write: if isOwner()
+                         || (isSignedIn() && request.auth.uid == userId);
+    }
+
+    // ============ تقييمات العملاء ============
+    // الثغرة المُصلَحة: كان allow read: if true يكشف كل تقييم — بما فيه المخفي
+    // (hidden:true) وحقل userEmail الخاص — لأي عميل حتى بلا حساب.
+    // الحاجز الفعّال علامة عامة واحدة: publicSafe == true. قواعد Firestore
+    // تقيّم الاستعلام (list) لا كل مستند على حدة، فشرطٌ غير مفروض في الاستعلام
+    // لا يحمي؛ لذلك أي كتابة جديدة تُلزَم publicSafe == true، والإخفاء يُبطلها،
+    // والمستندات القديمة التي تحمل بريداً لا تحمل العلامة فلا تُقرأ علناً.
+    // البريد/المعرّف يُفصلان في review_private/{docId} (المالك/المشرف فقط).
+    match /reviews/{docId} {
+      // القراءة العامة تعتمد علامة واحدة قابلة للفرض في الاستعلام:
+      // publicSafe == true. لا تكفي إخفاء الحقول؛ لأن قواعد Firestore تقيّم
+      // الاستعلام (list) لا كل مستند، فأي شرط غير مفروض في الاستعلام يسمح
+      // بتسريب مستند لا يمرّ عبره. لذلك:
+      //   - أي كتابة جديدة تُلزَم publicSafe == true (والتقييم المخفي تُبطَل
+      //     علامته عند الإخفاء)، والمستندات القديمة التي تحمل بريداً لا تحمل
+      //     هذه العلامة فلا تُقرأ علناً.
+      //   - getReviews يستعلم where('publicSafe','==',true).
+      // القراءة المباشرة (get) تُقيَّم على المستند نفسه، فتُضاف لها حماية
+      // إضافية: يُرفض أي مستند يحمل حقلاً من حقول الهوية/الاتصال حتى لو حمل
+      // العلامة (دفاع في العمق ضد علامة كُتبت خطأً على مستند قديم). أما
+      // الاستعلام (list) فلا يمكن فرض «غياب حقل» فيه، فيعتمد على العلامة وحدها
+      // — وهي القابلة للفرض في where('publicSafe','==',true).
+      // [انتقالي] القراءة كما كانت حتى لا تنكسر استعلامات العملاء القدامى
+      // (لا تُفلتر publicSafe)، والإنشاء مُشدَّد أدناه.
+      allow read: if true;
+      // الإنشاء: عضو موثّق فقط، بقائمة حقول مسموحة صريحة تمنع أي بيانات شخصية
+      // أو معرّفات (userEmail/email/phone/userPhone/userId/ownerUid)، وتُلزِم
+      // publicSafe == true. البيانات الشخصية تُكتب في review_private/{docId}.
+      // [انتقالي] يقبل العميل القديم (بلا publicSafe) والجديد، ويرفض أي حقل هوية.
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['productId','rating'])
+                    && !request.resource.data.keys().hasAny([
+                         'userEmail','email','contactEmail','phone','userPhone',
+                         'phoneNumber','mobile','whatsapp','userId','ownerUid','uid',
+                         'nationalId','iban','accountNumber','userName'
+                       ]);
+      // التعديل: المالك/المشرف فقط. الإخفاء يُلزم إبطال publicSafe فلا يبقى
+      // التقييم المخفي مقروءاً للعام من خلال الاستعلام.
+      allow update: if isOwner()
+                    || ( canManageReviews()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['hidden','publicSafe','moderationReason','moderatedBy','moderatedAt','updatedAt'])
+                         && request.resource.data.publicSafe == (request.resource.data.hidden != true) );
+      allow delete: if isOwner() || canManageReviews();
+    }
+
+    // ============ البيانات الشخصية للتقييم (منفصلة) ============
+    // لماذا منفصلة: قواعد Firestore لا تُخفي حقولاً منفردة من مستند مسموح
+    // قراءته، فلو بقي البريد في مستند reviews العام لَظهر مع أي قراءة عامة.
+    // المفتاح = نفس معرّف التقييم (docId) فيربط السجلَين دون كشف أي شيء علناً.
+    //
+    // الملكية غير قابلة للتزوير: يُلزَم الحقل ownerUid بأن يساوي uid المُنشئ
+    // (request.auth.uid). فلا يستطيع عضو إنشاء سجل خاص باسم عضو آخر، ولا تغيير
+    // مالكه لاحقاً (ownerUid ثابت في التعديل).
+    //
+    // من يستطيع ماذا (أضيق صلاحية):
+    //   إنشاء : عضو موثّق (isSignedIn) لنفسه فقط — ownerUid == request.auth.uid.
+    //   قراءة : مالك السجل نفسه (ownerUid == uid) أو حساب المالك أو MANAGE_REVIEWS.
+    //   تعديل : مالك السجل نفسه (دون تغيير ownerUid) أو حساب المالك أو MANAGE_REVIEWS.
+    //   حذف   : مالك السجل نفسه أو حساب المالك أو MANAGE_REVIEWS.
+    match /review_private/{docId} {
+      allow read: if isOwner()
+                  || canManageReviews()
+                  || ( isSignedIn() && resource.data.ownerUid == request.auth.uid );
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['ownerUid'])
+                    && request.resource.data.keys().hasOnly(['ownerUid','productId','userEmail','userId','createdAt'])
+                    && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if ( isOwner()
+                         || canManageReviews()
+                         || ( isSignedIn() && resource.data.ownerUid == request.auth.uid ) )
+                    && request.resource.data.ownerUid == resource.data.ownerUid;
+      allow delete: if isOwner()
+                    || canManageReviews()
+                    || ( isSignedIn() && resource.data.ownerUid == request.auth.uid );
+    }
+
+    // ============ إعدادات المتجر — مفصّلة حسب الوثيقة والصلاحية ============
+    // وثائق مخصّصة (siteTexts/inlineStyles/maintenance/registrationGate/
+    // cacheBuster/navigation/snippets) لا تُكتب إلا بالمفتاح المخصّص لها.
+    // UPDATE_GLOBAL_SETTINGS يغطي بقية الوثائق العامة فقط — وإلا لتجاوز
+    // صلاحيات مثل CODE_SNIPPET_INJECTION (تصعيد صلاحيات).
+    function isReservedSettingsDoc(docId) {
+      return docId in ['siteTexts','inlineStyles','maintenance',
+                       'registrationGate','cacheBuster','navigation','snippets'];
+    }
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isOwner()
+                   || (docId == 'siteTexts' && hasPerm('INLINE_TEXT_EDIT'))
+                   || (docId == 'inlineStyles' && inlineStyleAllowed())
+                   || (docId == 'maintenance' && hasPerm('TOGGLE_MAINTENANCE_MODE'))
+                   || (docId == 'registrationGate' && hasPerm('BLOCK_USER_REGISTRATION'))
+                   || (docId == 'cacheBuster' && hasPerm('FLUSH_SYSTEM_CACHE'))
+                   || (docId == 'navigation' && hasPerm('MANAGE_NAVIGATION_MENU'))
+                   || (docId == 'snippets' && hasPerm('CODE_SNIPPET_INJECTION'))
+                   || (!isReservedSettingsDoc(docId) && hasPerm('UPDATE_GLOBAL_SETTINGS'));
+    }
+
+    // ============ تعليقات الرئيسية وحراج ============
+    match /comments/{docId} {
+      // التعليقات تُعرض للزوار والأعضاء بحالة «معتمد» فقط. كانت القراءة العامة
+      // المطلقة (allow read: if true) تكشف تعليقات pending غير المراجَعة ومعها
+      // حقل email الخاص — لأي عميل حتى بلا حساب. المالك ومشرفو التعليقات
+      // (EDIT/DELETE) يرون كل الحالات لأن لوحة المراجعة تحتاجها.
+      //
+      // سبب علامة publicSafe: قواعد Firestore تقيّم الاستعلام (list) لا كل
+      // مستند، فشرط «لا يحمل بريداً» غير قابل للفرض في الاستعلام. لذلك أي
+      // تعليق جديد يُلزَم publicSafe == true (ولا يُسمح أصلاً بحقل email في
+      // المستند العام — البريد يُكتب في comment_private)، والتعليقات القديمة
+      // التي تحمل بريداً لا تحمل العلامة فلا تُقرأ علناً إطلاقاً.
+      // القراءة المباشرة (get) تُقيَّم على المستند، فتُرفض إن حمل أي حقل هوية/
+      // اتصال حتى مع العلامة (دفاع في العمق). والاستعلام (list) يعتمد على
+      // status=='approved' و publicSafe==true لأن غياب الحقول لا يُفرض في where.
+      // [انتقالي] القراءة كما كانت (مفتوحة) حتى لا ينكسر العملاء القدامى،
+      // والإنشاء مُشدَّد أدناه فلا يدخل أي بريد جديد. تُستبدل بالقراءة المشددة
+      // في المرحلة النهائية.
+      allow read: if true;
+
+      // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة (بلا email)
+      // وحالة إلزامية 'pending' وعلامة publicSafe إلزامية. بدون ذلك يستطيع أي
+      // زائر كتابة status:'approved' فيُنشر تعليقه فوراً متجاوزاً مراجعة المالك.
+      // [انتقالي] يحقّق هدفين: يقبل العميل القديم (يرسل email فارغاً) والجديد
+      // (يرسل publicSafe)، ويرفض أي بريد غير فارغ أو حقل هوية آخر. الحاجز هو
+      // request.resource.data.get('email','') == '' (صحيح عند غياب الحقل أو فراغه).
+      allow create: if canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['text'])
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 250
+                    && request.resource.data.keys().hasOnly([
+                         'text','name','email','city','status','likes','createdAt','publicSafe'
+                       ])
+                    && request.resource.data.status == 'pending'
+                    && request.resource.data.get('email', '') == ''
+                    && !request.resource.data.keys().hasAny([
+                         'userEmail','contactEmail','phone','userPhone','phoneNumber',
+                         'mobile','whatsapp','userId','ownerUid','uid','nationalId',
+                         'iban','accountNumber','userName'
+                       ]);
+
+      // التعديل:
+      // - المالك يستطيع تعديل كل شيء.
+      // - صاحب HARAJ_COMMENT_EDIT يستطيع تعديل التعليق أو تغيير حالته
+      //   (اعتماد/رفض) — وهو ما يفعله CommentsReviewPanel فعلاً. منعه هنا
+      //   كان يُبقي كل تعليق معلّقاً في «قيد المراجعة» بلا إمكانية اعتماد.
+      //   لا يُسمح له بمسح نص التعليق أو حقوله.
+      // - تحديث likes يتطلب عضواً موثقاً، ويقبل زيادة واحدة فقط.
+      allow update: if isOwner()
+                    || (
+                      hasPerm('HARAJ_COMMENT_EDIT')
+                      && request.resource.data.diff(resource.data)
+                           .affectedKeys().hasOnly(['status'])
+                      && request.resource.data.status in ['approved','rejected','pending']
+                    )
+                    || ( isSignedIn()
+                         && request.resource.data.diff(resource.data)
+                              .affectedKeys().hasOnly(['likes'])
+                         && request.resource.data.likes is number
+                         && request.resource.data.likes == resource.data.likes + 1 );
+
+      // الحذف: المالك أو صاحب صلاحية حذف التعليقات. الحذف حقيقي (delete) —
+      // ينسخ العميل الوثيقة إلى deleted_archive قبل الحذف. زر «رفض» في اللوحة
+      // صار يحذف فعلاً بدل تغيير الحالة (كان يُبقي التعليق في قاعدة البيانات).
+      allow delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
+    }
+
+    // ============ البريد الخاص للتعليق (منفصل) ============
+    // لماذا: حقل email كان يُكتب في مستند comments العام، والتعليق المعتمد
+    // يُقرأ للزوار — فكان بريد المُعلِّق يُقرأ علناً. البريد الآن في مستند منفصل
+    // بنفس معرّف التعليق (docId) ليقرأه المالك/مشرفو التعليقات فقط.
+    // التعليقات المجهولة (بلا بريد) لا تُنشئ سجلاً خاصاً.
+    match /comment_private/{docId} {
+      allow read: if isOwner()
+                  || hasPerm('HARAJ_COMMENT_EDIT')
+                  || hasPerm('HARAJ_COMMENT_DELETE');
+      allow create: if canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasOnly(['email','createdAt','publicSafe','status'])
+                    && request.resource.data.publicSafe == true
+                    && request.resource.data.status == 'pending';
+      allow update, delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
+    }
+
+    // ============ طلبات الفستان (wanted_dresses) — عام + خاص ============
+    // الوثيقة العامة تحمل ownerUid (معرّف مبهم) فقط لربط الملكية، بلا هاتف/بريد.
+    // البيانات الشخصية في وثيقة فرعية محصورة private/{uid}. لا تُترك بيانات يتيمة:
+    // لا يُسمح بحذف الوثيقة العامة ما دامت وثيقتها الخاصة موجودة (يجب حذف الخاصة أولاً).
+    match /wanted_dresses/{docId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['title','status','ownerUid'])
+                    && request.resource.data.keys().hasOnly([
+                         'title','color','budget','eventDate','bust','waist','hip',
+                         'length','notes','status','userName','ownerUid','createdAt'
+                       ])
+                    && request.resource.data.ownerUid == request.auth.uid;
+      // تعديل: المالك/المخوّل فقط.
+      allow update: if isOwner() || hasPerm('HARAJ_POST_FORCE_EDIT');
+      // حذف: صاحب الطلب/المالك/المخوّل، وبشرط ألا تبقى وثيقة خاصة (منع البيانات اليتيمة).
+      allow delete: if isSignedIn()
+                    && (isOwner() || hasPerm('HARAJ_POST_FORCE_EDIT')
+                        || resource.data.ownerUid == request.auth.uid)
+                    && !exists(/databases/$(database)/documents/wanted_dresses/$(docId)/private/$(resource.data.ownerUid));
+
+      // البيانات الشخصية: تسجيل دخول إلزامي + ملكية الطلب + جوال سعودي صالح.
+      match /private/{privateId} {
+        allow read: if isSignedIn()
+                    && (privateId == request.auth.uid
+                        || isOwner() || hasPerm('HARAJ_POST_FORCE_EDIT'));
+        allow create: if isSignedIn() && canWriteDuringMaintenance()
+                      && privateId == request.auth.uid
+                      && get(/databases/$(database)/documents/wanted_dresses/$(docId)).data.ownerUid == request.auth.uid
+                      && request.resource.data.keys().hasAll(['userPhone'])
+                      && request.resource.data.keys().hasOnly(['userPhone','userEmail','createdAt'])
+                      && request.resource.data.userPhone is string
+                      && request.resource.data.userPhone.matches('^05[0-9]{8}$');
+        // التحديث يبقي الجوال صالحاً ويمنع حذفه/إفراغه؛ صاحب الطلب يحقّله مع تعديل بريده فقط.
+        allow update: if isSignedIn()
+                      && request.resource.data.keys().hasAll(['userPhone'])
+                      && request.resource.data.userPhone is string
+                      && request.resource.data.userPhone.matches('^05[0-9]{8}$')
+                      && (
+                           (privateId == request.auth.uid
+                            && request.resource.data.diff(resource.data)
+                                 .affectedKeys().hasOnly(['userPhone','userEmail']))
+                           || isOwner() || hasPerm('HARAJ_POST_FORCE_EDIT')
+                         );
+        // حذف البيانات الخاصة: المالك/المخوّل أو صاحب الطلب نفسه (لتمكين الحذف المتسلسل).
+        allow delete: if isSignedIn()
+                      && (isOwner() || hasPerm('HARAJ_POST_FORCE_EDIT')
+                          || privateId == request.auth.uid);
+      }
+    }
+
+    // ============ مشتركو نشرة العروض ============
+    match /subscribers/{emailId} {
+      allow create: if request.resource.data.keys().hasOnly(['email'])
+                    && request.resource.data.email is string
+                    && request.resource.data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+      allow read, update, delete: if isOwner();
+    }
+
+    // ============ أرشيف المحذوفات السري ============
+    // كل حذف حقيقي يُلحق نسخة كاملة من الوثيقة هنا قبل/بعد الحذف ليتمكن
+    // المالك من الاستعادة. البنية إلزامية حتى لا يُستخدم الأرشيف مخزناً عشوائياً.
+    match /deleted_archive/{docId} {
+      allow create: if (isOwner()
+                        || hasPerm('RECOVER_DELETED_ITEMS_ARCHIVE')
+                        || hasPerm('HARAJ_POST_DELETE')
+                        || hasPerm('HARAJ_COMMENT_DELETE')
+                        || hasPerm('DELETE_MAIN_CATALOG'))
+                    && request.resource.data.keys().hasAll(
+                         ['sourceCollection','sourceId','payload','deletedAt'])
+                    && request.resource.data.sourceCollection is string
+                    && request.resource.data.sourceId is string
+                    && request.resource.data.payload is map;
+      allow read, update, delete: if isOwner() || hasPerm('RECOVER_DELETED_ITEMS_ARCHIVE');
+    }
+
+    // ============ أي وثيقة أخرى — قراءة للمالك فقط (وضع آمن) ============
+    // الكتابة لا تُمنح عشوائياً هنا: أي مجموعة بلا قاعدة صريحة تبقى مغلقة،
+    // وحتى المالك لا يمرّ عبر هذا المطاط لتعديل/حذف سجلات append-only
+    // (audit_logs) — فلا ثغرة تعديل سجل من المالك.
+    match /{document=**} {
+      allow read: if isOwner();
+    }
+  }
+}
