@@ -1,169 +1,68 @@
-// scripts/compare-indexes.mjs — مقارنة قراءة-فقط بين فهارس الإنتاج ومحتوى firestore.indexes.json.
-// لا يكتب ولا ينشر شيئًا.
-//
-// مشكلة يجب معالجتها: `firebase firestore:indexes` يعيد حقل `__name__` الضمني في كل فهرس
-// (لأنه يعكس ما يخزّنه الـAPI)، بينما ملف المشروع لا يذكره، فيبدوان مختلفين بنيويًا وهما متطابقان.
-// الحل: نوحّد الطرفين إلى تمثيل قانوني واحد مطابق لِـ processIndex في firebase-tools:
-//   - حقل `__name__` في النهاية يُعتبر ضمنيًا فقط إذا طابق ترتيبه ترتيب آخر حقل صريح.
-//   - أعد إلحاق `__name__` بترتيب آخر حقل صريح للطرفين، فيتطابقان.
-//   - إن اختلف ترتيب `__name__` المُصرَّح عن الضمني، أو ورد __name__ في غير النهاية، فهو فرق حقيقي ولا يُتجاهل.
-// لا نتجاهل أي فرق آخر: المجموعة، الحقول، الترتيب، queryScope، apiScope، density، multikey.
-//
-// الاستخدام:
-//   1) صدّر فهارس الإنتاج (قراءة فقط):
-//        npx firebase-tools firestore:indexes --project anaqa-chic-4e437 > /tmp/prod-indexes.json
-//   2) شغّل المقارنة:
-//        node scripts/compare-indexes.mjs firestore.indexes.json /tmp/prod-indexes.json
+// scripts/compare-indexes.mjs — read-only comparison; never creates or deletes indexes.
+// Firebase CLI export (read only):
+//   npx firebase-tools firestore:indexes --project anaqa-chic-4e437 > /tmp/prod-indexes.json
+// Compare from repository root:
+//   node scripts/compare-indexes.mjs firestore.indexes.json /tmp/prod-indexes.json
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { compareIndexFiles } from './index-audit.mjs';
 
-const [filePath, prodPath] = process.argv.slice(2);
-if (!filePath || !prodPath) {
-  console.error('الاستخدام: node scripts/compare-indexes.mjs <file.indexes.json> <prod-indexes.json>');
+const [fileArg, productionArg] = process.argv.slice(2);
+if (!fileArg || !productionArg) {
+  console.error('Usage: node scripts/compare-indexes.mjs <configured-indexes.json> <read-only-production-export.json>');
   process.exit(2);
 }
-
-const load = (p) => {
-  const d = JSON.parse(readFileSync(p, 'utf8'));
-  return { indexes: d.indexes || [], fieldOverrides: d.fieldOverrides || [] };
-};
-
-// ترتيب آخر حقل صريح (نفس lastIndexFieldOrder في firebase-tools)
-const lastExplicitOrder = (fields) => {
-  let order = 'ASCENDING';
-  for (const f of fields) if (f.order) order = f.order;
-  return order;
-};
-
-// توحيد فهرس واحد إلى تمثيل قانوني موحّد.
-const canonicalIndex = (x) => {
-  const raw = (x.fields || []).map((f) => ({
-    fieldPath: f.fieldPath,
-    order: f.order || null,
-    arrayConfig: f.arrayConfig || null,
-  }));
-
-  let fields = raw;
-  let anomaly = null;
-  const last = fields[fields.length - 1];
-
-  if (last && last.fieldPath === '__name__') {
-    const implicit = lastExplicitOrder(fields.slice(0, -1));
-    if (last.order === implicit) {
-      fields = fields.slice(0, -1); // ضمني ومطابق → احذفه
-    } else {
-      anomaly = `__name__ مُصرَّح=${last.order} لكن الضمني=${implicit}`; // فرق حقيقي
-    }
-  }
-
-  const explicit = fields.filter((f) => f.fieldPath !== '__name__');
-  const strayName = fields.filter((f) => f.fieldPath === '__name__');
-  if (strayName.length > 0) {
-    // __name__ في غير النهاية → لا نوحّده، بل نُبقيه فرقًا حقيقيًا
-    anomaly = anomaly || '__name__ في غير النهاية';
-  }
-
-  const canonical =
-    strayName.length > 0
-      ? fields
-      : [...explicit, { fieldPath: '__name__', order: lastExplicitOrder(explicit), arrayConfig: null }];
-
-  // فهرس مركّب بحقل صريح واحد فقط (ما عدا __name__) = غير لازمة: Firestore يغطي
-  // الحقول المفردة بفهرس تلقائي، والنشر يفشل بـ 400 "this index is not necessary".
-  const explicitCount = explicit.length;
-  const unnecessarySingleField = explicitCount === 1 && strayName.length === 0;
-
-  return {
-    cg: x.collectionGroup,
-    scope: x.queryScope || 'COLLECTION',
-    apiScope: x.apiScope || null,
-    density: x.density || null,
-    multikey: x.multikey === true,
-    fields: canonical,
-    anomaly,
-    unnecessarySingleField,
-  };
-};
-
-const idxKey = (c) =>
-  JSON.stringify({
-    cg: c.cg,
-    scope: c.scope,
-    apiScope: c.apiScope,
-    density: c.density,
-    multikey: c.multikey,
-    fields: c.fields,
-  });
-
-const foKey = (x) =>
-  JSON.stringify({
-    cg: x.collectionGroup,
-    p: x.fieldPath,
-    idx: (x.indexes || []).map((i) => ({
-      s: i.queryScope || null,
-      a: i.apiScope || null,
-      d: i.density || null,
-      o: i.order || null,
-      arr: i.arrayConfig || null,
-    })),
-  });
-
-const file = load(filePath);
-const prod = load(prodPath);
-
-const fileC = file.indexes.map(canonicalIndex);
-const prodC = prod.indexes.map(canonicalIndex);
-
-const fileKeys = new Map(fileC.map((c) => [idxKey(c), c]));
-const prodKeys = new Map(prodC.map((c) => [idxKey(c), c]));
-
-const willCreate = fileC.filter((c) => !prodKeys.has(idxKey(c)));
-const inProdNotInFile = prodC.filter((c) => !fileKeys.has(idxKey(c)));
-const unchanged = fileC.filter((c) => prodKeys.has(idxKey(c)));
-const anomalies = [...fileC, ...prodC].filter((c) => c.anomaly);
-// تعريفات الملف المفردة-الحقل غير اللازمة (تفشل النشر). لا تُحسب "مشتركة" إن كانت في الإنتاج.
-const unnecessaryInFile = fileC.filter((c) => c.unnecessarySingleField);
-const unnecessaryInProd = prodC.filter((c) => c.unnecessarySingleField);
-
-const fileFoKeys = new Set(file.fieldOverrides.map(foKey));
-const prodFoKeys = new Set(prod.fieldOverrides.map(foKey));
-const foToCreate = file.fieldOverrides.filter((x) => !prodFoKeys.has(foKey(x)));
-const foInProdNotInFile = prod.fieldOverrides.filter((x) => !fileFoKeys.has(foKey(x)));
-
-const fmtFields = (c) =>
-  c.fields.map((f) => `${f.fieldPath}:${f.order || f.arrayConfig || '?'}`).join(', ');
-const fmt = (c) => `${c.cg} [${fmtFields(c)}]` + (c.scope !== 'COLLECTION' ? ` (${c.scope})` : '');
-const fmtFo = (x) => `${x.collectionGroup}.${x.fieldPath} (${(x.indexes || []).length} override)`;
-
-console.log(`\nملف: ${filePath}  (فهارس: ${file.indexes.length} · overrides: ${file.fieldOverrides.length})`);
-console.log(`إنتاج: ${prodPath}  (فهارس: ${prod.indexes.length} · overrides: ${prod.fieldOverrides.length})`);
-console.log('ملاحظة: __name__ الضمني يُوحَّد على الطرفين ولا يُحسب فرقًا.');
-
-console.log(`\n1) سيُضيفها النشر (في الملف وليست في الإنتاج): ${willCreate.length}`);
-willCreate.forEach((c) => console.log('   + ' + fmt(c)));
-
-console.log(`\n2) في الإنتاج وليست في الملف (قد يُعرض حذفها — تُرفض): ${inProdNotInFile.length}`);
-inProdNotInFile.forEach((c) => console.log('   ! ' + fmt(c)));
-
-console.log(`\n3) مشتركة بلا تغيير: ${unchanged.length}`);
-unchanged.forEach((c) => console.log('   = ' + fmt(c)));
-
-console.log(`\n4) fieldOverrides — سيُضيفها: ${foToCreate.length} · غير المطابقة: ${foInProdNotInFile.length}`);
-foToCreate.forEach((x) => console.log('   + ' + fmtFo(x)));
-foInProdNotInFile.forEach((x) => console.log('   ! ' + fmtFo(x)));
-
-if (unnecessaryInFile.length) {
-  console.log(`\n⚠️  فهارس مركّبة بحقل واحد في الملف (غير لازمة — تفشل النشر بـ 400): ${unnecessaryInFile.length}`);
-  unnecessaryInFile.forEach((c) => console.log(`   ⚠ ${c.cg} [${fmtFields(c)}]`));
-}
-if (unnecessaryInProd.length) {
-  console.log(`\n⚠️  فهارس مركّبة بحقل واحد منشورة فعلاً (لا تُحذف بلا موافقة): ${unnecessaryInProd.length}`);
-  unnecessaryInProd.forEach((c) => console.log(`   ⚠ ${c.cg} [${fmtFields(c)}]`));
-}
-if (anomalies.length) {
-  console.log(`\n⚠️  فروق __name__ حقيقية (لا تُتجاهل): ${anomalies.length}`);
-  anomalies.forEach((c) => console.log(`   ⚠ ${c.cg} [${fmtFields(c)}] ${c.anomaly}`));
+const root = process.cwd();
+const filePath = path.resolve(root, fileArg);
+const productionPath = path.resolve(root, productionArg);
+let branch = '(unavailable)';
+let commit = '(unavailable)';
+try {
+  branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+  commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+} catch {
+  // Comparison remains useful outside a Git checkout; identity is explicit above.
 }
 
-const ok = inProdNotInFile.length === 0 && foInProdNotInFile.length === 0 && anomalies.length === 0 && unnecessaryInFile.length === 0;
-console.log(`\nخلاصة: ${ok ? 'آمن — إضافة فقط بلا --force' : 'يوجد فرق حقيقي — راجع قبل النشر'}\n`);
-process.exit(ok ? 0 : 1);
+const load = (file) => JSON.parse(readFileSync(file, 'utf8'));
+const fileDefinition = load(filePath);
+const productionDefinition = load(productionPath);
+const result = compareIndexFiles(fileDefinition, productionDefinition);
+const formatFields = (index) => index.fields.map((field) => `${field.fieldPath}:${field.order || field.arrayConfig || '?'}`).join(', ');
+const formatIndex = (index) => `${index.collectionGroup} [${formatFields(index)}] (${index.queryScope}, apiScope=${index.apiScope ?? '-'}, density=${index.density ?? '-'}, multikey=${index.multikey})`;
+const formatOverride = (override) => `${override.collectionGroup}.${override.fieldPath} ${JSON.stringify(override.indexes || [])}`;
+
+console.log(`\nRepository root: ${root}`);
+console.log(`Branch: ${branch}`);
+console.log(`Commit: ${commit}`);
+console.log(`File: ${filePath} (${(fileDefinition.indexes || []).length} indexes, ${(fileDefinition.fieldOverrides || []).length} fieldOverrides)`);
+console.log(`Production export: ${productionPath} (${(productionDefinition.indexes || []).length} indexes, ${(productionDefinition.fieldOverrides || []).length} fieldOverrides)`);
+console.log('Implicit __name__ is normalized only when trailing and direction matches the implied direction.');
+
+console.log(`\nIndexes to add: ${result.addIndexes.length}`);
+result.addIndexes.forEach((index) => console.log(`  + ${formatIndex(index)}`));
+console.log(`\nProduction-only indexes (potential deletions): ${result.productionOnlyIndexes.length}`);
+result.productionOnlyIndexes.forEach((index) => console.log(`  ! ${formatIndex(index)}`));
+console.log(`\nShared indexes: ${result.sharedIndexes.length}`);
+result.sharedIndexes.forEach((index) => console.log(`  = ${formatIndex(index)}`));
+console.log(`\nFieldOverrides to add: ${result.addOverrides.length}`);
+result.addOverrides.forEach((override) => console.log(`  + ${formatOverride(override)}`));
+console.log(`Production-only/different fieldOverrides: ${result.productionOnlyOverrides.length}`);
+result.productionOnlyOverrides.forEach((override) => console.log(`  ! ${formatOverride(override)}`));
+
+if (result.unnecessaryInFile.length) {
+  console.error(`\nInvalid single-explicit-field composites in file: ${result.unnecessaryInFile.length}`);
+  result.unnecessaryInFile.forEach((index) => console.error(`  ✗ ${index.collectionGroup} [${formatFields(index)}]`));
+}
+if (result.unnecessaryInProduction.length) {
+  console.warn(`\nSingle-explicit-field composites in production export: ${result.unnecessaryInProduction.length} (reported, never deleted)`);
+  result.unnecessaryInProduction.forEach((index) => console.warn(`  ⚠ ${index.collectionGroup} [${formatFields(index)}]`));
+}
+if (result.anomalies.length) {
+  console.error(`\n__name__ anomalies: ${result.anomalies.length}`);
+  result.anomalies.forEach((index) => console.error(`  ✗ ${index.collectionGroup}: ${index.anomaly}`));
+}
+result.blockingReasons.forEach((reason) => console.error(`BLOCK: ${reason}`));
+console.log(`\nResult: ${result.safeToProceed ? 'no unsafe deletion or invalid file index detected' : 'STOP — review differences; no deploy/delete was performed'}\n`);
+process.exit(result.safeToProceed ? 0 : 1);
