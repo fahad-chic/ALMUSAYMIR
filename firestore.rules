@@ -705,23 +705,29 @@ service cloud.firestore {
 
       // التعديل:
       // - المالك يستطيع تعديل كل شيء.
-      // - صاحب HARAJ_COMMENT_EDIT يستطيع تعديل التعليق أو تغيير حالته
-      //   (اعتماد/رفض) — وهو ما يفعله CommentsReviewPanel فعلاً. منعه هنا
-      //   كان يُبقي كل تعليق معلّقاً في «قيد المراجعة» بلا إمكانية اعتماد.
+      // - صاحب HARAJ_COMMENT_EDIT يستطيع تغيير الحالة فقط (اعتماد/رفض/إرجاع).
       //   لا يُسمح له بمسح نص التعليق أو حقوله.
       // - تحديث likes يتطلب عضواً موثقاً، ويقبل زيادة واحدة فقط.
-      allow update: if isOwner()
-                    || (
-                      hasPerm('HARAJ_COMMENT_EDIT')
-                      && request.resource.data.diff(resource.data)
-                           .affectedKeys().hasOnly(['status'])
-                      && request.resource.data.status in ['approved','rejected','pending']
-                    )
-                    || ( isSignedIn()
-                         && request.resource.data.diff(resource.data)
-                              .affectedKeys().hasOnly(['likes'])
-                         && request.resource.data.likes is number
-                         && request.resource.data.likes == resource.data.likes + 1 );
+      // ضمان حاسم ضد تسريب البريد في الاستعلام العام: قواعد list لا ترشّح
+      // مستنداً بمستند (تُقيَّم على الاستعلام)، لذا لا يمكن للقاعدة أن تُخفي
+      // «مستنداً معتمداً يحمل بريداً» داخل نتيجة list. لذلك نمنع المصدر: لا
+      // يُقبل أي تعديل يُنتج مستنداً يحمل بريداً غير فارغ. مع منع حقل email في
+      // create، يصبح من المستحيل أن يوجد تعليق عام (معتمد) يحمل بريداً.
+      allow update: if request.resource.data.get('email', '') == ''
+                    && (
+                      isOwner()
+                      || (
+                        hasPerm('HARAJ_COMMENT_EDIT')
+                        && request.resource.data.diff(resource.data)
+                             .affectedKeys().hasOnly(['status'])
+                        && request.resource.data.status in ['approved','rejected','pending']
+                      )
+                      || ( isSignedIn()
+                           && request.resource.data.diff(resource.data)
+                                .affectedKeys().hasOnly(['likes'])
+                           && request.resource.data.likes is number
+                           && request.resource.data.likes == resource.data.likes + 1 )
+                    );
 
       // الحذف: المالك أو صاحب صلاحية حذف التعليقات. الحذف حقيقي (delete) —
       // ينسخ العميل الوثيقة إلى deleted_archive قبل الحذف. زر «رفض» في اللوحة
