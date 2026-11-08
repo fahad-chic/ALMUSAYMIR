@@ -668,19 +668,38 @@ service cloud.firestore {
     }
 
     // ============ تعليقات الرئيسية وحراج ============
+    // الثغرة المُصلَحة: كان allow read: if true يكشف كل تعليق — بما فيه
+    // المعلّق/المرفوض وحقل email الخاص — لأي عميل حتى بلا حساب.
+    // الإصلاح بلا أي تعديل بيانات: القراءة العامة مقيّدة بحالة 'approved'
+    // (وهي حالة كل التعليقات الحالية المعروضة)، والبريد يُكتب في
+    // comment_private/{docId} (المالك/المشرف فقط) ولا يُكتب في المستند العام.
+    // لا حاجة لعلامة جديدة على المستندات القديمة: شرط status قابل للفرض في
+    // الاستعلام (where) فتشمل القاعدة التعليقات الحالية فوراً.
     match /comments/{docId} {
-      allow read: if true;
+      // القراءة: المالك ومشرفو التعليقات يرون كل الحالات (لوحة المراجعة).
+      // العامة (get/list) ترى التعليقات المعتمدة فقط. ويُمنع أي مستند عام
+      // يحمل بريداً غير فارغ (دفاع في العمق لسجلات قديمة تحمل بريداً حقيقياً؛
+      // البريد الفارغ ليس بيانات خاصة فلا يُحجب).
+      allow get: if isOwner()
+                 || hasPerm('HARAJ_COMMENT_EDIT')
+                 || hasPerm('HARAJ_COMMENT_DELETE')
+                 || ( resource.data.status == 'approved'
+                      && resource.data.get('email', '') == '' );
+      allow list: if isOwner()
+                  || hasPerm('HARAJ_COMMENT_EDIT')
+                  || hasPerm('HARAJ_COMMENT_DELETE')
+                  || resource.data.status == 'approved';
 
-      // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة وحالة إلزامية
-      // 'pending'. بدون ذلك يستطيع أي زائر كتابة status:'approved' فيُنشر
-      // تعليقه فوراً متجاوزاً مراجعة المالك.
+      // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة (بلا email)
+      // وحالة إلزامية 'pending'. البريد يُكتب في comment_private. منع حقل
+      // email هنا يضمن ألا يظهر بريد في أي مستند عام جديد.
       allow create: if canWriteDuringMaintenance()
                     && request.resource.data.keys().hasAll(['text'])
                     && request.resource.data.text is string
                     && request.resource.data.text.size() > 0
                     && request.resource.data.text.size() <= 250
                     && request.resource.data.keys().hasOnly([
-                         'text','name','email','city','status','likes','createdAt'
+                         'text','name','city','status','likes','createdAt'
                        ])
                     && request.resource.data.status == 'pending';
 
@@ -708,6 +727,22 @@ service cloud.firestore {
       // ينسخ العميل الوثيقة إلى deleted_archive قبل الحذف. زر «رفض» في اللوحة
       // صار يحذف فعلاً بدل تغيير الحالة (كان يُبقي التعليق في قاعدة البيانات).
       allow delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
+    }
+
+    // ============ البريد الخاص للتعليق (منفصل) ============
+    // لماذا منفصل: حقل email كان يُكتب في مستند comments العام، والتعليق المعتمد
+    // يُقرأ للزوار — فكان بريد المُعلِّق يُقرأ علناً. الآن البريد في مستند منفصل
+    // بنفس معرّف التعليق (docId) ليقرأه المالك/مشرفو التعليقات فقط.
+    // التعليقات المجهولة (بلا بريد) لا تُنشئ سجلاً خاصاً.
+    match /comment_private/{docId} {
+      allow read: if isOwner()
+                  || hasPerm('HARAJ_COMMENT_EDIT')
+                  || hasPerm('HARAJ_COMMENT_DELETE');
+      allow create: if canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasOnly(['email','createdAt'])
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() > 0;
+      allow update, delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
     }
 
     // ============ طلبات الفستان (wanted_dresses) — عام + خاص ============
