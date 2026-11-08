@@ -184,6 +184,7 @@ service cloud.firestore {
       ]);
     }
 
+
     // فصل قواعد INLINE: كل مفتاح يحمي العملية الخاصة به فقط. الوثيقة تُعلن
     // المفتاح المستخدَم في الحقل perm، والقاعدة تتحقق من امتلاك ذلك المفتاح
     // بالذات (لا يفتح مفتاح واحد بقية المفاتيح).
@@ -366,8 +367,8 @@ service cloud.firestore {
       allow update: if isOwner()
                     || (request.auth.uid == userId
                         && isSignedIn()
-                        && request.resource.data.diff(resource.data)
-                             .affectedKeys().hasAny(['role', 'status', 'banned']) == false)
+                        && !request.resource.data.diff(resource.data)
+                             .affectedKeys().hasAny(['role', 'status', 'banned']))
                     || (request.resource.data.diff(resource.data)
                             .affectedKeys().hasOnly([
                               'status','banned','bannedAt','banReason','banType',
@@ -747,67 +748,66 @@ service cloud.firestore {
     }
 
     // ============ تعليقات الرئيسية وحراج ============
+    // الثغرة المُصلَحة: كان allow read: if true يكشف كل تعليق — بما فيه
+    // المعلّق/المرفوض وحقل email الخاص — لأي عميل حتى بلا حساب.
+    // الإصلاح بلا أي تعديل بيانات: القراءة العامة مقيّدة بحالة 'approved'
+    // (وهي حالة كل التعليقات الحالية المعروضة)، والبريد يُكتب في
+    // comment_private/{docId} (المالك/المشرف فقط) ولا يُكتب في المستند العام.
+    // لا حاجة لعلامة جديدة على المستندات القديمة: شرط status قابل للفرض في
+    // الاستعلام (where) فتشمل القاعدة التعليقات الحالية فوراً.
     match /comments/{docId} {
-      // التعليقات تُعرض للزوار والأعضاء بحالة «معتمد» فقط. كانت القراءة العامة
-      // المطلقة (allow read: if true) تكشف تعليقات pending غير المراجَعة ومعها
-      // حقل email الخاص — لأي عميل حتى بلا حساب. المالك ومشرفو التعليقات
-      // (EDIT/DELETE) يرون كل الحالات لأن لوحة المراجعة تحتاجها.
-      //
-      // سبب علامة publicSafe: قواعد Firestore تقيّم الاستعلام (list) لا كل
-      // مستند، فشرط «لا يحمل بريداً» غير قابل للفرض في الاستعلام. لذلك أي
-      // تعليق جديد يُلزَم publicSafe == true (ولا يُسمح أصلاً بحقل email في
-      // المستند العام — البريد يُكتب في comment_private)، والتعليقات القديمة
-      // التي تحمل بريداً لا تحمل العلامة فلا تُقرأ علناً إطلاقاً.
-      // القراءة المباشرة (get) تُقيَّم على المستند، فتُرفض إن حمل أي حقل هوية/
-      // اتصال حتى مع العلامة (دفاع في العمق). والاستعلام (list) يعتمد على
-      // status=='approved' و publicSafe==true لأن غياب الحقول لا يُفرض في where.
+      // القراءة: المالك ومشرفو التعليقات يرون كل الحالات (لوحة المراجعة).
+      // العامة (get/list) ترى التعليقات المعتمدة فقط. ويُمنع أي مستند عام
+      // يحمل بريداً غير فارغ (دفاع في العمق لسجلات قديمة تحمل بريداً حقيقياً؛
+      // البريد الفارغ ليس بيانات خاصة فلا يُحجب).
       allow get: if isOwner()
                  || hasPerm('HARAJ_COMMENT_EDIT')
                  || hasPerm('HARAJ_COMMENT_DELETE')
-                 || ((isSignedIn() || isAnonymousGuest())
-                     && resource.data.status == 'approved'
-                     && resource.data.publicSafe == true
-                     && hasNoPublicPII(resource.data));
+                 || ( resource.data.status == 'approved'
+                      && resource.data.get('email', '') == '' );
       allow list: if isOwner()
                   || hasPerm('HARAJ_COMMENT_EDIT')
                   || hasPerm('HARAJ_COMMENT_DELETE')
-                  || ((isSignedIn() || isAnonymousGuest())
-                      && resource.data.status == 'approved'
-                      && resource.data.publicSafe == true);
+                  || resource.data.status == 'approved';
 
       // إنشاء التعليق للزوار/المستخدمين كما كان، لكن بحقول محددة (بلا email)
-      // وحالة إلزامية 'pending' وعلامة publicSafe إلزامية. بدون ذلك يستطيع أي
-      // زائر كتابة status:'approved' فيُنشر تعليقه فوراً متجاوزاً مراجعة المالك.
+      // وحالة إلزامية 'pending'. البريد يُكتب في comment_private. منع حقل
+      // email هنا يضمن ألا يظهر بريد في أي مستند عام جديد.
       allow create: if canWriteDuringMaintenance()
-                    && request.resource.data.keys().hasAll(['text','publicSafe'])
+                    && request.resource.data.keys().hasAll(['text'])
                     && request.resource.data.text is string
                     && request.resource.data.text.size() > 0
                     && request.resource.data.text.size() <= 250
                     && request.resource.data.keys().hasOnly([
-                         'text','name','city','status','likes','createdAt','publicSafe'
+                         'text','name','city','status','likes','createdAt'
                        ])
-                    && request.resource.data.status == 'pending'
-                    && request.resource.data.publicSafe == true;
+                    && request.resource.data.status == 'pending';
 
       // التعديل:
       // - المالك يستطيع تعديل كل شيء.
-      // - صاحب HARAJ_COMMENT_EDIT يستطيع تعديل التعليق أو تغيير حالته
-      //   (اعتماد/رفض) — وهو ما يفعله CommentsReviewPanel فعلاً. منعه هنا
-      //   كان يُبقي كل تعليق معلّقاً في «قيد المراجعة» بلا إمكانية اعتماد.
+      // - صاحب HARAJ_COMMENT_EDIT يستطيع تغيير الحالة فقط (اعتماد/رفض/إرجاع).
       //   لا يُسمح له بمسح نص التعليق أو حقوله.
       // - تحديث likes يتطلب عضواً موثقاً، ويقبل زيادة واحدة فقط.
-      allow update: if isOwner()
-                    || (
-                      hasPerm('HARAJ_COMMENT_EDIT')
-                      && request.resource.data.diff(resource.data)
-                           .affectedKeys().hasOnly(['status'])
-                      && request.resource.data.status in ['approved','rejected','pending']
-                    )
-                    || ( isSignedIn()
-                         && request.resource.data.diff(resource.data)
-                              .affectedKeys().hasOnly(['likes'])
-                         && request.resource.data.likes is number
-                         && request.resource.data.likes == resource.data.likes + 1 );
+      // ضمان حاسم ضد تسريب البريد في الاستعلام العام: قواعد list لا ترشّح
+      // مستنداً بمستند (تُقيَّم على الاستعلام)، لذا لا يمكن للقاعدة أن تُخفي
+      // «مستنداً معتمداً يحمل بريداً» داخل نتيجة list. لذلك نمنع المصدر: لا
+      // يُقبل أي تعديل يُنتج مستنداً يحمل بريداً غير فارغ. مع منع حقل email في
+      // create، يصبح من المستحيل أن يوجد تعليق عام (معتمد) يحمل بريداً.
+      allow update: if request.resource.data.get('email', '') == ''
+                    && (
+                      isOwner()
+                      || (
+                        hasPerm('HARAJ_COMMENT_EDIT')
+                        && request.resource.data.diff(resource.data)
+                             .affectedKeys().hasOnly(['status'])
+                        && request.resource.data.status in ['approved','rejected','pending']
+                      )
+                      || ( isSignedIn()
+                           && request.resource.data.diff(resource.data)
+                                .affectedKeys().hasOnly(['likes'])
+                           && request.resource.data.likes is number
+                           && request.resource.data.likes == resource.data.likes + 1 )
+                    );
 
       // الحذف: المالك أو صاحب صلاحية حذف التعليقات. الحذف حقيقي (delete) —
       // ينسخ العميل الوثيقة إلى deleted_archive قبل الحذف. زر «رفض» في اللوحة
@@ -816,8 +816,8 @@ service cloud.firestore {
     }
 
     // ============ البريد الخاص للتعليق (منفصل) ============
-    // لماذا: حقل email كان يُكتب في مستند comments العام، والتعليق المعتمد
-    // يُقرأ للزوار — فكان بريد المُعلِّق يُقرأ علناً. البريد الآن في مستند منفصل
+    // لماذا منفصل: حقل email كان يُكتب في مستند comments العام، والتعليق المعتمد
+    // يُقرأ للزوار — فكان بريد المُعلِّق يُقرأ علناً. الآن البريد في مستند منفصل
     // بنفس معرّف التعليق (docId) ليقرأه المالك/مشرفو التعليقات فقط.
     // التعليقات المجهولة (بلا بريد) لا تُنشئ سجلاً خاصاً.
     match /comment_private/{docId} {
@@ -825,9 +825,9 @@ service cloud.firestore {
                   || hasPerm('HARAJ_COMMENT_EDIT')
                   || hasPerm('HARAJ_COMMENT_DELETE');
       allow create: if canWriteDuringMaintenance()
-                    && request.resource.data.keys().hasOnly(['email','createdAt','publicSafe','status'])
-                    && request.resource.data.publicSafe == true
-                    && request.resource.data.status == 'pending';
+                    && request.resource.data.keys().hasOnly(['email','createdAt'])
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() > 0;
       allow update, delete: if isOwner() || hasPerm('HARAJ_COMMENT_DELETE');
     }
 

@@ -23,51 +23,58 @@ const CommentsReviewPanel = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // البريد صار في comment_private (منفصل عن المستند العام). ندمجه بالمعرّف
-    // للعرض في اللوحة فقط؛ صلاحية EDIT/DELETE تسمح بقراءته.
-    const emails = new Map();
-    let commentsReady = false;
-    let latest = [];
+    let comments = [];
+    let privateEmails = {};
 
-    const render = () => {
-      if (!commentsReady) return;
-      setPending(latest.map((c) => ({ ...c, email: emails.get(c.id) || '' })));
+    const emit = () => {
+      const list = comments
+        .filter((c) => c.status === 'pending')
+        .map((c) => ({ ...c, email: c.email || privateEmails[c.id] || '' }));
+      setPending(list);
       setLoading(false);
     };
 
-    const unsubComments = onSnapshot(
-      query(collection(db, 'comments'), orderBy('createdAt', 'desc')),
-      (snapshot) => {
-        latest = snapshot.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .filter((c) => c.status === 'pending');
-        commentsReady = true;
-        render();
-      },
-      (error) => {
-        console.error('Comments review error:', error);
-        setPending([]);
-        setLoading(false);
-      }
+    const q = query(
+      collection(db, 'comments'),
+      orderBy('createdAt', 'desc')
     );
 
-    const unsubEmails = onSnapshot(
-      collection(db, 'comment_private'),
+    // البريد الخاص صار في comment_private (لا يُقرأ علناً). المالك/المشرف فقط
+    // يستطيع قراءته، فنُدمجه مع التعليق لعرضه في لوحة المراجعة.
+    const privateQ = query(collection(db, 'comment_private'));
+
+    const unsubPrivate = onSnapshot(
+      privateQ,
       (snapshot) => {
+        privateEmails = {};
         snapshot.docs.forEach((d) => {
-          const email = d.data()?.email;
-          if (email) emails.set(d.id, email);
+          privateEmails[d.id] = d.data()?.email || '';
         });
-        render();
+        emit();
       },
       (error) => {
         console.error('Comment private error:', error);
+        privateEmails = {};
+        emit();
+      }
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        comments = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        emit();
+      },
+      (error) => {
+        console.error('Comments review error:', error);
+        comments = [];
+        emit();
       }
     );
 
     return () => {
-      unsubComments();
-      unsubEmails();
+      unsubscribe();
+      unsubPrivate();
     };
   }, []);
 
@@ -97,12 +104,6 @@ const CommentsReviewPanel = () => {
     try {
       const snap = await getDoc(doc(db, 'comments', id));
       const payload = snap.exists() ? snap.data() : {};
-      // البريد في comment_private: نضمّه للأرشيف (كي لا تفقد المراجعة أثرها)
-      // ثم نحذف السجل الخاص مع التعليق — فلا تبقى بيانات شخصية يتيمة.
-      const privSnap = await getDoc(doc(db, 'comment_private', id));
-      if (privSnap.exists() && privSnap.data()?.email) {
-        payload.email = privSnap.data().email;
-      }
       await addDoc(collection(db, 'deleted_archive'), {
         sourceCollection: 'comments',
         sourceId: id,
@@ -110,9 +111,6 @@ const CommentsReviewPanel = () => {
         deletedAt: serverTimestamp(),
         deletedBy: 'owner-room',
       });
-      if (privSnap.exists()) {
-        await deleteDoc(doc(db, 'comment_private', id));
-      }
       await deleteDoc(doc(db, 'comments', id));
       await writeAuditLog({
         action: 'HARAJ_COMMENT_DELETE', permissionKey: 'HARAJ_COMMENT_DELETE',

@@ -54,14 +54,12 @@ const CommentsSection = () => {
 
     try {
       const commentsRef = collection(db, COMMENTS_COLLECTION);
-      // where(status=='approved') + where(publicSafe==true) إلزاميان: قاعدة
-      // القراءة تسمح بالحالة المعتمدة والعلامة العامة فقط للزوار/الأعضاء،
-      // وFirestore يشترط أن يعكس الاستعلام شرط القاعدة وإلا رُفض بالكامل.
-      // الفهرس comments(status, publicSafe, createdAt) يغطيه.
+      // where(status=='approved') إلزامي: القاعدة تمنح القراءة العامة للتعليقات
+      // المعتمدة فقط، وFirestore يشترط أن يعكس الاستعلام شرط القاعدة وإلا رُفض
+      // بالكامل. الفهرس comments(status, createdAt) يغطيه.
       const commentsQuery = query(
         commentsRef,
         where('status', '==', 'approved'),
-        where('publicSafe', '==', true),
         orderBy('createdAt', 'desc')
       );
 
@@ -141,21 +139,22 @@ const CommentsSection = () => {
         city: city.trim() || '',
         text: text.trim(),
         status: 'pending',
-        publicSafe: true,
         likes: 0,
         createdAt: serverTimestamp(),
       });
 
       // البريد لا يُكتب في المستند العام أبداً (كان يُقرأ مع التعليق المعتمد).
-      // publicSafe/status مطلوبان بالقاعدة هنا أيضاً فلا يُكتب سجل بريد بلا
-      // علامة أمان أو بحالة مخالفة.
+      // يُخزَّن في comment_private/{docId} الذي يقرأه المالك/المشرف فقط.
+      // الكتابة غير حاسمة: فشلها لا يُفشل إرسال التعليق (التعليق محفوظ أصلاً).
       if (trimmedEmail) {
-        await setDoc(doc(db, COMMENT_PRIVATE_COLLECTION, docRef.id), {
-          email: trimmedEmail,
-          publicSafe: true,
-          status: 'pending',
-          createdAt: serverTimestamp(),
-        });
+        try {
+          await setDoc(doc(db, COMMENT_PRIVATE_COLLECTION, docRef.id), {
+            email: trimmedEmail,
+            createdAt: serverTimestamp(),
+          });
+        } catch (privateError) {
+          console.error('Private email write failed:', privateError);
+        }
       }
 
       setSubmitSuccess(true);
