@@ -910,6 +910,19 @@ await expectAllow('خصوصية: المالك يقرأ تعليقاً معلّق
 await expectAllow('خصوصية: المالك يقرأ البريد الخاص', getDoc(doc(owner, 'comment_private', 'pv-approved-pii')));
 await expectAllow('خصوصية: مشرف التعليقات يقرأ البريد الخاص', getDoc(doc(cmEdit, 'comment_private', 'pv-approved-pii')));
 
+// ---- ضمان المصدر: لا يمكن أن يوجد تعليق عام يحمل بريداً غير فارغ ----
+// (لأن قواعد list لا ترشّح مستنداً بمستند، نمنع الكتابة التي تُنتج ذلك.)
+// اعتماد تعليق نظيف مسموح
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  await setDoc(doc(ctx.firestore(), 'comments', 'pv-clean'), { text: 'نظيف', status: 'pending', createdAt: new Date() });
+  // تعليق معلّق يحمل بريداً غير فارغ (سيناريو قديم)
+  await setDoc(doc(ctx.firestore(), 'comments', 'pv-dirty'), { text: 'متسخ', status: 'pending', email: 'd@x.com', createdAt: new Date() });
+});
+await expectAllow('ضمان المصدر: اعتماد تعليق نظيف (بلا بريد)', updateDoc(doc(cmEdit, 'comments', 'pv-clean'), { status: 'approved' }));
+await expectDeny('ضمان المصدر: لا يمكن اعتماد تعليق يحمل بريداً غير فارغ', updateDoc(doc(cmEdit, 'comments', 'pv-dirty'), { status: 'approved' }));
+await expectDeny('ضمان المصدر: المالك لا يضيف بريداً غير فارغ عند الاعتماد', updateDoc(doc(owner, 'comments', 'pv-clean'), { status: 'approved', email: 'o@x.com' }));
+await expectDeny('ضمان المصدر: تحديث likes لا يضيف بريداً', updateDoc(doc(user, 'comments', 'pv-clean'), { likes: 1, email: 'l@x.com' }));
+
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} فحصاً ناجحاً`);
