@@ -145,11 +145,16 @@ const CommentsSection = () => {
 
       // البريد لا يُكتب في المستند العام أبداً (كان يُقرأ مع التعليق المعتمد).
       // يُخزَّن في comment_private/{docId} الذي يقرأه المالك/المشرف فقط.
+      // الكتابة غير حاسمة: فشلها لا يُفشل إرسال التعليق (التعليق محفوظ أصلاً).
       if (trimmedEmail) {
-        await setDoc(doc(db, COMMENT_PRIVATE_COLLECTION, docRef.id), {
-          email: trimmedEmail,
-          createdAt: serverTimestamp(),
-        });
+        try {
+          await setDoc(doc(db, COMMENT_PRIVATE_COLLECTION, docRef.id), {
+            email: trimmedEmail,
+            createdAt: serverTimestamp(),
+          });
+        } catch (privateError) {
+          console.error('Private email write failed:', privateError);
+        }
       }
 
       setSubmitSuccess(true);
