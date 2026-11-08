@@ -170,6 +170,26 @@ await expectDeny('الزائر لا يعدّل مستخدماً', updateDoc(doc(
   banned: true,
 }));
 
+// ملف المستخدم الشخصي: يعدّل حقله العادي، لكن لا يمسّ role/status/banned.
+// (يحرس الإصلاح: كانت القاعدة تستعمل دالة غير مدعومة؛ البديل المدعوم
+//  !affectedKeys().hasAny([...]))
+await expectAllow('مستخدم يعدّل حقل ملفه العادي (displayName)', updateDoc(doc(user, 'users', USER), {
+  displayName: 'اسم جديد',
+}));
+await expectDeny('مستخدم لا يغيّر دوره (role)', updateDoc(doc(user, 'users', USER), {
+  role: 'admin',
+}));
+await expectDeny('مستخدم لا يغيّر حالته (status)', updateDoc(doc(user, 'users', USER), {
+  status: 'banned',
+}));
+await expectDeny('مستخدم لا يغيّر حقل الحظر (banned)', updateDoc(doc(user, 'users', USER), {
+  banned: true,
+}));
+await expectDeny('مستخدم لا يغيّر الدور مع حقل عادي', updateDoc(doc(user, 'users', USER), {
+  displayName: 'x',
+  role: 'admin',
+}));
+
 console.log('\n=== 3) فرض الحظر فعلياً على مستوى الخادم ===');
 await testEnv.withSecurityRulesDisabled(async (ctx) => {
   await updateDoc(doc(ctx.firestore(), 'users', VICTIM), {
