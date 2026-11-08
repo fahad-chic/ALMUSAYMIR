@@ -13,14 +13,18 @@ import {
 import {
   collection,
   addDoc,
+  setDoc,
+  doc,
   onSnapshot,
   query,
   orderBy,
+  where,
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 
 const COMMENTS_COLLECTION = 'comments';
+const COMMENT_PRIVATE_COLLECTION = 'comment_private';
 const MAX_COMMENT_LENGTH = 250;
 
 const CommentsSection = () => {
@@ -50,7 +54,14 @@ const CommentsSection = () => {
 
     try {
       const commentsRef = collection(db, COMMENTS_COLLECTION);
-      const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc'));
+      // where(status=='approved') إلزامي: القاعدة تمنح القراءة العامة للتعليقات
+      // المعتمدة فقط، وFirestore يشترط أن يعكس الاستعلام شرط القاعدة وإلا رُفض
+      // بالكامل. الفهرس comments(status, createdAt) يغطيه.
+      const commentsQuery = query(
+        commentsRef,
+        where('status', '==', 'approved'),
+        orderBy('createdAt', 'desc')
+      );
 
       unsubscribe = onSnapshot(
         commentsQuery,
@@ -122,15 +133,24 @@ const CommentsSection = () => {
     setLoadError('');
 
     try {
-      await addDoc(collection(db, COMMENTS_COLLECTION), {
+      const trimmedEmail = email.trim();
+      const docRef = await addDoc(collection(db, COMMENTS_COLLECTION), {
         name: name.trim(),
-        email: email.trim() || '',
         city: city.trim() || '',
         text: text.trim(),
         status: 'pending',
         likes: 0,
         createdAt: serverTimestamp(),
       });
+
+      // البريد لا يُكتب في المستند العام أبداً (كان يُقرأ مع التعليق المعتمد).
+      // يُخزَّن في comment_private/{docId} الذي يقرأه المالك/المشرف فقط.
+      if (trimmedEmail) {
+        await setDoc(doc(db, COMMENT_PRIVATE_COLLECTION, docRef.id), {
+          email: trimmedEmail,
+          createdAt: serverTimestamp(),
+        });
+      }
 
       setSubmitSuccess(true);
       setForm({ name: '', email: '', city: '', text: '' });

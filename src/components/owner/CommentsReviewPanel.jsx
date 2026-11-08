@@ -23,29 +23,59 @@ const CommentsReviewPanel = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let comments = [];
+    let privateEmails = {};
+
+    const emit = () => {
+      const list = comments
+        .filter((c) => c.status === 'pending')
+        .map((c) => ({ ...c, email: c.email || privateEmails[c.id] || '' }));
+      setPending(list);
+      setLoading(false);
+    };
+
     const q = query(
       collection(db, 'comments'),
       orderBy('createdAt', 'desc')
     );
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const list = snapshot.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .filter((c) => c.status === 'pending');
+    // البريد الخاص صار في comment_private (لا يُقرأ علناً). المالك/المشرف فقط
+    // يستطيع قراءته، فنُدمجه مع التعليق لعرضه في لوحة المراجعة.
+    const privateQ = query(collection(db, 'comment_private'));
 
-        setPending(list);
-        setLoading(false);
+    const unsubPrivate = onSnapshot(
+      privateQ,
+      (snapshot) => {
+        privateEmails = {};
+        snapshot.docs.forEach((d) => {
+          privateEmails[d.id] = d.data()?.email || '';
+        });
+        emit();
       },
       (error) => {
-        console.error('Comments review error:', error);
-        setPending([]);
-        setLoading(false);
+        console.error('Comment private error:', error);
+        privateEmails = {};
+        emit();
       }
     );
 
-    return () => unsubscribe();
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        comments = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        emit();
+      },
+      (error) => {
+        console.error('Comments review error:', error);
+        comments = [];
+        emit();
+      }
+    );
+
+    return () => {
+      unsubscribe();
+      unsubPrivate();
+    };
   }, []);
 
   const approve = async (id) => {

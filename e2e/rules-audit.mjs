@@ -17,7 +17,7 @@ import {
   assertSucceeds,
   assertFails,
 } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection, query, where, orderBy } from 'firebase/firestore';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -870,6 +870,45 @@ await expectAllow('تعليق: صاحب DELETE يحذف التعليق فعلا�
 await expectDeny('تعليق: غير المصرّح لا يحذف', deleteDoc(doc(adminB, 'comments', 'cm-3')));
 await expectDeny('تعليق: الزائر لا يحذف', deleteDoc(doc(visitor, 'comments', 'cm-3')));
 await expectAllow('تعليق: المالك يحذف', deleteDoc(doc(owner, 'comments', 'cm-3')));
+
+// ============ 22) خصوصية التعليقات: قراءة عامة للمعتمد فقط، والبريد خاص ============
+console.log('\n=== 22) خصوصية التعليقات: القراءة العامة والبيانات الخاصة ===');
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  // معتمد بلا بريد (الشكل الجديد)
+  await setDoc(doc(db, 'comments', 'pv-approved'), { text: 'معتمد', status: 'approved', createdAt: new Date() });
+  // معتمد بحقل بريد فارغ (الشكل القديم لسجلات الإنتاج الحالية)
+  await setDoc(doc(db, 'comments', 'pv-approved-blank'), { text: 'معتمد قديم', status: 'approved', email: '', createdAt: new Date() });
+  // معتمد يحمل بريداً غير فارغ (سجل قديم خطير يجب ألا يُقرأ علناً)
+  await setDoc(doc(db, 'comments', 'pv-approved-pii'), { text: 'معتمد ببريد', status: 'approved', email: 'secret@example.com', createdAt: new Date() });
+  // معلّق ومرفوض
+  await setDoc(doc(db, 'comments', 'pv-pending'), { text: 'معلّق', status: 'pending', createdAt: new Date() });
+  await setDoc(doc(db, 'comments', 'pv-rejected'), { text: 'مرفوض', status: 'rejected', createdAt: new Date() });
+  // البريد الخاص للتعليق المعتمد
+  await setDoc(doc(db, 'comment_private', 'pv-approved-pii'), { email: 'secret@example.com', createdAt: new Date() });
+});
+// قراءة مباشرة (get) للزائر
+await expectAllow('خصوصية: الزائر يقرأ تعليقاً معتمداً', getDoc(doc(visitor, 'comments', 'pv-approved')));
+await expectAllow('خصوصية: الزائر يقرأ تعليقاً معتمداً بحقل بريد فارغ (قديم)', getDoc(doc(visitor, 'comments', 'pv-approved-blank')));
+await expectDeny('خصوصية: الزائر لا يقرأ تعليقاً معتمداً يحمل بريداً غير فارغ', getDoc(doc(visitor, 'comments', 'pv-approved-pii')));
+await expectDeny('خصوصية: الزائر لا يقرأ تعليقاً معلّقاً', getDoc(doc(visitor, 'comments', 'pv-pending')));
+await expectDeny('خصوصية: الزائر لا يقرأ تعليقاً مرفوضاً', getDoc(doc(visitor, 'comments', 'pv-rejected')));
+// استعلام (list) للزائر: يجب أن يحمل شرط status=='approved'
+await expectAllow('خصوصية: الزائر يستعلم التعليقات المعتمدة (where status)', getDocs(query(collection(visitor, 'comments'), where('status', '==', 'approved'), orderBy('createdAt', 'desc'))));
+await expectDeny('خصوصية: الزائر لا يستعلم كل التعليقات بلا شرط', getDocs(query(collection(visitor, 'comments'), orderBy('createdAt', 'desc'))));
+// البريد الخاص لا يُقرأ للزائر
+await expectDeny('خصوصية: الزائر لا يقرأ البريد الخاص', getDoc(doc(visitor, 'comment_private', 'pv-approved-pii')));
+// الزائر لا يكتب/يعدّل/يحذف
+await expectDeny('خصوصية: الزائر لا يعدّل تعليقاً', updateDoc(doc(visitor, 'comments', 'pv-approved'), { text: 'مزوّر' }));
+await expectDeny('خصوصية: الزائر لا يحذف تعليقاً', deleteDoc(doc(visitor, 'comments', 'pv-approved')));
+await expectAllow('خصوصية: الزائر يرسل تعليقاً pending بلا بريد', setDoc(doc(visitor, 'comments', 'pv-new'), { text: 'جديد', status: 'pending', name: 'زائر', createdAt: new Date() }));
+await expectDeny('خصوصية: الزائر لا يرسل تعليقاً بحقل بريد عام', setDoc(doc(visitor, 'comments', 'pv-new-email'), { text: 'جديد', status: 'pending', email: 'x@y.com', createdAt: new Date() }));
+await expectDeny('خصوصية: الزائر لا يرسل تعليقاً معتمداً', setDoc(doc(visitor, 'comments', 'pv-new-approved'), { text: 'جديد', status: 'approved', createdAt: new Date() }));
+await expectAllow('خصوصية: الزائر يكتب البريد في المسار الخاص', setDoc(doc(visitor, 'comment_private', 'pv-new'), { email: 'x@y.com', createdAt: new Date() }));
+// المالك/المشرف يرون كل الحالات والبريد
+await expectAllow('خصوصية: المالك يقرأ تعليقاً معلّقاً', getDoc(doc(owner, 'comments', 'pv-pending')));
+await expectAllow('خصوصية: المالك يقرأ البريد الخاص', getDoc(doc(owner, 'comment_private', 'pv-approved-pii')));
+await expectAllow('خصوصية: مشرف التعليقات يقرأ البريد الخاص', getDoc(doc(cmEdit, 'comment_private', 'pv-approved-pii')));
 
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);
