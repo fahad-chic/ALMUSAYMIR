@@ -170,6 +170,17 @@ service cloud.firestore {
     function canManageNotifications() { return hasPerm('MANAGE_NOTIFICATIONS'); }
     function canManageReviews() { return hasPerm('MANAGE_REVIEWS'); }
 
+    // حقول الهوية/الاتصال التي لا يجوز أن تظهر في أي مستند عام (reviews).
+    // البريد/الهاتف/المعرّفات تُفصل في review_private/{docId}. يُستخدم هذا
+    // الفحص في create (منع الكتابة أصلاً) وفي get (دفاع في العمق ضد مستند قديم).
+    function hasNoPublicPII(data) {
+      return !data.keys().hasAny([
+        'userEmail','email','contactEmail','phone','userPhone','phoneNumber',
+        'mobile','whatsapp','userId','ownerUid','uid','nationalId','iban',
+        'accountNumber','userName','moderatedBy'
+      ]);
+    }
+
     // فصل قواعد INLINE: كل مفتاح يحمي العملية الخاصة به فقط. الوثيقة تُعلن
     // المفتاح المستخدَم في الحقل perm، والقاعدة تتحقق من امتلاك ذلك المفتاح
     // بالذات (لا يفتح مفتاح واحد بقية المفاتيح).
@@ -632,17 +643,62 @@ service cloud.firestore {
                          || (isSignedIn() && request.auth.uid == userId);
     }
 
-    // ============ تقييمات العملاء ============
-    // الإنشاء لأي حساب موثّق (لا يُسمح للزائر). الإشراف (إخفاء/إعادة/سبب) لصاحب
-    // MANAGE_REVIEWS أو المالك. الإخفاء يغيّر حقل hidden/reason فقط.
+    // ============ تقييمات العملاء (مستند عام — بلا بيانات شخصية) ============
+    // نموذج البيانات الفعلي: التقييم منشور للعامة ما لم يُخفَ (hidden == true)،
+    // وهو ما تكتبه لوحة الإشراف (إخفاء/إعادة). لا يوجد حقل نشر منفصل.
+    //   - القراءة العامة: التقييمات غير المخفية فقط. Firestore لا ترشّح النتائج
+    //     (rules are not filters)، لذا يشترط الاستعلام where('hidden','==',false)
+    //     — وهو ما يفعله getReviews. أي استعلام بلا هذا الشرط يُرفض لغير المالك.
+    //   - get يضيف دفاعاً في العمق: يرفض أي مستند يحمل حقلاً شخصياً (hasNoPublicPII)
+    //     حتى لو كان غير مخفي. أما list فلا يمكن فرض «غياب حقل» فيه، فنمنع المصدر:
+    //     create/update لا يقبلان أي حقل هوية/اتصال في المستند العام.
+    //   - الإنشاء: عضو موثّق فقط (لا زائر)، بحقول صريحة، وhidden == false إلزامي
+    //     حتى يكون كل تقييم عام قابلاً للاستعلام بثبات.
+    //   - التعديل/الحذف: المالك أو صاحب MANAGE_REVIEWS فقط — لا يعدّل الزائر ولا
+    //     العضو العادي أي تقييم.
     match /reviews/{docId} {
-      allow read: if true;
-      allow create: if isSignedIn() && canWriteDuringMaintenance();
-      allow update: if isOwner()
-                    || ( canManageReviews()
-                         && request.resource.data.diff(resource.data)
-                              .affectedKeys().hasOnly(['hidden','moderationReason','moderatedBy','moderatedAt','updatedAt']) );
+      allow get: if isOwner()
+                 || canManageReviews()
+                 || ( resource.data.hidden == false
+                      && hasNoPublicPII(resource.data) );
+      allow list: if isOwner()
+                  || canManageReviews()
+                  || resource.data.hidden == false;
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['productId','rating','hidden'])
+                    && request.resource.data.keys().hasOnly(['productId','rating','text','hidden','createdAt'])
+                    && request.resource.data.productId is string
+                    && request.resource.data.productId.size() > 0
+                    && request.resource.data.rating is number
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5
+                    && request.resource.data.hidden == false
+                    && ( !request.resource.data.keys().hasAny(['text'])
+                         || ( request.resource.data.text is string
+                              && request.resource.data.text.size() <= 2000 ) )
+                    && hasNoPublicPII(request.resource.data);
+      allow update: if ( isOwner()
+                         || ( canManageReviews()
+                              && request.resource.data.diff(resource.data)
+                                   .affectedKeys().hasOnly(['hidden','moderationReason','moderatedAt','updatedAt']) ) )
+                    && hasNoPublicPII(request.resource.data);
       allow delete: if isOwner() || canManageReviews();
+    }
+
+    // ============ البيانات الشخصية للتقييم (منفصلة — مالك/مشرف فقط) ============
+    // لماذا منفصلة: قواعد Firestore لا تُخفي حقولاً منفردة من مستند مسموح بقراءته
+    // علناً، فلو بقي البريد/الاسم في مستند reviews العام لَظهر مع أي قراءة عامة.
+    // المفتاح = نفس معرّف التقييم (docId) فيربط السجلين دون كشف أي شيء علناً.
+    // الملكية غير قابلة للتزوير: ownerUid يُلزَم بأن يساوي uid المُنشئ.
+    match /review_private/{docId} {
+      allow read: if isOwner() || canManageReviews();
+      allow create: if isSignedIn() && canWriteDuringMaintenance()
+                    && request.resource.data.keys().hasAll(['ownerUid'])
+                    && request.resource.data.keys().hasOnly([
+                         'ownerUid','productId','userName','userEmail','userId','createdAt'
+                       ])
+                    && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isOwner() || canManageReviews();
     }
 
     // ============ إعدادات المتجر — مفصّلة حسب الوثيقة والصلاحية ============
