@@ -220,10 +220,11 @@ export const ReviewsPanel = ({ reviews = [], onChanged }) => {
     setError('');
     try {
       await requirePerm(can, REVIEWS_PERM, hidden ? 'إخفاء تقييم' : 'إعادة تقييم', review.id);
+      // لا يُكتب بريد المشرف في المستند العام (وإلا ظهر مع أي قراءة عامة).
+      // الفاعل مُسجَّل في writeAuditLog أدناه.
       await updateDoc(doc(db, 'reviews', review.id), {
         hidden,
         moderationReason: hidden ? reason : '',
-        moderatedBy: auth?.currentUser?.email || null,
         moderatedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });

@@ -809,7 +809,8 @@ await expectDeny('MANAGE_NOTIFICATIONS: غير المصرّح لا يعدّل', 
 await expectAllow('MANAGE_NOTIFICATIONS: المالك مسموح', getDoc(doc(owner, 'notifications', 'ntf-1')));
 
 // MANAGE_REVIEWS
-await expectAllow('MANAGE_REVIEWS: المصرّح يخفي تقييماً', updateDoc(doc(ph2, 'reviews', 'rev-1'), { hidden: true, moderationReason: 'مخالف', moderatedBy: 'x', moderatedAt: new Date() }));
+// ملاحظة: moderatedBy (بريد المشرف) لم يعد يُكتب في المستند العام — الفاعل في audit_logs.
+await expectAllow('MANAGE_REVIEWS: المصرّح يخفي تقييماً', updateDoc(doc(ph2, 'reviews', 'rev-1'), { hidden: true, moderationReason: 'مخالف', moderatedAt: new Date() }));
 await expectDeny('MANAGE_REVIEWS: المصرّح لا يغيّر نص التقييم', updateDoc(doc(ph2, 'reviews', 'rev-1'), { text: 'مزوّر' }));
 await expectDeny('MANAGE_REVIEWS: غير المصرّح مرفوض', updateDoc(doc(adminB, 'reviews', 'rev-1'), { hidden: true }));
 await expectAllow('MANAGE_REVIEWS: المالك مسموح', updateDoc(doc(owner, 'reviews', 'rev-1'), { hidden: false }));
@@ -942,6 +943,78 @@ await expectAllow('ضمان المصدر: اعتماد تعليق نظيف (بل
 await expectDeny('ضمان المصدر: لا يمكن اعتماد تعليق يحمل بريداً غير فارغ', updateDoc(doc(cmEdit, 'comments', 'pv-dirty'), { status: 'approved' }));
 await expectDeny('ضمان المصدر: المالك لا يضيف بريداً غير فارغ عند الاعتماد', updateDoc(doc(owner, 'comments', 'pv-clean'), { status: 'approved', email: 'o@x.com' }));
 await expectDeny('ضمان المصدر: تحديث likes لا يضيف بريداً', updateDoc(doc(user, 'comments', 'pv-clean'), { likes: 1, email: 'l@x.com' }));
+
+// ============ 23) خصوصية التقييمات: المنشور فقط للعامة، والبريد خاص ============
+// نموذج البيانات الفعلي: hidden == false = منشور. لا حقل نشر منفصل.
+console.log('\n=== 23) خصوصية التقييمات: القراءة العامة والبيانات الخاصة ===');
+await testEnv.withSecurityRulesDisabled(async (ctx) => {
+  const db = ctx.firestore();
+  // منشور نظيف (الشكل الصحيح: بلا بيانات شخصية)
+  await setDoc(doc(db, 'reviews', 'rv-pub'), { productId: 'p1', rating: 5, text: 'تقييم منشور', hidden: false, createdAt: new Date() });
+  // مخفي (أخفاه المشرف)
+  await setDoc(doc(db, 'reviews', 'rv-hidden'), { productId: 'p1', rating: 1, text: 'تقييم مخفي', hidden: true, moderationReason: 'مخالف', createdAt: new Date() });
+  // مستند قديم يحمل بريداً ولم يُوسم منشوراً (لا hidden == false)
+  await setDoc(doc(db, 'reviews', 'rv-pii-legacy'), { productId: 'p1', rating: 4, text: 'قديم', userEmail: 'customer.private@example.com', createdAt: new Date() });
+  // مستند يحمل بريداً لكن hidden == false (علامة نشر خاطئة) — يجب ألا يُقرأ علناً
+  await setDoc(doc(db, 'reviews', 'rv-pii-open'), { productId: 'p1', rating: 4, text: 'خطر', hidden: false, userEmail: 'oops@example.com', createdAt: new Date() });
+  // بيانات شخصية مفصولة (نفس معرّف التقييم)
+  await setDoc(doc(db, 'review_private', 'rv-pub'), { ownerUid: USER, productId: 'p1', userEmail: 'me@example.com', userName: 'أنا', userId: USER, createdAt: new Date() });
+});
+
+// (1) القراءة العامة المسموحة: منشور نظيف
+await expectAllow('تقييمات: الزائر يقرأ تقييماً منشوراً (get)', getDoc(doc(visitor, 'reviews', 'rv-pub')));
+await expectAllow('تقييمات: العضو يقرأ تقييماً منشوراً (get)', getDoc(doc(user, 'reviews', 'rv-pub')));
+await expectAllow('تقييمات: الزائر يستعلم المنشور (where hidden==false)', getDocs(query(collection(visitor, 'reviews'), where('hidden', '==', false), orderBy('createdAt', 'desc'))));
+
+// (2) رفض المخفي/غير المنشور
+await expectDeny('تقييمات: الزائر لا يقرأ تقييماً مخفياً (get)', getDoc(doc(visitor, 'reviews', 'rv-hidden')));
+await expectDeny('تقييمات: العضو لا يقرأ تقييماً مخفياً (get)', getDoc(doc(user, 'reviews', 'rv-hidden')));
+await expectDeny('تقييمات: الزائر لا يقرأ مستنداً قديماً بلا hidden==false', getDoc(doc(visitor, 'reviews', 'rv-pii-legacy')));
+
+// (3) منع البريد في المستند العام (حتى لو hidden==false)
+await expectDeny('تقييمات: get يرفض مستنداً منشوراً يحمل userEmail', getDoc(doc(visitor, 'reviews', 'rv-pii-open')));
+await expectDeny('تقييمات: العضو لا يقرأ مستنداً منشوراً يحمل بريداً', getDoc(doc(user, 'reviews', 'rv-pii-open')));
+
+// (4) لا يمكن أن يضم الاستعلام مستنداً ممنوعاً: استعلام بلا شرط يُرفض
+await expectDeny('تقييمات: الزائر لا يستعلم كل التقييمات بلا شرط hidden', getDocs(query(collection(visitor, 'reviews'), orderBy('createdAt', 'desc'))));
+
+// (5) منع قراءة الخاص
+await expectDeny('تقييمات خاصة: الزائر لا يقرأ review_private', getDoc(doc(visitor, 'review_private', 'rv-pub')));
+await expectDeny('تقييمات خاصة: العضو لا يقرأ review_private', getDoc(doc(user, 'review_private', 'rv-pub')));
+await expectDeny('تقييمات خاصة: الزائر لا يستعلم review_private', getDocs(query(collection(visitor, 'review_private'))));
+
+// (6) رفض كتابة/تعديل/حذف الزائر
+await expectDeny('تقييمات: الزائر لا ينشئ تقييماً', setDoc(doc(visitor, 'reviews', 'rv-visitor'), { productId: 'p1', rating: 5, text: 'زائر', hidden: false, createdAt: new Date() }));
+await expectDeny('تقييمات: الزائر لا يعدّل تقييماً', updateDoc(doc(visitor, 'reviews', 'rv-pub'), { text: 'مزوّر' }));
+await expectDeny('تقييمات: الزائر لا يحذف تقييماً', deleteDoc(doc(visitor, 'reviews', 'rv-pub')));
+
+// (7) العضو الموثّق ينشئ تقييماً نظيفاً — ويُمنع من إدخال PII أو إخفاء تقييمه
+await expectAllow('تقييمات: العضو ينشئ تقييماً نظيفاً', setDoc(doc(user, 'reviews', 'rv-new'), { productId: 'p1', rating: 5, text: 'جيد جداً', hidden: false, createdAt: new Date() }));
+await expectDeny('تقييمات: العضو لا ينشئ تقييماً بحقل بريد', setDoc(doc(user, 'reviews', 'rv-new-pii'), { productId: 'p1', rating: 5, text: 'x', hidden: false, userEmail: 'a@b.com', createdAt: new Date() }));
+await expectDeny('تقييمات: العضو لا ينشئ تقييماً بحقل هاتف', setDoc(doc(user, 'reviews', 'rv-new-phone'), { productId: 'p1', rating: 5, text: 'x', hidden: false, phone: '0500000000', createdAt: new Date() }));
+await expectDeny('تقييمات: العضو لا ينشئ تقييماً بحقل معرف', setDoc(doc(user, 'reviews', 'rv-new-uid'), { productId: 'p1', rating: 5, text: 'x', hidden: false, ownerUid: USER, createdAt: new Date() }));
+await expectDeny('تقييمات: العضو لا ينشئ تقييماً مخفياً', setDoc(doc(user, 'reviews', 'rv-new-hidden'), { productId: 'p1', rating: 5, text: 'x', hidden: true, createdAt: new Date() }));
+await expectDeny('تقييمات: العضو لا ينشئ تقييماً بتقييم خارج المدى', setDoc(doc(user, 'reviews', 'rv-new-badrating'), { productId: 'p1', rating: 9, text: 'x', hidden: false, createdAt: new Date() }));
+await expectDeny('تقييمات: العضو لا يعدّل تقييماً موجوداً', updateDoc(doc(user, 'reviews', 'rv-pub'), { text: 'مزوّر' }));
+await expectDeny('تقييمات: العضو لا يحذف تقييماً', deleteDoc(doc(user, 'reviews', 'rv-pub')));
+
+// (8) العضو يكتب بياناته الشخصية في المسار الخاص فقط
+await expectAllow('تقييمات خاصة: العضو ينشئ سجله الخاص', setDoc(doc(user, 'review_private', 'rv-new'), { ownerUid: USER, productId: 'p1', userEmail: 'me@example.com', createdAt: new Date() }));
+await expectDeny('تقييمات خاصة: العضو لا ينشئ سجلاً بمعرّف غيره', setDoc(doc(user, 'review_private', 'rv-forge'), { ownerUid: VICTIM, productId: 'p1', userEmail: 'x@y.com', createdAt: new Date() }));
+
+// (9) المالك/المشرف: قراءة كل شيء + الإشراف
+await expectAllow('تقييمات: المالك يقرأ التقييم المخفي', getDoc(doc(owner, 'reviews', 'rv-hidden')));
+await expectAllow('تقييمات: صاحب MANAGE_REVIEWS يقرأ التقييم المخفي', getDoc(doc(ph2, 'reviews', 'rv-hidden')));
+await expectAllow('تقييمات: صاحب MANAGE_REVIEWS يقرأ مستند البريد (مراجعة)', getDoc(doc(ph2, 'reviews', 'rv-pii-open')));
+await expectAllow('تقييمات: المالك يستعلم كل التقييمات بلا شرط', getDocs(query(collection(owner, 'reviews'))));
+await expectAllow('تقييمات: المالك يقرأ review_private', getDoc(doc(owner, 'review_private', 'rv-pub')));
+await expectAllow('تقييمات: صاحب MANAGE_REVIEWS يقرأ review_private', getDoc(doc(ph2, 'review_private', 'rv-pub')));
+await expectAllow('تقييمات: المالك يخفي تقييماً (update)', updateDoc(doc(owner, 'reviews', 'rv-pub'), { hidden: true, moderationReason: 'مخالف', moderatedAt: new Date() }));
+await expectAllow('تقييمات: صاحب MANAGE_REVIEWS يعيد الإظهار', updateDoc(doc(ph2, 'reviews', 'rv-pub'), { hidden: false, moderationReason: '', moderatedAt: new Date() }));
+await expectDeny('تقييمات: المشرف لا يغيّر نص التقييم', updateDoc(doc(ph2, 'reviews', 'rv-pub'), { text: 'مزوّر' }));
+await expectDeny('تقييمات: المشرف لا يضيف بريداً للمستند العام', updateDoc(doc(ph2, 'reviews', 'rv-pub'), { moderationReason: 'x', userEmail: 'z@y.com' }));
+await expectAllow('تقييمات: المالك يحذف تقييماً', deleteDoc(doc(owner, 'reviews', 'rv-pub')));
+await expectDeny('تقييمات: غير المصرّح لا يخفي تقييماً', updateDoc(doc(adminB, 'reviews', 'rv-hidden'), { hidden: false }));
 
 // ============ الخلاصة ============
 const failed = results.filter((r) => !r.ok);
