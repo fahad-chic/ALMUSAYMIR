@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:rules": "npx -y firebase-tools@latest emulators:exec --only firestore --config firebase.rules-test.json --project demo-almusaymir \"node e2e/rules-audit.mjs\"",
     "test:contrast-unit": "vitest run src/utils/wcag.test.js",
+    "validate:indexes": "node scripts/validate-indexes.mjs",
     "contrast": "node e2e/contrast-audit.mjs",
     "contrast:strict": "node e2e/contrast-audit.mjs --strict",
     "buttons": "node e2e/button-audit.mjs",
