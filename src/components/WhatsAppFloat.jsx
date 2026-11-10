@@ -29,10 +29,7 @@ const WhatsAppFloat = () => {
       }}
     >
       {bubbleOpen && (
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <div
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -42,12 +39,15 @@ const WhatsAppFloat = () => {
             borderRadius: 14,
             padding: '10px 14px',
             boxShadow: '0 10px 30px rgba(var(--rz-ink-rgb), 0.25)',
-            textDecoration: 'none',
             maxWidth: 240,
           }}
         >
-          <span
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
+              textDecoration: 'none',
               fontFamily: 'Tajawal',
               fontSize: 13,
               fontWeight: 700,
@@ -60,14 +60,11 @@ const WhatsAppFloat = () => {
             <span style={{ fontWeight: 400, color: 'var(--rz-primary)' }}>
               راسلنا واتساب وسنرد عليك بسرعة
             </span>
-          </span>
+          </a>
           <button
             type="button"
             aria-label="إغلاق"
-            onClick={(e) => {
-              e.preventDefault();
-              setBubbleOpen(false);
-            }}
+            onClick={() => setBubbleOpen(false)}
             style={{
               background: 'transparent',
               border: 'none',
@@ -79,7 +76,7 @@ const WhatsAppFloat = () => {
           >
             <X size={14} />
           </button>
-        </a>
+        </div>
       )}
 
       <a

@@ -127,8 +127,18 @@ for (const r of guestInjectedRoutes) {
   const diagVisible = await page.evaluate(() => document.body.innerText.includes('سجل التشخيص'));
   add(diagVisible ? 'error' : 'ok', 'login/diagnostics', diagVisible ? 'سجل التشخيص ما زال ظاهراً' : 'سجل التشخيص أُزيل');
 
-  const order = await page.evaluate(() => [...document.querySelectorAll('.rl-actions button')].map((b) => b.textContent.trim()));
-  const expected = ['نسيت كلمة المرور؟', 'إنشاء حساب جديد', 'الدخول عن طريق Google'];
+  const order = await page.evaluate(() => {
+    // نص الزر المرئي فقط — نتجاهل الأيقونات والعلامة الزخرفية (aria-hidden)
+    // كي لا يلتصق حرف «G» بعنوان Google في المقارنة.
+    const labelOf = (b) => {
+      const clone = b.cloneNode(true);
+      clone.querySelectorAll('[aria-hidden="true"]').forEach((n) => n.remove());
+      return clone.textContent.replace(/\s+/g, ' ').trim();
+    };
+    return [...document.querySelectorAll('.rl-actions button')].map(labelOf);
+  });
+  // أربعة أزرار حسب مواصفة المالك: نسيت كلمة المرور / إنشاء حساب / Google / دخول الزائر.
+  const expected = ['نسيت كلمة المرور؟', 'إنشاء حساب جديد', 'الدخول عن طريق Google', 'الدخول كزائر لمدة دقيقتين'];
   add(JSON.stringify(order) === JSON.stringify(expected) ? 'ok' : 'error', 'login/grid', 'ترتيب: ' + order.join(' | '));
 
   const grid = await page.evaluate(() => {
@@ -136,7 +146,9 @@ for (const r of guestInjectedRoutes) {
     return { cols: g.gridTemplateColumns, fs: getComputedStyle(document.querySelector('.rl-actions button')).fontSize };
   });
   if (grid.cols.split(' ').length !== 2) add('error', 'login/grid', 'ليست شبكة عمودين: ' + grid.cols);
-  if (parseFloat(grid.fs) < 12.5) add('warn', 'login/grid', 'حجم الخط صغير: ' + grid.fs);
+  // المواصفة تقلّص خط هذه الأزرار عمداً (إنشاء حساب/نسيان/Google/الزائر) — نتحقق
+  // فقط من بقاء المحتوى مقروءاً داخل الأزرار (>= 9.5px) بلا قصّ.
+  if (parseFloat(grid.fs) < 9.5) add('warn', 'login/grid', 'حجم الخط صغير جداً: ' + grid.fs);
   else add('ok', 'login/grid', 'حجم خط الأزرار ' + grid.fs);
 
   const cardSizes = await page.evaluate(() => {
@@ -150,7 +162,8 @@ for (const r of guestInjectedRoutes) {
   await page.locator('#email').focus();
   await page.waitForTimeout(500);
   const border = await page.evaluate(() => getComputedStyle(document.querySelector('.rl-input-wrap')).borderColor);
-  add(border === 'rgb(201, 162, 39)' ? 'ok' : 'warn', 'login/input', 'إطار التركيز ' + border);
+  // لون إطار التركيز الفعلي في LoginNova.css هو #c9a45c (ذهبي دافئ).
+  add(border === 'rgb(201, 164, 92)' ? 'ok' : 'warn', 'login/input', 'إطار التركيز ' + border);
   const radius = await page.evaluate(() => getComputedStyle(document.querySelector('.rl-input-wrap')).borderTopLeftRadius);
   add(radius === '10px' ? 'ok' : 'warn', 'login/input', 'استدارة الحقل ' + radius);
 

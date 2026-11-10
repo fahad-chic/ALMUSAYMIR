@@ -1,5 +1,5 @@
 # المسيمير | ALMUSAYMIR - robots.txt
-# https://rooz-store.pages.dev
+# https://almusaymir.pages.dev
 
 User-agent: *
 Allow: /
@@ -37,4 +37,4 @@ Allow: /
 User-agent: anthropic-ai
 Allow: /
 
-Sitemap: https://rooz-store.pages.dev/sitemap.xml
+Sitemap: https://almusaymir.pages.dev/sitemap.xml

@@ -49,11 +49,8 @@ VITE_BANK_ARABI_ACCOUNT = "0108088851870011"
 
 # --- إعدادات عامة غير حسّاسة ---
 VITE_OWNER_SOUND_URL = "/sounds/welcome.mp3"
-VITE_RIBBON_DURATION_SECONDS = "60"
 VITE_SOUND_DURATION_SECONDS = "45"
-VITE_THROTTLE_WINDOW_SECONDS = "120"
 VITE_AI_NAME = "فهد"
-VITE_AI_GREETING = "ياهلا نورت المسيمير | ALMUSAYMIR"
 VITE_STORE_NAME = "المسيمير | ALMUSAYMIR"
 VITE_STORE_DESCRIPTION = "متجر شامل وحراج إعلانات موثوق في السعودية"
 VITE_SHIPPING_FEE = "20"

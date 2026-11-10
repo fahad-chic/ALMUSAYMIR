@@ -83,4 +83,16 @@ describe('حاجز ملكية البريد على /login', () => {
 
     expect(await screen.findByPlaceholderText('example@mail.com')).toBeInTheDocument();
   });
+
+  // جلسة مجهولة (زائر) بلا جلسة زائر نشطة — أي بعد إعادة تحميل الصفحة،
+  // إذ تُصفَّر جلسة الزائر من التخزين. كان المسار المحمي يعرض شاشة «تفعيل
+  // البريد» بلا بريد (شاشة بلا معنى). الآن يُعاد الزائر إلى /login.
+  it('يعيد الزائر المجهول من مسار محمي إلى /login بدل شاشة تفعيل البريد الفارغة', async () => {
+    setAnonymousSession();
+
+    renderAt('/about');
+
+    expect(await screen.findByPlaceholderText('example@mail.com')).toBeInTheDocument();
+    expect(screen.queryByText('تفعيل البريد مطلوب')).toBeNull();
+  });
 });

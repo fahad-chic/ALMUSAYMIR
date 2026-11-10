@@ -383,6 +383,12 @@ const ProtectedRoute = ({ children, roleRequired }) => {
     if (isActiveGuest && !roleRequired) {
       return children;
     }
+    // جلسة مجهولة (زائر) بلا جلسة زائر نشطة — تُصفَّر جلسة الزائر عند إعادة
+    // تحميل الصفحة، فيبقى مستخدم Firebase المجهول بلا بريد. شاشة إثبات البريد
+    // لا معنى لها بلا بريد (كانت تظهر فارغة) → نُعيده إلى الدخول.
+    if (currentFirebaseUser?.isAnonymous) {
+      return <Navigate to="/login" replace />;
+    }
     return <VerifyEmailGate />;
   }
 
