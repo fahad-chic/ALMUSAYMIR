@@ -79,6 +79,21 @@ jobs:
       - name: Run Firestore rules tests
         run: npm run test:rules
 
+  indexes:
+    name: Firestore indexes preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Validate firestore.indexes.json
+        run: npm run validate:indexes
+
   build:
     name: Production build
     runs-on: ubuntu-latest
