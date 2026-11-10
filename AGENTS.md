@@ -479,3 +479,46 @@ LINT exit 0 · BUILD OK · VITEST 22 ملفاً/155 اختباراً · RULES AU
 
 ### البوابات بعد جولة المتابعة
 LINT exit 0 · BUILD OK · VITEST 22 ملفاً/155 اختباراً · RULES AUDIT **279/279 OVERALL PASS**.
+
+## تدقيق الموقع الكامل (Full-site audit) — 2026-11-06 (فرع `fix/asset-metadata-audit`)
+**سياق**: تدقيق ملف-بملف للمستودع على `main` @ `7be2537` (لا تغيير إنتاجي في التدقيق).
+PR #25 (`fix/login-page-design`) **مدموج فعلاً** (`8248f4e`) — مواصفات صفحة الدخول مُنفَّذة.
+PR #24 (`fix/reviews-privacy`) **مفتوح وغير مدموج** — معمارية `publicSafe` **متضاربة** مع
+`main` (`hidden`-based) ولا يجوز دمجه بلا قرار المالك.
+
+### عيوب مؤكدة أُصلحت (فرع `fix/asset-metadata-audit` → PR #34)
+1. **`index.html` يربط `/favicon.png` غير موجود** (حُذف في `30ea242`). Cloudflare SPA fallback
+   يخدم `index.html` بنوع `text/html` → أيقونة مكسورة. الإصلاح: `/favicon-96x96.png`
+   (موجود، 96×96، نفس شعار `emblem.png` — تحقق تشابه 8×8).
+2. **`og:image:width/height` = `1179×340`** بينما `logo-almusaymir-wide.png` = **`2160×1080`**
+   → بطاقة مشاركة مقصوصة. الإصلاح: الأبعاد الصحيحة.
+3. **`public/assets/og-image.jpg` يحوي بايتات PNG** (`89504e47`) بامتداد `.jpg` → يُخدَم
+   `image/jpeg` وهو PNG. الإصلاح: إعادة ترميز JPEG حقيقي (775KB→63KB، 1168×784 كما هو).
+- اختبار `src/assetMetadata.test.js` (3) يعيد إنتاج الثلاثة: **تفشل قبل، تنجح بعد**.
+- البوابات: LINT 0 · BUILD ✓ · VITEST **24 ملفاً/163 اختباراً** ✓ · CI **8/8 أخضر**.
+
+### ثغرة كامنة حقيقية (لم تُصلح — تحتاج موافقة المالك + نشر قواعد)
+**عدم تماثل `list` مقابل `get`** في `reviews` و`comments`: قاعدة `get` تحجب الوثيقة التي
+تحمل PII (`hasNoPublicPII` / `email == ''`)، لكن قاعدة `list` تكتفي بالحالة
+(`hidden == false` / `status == 'approved'`). التطبيق يستخدم **`list`** (`getReviews`,
+`CommentsSection`) → سجل قديم `hidden:false` مع `userEmail` **يُقرأ علناً عبر list**.
+- **مُثبَت على المحاكي**: `reviews get legacy-pii → DENIED` بينما
+  `reviews list hidden==false → ALLOWED` وأعاد `userEmail`. نفس الأمر للتعليقات.
+- **حالة الإنتاج الحالية (قراءة عامة، 2026-11-06)**: `reviews` = **0 وثيقة**،
+  `comments` = **52 معتمد، كلها `email == ''`** → **لا تسريب فعلي الآن**، لكن أي سجل قديم
+  يُضاف/يُستعاد بهذا الشكل سيُسرّب. الإصلاح المقترح: أضف شرط PII لقاعدة `list` أيضاً —
+  لكن اختبار المحاكي أثبت أن **`resource.data.get('email','') == ''` في قاعدة list يرفض
+  الاستعلام بالكامل** لأن Firestore يشترط أن يعكس الاستعلام شرط القاعدة. الحل الوحيد
+  الآمن: **ترحيل البيانات القديمة** (تعيين `email: ''`/`hidden`) بدل تشديد القاعدة،
+  أو تغيير استعلام التطبيق. يحتاج قرار المالك.
+- سكربت `scripts/backfill-public-safe.mjs` **موجود فقط على فرع PR #24** وغير موجود على
+  `main` — لا معنى لتشغيله على `main`.
+
+### عيوب غير حقيقية (تحقق سلبي)
+- `e2e/full-audit.mjs` يفشل محلياً بـ4 بنود **لكنها توقعات قديمة في السكربت**، ليست عيوب
+  موقع: يتوقع 3 أزرار في `.rl-actions` بينما التصميم الحالي فيه **4** (بإضافة زر الزائر
+  الذي طلبه المالك)، ويتوقع لون تركيز `rgb(201,162,39)` بينما الهوية الحالية `#c9a45c`
+  (`rgb(201,164,92)`). السكربت ليس في CI.
+- لا `console.log` ولا `catch` فارغ ولا `dangerouslySetInnerHTML` ولا `eval` في `src/`.
+- كل `target="_blank"` مصحوب بـ`rel="noopener noreferrer"`.
+- `Firestore/Write/channel :: ERR_ABORTED` عند التنقل = سلوك طبيعي لقناة SDK، ليس خطأ.
