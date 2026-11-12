@@ -614,8 +614,9 @@ RULES (محاكي Firestore) **342/342 PASS**. **CI على PR #34: 6/6 خضرا�
   الفرع/الالتزام، ولا يحذف شيئاً). طريقة المالك الآمنة:
   `npx firebase-tools firestore:indexes --project anaqa-chic-4e437 > /tmp/prod-indexes.json`
   ثم `npm run compare:indexes -- firestore.indexes.json /tmp/prod-indexes.json` (بلا أسرار في المحادثة).
-- `scripts/index-audit.test.js` (16 اختباراً) — وُصل بـ`test:indexes` في `package.json` وبوابة
-  CI جديدة داخل وظيفة `indexes`.
+- `scripts/index-audit.test.js` (16 اختباراً) — وُصل بـ`test:indexes` في `package.json`،
+  ويُشغّله تلقائياً `npm test` (وظيفة CI «Unit tests»). لا خطوة CI منفصلة: وظيفة `indexes`
+  بلا `npm ci` فلا يستطيع تشغيل vitest.
 - البوابات: LINT 0 · VITEST **25 ملفاً/180 اختباراً** · `validate:indexes` OK (15 فهرساً) ·
   `compare:indexes` على الملف نفسه = safe.
 

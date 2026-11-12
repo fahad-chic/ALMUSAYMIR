@@ -93,8 +93,6 @@ jobs:
           cache: npm
       - name: Validate firestore.indexes.json
         run: npm run validate:indexes
-      - name: Index audit unit tests
-        run: npm run test:indexes
 
   build:
     name: Production build
