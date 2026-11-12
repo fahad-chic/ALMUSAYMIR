@@ -625,3 +625,15 @@ RULES (محاكي Firestore) **342/342 PASS**. **CI على PR #34: 6/6 خضرا�
 - **نشر قواعد Firebase**: `main` يحمل قواعد نظيفة؛ النشر عبر
   `npx firebase-tools deploy --only firestore:rules` من جهاز المالك (لا Firebase CLI هنا).
 - لا ترحيل بيانات ولا `--apply` ولا حذف بيانات — لا حاجة إليها (0 وثيقة متأثرة).
+
+## الإغلاق النهائي + بدء التشغيل — 2026-11-12
+- **PR #24 مُغلق بلا دمج** (موافقة المالك). السبب: متجاوَز بالكامل (`publicSafe` غير مستخدم في `main`).
+- **PR #35 مدموج في `main`** (squash، التزام `317f0fb`) وحُذف الفرع `fix/port-index-tooling`.
+  CI على `main` **6/6 أخضر** (run `43290457558`: lint · unit tests · rules · indexes · build · contrast).
+- **لا ترحيل بيانات** (مؤكَّد: 0 وثيقة متأثرة).
+- **نشر Firebase لم يُنفَّذ**: لا Firebase CLI مُصادَق في هذه البيئة (لا `FIREBASE_TOKEN`،
+  ولا حساب خدمة، ولا gcloud؛ `~/.config/configstore/firebase-tools.json` يحوي MOTD فقط).
+  الأمر `firebase deploy` يتوقف عند مرحلة المصادقة بلا TTY. **يتولّاه المالك من جهازه**:
+  `npx firebase-tools deploy --only firestore:rules,firestore:indexes --project anaqa-chic-4e437`
+  (أو `firebase login --no-localhost` ثم إعادة الأمر).
+- لم يُمسّ `firestore.rules` ولا `firestore.indexes.json` (الشجرة نظيفة).
