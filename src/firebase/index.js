@@ -1,6 +1,8 @@
 // src/firebase/index.js - Firebase Module Export
 // Main entry point for all Firebase services
 
+import { OWNER_EMAILS } from '../utils/ownerEmails';
+
 // Core config
 export { default as app, auth, db, storage, analytics, ensureAnalytics } from './config';
 
@@ -86,16 +88,9 @@ export const getStoreConfig = () => ({
     iban: import.meta.env.VITE_BANK_ARABI_IBAN,
     account: import.meta.env.VITE_BANK_ARABI_ACCOUNT
   },
-  // نفس القيمة الاحتياطية المستخدمة في App.jsx وAuthContext وauth.js
-  // حتى تبقى صلاحيات المالك موحدة عند اختلاف متغيرات البيئة.
-  adminEmails: (
-    import.meta.env.VITE_OWNER_EMAILS ||
-    import.meta.env.VITE_ADMIN_EMAILS ||
-    'f882771f@gmail.com,kal6667222@gmail.com'
-  )
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
+  // إيميلات المالك تُقرأ من متغيرات البيئة فقط (مصدر واحد في utils/ownerEmails)
+  // — لا قيم احتياطية في الكود.
+  adminEmails: OWNER_EMAILS
 });
 
 // Utility: Admin check

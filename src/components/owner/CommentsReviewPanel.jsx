@@ -17,6 +17,7 @@ import { db } from '../../firebase/config';
 import usePermissions from '../../permissions/usePermissions';
 import { requirePerm } from '../../permissions/rbacService';
 import { writeAuditLog } from '../../permissions/audit';
+import toast from '../../utils/toast';
 const CommentsReviewPanel = () => {
   const { can } = usePermissions();
   const [pending, setPending] = useState([]);
@@ -79,7 +80,7 @@ const CommentsReviewPanel = () => {
   }, []);
 
   const approve = async (id) => {
-    try { await requirePerm(can, 'HARAJ_COMMENT_EDIT', 'اعتماد تعليق', id); } catch (e) { alert(e.message); return; }
+    try { await requirePerm(can, 'HARAJ_COMMENT_EDIT', 'اعتماد تعليق', id); } catch (e) { toast.error(e.message); return; }
     try {
       await updateDoc(doc(db, 'comments', id), {
         status: 'approved',
@@ -91,14 +92,14 @@ const CommentsReviewPanel = () => {
       });
     } catch (error) {
       console.error(error);
-      alert('حدث خطأ أثناء الموافقة على التعليق');
+      toast.error('حدث خطأ أثناء الموافقة على التعليق');
     }
   };
 
   // الرفض حذف حقيقي: يُؤرشف التعليق في deleted_archive أولاً ثم يُحذف من
   // قاعدة البيانات (بدل تغيير الحالة الذي كان يُبقي التعليق مخزّناً).
   const reject = async (id) => {
-    try { await requirePerm(can, 'HARAJ_COMMENT_DELETE', 'حذف تعليق', id); } catch (e) { alert(e.message); return; }
+    try { await requirePerm(can, 'HARAJ_COMMENT_DELETE', 'حذف تعليق', id); } catch (e) { toast.error(e.message); return; }
     if (!window.confirm('هل أنت متأكد من حذف هذا التعليق؟ سيُؤرشف قبل الحذف.')) return;
 
     try {
@@ -119,7 +120,7 @@ const CommentsReviewPanel = () => {
       });
     } catch (error) {
       console.error(error);
-      alert('حدث خطأ أثناء حذف التعليق');
+      toast.error('حدث خطأ أثناء حذف التعليق');
     }
   };
 

@@ -26,21 +26,13 @@ import {
 import { auth as firebaseAuth, db as firebaseDb } from '../firebase/config';
 import useStore from '../store/useStore';
 import { recordKick, markManualSignOut, consumeManualSignOut } from '../utils/kickLog';
+import { OWNER_EMAILS, isOwnerEmail } from '../utils/ownerEmails';
 
 export const AuthContext = createContext(null);
 
-// قراءة ايميلات المالك من ENV مع نفس القيمة الاحتياطية المستخدمة في App.jsx
-// وfirebase/index.js — بدونها كانت القائمة فارغة عند غياب المتغير فيُعامل
-// المالك كزائر. ثابت على مستوى الوحدة: تعريفها داخل المكوّن كان يُنتج
-// مصفوفة جديدة كل render فيُعاد تشغيل تأثير onAuthStateChanged (إلغاء
-// اشتراك ثم اشتراك) مع كل تحديث للواجهة.
-const OWNER_EMAILS_LIST = (
-  import.meta.env.VITE_OWNER_EMAILS || import.meta.env.VITE_ADMIN_EMAILS ||
-  'f882771f@gmail.com,kal6667222@gmail.com'
-)
-  .split(',')
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
+// إيميلات المالك تُقرأ من متغيرات البيئة فقط (مصدر واحد في utils/ownerEmails)
+// — لا قيم احتياطية في الكود. ثابت على مستوى الوحدة فلا يُعاد إنشاؤه كل render
+// (تعريفه داخل المكوّن كان يُعيد تشغيل تأثير onAuthStateChanged مع كل تحديث).
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -64,12 +56,8 @@ export const AuthProvider = ({ children }) => {
   const auth = firebaseAuth;
   const db = firebaseDb;
 
-  const OWNER_EMAILS = OWNER_EMAILS_LIST;
-
   // Alias for backward compatibility - ADMIN_EMAILS is used elsewhere in the codebase
   const ADMIN_EMAILS = OWNER_EMAILS;
-
-  const isOwnerEmail = (email) => typeof email === 'string' && OWNER_EMAILS.includes(email.toLowerCase());
 
   // تسجيل الأحداث في Firestore
   const logAction = async (action, target, extra = {}) => {

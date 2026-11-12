@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { hasAuthenticatedUser } from '../utils/guards';
 import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { Megaphone, Trash2 } from 'lucide-react';
+import toast from '../utils/toast';
 
 const AdsPage = () => {
   const { user, userRole } = useAuth();
@@ -75,7 +76,7 @@ const AdsPage = () => {
       setAdText('');
     } catch (error) {
       console.error('post ad:', error);
-      alert('حدث خطأ أثناء نشر الإعلان');
+      toast.error('حدث خطأ أثناء نشر الإعلان');
     } finally {
       setPosting(false);
     }
@@ -91,7 +92,7 @@ const AdsPage = () => {
       await deleteDoc(doc(db, 'ads', id));
     } catch (error) {
       console.error('delete ad:', error);
-      alert('حدث خطأ أثناء حذف الإعلان');
+      toast.error('حدث خطأ أثناء حذف الإعلان');
     } finally {
       setDeletingId(null);
     }

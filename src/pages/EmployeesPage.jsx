@@ -5,6 +5,7 @@ import { db, doc, updateDoc, serverTimestamp, auth } from '../firebase';
 import usePermissions from '../permissions/usePermissions';
 import { requirePerm } from '../permissions/rbacService';
 import { writeAuditLog } from '../permissions/audit';
+import toast from '../utils/toast';
 
 export const EmployeesPage = () => {
   const { can, isOwner } = usePermissions();
@@ -68,7 +69,7 @@ export const EmployeesPage = () => {
       });
       setEditing(null);
     } catch (err) {
-      alert(err?.code === 'no-permission' ? err.message : 'تعذر تعديل ملف الموظف');
+      toast.error(err?.code === 'no-permission' ? err.message : 'تعذر تعديل ملف الموظف');
     } finally {
       setEditBusy(false);
     }
@@ -88,7 +89,7 @@ export const EmployeesPage = () => {
     try {
       await requirePerm(can, 'ADD_NEW_EMPLOYEE', 'إضافة موظف', email);
     } catch (err) {
-      alert(err?.message || 'لا تملك صلاحية إضافة موظف');
+      toast.error(err?.message || 'لا تملك صلاحية إضافة موظف');
       return;
     }
     await addEmployee({

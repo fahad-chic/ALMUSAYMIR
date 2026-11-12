@@ -34,6 +34,16 @@ const BANK_ACCOUNTS = CONST_BANKS.map((b) => ({
   icon: Landmark,
 }));
 
+// ملخص بيانات التواصل كتابياً — يُبنى من مصدر واحد (constants) بدل تكرار
+// الأرقام والآيبان والبريد كنصوص ثابتة في الواجهة.
+const CONTACT_SUMMARY_TEXT = [
+  `أرقام التواصل: ${CI.PHONE_1_DISPLAY} / ${CI.PHONE_2_DISPLAY}`,
+  `البريد الإلكتروني: ${CI.EMAIL}`,
+  `سناب شات: ${CI.SNAPCHAT_USERNAME}`,
+  `مصرف الراجحي — آيبان: ${CI.BANK_RAJHI} — حساب محلي: ${CI.BANK_RAJHI_ACCOUNT}`,
+  `البنك العربي — آيبان: ${CI.BANK_ARABI} — حساب محلي: ${CI.BANK_ARABI_ACCOUNT}`,
+].join('\n');
+
 const GOLD = 'var(--rz-primary)';
 const GOLD_LIGHT = 'var(--rz-ink)';
 const DARK = 'var(--rz-ink)';
@@ -856,20 +866,13 @@ const ContactPage = () => {
                 color: GOLD_LIGHT,
               }}
             >
-{`أرقام التواصل: 00966536667222 / 00966507882771
-البريد الإلكتروني: kal6667222@gmail.com
-سناب شات: pmp.u
-مصرف الراجحي — آيبان: SA0980000509608010069017 — حساب محلي: 09608010069017
-البنك العربي — آيبان: SA9830400108088851870011 — حساب محلي: 0108088851870011`}
+{CONTACT_SUMMARY_TEXT}
             </pre>
 
             <button
               type="button"
               onClick={() =>
-                copyToClipboard(
-                  'أرقام التواصل: 00966536667222 / 00966507882771\nالبريد الإلكتروني: kal6667222@gmail.com\nسناب شات: pmp.u\nمصرف الراجحي — آيبان: SA0980000509608010069017 — حساب محلي: 09608010069017\nالبنك العربي — آيبان: SA9830400108088851870011 — حساب محلي: 0108088851870011',
-                  'contact-summary'
-                )
+                copyToClipboard(CONTACT_SUMMARY_TEXT, 'contact-summary')
               }
               style={{
                 ...buttonBaseStyle,

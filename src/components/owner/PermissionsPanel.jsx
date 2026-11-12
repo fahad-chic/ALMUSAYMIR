@@ -15,6 +15,7 @@ import {
   Box, Repeat, EyeOff, MessageSquare, HelpCircle, Flag, Activity
 } from 'lucide-react';
 import * as permissionCatalog from '../../permissions/catalog';
+import { OWNER_EMAILS } from '../../utils/ownerEmails';
 import {
   PERMISSION_CATEGORIES,
   PERMISSIONS,
@@ -143,11 +144,8 @@ const CATEGORY_ICONS = {
   comms: MessageSquare,
 };
 
-// البريدان المعتمدان فقط — لا يظهر أي بريد آخر في النظام
-const OWNER_ONLY_EMAILS = [
-  'f882771f@gmail.com',
-  'kal6667222@gmail.com',
-];
+// إيميلات المالك من متغيرات البيئة فقط — تُستثنى من قائمة الموظفين/المشرفين
+const OWNER_ONLY_EMAILS = OWNER_EMAILS;
 
 const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = false }) => {
   const [target, setTarget] = useState(null);

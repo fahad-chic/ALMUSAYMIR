@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import toast from '../utils/toast';
 import { db } from '../firebase/config';
 import { ensureFirebaseSession } from '../utils/firebaseSession';
 import { AuthContext } from '../context/AuthContext';
@@ -125,7 +126,7 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
       setMessage('');
     } catch (error) {
       console.error('send message error:', error);
-      alert('تعذر إرسال الرسالة — حاول مرة أخرى.');
+      toast.error('تعذر إرسال الرسالة — حاول مرة أخرى.');
     } finally {
       setSending(false);
     }
@@ -138,12 +139,12 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(phone);
-        alert('تم نسخ رقم البائع');
+        toast.success('تم نسخ رقم البائع');
       } else {
-        alert('المتصفح لا يدعم نسخ البيانات مباشرة');
+        toast.error('المتصفح لا يدعم نسخ البيانات مباشرة');
       }
     } catch {
-      alert('تعذر نسخ رقم البائع');
+      toast.error('تعذر نسخ رقم البائع');
     }
   };
 
@@ -159,9 +160,9 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
         });
       } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
-        alert('تم نسخ رابط الإعلان');
+        toast.success('تم نسخ رابط الإعلان');
       } else {
-        alert('المتصفح لا يدعم المشاركة أو نسخ الرابط');
+        toast.error('المتصفح لا يدعم المشاركة أو نسخ الرابط');
       }
     } catch {
       return;
@@ -272,10 +273,10 @@ const ChatPage = ({ chatPartnerId, adId, setCurrentPage }) => {
                 createdAt: serverTimestamp(),
               });
               setReportSent(true);
-              alert('تم إرسال البلاغ للإدارة');
+              toast.success('تم إرسال البلاغ للإدارة');
             } catch (error) {
               console.error('report error:', error);
-              alert('تعذر إرسال البلاغ — حاول مرة أخرى.');
+              toast.error('تعذر إرسال البلاغ — حاول مرة أخرى.');
             }
           }}
           title={reportSent ? 'تم إرسال البلاغ' : 'إبلاغ الإدارة عن هذه المحادثة'}

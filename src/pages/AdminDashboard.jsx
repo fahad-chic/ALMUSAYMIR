@@ -20,6 +20,7 @@ import FreeImageField from '../components/FreeImageField'
 import { CategoriesManager, BannersManager, NotificationsManager } from '../components/admin/ContentPanels'
 import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
+import toast from '../utils/toast';
 
 /* ===================== Helpers ===================== */
 const btnBase = 'w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-300 min-h-[52px] shrink-0 leading-6 group border'
@@ -531,7 +532,7 @@ const ProductsManager = ({ onUpdate }) => {
       await load()
       onUpdate?.()
     } catch (err) {
-      alert(err?.message || 'حدث خطأ أثناء الحذف')
+      toast.error(err?.message || 'حدث خطأ أثناء الحذف')
     }
   }
 
@@ -628,7 +629,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
     const price = toSafeNumber(form.price, NaN)
 
     if (!Number.isFinite(price) || price < 0) {
-      alert('يرجى إدخال سعر صحيح')
+      toast.error('يرجى إدخال سعر صحيح')
       return
     }
 
@@ -642,7 +643,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
       }
       onSave()
     } catch {
-      alert('حدث خطأ')
+      toast.error('حدث خطأ')
     }
     setSaving(false)
   }
@@ -702,7 +703,7 @@ const OrdersManager = () => {
       await updateOrderStatus(id, status)
       await load()
     } catch {
-      alert('حدث خطأ')
+      toast.error('حدث خطأ')
     }
   }
 
@@ -756,13 +757,13 @@ const UsersManager = () => {
     try {
       const target = users.find((x) => x.id === userId)
       if (currentRole !== 'admin' && !isAdminEmail(target?.email)) {
-        alert('لا يمكن تعيين هذا المستخدم مشرفاً — الإشراف متاح لإيميلات المالك المعتمدة فقط')
+        toast.error('لا يمكن تعيين هذا المستخدم مشرفاً — الإشراف متاح لإيميلات المالك المعتمدة فقط')
         return
       }
       await updateUser(userId, { role: currentRole === 'admin' ? 'user' : 'admin' })
       await load()
     } catch {
-      alert('حدث خطأ')
+      toast.error('حدث خطأ')
     }
   }
 
@@ -832,7 +833,7 @@ const SecurityManager = () => {
       await updateSettings('security', { [key]: value })
       setSettings((prev) => ({ ...prev, [key]: value }))
     } catch {
-      alert('حدث خطأ')
+      toast.error('حدث خطأ')
     }
   }
 
@@ -898,18 +899,18 @@ const SettingsManager = () => {
   const saveStore = async () => {
     try {
       await updateSettings('store', store)
-      alert('تم حفظ الإعدادات بنجاح')
+      toast.success('تم حفظ الإعدادات بنجاح')
     } catch {
-      alert('حدث خطأ')
+      toast.error('حدث خطأ')
     }
   }
 
   const saveBank = async () => {
     try {
       await updateSettings('bank', bank)
-      alert('تم حفظ بيانات البنك بنجاح')
+      toast.success('تم حفظ بيانات البنك بنجاح')
     } catch {
-      alert('حدث خطأ')
+      toast.error('حدث خطأ')
     }
   }
 

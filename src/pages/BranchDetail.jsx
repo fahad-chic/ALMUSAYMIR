@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import toast from '../utils/toast';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AdminContext } from '../context/AdminContext';
 import { useAuth } from '../context/AuthContext';
@@ -126,12 +127,12 @@ export const BranchDetail = () => {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        alert('تم نسخ بيانات الفرع');
+        toast.success('تم نسخ بيانات الفرع');
       } else {
-        alert('المتصفح لا يدعم نسخ البيانات مباشرة');
+        toast.error('المتصفح لا يدعم نسخ البيانات مباشرة');
       }
     } catch {
-      alert('تعذر نسخ بيانات الفرع');
+      toast.error('تعذر نسخ بيانات الفرع');
     }
   };
 
@@ -143,9 +144,9 @@ export const BranchDetail = () => {
         await navigator.share({ title: branchName, text });
       } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        alert('تم نسخ بيانات المشاركة');
+        toast.success('تم نسخ بيانات المشاركة');
       } else {
-        alert('المتصفح لا يدعم المشاركة المباشرة');
+        toast.error('المتصفح لا يدعم المشاركة المباشرة');
       }
     } catch {
       return;

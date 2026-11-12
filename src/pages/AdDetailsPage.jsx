@@ -44,6 +44,7 @@ import { requirePerm, showIfCan } from '../permissions/rbacService';
 import { writeAuditLog } from '../permissions/audit';
 import { archiveAndDelete } from '../utils/archive';
 import { useAuth } from '../context/AuthContext';
+import toast from '../utils/toast';
 
 const ADMIN_NUMBER = '0536667222';
 
@@ -92,7 +93,7 @@ export default function AdDetailsPage() {
       });
       window.history.back();
     } catch (e) {
-      alert(e?.message || 'تعذر الحذف');
+      toast.error(e?.message || 'تعذر الحذف');
     }
   };
 
@@ -104,7 +105,7 @@ export default function AdDetailsPage() {
       await deleteDoc(doc(db, 'haraj_ads', ad.id));
       window.history.back();
     } catch {
-      alert('تعذر الحذف — تأكد أنك صاحب الإعلان.');
+      toast.error('تعذر الحذف — تأكد أنك صاحب الإعلان.');
     }
   };
 
@@ -388,7 +389,7 @@ export default function AdDetailsPage() {
       });
       setPublicDraft('');
     } catch {
-      alert('تعذر نشر الرسالة العامة. حاول مرة أخرى.');
+      toast.error('تعذر نشر الرسالة العامة. حاول مرة أخرى.');
     } finally {
       setPublicSending(false);
     }
@@ -423,7 +424,7 @@ export default function AdDetailsPage() {
       );
     } catch {
       /* فشل المزايدة يُظهر تنبيهاً بسيطاً */
-      alert('تعذّر إرسال المزايدة، حاول مرة أخرى.');
+      toast.error('تعذّر إرسال المزايدة، حاول مرة أخرى.');
     }
   };
 
@@ -452,7 +453,7 @@ export default function AdDetailsPage() {
         `«${ad.title}» — الحالة الجديدة: ${nextStatus}`
       );
     } catch {
-      alert('تعذّر تحديث حالة الوساطة، حاول مرة أخرى.');
+      toast.error('تعذّر تحديث حالة الوساطة، حاول مرة أخرى.');
     }
   };
 
@@ -468,7 +469,7 @@ export default function AdDetailsPage() {
 
   const handleCopyLink = () => {
     const adUrl = `${window.location.origin}/haraj/ad/${ad.id}`;
-    navigator.clipboard?.writeText(adUrl).then(() => alert('تم نسخ رابط الإعلان'));
+    navigator.clipboard?.writeText(adUrl).then(() => toast.success('تم نسخ رابط الإعلان'));
   };
 
   if (loading) {
