@@ -572,3 +572,55 @@ RULES (محاكي Firestore) **342/342 PASS**. **CI على PR #34: 6/6 خضرا�
 - لا دمج في `main` · لا نشر Cloudflare · لا نشر قواعد Firebase · لا ترحيل بيانات · لا حذف بيانات.
 - PR #24 (`fix/reviews-privacy`) ما زال **مفتوحاً/مسودة/`DIRTY`** — **مُوصى بإغلاقه** لأنه
   متجاوَز (فكرته `publicSafe` غير مستخدمة في `main`). يحتاج موافقة المالك على الإغلاق.
+
+## جولة تثبيت الحالة + حسم PR #24 + ترحيل أداة الفهارس — 2026-11-06 (فرع `fix/port-index-tooling`)
+**سياق**: متابعة على `main` @ `90e6866` (نفس `origin/main`، شجرة نظيفة). تدقيق حيّ + قراءة
+كود + استعلام إنتاج (قراءة فقط) لتثبيت الحالة وحسم PR #24. **لا دمج ولا نشر ولا ترحيل.**
+
+### تثبيت الحالة (مُتحقَّق حيّاً)
+- `HEAD = 90e6866` = `origin/main`. PR مفتوح وحيد: **#24** (مسودة، `fix/reviews-privacy`).
+- CI على `main` أخضر (run `42962436125`، headSha `90e6866`). عطل ترويسة `ci.yml` لم يعد قائماً.
+- `almusaymir.pages.dev` و`rooz-store.pages.dev` = 200. كل الأصول (`/favicon.ico`, `/sw.js`,
+  `/manifest.json`, `/robots.txt`, `/sitemap.xml`, `/assets/og-image.jpg`, الأيقونات، الصوت) = 200.
+- `og:image` = `logo-almusaymir-wide.png` بأبعاد `2160×1080` مطابقة للوسوم. لا انحراف محتوى:
+  اختلاف بصمة `index-*.js` بين الحيّ والمحلي = **طابع البناء الزمني** (`__BUILD_STAMP__`) فقط.
+
+### حسم PR #24 — التوصية: **إغلاق** (متجاوَز بالكامل)
+كل تعديلات الفرع إما موجودة في `main` أو مقيّدة بمعمارية `publicSafe` المرفوضة:
+- `firestore.rules`: `hasNoPublicPII` في `main` يشمل كل مفاتيح الفرع **و`moderatedBy`**.
+  `main` يقفل الكتابة من المصدر (لا حقل بريد) فتصبح قاعدة `list` آمنة بلا علامة `publicSafe`.
+- `src/firebase/firestore.js` + `ModerationPanels.jsx`: تعديلات الفرع `publicSafe` فقط.
+- `scripts/{index-audit,preflight-indexes,compare-indexes}.mjs`: `validateRequiredPrivacyIndexes`
+  **مقيّدة حرفياً بـ`publicSafe`** (سطرا 136–137) → غير قابلة للنقل كما هي.
+- `scripts/backfill-public-safe.mjs` + `firestore.rules.transitional` + `firebase.barrier.json`:
+  بلا معنى على `main` (0 مرجع لـ`publicSafe` في `src` والقواعد).
+
+### الثغرة الكامنة — **لم تُثبت في الإنتاج، والإصلاح ليس تشديد القاعدة**
+عدم تماثل `get`/`list` (`hasNoPublicPII` على `get` فقط) يبقى نظرياً لأن `main` يقفل الكتابة
+من المصدر. **قياس إنتاج حيّ (قراءة فقط، بلا مصادقة، `anaqa-chic-4e437`)**:
+- `reviews` list بلا فلتر = **403** · `reviews hidden=false` = **0 وثيقة**.
+- `comments status=approved` = **52**، وكلها بلا بريد (لا حقل بريد في نموذج الإنشاء أصلاً).
+- `get` على تعليق معتمد = **200** (سليم).
+- استعلام `getReviews` الفعلي (productId + hidden + orderBy createdAt) على الإنتاج = **200** (الفهرس سليم).
+- **الخلاصة**: لا تسريب قائم. تشديد قاعدة `list` بشرط «غياب حقل» يرفض الاستعلام بالكامل
+  (Firestore يشترط أن يعكس الاستعلام شرط القاعدة)، فالفرع `publicSafe` يحاول حل مشكلة غير قائمة.
+
+### المُنجَز هذه الجولة (أداة فهارس read-only قابلة للنقل)
+نُقلت الأجزاء **المستقلة عن `publicSafe`** من PR #24 إلى الفرع الجديد:
+- `scripts/index-audit.mjs` — معايرة `__name__` الضمني + `compareIndexFiles` (fail-closed على
+  أي حذف محتمل) + `findUnnecessarySingleFieldIndexes` + `validateRequiredPrivacyIndexes`
+  **مُعاد ضبطها على `main`**: `reviews[hidden,productId,createdAt]` و`comments[status,createdAt]`.
+- `scripts/compare-indexes.mjs` — مقارنة ملف الإعداد بتصدير إنتاج **قراءة فقط** (يطبع هوية
+  الفرع/الالتزام، ولا يحذف شيئاً). طريقة المالك الآمنة:
+  `npx firebase-tools firestore:indexes --project anaqa-chic-4e437 > /tmp/prod-indexes.json`
+  ثم `npm run compare:indexes -- firestore.indexes.json /tmp/prod-indexes.json` (بلا أسرار في المحادثة).
+- `scripts/index-audit.test.js` (16 اختباراً) — وُصل بـ`test:indexes` في `package.json` وبوابة
+  CI جديدة داخل وظيفة `indexes`.
+- البوابات: LINT 0 · VITEST **25 ملفاً/180 اختباراً** · `validate:indexes` OK (15 فهرساً) ·
+  `compare:indexes` على الملف نفسه = safe.
+
+### البنود المتبقية (تحتاج موافقة المالك)
+- **إغلاق PR #24** (موصى به) — لا دمج: `publicSafe` غير مستخدم في `main`.
+- **نشر قواعد Firebase**: `main` يحمل قواعد نظيفة؛ النشر عبر
+  `npx firebase-tools deploy --only firestore:rules` من جهاز المالك (لا Firebase CLI هنا).
+- لا ترحيل بيانات ولا `--apply` ولا حذف بيانات — لا حاجة إليها (0 وثيقة متأثرة).
