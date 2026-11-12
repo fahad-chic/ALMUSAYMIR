@@ -637,3 +637,36 @@ RULES (محاكي Firestore) **342/342 PASS**. **CI على PR #34: 6/6 خضرا�
   `npx firebase-tools deploy --only firestore:rules,firestore:indexes --project anaqa-chic-4e437`
   (أو `firebase login --no-localhost` ثم إعادة الأمر).
 - لم يُمسّ `firestore.rules` ولا `firestore.indexes.json` (الشجرة نظيفة).
+
+## جولة التنظيف والإشعارات (fix/audit-cleanup-toast) — 2026-11-12
+**سياق**: تنفيذ ملاحظات المالك الثلاث (حذف فهارس publicSafe، إزالة إيميلات المالك المكتوبة،
+استبدال alert بـToast). PR **#36** مفتوح (لم يُدمج، لم يُنشر).
+
+### ما نُفِّذ
+- **`firestore.indexes.json`**: حُذف فهرسان مركّبان ميتان على `reviews` و`comments` يستخدمان
+  `publicSafe` (18 سطراً محذوفة، بلا إعادة تنسيق). المتبقي 13 فهرساً صالحاً
+  (`npm run validate:indexes` → OK). الكود والقواعد لا تشير إلى `publicSafe` إطلاقاً.
+- **إيميلات المالك**: مصدر واحد `src/utils/ownerEmails.js` (`OWNER_EMAILS`/`OWNER_EMAIL_SET`/
+  `isOwnerEmail`) يقرأ `VITE_OWNER_EMAILS || VITE_ADMIN_EMAILS` **فقط** بلا قيمة احتياطية.
+  حُذفت القيم الصريحة من `App.jsx`, `Login.jsx`, `AuthContext.jsx`, `firebase/auth.js`,
+  `firebase/index.js`, `useStore.js`, `OwnerPrivateRoom.jsx`, `owner/PermissionsPanel.jsx`.
+  `constants.js`: `EMAIL` = `''` عند غياب المتغير (الهواتف/الآيبان تُركت بقرار المالك).
+  `ContactPage.jsx`: ملخص التواصل يُبنى من `constants` (مصدر واحد).
+- **نظام Toast**: `src/utils/toast.js` (مخزن `useSyncExternalStore`) + `src/components/ToastHost.jsx`
+  (يُركّب في `App.jsx`). استُبدلت **كل** نداءات `alert()` الـ55 في 13 ملفاً بـ`toast.success/error`
+  (التصنيف حسب بداية الرسالة: «تم…» = success، غير ذلك = error). 0 `alert()` متبقٍ.
+
+### تحقق هذه الجولة
+LINT exit 0 · VITEST **26 ملفاً/188 اختباراً** ✓ (منها `src/utils/toast.test.jsx` 8 اختبارات) ·
+BUILD ✓ · CONTRAST OVERALL PASS (1017 عنصر، 0 مخالفة) · FULL AUDIT 65 فحصاً 0 أخطاء PASS ·
+BUTTON AUDIT 237 عنصراً 0 خطأ · RULES AUDIT على المحاكي **342/342 PASS** · CI على PR #36 **كله أخضر** ·
+0 خطأ console على `/login`.
+
+### صفحة الدخول — مُثبَتة حيًّا (لم تُعدَّل)
+`متجر المسيمير|ALMUSAYMIR` أسود `rgb(0,0,0)` · `بوابتك نحو تجارة ذكية` وزن 900 ·
+`نجمع فيها…` وزن 300 سطر واحد (`nowrap`) · بطاقة المالك (202px) > المشرفين (124px) ·
+`⚜️ دخول صاحب الموقع ⚜️` (3 ضغطات) يمر بـFirebase Auth + PIN خادمي فقط — لا تجاوز ·
+زر الحراج `موقع حراج أونلاين`.
+
+### لا يزال مطلوباً من المالك
+دمج PR #36 ثم نشر يدوي: `npx firebase-tools deploy --only firestore:rules,firestore:indexes --project anaqa-chic-4e437`.
