@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { BRAND } from '../data/brand';
 import { auth } from '../firebase/config';
+import { OWNER_EMAIL_SET, isOwnerEmail } from '../utils/ownerEmails';
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -36,20 +37,10 @@ const OWNER_MARQUEE = 'تم تسجيل دخول صاحب موقع "المسيم�
 const OWNER_SOUND_URL = '/sounds/welcome.mp3';
 const API_BASE = '/api';
 
-// بريدا المالك المعتمدان — نفس القيمة الاحتياطية في App.jsx وAuthContext
-// وfirebase/index.js. كل مسار دخول مالك (OTP/احتياطي/سري) يجب أن يمر
-// بهذا الفحص قبل فتح صفحات المالك — بدونه كان أي حساب مسجّل يدخل
-// /owner-panel لو اختار بطاقة المالك أو عرف الرمز السري.
-const OWNER_EMAIL_SET = new Set(
-  (
-    import.meta.env.VITE_OWNER_EMAILS ||
-    import.meta.env.VITE_ADMIN_EMAILS ||
-    'f882771f@gmail.com,kal6667222@gmail.com'
-  )
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-);
+// بريد المالك يُقرأ من متغيرات البيئة فقط (مصدر واحد في utils/ownerEmails).
+// كل مسار دخول مالك (OTP/احتياطي/سري) يجب أن يمر بهذا الفحص قبل فتح صفحات
+// المالك — بدونه كان أي حساب مسجّل يدخل /owner-panel لو عرف الرمز السري.
+// (الفرض الحقيقي على الخادم في firestore.rules::isOwner.)
 
 async function apiCall(endpoint, method = 'GET', body = null) {
   const options = {

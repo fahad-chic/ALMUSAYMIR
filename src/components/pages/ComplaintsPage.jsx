@@ -36,6 +36,7 @@ import {
 
 import AdsPage from '../../pages/AdsPage';
 import UsersList from '../../pages/UsersList';
+import toast from '../../utils/toast';
 
 // محادثة مباشرة بين المالك وعضو عبر مجموعة messages — كانت اللوحة تستدعي
 // ChatPage (المصمم لشات حراج بمعرّفَي chatPartnerId+adId) بخصائص otherUser/
@@ -91,7 +92,7 @@ const OwnerMessageThread = ({ member, onBack }) => {
       setText('');
     } catch (error) {
       console.error('send message error:', error);
-      alert('تعذر إرسال الرسالة.');
+      toast.error('تعذر إرسال الرسالة.');
     } finally {
       setSending(false);
     }
@@ -308,10 +309,10 @@ const handleMarquee = async () => {
     // أما siteSettings/global فلا يقرأه أي مكوّن ولا توجد له قاعدة أمان.
     await saveSiteText('marquee1', marqueeText);
     await logAction('MARQUEE_UPDATE', marqueeText);
-    alert('تم نشر نص الشريط المتحرك');
+    toast.success('تم نشر نص الشريط المتحرك');
   } catch (error) {
     console.error('خطأ في تحديث النص المتحرك:', error);
-    alert('تعذّر نشر نص الشريط المتحرك');
+    toast.error('تعذّر نشر نص الشريط المتحرك');
   }
 };
 

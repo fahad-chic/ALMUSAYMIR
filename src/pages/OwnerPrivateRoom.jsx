@@ -33,14 +33,10 @@ import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
 import { writeAuditLog } from '../permissions/audit'
 import { archiveAndDelete } from '../utils/archive'
-
-const OWNER_EMAILS = [
-  'f882771f@gmail.com',
-  'kal6667222@gmail.com'
-]
+import { OWNER_EMAIL_SET } from '../utils/ownerEmails'
 
 const isOwnerEmail = (email) =>
-  OWNER_EMAILS.includes(
+  OWNER_EMAIL_SET.has(
     String(email || '').trim().toLowerCase()
   )
 
@@ -778,11 +774,7 @@ const OwnerPrivateRoom = () => {
         return
       }
 
-      if (
-        OWNER_EMAILS.includes(
-          String(target.email).trim().toLowerCase()
-        )
-      ) {
+      if (isOwnerEmail(target.email)) {
         showToast(
           'حساب المالك لا يحتاج إلى تعيين مدير',
           'error'

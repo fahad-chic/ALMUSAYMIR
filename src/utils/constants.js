@@ -42,7 +42,7 @@ export const CONTACT_INFO = Object.freeze({
   PHONE_2: import.meta.env.VITE_PHONE_2 || '966507882771',
   PHONE_1_DISPLAY: import.meta.env.VITE_PHONE_1_DISPLAY || '00966536667222',
   PHONE_2_DISPLAY: import.meta.env.VITE_PHONE_2_DISPLAY || '00966507882771',
-  EMAIL: import.meta.env.VITE_CONTACT_EMAIL || 'kal6667222@gmail.com',
+  EMAIL: import.meta.env.VITE_CONTACT_EMAIL || '',
   SNAPCHAT: import.meta.env.VITE_SNAPCHAT_URL || 'https://snapchat.com/t/HPkkIfUp',
   SNAPCHAT_USERNAME: import.meta.env.VITE_SNAPCHAT_USERNAME || 'pmp.u',
   WHATSAPP: import.meta.env.VITE_CONTACT_WHATSAPP_1 || '966536667222',

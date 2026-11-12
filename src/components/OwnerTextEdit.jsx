@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pencil, X, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import useSiteTexts, { saveSiteText } from '../store/useSiteTexts';
+import toast from '../utils/toast';
 
 const OwnerTextEdit = ({ textKey, defaultValue }) => {
   const { userRole, isAuthenticated } = useAuth();
@@ -45,7 +46,7 @@ const OwnerTextEdit = ({ textKey, defaultValue }) => {
       await saveSiteText(textKey, nextValue);
       setOpen(false);
     } catch {
-      alert('تعذر الحفظ — حاول مرة أخرى');
+      toast.error('تعذر الحفظ — حاول مرة أخرى');
     } finally {
       setSaving(false);
     }

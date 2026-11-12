@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { AdminContext } from '../context/AdminContext';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Edit, Trash2, Share2, Copy, X } from 'lucide-react';
+import toast from '../utils/toast';
 
 export const BranchesManagement = () => {
   const { branches = [], addBranch, updateBranch, deleteBranch } = useContext(AdminContext) || {};
@@ -60,7 +61,7 @@ export const BranchesManagement = () => {
     if (!(formData.name && formData.location && formData.manager)) return;
     if (editingBranch) {
       await updateBranch(editingBranch.id, formData);
-      alert('تم حفظ تعديلات الفرع');
+      toast.success('تم حفظ تعديلات الفرع');
     } else {
       await addBranch(formData);
     }
@@ -79,12 +80,12 @@ export const BranchesManagement = () => {
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        alert('تم نسخ بيانات الفرع');
+        toast.success('تم نسخ بيانات الفرع');
       } else {
-        alert('المتصفح لا يدعم نسخ البيانات مباشرة');
+        toast.error('المتصفح لا يدعم نسخ البيانات مباشرة');
       }
     } catch {
-      alert('تعذر نسخ بيانات الفرع');
+      toast.error('تعذر نسخ بيانات الفرع');
     }
   };
 
@@ -96,9 +97,9 @@ export const BranchesManagement = () => {
         await navigator.share({ title: branch.name || 'بيانات الفرع', text });
       } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text);
-        alert('تم نسخ بيانات المشاركة');
+        toast.success('تم نسخ بيانات المشاركة');
       } else {
-        alert('المتصفح لا يدعم المشاركة المباشرة');
+        toast.error('المتصفح لا يدعم المشاركة المباشرة');
       }
     } catch {
       return;

@@ -17,6 +17,7 @@ import useOffers, {
   clearOfferImage,
 } from '../../store/useOffers';
 import '../../styles/home-offers-slider.css';
+import toast from '../../utils/toast';
 
 /** نص الشريحة البديل عند غياب الصورة */
 const FallbackText = () => (
@@ -45,7 +46,7 @@ const HomeOffersSlider = () => {
     try {
       await setOfferImage(index, file);
     } catch (err) {
-      alert(err?.message || 'تعذر رفع الصورة');
+      toast.error(err?.message || 'تعذر رفع الصورة');
     } finally {
       setBusy(-1);
     }
@@ -57,7 +58,7 @@ const HomeOffersSlider = () => {
     try {
       await clearOfferImage(index);
     } catch (err) {
-      alert(err?.message || 'تعذر حذف الصورة');
+      toast.error(err?.message || 'تعذر حذف الصورة');
     } finally {
       setBusy(-1);
     }

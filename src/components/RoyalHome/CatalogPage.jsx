@@ -43,6 +43,7 @@ import FreeImageField from '../FreeImageField';
 import { ROYAL_SECTIONS } from './sectionsData';
 import useStore from '../../store/useStore';
 import '../../styles/RoyalHome.css';
+import toast from '../../utils/toast';
 
 const WHATSAPP_NUMBER = '966507882771';
 
@@ -272,7 +273,7 @@ const CatalogPage = () => {
       setShowSettings(false);
     } catch (error) {
       console.error('Error saving catalog settings:', error);
-      alert('حدث خطأ أثناء حفظ إعدادات العرض');
+      toast.error('حدث خطأ أثناء حفظ إعدادات العرض');
     }
   };
 
@@ -1333,7 +1334,7 @@ const AddProductModal = ({
       );
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('حدث خطأ أثناء حفظ المنتج');
+      toast.error('حدث خطأ أثناء حفظ المنتج');
     } finally {
       setSaving(false);
     }

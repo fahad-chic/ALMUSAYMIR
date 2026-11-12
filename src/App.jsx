@@ -30,6 +30,8 @@ import { startOffersSync } from './store/useOffers';
 import { notifyOwner, formatArTime } from './utils/visitorNotify';
 import { recordKick } from './utils/kickLog';
 import { startSessionTracking } from './store/useSessionTracking';
+import { OWNER_EMAIL_SET } from './utils/ownerEmails';
+import ToastHost from './components/ToastHost';
 
 import { Login } from './components/Login';
 import VerifyEmailGate from './components/VerifyEmailGate';
@@ -123,16 +125,7 @@ const WantedDressPage = safeLazy(() => import('./pages/WantedDressPage'));
 const OWNER_WELCOME_MESSAGE =
   'تم تسجيل دخول صاحب موقع "المسيمير | ALMUSAYMIR" ويُرحّب بكم جميعاً ويتمنى لكم تجربة تسوّق ممتعة ترضي ذائقتكم الرفيعة. يُذكِّركم بأن من لديه اقتراح أو ملاحظة أو شكوى على أحد موظفي الموقع أو على أي شخص بسبب النصب أو الاحتيال، يتوجّه إلى غرفة صاحب موقع "المسيمير | ALMUSAYMIR" ويتقدّم برسالة مفصّلة. وفي حال كانت الشكوى نصب واحتيال فسيتم اتخاذ الإجراءات اللازمة فوراً، سواء من قِبَل صاحب الموقع أو بإحالة الموضوع إلى الجهات الأمنية المختصّة بشكل عاجل، حفاظاً على حقوقكم وسلامة تعاملاتكم. المسيمير | ALMUSAYMIR — حيث الأناقة تلتقي بالثقة.';
 
-const OWNER_EMAILS = new Set(
-  (
-    import.meta.env.VITE_OWNER_EMAILS ||
-    import.meta.env.VITE_ADMIN_EMAILS ||
-    'f882771f@gmail.com,kal6667222@gmail.com'
-  )
-    .split(',')
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean)
-);
+const OWNER_EMAILS = OWNER_EMAIL_SET;
 
 const OWNER_ALERT_SOUND_URL =
   import.meta.env.VITE_OWNER_SOUND_URL || '/sounds/welcome.mp3';
@@ -1075,6 +1068,8 @@ function AppContent() {
         position: 'relative',
       }}
     >
+      <ToastHost />
+
       {/* =================================================
           طبقة خلفية لؤلؤية ثلاثية الأبعاد (زخرفية بحتة)
           ثابتة، pointer-events:none، خلف كل المحتوى (z-index:0)

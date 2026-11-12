@@ -32,25 +32,16 @@ import {
 import { db } from "../firebase/config";
 import { recordKick, markManualSignOut } from "../utils/kickLog";
 import { ensureFirebaseSession } from "../utils/firebaseSession";
+import { OWNER_EMAIL_SET } from "../utils/ownerEmails";
 
 // API helpers للـ Auth (D1)
 const API_BASE = "/api";
 
-// قائمة السماح: تُقرأ من متغيرات البيئة مع قيمة افتراضية للتوافق
-const ENV_EMAILS = (
-  import.meta.env.VITE_OWNER_EMAILS ||
-  import.meta.env.VITE_ADMIN_EMAILS ||
-  ""
-)
-  .split(",")
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
+// قائمة السماح: تُقرأ من متغيرات البيئة فقط (مصدر واحد في utils/ownerEmails)
+// — لا قيم احتياطية في الكود. عند غياب المتغيرين تكون القائمة فارغة.
+const ALLOWED_EMAILS = OWNER_EMAIL_SET;
 
-const ALLOWED_EMAILS = new Set(
-  ENV_EMAILS.length ? ENV_EMAILS : ["f882771f@gmail.com", "kal6667222@gmail.com"]
-);
-
-const OWNER_EMAILS = new Set(ALLOWED_EMAILS);
+const OWNER_EMAILS = OWNER_EMAIL_SET;
 
 const isAllowedEmail = (email) =>
   typeof email === "string" && ALLOWED_EMAILS.has(email.toLowerCase());

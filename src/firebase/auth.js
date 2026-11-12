@@ -14,17 +14,9 @@ import {
   verifyBeforeUpdateEmail
 } from 'firebase/auth';
 import { auth } from './config';
+import { OWNER_EMAILS } from '../utils/ownerEmails';
 
 const googleProvider = new GoogleAuthProvider();
-
-const OWNER_EMAILS = (
-  import.meta.env.VITE_OWNER_EMAILS ||
-  import.meta.env.VITE_ADMIN_EMAILS ||
-  'f882771f@gmail.com,kal6667222@gmail.com'
-)
-  .split(',')
-  .map((email) => email.trim().toLowerCase())
-  .filter(Boolean);
 
 export const signIn = async (email, password) => {
   try {

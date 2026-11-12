@@ -12,6 +12,7 @@ import FreeImageField from '../FreeImageField';
 import usePermissions from '../../permissions/usePermissions';
 import { requirePerm } from '../../permissions/rbacService';
 import { writeAuditLog } from '../../permissions/audit';
+import toast from '../../utils/toast';
 
 const getTimestampValue = (value) => {
   if (!value) return 0;
@@ -61,7 +62,7 @@ export const CategoriesManager = () => {
       setName('');
       await load();
     } catch (err) {
-      alert(err?.code === 'no-permission' ? err.message : 'حدث خطأ');
+      toast.error(err?.code === 'no-permission' ? err.message : 'حدث خطأ');
     }
   };
 
@@ -152,7 +153,7 @@ const BannerForm = ({ onClose, onSave }) => {
       });
       onSave();
     } catch (err) {
-      alert(err?.code === 'no-permission' ? err.message : 'حدث خطأ');
+      toast.error(err?.code === 'no-permission' ? err.message : 'حدث خطأ');
     }
     setSaving(false);
   };
@@ -284,7 +285,7 @@ export const NotificationsManager = ({ isOwner = false }) => {
       });
       await load();
     } catch (err) {
-      alert(err?.code === 'no-permission' ? err.message : 'تعذر حذف التنبيه');
+      toast.error(err?.code === 'no-permission' ? err.message : 'تعذر حذف التنبيه');
     }
   };
 
