@@ -25,6 +25,7 @@ import usePrefs from './store/usePrefs';
 import useNotifications from './store/useNotifications';
 import { installGlobalClickSound } from './utils/clickSound';
 import { startSiteTextsSync } from './store/useSiteTexts';
+import { startSiteContentSync } from './store/useSiteContent';
 import { startInlineStylesSync } from './store/useInlineStyles';
 import { startOffersSync } from './store/useOffers';
 import { notifyOwner, formatArTime } from './utils/visitorNotify';
@@ -46,6 +47,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import OwnerPanel from './pages/OwnerPanel';
 import OwnerPrivateRoom from './pages/OwnerPrivateRoom';
+import ContentManager from './pages/ContentManager';
 import UsersList from './pages/UsersList';
 
 import AdminPage from './components/pages/AdminPage';
@@ -622,6 +624,7 @@ function AppContent() {
     usePrefs.getState().applyAll();
 
     startSiteTextsSync();
+    startSiteContentSync();
     startInlineStylesSync();
     startOffersSync();
 
@@ -1671,6 +1674,18 @@ function AppContent() {
                     roleRequired="owner"
                   >
                     <OwnerPanel />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* مدير المحتوى المركزي — المالك فقط: تعديل/حذف/إضافة أي نص أو
+                  عنصر في كل الموقع، مربوط بـ settings/siteContent ويُطبَّق
+                  لحظياً على كل الزوار. */}
+              <Route
+                path="/owner/content"
+                element={
+                  <ProtectedRoute roleRequired="owner">
+                    <ContentManager />
                   </ProtectedRoute>
                 }
               />

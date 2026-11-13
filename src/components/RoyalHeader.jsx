@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { ROYAL_NAV, ROYAL_DRAWER, STORE_HOME_PATH } from '../data/royalMenu';
 import { BRAND } from '../data/brand';
+import Editable from './Editable';
+import useSiteContent from '../store/useSiteContent';
 import '../styles/rooz-royal.css';
 
 const NAV_ICONS = {
@@ -42,6 +44,7 @@ const RoyalHeader = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const siteTexts = useSiteContent((s) => s.texts);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState(null);
   const [query, setQuery] = useState('');
@@ -101,7 +104,7 @@ const RoyalHeader = ({
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="ابحث عن أي منتج أو قسم…"
+              placeholder={siteTexts['header.search_placeholder'] || 'ابحث عن أي منتج أو قسم…'}
               aria-label="البحث في الموقع"
             />
           </form>
@@ -151,7 +154,7 @@ const RoyalHeader = ({
                 to={item.path}
                 className={`rz-nav-link ${isActive ? 'is-active' : ''}`}
               >
-                {item.label}
+                <Editable contentKey={`header.nav.${item.id}`} defaultValue={item.label} />
               </Link>
               );
             })}

@@ -11,7 +11,7 @@ import {
   Send, Star, Flag, Edit3, Save, UserRound, ClipboardList, UserX,
   Radio, LayoutDashboard, BarChart3,
   Gauge, Moon, Sun, ArrowRight,
-  BadgeCheck, ArrowLeftRight, RotateCcw, Image, LayoutGrid
+  BadgeCheck, ArrowLeftRight, RotateCcw, Image, LayoutGrid, Type
 } from 'lucide-react'
 import {
   auth, db,
@@ -28,6 +28,7 @@ import MaintenancePanel from '../components/owner/MaintenancePanel'
 import RegistrationPanel from '../components/owner/RegistrationPanel'
 import { ReportsPanel, ReviewsPanel } from '../components/owner/ModerationPanels'
 import { CategoriesManager, BannersManager } from '../components/admin/ContentPanels'
+import ContentManager from './ContentManager'
 import CloseButton from '../components/CloseButton'
 import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
@@ -1413,6 +1414,12 @@ const OwnerPrivateRoom = () => {
       group: 'content'
     },
     {
+      id: 'sitecontent',
+      label: 'مدير المحتوى',
+      icon: Type,
+      group: 'content'
+    },
+    {
       id: 'orders',
       label: 'الطلبات',
       icon: Activity,
@@ -2182,6 +2189,10 @@ const OwnerPrivateRoom = () => {
           {activeTab === 'banners' && (
             <BannersManager />
           )}
+
+          {activeTab === 'sitecontent' && (
+            <ContentManager />
+          )}
         </main>
       </div>
 
@@ -2337,6 +2348,7 @@ const CenterPanel = ({
         { id: 'reviews', label: 'تقييمات المنتجات', icon: Star, action: () => onTab('reviews') },
         { id: 'categories', label: 'التصنيفات', icon: LayoutGrid, action: () => onTab('categories') },
         { id: 'banners', label: 'البنرات', icon: Image, action: () => onTab('banners') },
+        { id: 'sitecontent', label: 'مدير المحتوى (تعديل/حذف أي نص)', icon: Type, action: () => onTab('sitecontent') },
         { id: 'security', label: 'سجلات الأمان', icon: Shield, action: () => onTab('security') },
         { id: 'permissions', label: 'مصفوفة الصلاحيات (تشغيل / إيقاف)', icon: Key, action: () => onTab('permissions') },
         { id: 'orders', label: 'الطلبات', icon: Activity, action: () => onTab('orders') },

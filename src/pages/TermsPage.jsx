@@ -2,8 +2,8 @@
 // صفحة مستقلة: شروط وأحكام استخدام منصة "المسيمير | ALMUSAYMIR"
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ScrollText, ShieldCheck } from 'lucide-react';
-import OwnerTextEdit from '../components/OwnerTextEdit';
-import useSiteTexts from '../store/useSiteTexts';
+import Editable from '../components/Editable';
+import useSiteContent from '../store/useSiteContent';
 
 const TERMS_SECTIONS = [
   {
@@ -62,8 +62,6 @@ const TERMS_TITLE_DEFAULT =
 
 export default function TermsPage() {
   const navigate = useNavigate();
-  const siteTexts = useSiteTexts((s) => s.texts);
-  const pageTitle = siteTexts['terms.page_title'] || TERMS_TITLE_DEFAULT;
 
   return (
     <div
@@ -125,8 +123,7 @@ export default function TermsPage() {
             <ScrollText size={30} color="var(--rz-ivory)" />
           </div>
           <h1 style={{ margin: '0 0 10px', position: 'relative', fontSize: 'clamp(1.3rem, 4vw, 1.85rem)', fontWeight: 900, color: 'var(--rz-primary)' }}>
-            {pageTitle}
-            <OwnerTextEdit textKey="terms.page_title" defaultValue={TERMS_TITLE_DEFAULT} />
+            <Editable contentKey="terms.page_title" defaultValue={TERMS_TITLE_DEFAULT} />
           </h1>
           <p style={{ margin: 0, lineHeight: 2, color: 'var(--rz-muted)', fontWeight: 600 }}>
             مرحباً بكم في &quot;المسيمير | ALMUSAYMIR&quot;. تُطبق هذه الشروط والأحكام على كافة
