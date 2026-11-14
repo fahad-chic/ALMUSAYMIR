@@ -1282,13 +1282,15 @@ function AppContent() {
               left: 0,
               right: 0,
               width: '100%',
-              height: '60px',
+              height: '40px',
               overflow: 'hidden',
               display: 'block',
-              background: 'linear-gradient(90deg, var(--rz-ink) 0%, var(--rz-ink) 40%, var(--rz-ink) 60%, var(--rz-ink) 100%)',
-              borderTop: '2px solid var(--rz-primary)',
-              borderBottom: '2px solid var(--rz-primary)',
-              boxShadow: '0 12px 32px rgba(var(--rz-ink-rgb), 0.6), 0 0 22px rgba(var(--rz-primary-rgb), 0.25)',
+              // خلفية احترافية: عنابي ملكي متدرّج بلمسة ذهبية رقيقة
+              background:
+                'linear-gradient(90deg, rgba(var(--rz-ink-rgb), 0.96) 0%, rgba(var(--rz-primary-rgb), 0.94) 50%, rgba(var(--rz-ink-rgb), 0.96) 100%)',
+              borderTop: '1px solid rgba(var(--rz-gold-rgb), 0.55)',
+              borderBottom: '1px solid rgba(var(--rz-gold-rgb), 0.55)',
+              boxShadow: '0 6px 18px rgba(var(--rz-ink-rgb), 0.45)',
               zIndex: 80,
               flexShrink: 0,
             }}
@@ -1297,7 +1299,7 @@ function AppContent() {
               style={{
                 position: 'relative',
                 width: '100%',
-                height: '60px',
+                height: '40px',
                 overflow: 'hidden',
               }}
             >
@@ -1308,7 +1310,7 @@ function AppContent() {
                   left: 0,
                   width: 'max-content',
                   minWidth: 'max-content',
-                  height: '60px',
+                  height: '40px',
                   display: 'flex',
                   alignItems: 'center',
                   whiteSpace: 'nowrap',
@@ -1324,18 +1326,17 @@ function AppContent() {
                   style={{
                     display: 'block',
                     flexShrink: 0,
-                    padding: '0 60px',
+                    padding: '0 40px',
                     whiteSpace: 'nowrap',
                     fontFamily: 'Tajawal, "Noto Sans Arabic", Tahoma, sans-serif',
-                    fontSize: 'clamp(1.15rem, 2.5vw, 1.55rem)',
-                    fontWeight: 900,
-                    WebkitTextStroke: '0.4px rgba(var(--rz-champagne-rgb), 0.5)',
-                    lineHeight: '60px',
+                    fontSize: 'clamp(0.8rem, 1.8vw, 0.98rem)',
+                    fontWeight: 800,
+                    lineHeight: '40px',
                     direction: 'rtl',
                     unicodeBidi: 'isolate',
-                    color: 'var(--rz-champagne)',
-                    WebkitTextFillColor: 'var(--rz-champagne)',
-                    textShadow: '0 1px 2px rgba(var(--rz-black-rgb), 0.45)',
+                    color: 'var(--rz-ivory)',
+                    WebkitTextFillColor: 'var(--rz-ivory)',
+                    textShadow: '0 1px 2px rgba(var(--rz-ink-rgb), 0.5)',
                   }}
                 >
                   {ownerWelcomeBanner?.msg || OWNER_WELCOME_MESSAGE}

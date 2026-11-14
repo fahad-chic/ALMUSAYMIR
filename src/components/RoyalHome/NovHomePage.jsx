@@ -157,52 +157,54 @@ const NovHomePage = () => {
 
   return (
     <div className="ch-root" dir="rtl">
-      {/* شريطا التنبيهات — مرفوعان قليلاً لعدم تغطية الشريطين الثابتين */}
-      <div className="home-marquees-sticky" style={{ position: 'relative', zIndex: 30, marginTop: '2px' }}>
-        <MarqueeBanner
-          banners={MARQUEE_BANNERS}
-          editableKeys={['marquee1', 'marquee2', 'marquee3']}
-        />
-        <MarqueeBanner
-          banners={MARQUEE_BANNERS_2}
-          editableKeys={['marquee4', 'marquee5', 'marquee6']}
-          label={`عروض ${BRAND.AR}`}
+      {/* ===== شعار الموقع — أعلى الصفحة تحت الترويسة مباشرة بفراغ بسيط ===== */}
+      <div className="nov-top-logo">
+        <img
+          fetchPriority="high"
+          src={LOGO_SRC}
+          alt={`شعار ${BRAND.FULL}`}
+          className="nov-hero-logo nov-hero-logo--top"
         />
       </div>
 
       <div className="nov-home">
-        {/* ===== شريط العروض المتحرك — تحت الترويسة مباشرة ===== */}
+        {/* ===== الصور الست (شريط العروض) — مرفوعة تحت الشعار مباشرة ===== */}
         <HomeOffersSlider />
 
-        {/* ===== الهيرو الملكي — مضغوط ومميز ===== */}
+        {/* ===== شريطا التنبيهات — أسفل الصور ===== */}
+        <div className="home-marquees-sticky" style={{ position: 'relative', zIndex: 30, marginTop: '2px' }}>
+          <MarqueeBanner
+            banners={MARQUEE_BANNERS}
+            editableKeys={['marquee1', 'marquee2', 'marquee3']}
+          />
+          <MarqueeBanner
+            banners={MARQUEE_BANNERS_2}
+            editableKeys={['marquee4', 'marquee5', 'marquee6']}
+            label={`عروض ${BRAND.AR}`}
+          />
+        </div>
+
+        {/* ===== الهيرو الملكي (نص فقط) — مضغوط ومميز ===== */}
         <section className="nov-hero rz-hero nov-hero--compact">
-          <div className="nov-hero-grid nov-hero-grid--compact">
-            <img
-              fetchPriority="high"
-              src={LOGO_SRC}
-              alt={`شعار ${BRAND.FULL}`}
-              className="nov-hero-logo nov-hero-logo--lg"
+          <div className="nov-hero-body">
+            <Editable as="h1" className="nov-hero-title" contentKey="home.hero_title" defaultValue={HERO_TITLE_DEFAULT} />
+            <Editable
+              as="p"
+              className="nov-hero-sub"
+              contentKey="home.hero_sub"
+              defaultValue={HERO_SUB_DEFAULT}
+              multiline
+              style={{ position: 'relative' }}
             />
-            <div>
-              <Editable as="h1" className="nov-hero-title" contentKey="home.hero_title" defaultValue={HERO_TITLE_DEFAULT} />
-              <Editable
-                as="p"
-                className="nov-hero-sub"
-                contentKey="home.hero_sub"
-                defaultValue={HERO_SUB_DEFAULT}
-                multiline
-                style={{ position: 'relative' }}
-              />
-              <div className="nov-hero-cta nov-hero-cta--side">
-                <button
-                  type="button"
-                  className="nov-btn nov-btn-haraj-gold"
-                  onClick={() => navigate('/haraj')}
-                >
-                  <Flame size={15} strokeWidth={2.2} />
-                  <Editable contentKey="home.haraj_cta" defaultValue={HARAJ_CTA_DEFAULT} />
-                </button>
-              </div>
+            <div className="nov-hero-cta nov-hero-cta--side">
+              <button
+                type="button"
+                className="nov-btn nov-btn-haraj-gold"
+                onClick={() => navigate('/haraj')}
+              >
+                <Flame size={15} strokeWidth={2.2} />
+                <Editable contentKey="home.haraj_cta" defaultValue={HARAJ_CTA_DEFAULT} />
+              </button>
             </div>
           </div>
         </section>
