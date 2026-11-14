@@ -719,3 +719,38 @@ RULES (محاكي Firestore، Java 21) **348/348 PASS** (منها 6 فحوص `si
 - **قبل الاستخدام الحيّ**: نشر القواعد أولاً من جهاز المالك:
   `npx firebase-tools deploy --only firestore:rules --project anaqa-chic-4e437`.
 - **لا ترحيل بيانات مطلوب** (مؤكَّد بالقياس: 0 وثيقة متأثرة).
+
+## جولة متابعة — شريط ترحيب المالك + التحقق من ترحيل reviews/comments (2026-11-14)
+**سياق**: طلب المالك أن يظهر شريط ترحيب المالك مرة واحدة فقط لا ثلاث مرات، مع عدم كسر أي مسار/ربط.
+
+### ما نُفِّذ فعلاً (مُتحقَّق منه)
+- **`src/App.jsx`**: `animation: 'ownerGlobalTicker 32s linear 3'` → `... linear 1`
+  (الشريط كان يمرّ 3 مرات). ومؤقّت الإخفاء التلقائي صار `33000ms` (دورة واحدة) بدل `300000ms`
+  (كان غير مطابق لمدة الحركة أصلاً). صفر تغيير في المسارات/الروابط/Firebase/المصادقة/Rules.
+- **تأكيد عدم الكسر**: فرق المسارات `main` مقابل الفرع = `path="/owner/content"` فقط (من PR #37).
+  BUILD ✓ · LINT exit 0 · VITEST **27 ملفاً/200 اختباراً** ✓ · CONTRAST PASS · FULL AUDIT
+  **65 فحصاً/0 أخطاء/PASS**. CI على الفرع: **6/6 أخضر**.
+
+### تصحيح مهم لادّعاء سابق (ترحيل `publicSafe`)
+- **الواقع على `main` (والقواعد المنشورة إنتاجياً) يستخدم نهج `hidden`/`status` — لا `publicSafe`.**
+  الالتزام `aab85cf` («hidden-based, PII-separated») هو المدموج. نهج `publicSafe` وبريده
+  `scripts/backfill-public-safe.mjs` موجودان فقط في فرع **مغلق** `fix/reviews-privacy` (PR #24 = CLOSED،
+  غير مدموج). أي أن **لا ترحيل مطلوب إنتاجياً**: لا يوجد شرط `publicSafe: true` منشور ليُسقط السجلات القديمة.
+- **قياس إنتاجي حيّ (قراءة فقط عبر REST، بلا أسرار)**:
+  - `reviews`: **0 وثيقة** (سواء `hidden==true` أو `==false`).
+  - `comments`: **52 معتمدة**، 0 معلّقة، 0 مرفوضة — و**0 منها تحمل بريداً غير فارغ** (كلها `email: ''`).
+  - `review_private` / `comment_private`: القراءة العامة مرفوضة (PERMISSION_DENIED) — الفصل يعمل.
+  - القراءة العامة غير المرشّحة على `comments`/`reviews` = PERMISSION_DENIED (لا تسريب).
+- **الخلاصة**: القواعد المنشورة آمنة، والبيانات خالية من PII المتبقّي، ولا حاجة لأي `--apply`.
+- **طريقة dry-run الآمنة للمالك** (على فرض أنه يريد ترحيل نهج `publicSafe` لاحقاً من فرع آخر):
+  لا يُشارَك أي سر في المحادثة؛ ينفّذها على جهازه:
+  `export FIREBASE_PROJECT_ID=anaqa-chic-4e437` ثم
+  `export GOOGLE_OAUTH_ACCESS_TOKEN="$(gcloud auth print-access-token)"` ثم
+  `node scripts/backfill-public-safe.mjs` (افتراضياً dry-run بلا كتابة؛ يتطلب `--apply` + `CONFIRM_APPLY=yes`
+  + `--backup-dir=` معاً للكتابة). السكربت **غير موجود على `main`** — موجود فقط في فرع `fix/reviews-privacy`.
+
+### ملفات هذه الجولة
+`src/App.jsx` (5 أسطر) · `AGENTS.md`. الالتزام `d99c221` مدفوع إلى `feat/owner-full-content-control`
+ويحدّث PR #37 (ما زال مسودة). **لا دمج، لا نشر.**
+⚠️ **اختبار المحاكي ليس اختبار إنتاج.**
+
