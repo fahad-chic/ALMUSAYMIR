@@ -700,16 +700,16 @@ function AppContent() {
      ======================================================= */
 
   // شريط ترحيب المالك — يظهر فقط عند كل تسجيل دخول ناجح لصاحب الموقع،
-  // يلف الشريط ٣ لفات كاملة ثم يتوقف (بلا تخزين دائم ولا 24 ساعة)..
+  // يمرّ مرة واحدة فقط ثم يتوقف (بلا تخزين دائم ولا 24 ساعة)..
   const [ownerWelcomeBanner, setOwnerWelcomeBanner] =
     useState(null);
 
-  // إخفاء شريط ترحيب المالك تلقائيًا بعد ٣ لفات كاملة (300 ثانية = 3×100 ثانية)..
+  // إخفاء شريط ترحيب المالك تلقائيًا بعد دورة واحدة (32 ثانية = مدة الحركة)..
   useEffect(() => {
     if (!ownerWelcomeBanner) return;
     const t = setTimeout(() => {
       setOwnerWelcomeBanner(null);
-    }, 300000);
+    }, 33000);
     return () => clearTimeout(t);
   }, [ownerWelcomeBanner]);
 
@@ -1312,7 +1312,8 @@ function AppContent() {
                   display: 'flex',
                   alignItems: 'center',
                   whiteSpace: 'nowrap',
-                  animation: 'ownerGlobalTicker 32s linear 3',
+                  // يمرّ الشريط مرة واحدة فقط ثم يتوقف (بطلب المالك: بلا تكرار ٣ مرات).
+                  animation: 'ownerGlobalTicker 32s linear 1',
                   willChange: 'transform',
                 }}
                 onAnimationEnd={() => {
