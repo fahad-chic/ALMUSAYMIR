@@ -25,6 +25,7 @@ import usePrefs from './store/usePrefs';
 import useNotifications from './store/useNotifications';
 import { installGlobalClickSound } from './utils/clickSound';
 import { startSiteTextsSync } from './store/useSiteTexts';
+import { startSiteContentSync } from './store/useSiteContent';
 import { startInlineStylesSync } from './store/useInlineStyles';
 import { startOffersSync } from './store/useOffers';
 import { notifyOwner, formatArTime } from './utils/visitorNotify';
@@ -46,6 +47,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import OwnerPanel from './pages/OwnerPanel';
 import OwnerPrivateRoom from './pages/OwnerPrivateRoom';
+import ContentManager from './pages/ContentManager';
 import UsersList from './pages/UsersList';
 
 import AdminPage from './components/pages/AdminPage';
@@ -622,6 +624,7 @@ function AppContent() {
     usePrefs.getState().applyAll();
 
     startSiteTextsSync();
+    startSiteContentSync();
     startInlineStylesSync();
     startOffersSync();
 
@@ -697,16 +700,16 @@ function AppContent() {
      ======================================================= */
 
   // شريط ترحيب المالك — يظهر فقط عند كل تسجيل دخول ناجح لصاحب الموقع،
-  // يلف الشريط ٣ لفات كاملة ثم يتوقف (بلا تخزين دائم ولا 24 ساعة)..
+  // يمرّ مرة واحدة فقط ثم يتوقف (بلا تخزين دائم ولا 24 ساعة)..
   const [ownerWelcomeBanner, setOwnerWelcomeBanner] =
     useState(null);
 
-  // إخفاء شريط ترحيب المالك تلقائيًا بعد ٣ لفات كاملة (300 ثانية = 3×100 ثانية)..
+  // إخفاء شريط ترحيب المالك تلقائيًا بعد دورة واحدة (32 ثانية = مدة الحركة)..
   useEffect(() => {
     if (!ownerWelcomeBanner) return;
     const t = setTimeout(() => {
       setOwnerWelcomeBanner(null);
-    }, 300000);
+    }, 33000);
     return () => clearTimeout(t);
   }, [ownerWelcomeBanner]);
 
@@ -1309,7 +1312,8 @@ function AppContent() {
                   display: 'flex',
                   alignItems: 'center',
                   whiteSpace: 'nowrap',
-                  animation: 'ownerGlobalTicker 32s linear 3',
+                  // يمرّ الشريط مرة واحدة فقط ثم يتوقف (بطلب المالك: بلا تكرار ٣ مرات).
+                  animation: 'ownerGlobalTicker 32s linear 1',
                   willChange: 'transform',
                 }}
                 onAnimationEnd={() => {
@@ -1671,6 +1675,18 @@ function AppContent() {
                     roleRequired="owner"
                   >
                     <OwnerPanel />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* مدير المحتوى المركزي — المالك فقط: تعديل/حذف/إضافة أي نص أو
+                  عنصر في كل الموقع، مربوط بـ settings/siteContent ويُطبَّق
+                  لحظياً على كل الزوار. */}
+              <Route
+                path="/owner/content"
+                element={
+                  <ProtectedRoute roleRequired="owner">
+                    <ContentManager />
                   </ProtectedRoute>
                 }
               />
