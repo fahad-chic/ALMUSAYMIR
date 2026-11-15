@@ -1,6 +1,6 @@
 # المسيمير | ALMUSAYMIR
 
-تصميم **Obsidian × Copper** مع الربط الكامل لـ Firebase و Cloudflare Functions.
+متجر شامل عربي + حراج إعلانات، مبني بـ React + Vite مع Firebase و Cloudflare Pages / Functions.
 
 ## المتطلبات
 - Node 22 (انظر `.nvmrc`)
@@ -28,12 +28,14 @@ npm test
 - Variables: `VITE_FIREBASE_*`, `VITE_OWNER_EMAILS`, …
 
 ## Functions (API)
-- `/api/otp/send` · `/api/otp/verify`
-- `/api/owner-pin`
 - `/api/ai`
+- `/api/owner-pin`
 - `/api/broadcast`
+- `/api/auth-events`
 
 ## الهوية
-- Obsidian `#0b0a09`
-- Copper `#c47a3a` / `#e8a35c`
-- Ivory `#faf6f0`
+- العنابي الملكي `#541426` · العنابي العميق `#2A0B15`
+- الذهبي `#C9A24D` · الشمبانيا `#E3C878`
+- العاجي `#F7F1E6` · الأبيض الدافئ `#FFFDF8`
+- الخط: **Tajawal**
+
