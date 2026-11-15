@@ -39,9 +39,8 @@ const LOGO_SRC = BRAND.LOGO;
 
 const HERO_SUB_DEFAULT =
   'متجرك الشامل — إلكترونيات وجوالات وأجهزة منزلية وأزياء وخدمات، بجودة وثقة وأسعار منافسة.';
-const HERO_TITLE_DEFAULT = BRAND.FULL;
 const HARAJ_CTA_DEFAULT = 'موقع الحراج — اضغط هنا';
-const FOOTER_TAG_DEFAULT = `${BRAND.FULL} — متجرك الشامل`;
+const COPYRIGHT_DEFAULT = 'جميع الحقوق محفوظة © 2026';
 const TRUST_DEFAULTS = [
   { id: 'trust-ship', title: 'شحن سريع', sub: 'لكل المناطق', path: '/faq' },
   { id: 'trust-return', title: 'إرجاع 7 أيام', sub: 'استبدال واضح', path: '/faq' },
@@ -140,8 +139,6 @@ const FAQ_ITEMS = [
 
 const NovHomePage = () => {
   const navigate = useNavigate();
-  // مسار داخلي بعنصر (#offers) يُمرّر لعنصر العروض في نفس الصفحة بدل التنقل
-  // لصفحة أخرى. غيره يُمرَّر كتنقّل عادي.
   const goToPath = (path) => {
     if (typeof path === 'string' && path.includes('#')) {
       const [pathname, hash] = path.split('#');
@@ -168,13 +165,12 @@ const NovHomePage = () => {
       }))
     : FOOTER_LINKS;
   const [showAddHelp, setShowAddHelp] = useState(false);
-  const [footerOpen, setFooterOpen] = useState(false);
+  const [footerOpen, setFooterOpen] = useState(true);
   const [openFaq, setOpenFaq] = useState(null);
   const [faqSectionOpen, setFaqSectionOpen] = useState(false);
 
   return (
     <div className="ch-root" dir="rtl">
-      {/* ===== شعار الموقع — أعلى الصفحة تحت الترويسة مباشرة بفراغ بسيط ===== */}
       <div className="nov-top-logo">
         <img
           fetchPriority="high"
@@ -185,13 +181,15 @@ const NovHomePage = () => {
       </div>
 
       <div className="nov-home">
-        {/* ===== الصور الست (شريط العروض) — مرفوعة تحت الشعار مباشرة ===== */}
-        <div id="offers" style={{ scrollMarginTop: '90px' }}>
-          <HomeOffersSlider />
-        </div>
+        <Editable
+          as="p"
+          className="nov-lead-under-logo"
+          contentKey="home.hero_sub"
+          defaultValue={HERO_SUB_DEFAULT}
+          multiline
+        />
 
-        {/* ===== شريطا التنبيهات — أسفل الصور ===== */}
-        <div className="home-marquees-sticky" style={{ position: 'relative', zIndex: 30, marginTop: '2px' }}>
+        <div className="home-marquees-sticky" style={{ position: 'relative', zIndex: 30, marginTop: 0 }}>
           <MarqueeBanner
             banners={MARQUEE_BANNERS}
             editableKeys={['marquee1', 'marquee2', 'marquee3']}
@@ -203,37 +201,25 @@ const NovHomePage = () => {
           />
         </div>
 
-        {/* ===== الهيرو الملكي (نص فقط) — مضغوط ومميز ===== */}
-        <section className="nov-hero rz-hero nov-hero--compact">
-          <div className="nov-hero-body">
-            <Editable as="h1" className="nov-hero-title" contentKey="home.hero_title" defaultValue={HERO_TITLE_DEFAULT} />
-            <Editable
-              as="p"
-              className="nov-hero-sub"
-              contentKey="home.hero_sub"
-              defaultValue={HERO_SUB_DEFAULT}
-              multiline
-              style={{ position: 'relative' }}
-            />
-            <div className="nov-hero-cta nov-hero-cta--side">
-              <button
-                type="button"
-                className="nov-btn nov-btn-haraj-gold"
-                onClick={() => navigate('/haraj')}
-              >
-                <Flame size={15} strokeWidth={2.2} />
-                <Editable contentKey="home.haraj_cta" defaultValue={HARAJ_CTA_DEFAULT} />
-              </button>
-            </div>
-          </div>
-        </section>
+        <div className="nov-haraj-standalone">
+          <button
+            type="button"
+            className="nov-btn nov-btn-haraj-gold"
+            onClick={() => navigate('/haraj')}
+          >
+            <Flame size={15} strokeWidth={2.2} />
+            <Editable contentKey="home.haraj_cta" defaultValue={HARAJ_CTA_DEFAULT} />
+          </button>
+        </div>
 
-        {/* ===== آراء العملاء (مرفوعة للأعلى ومكبّرة قليلاً) ===== */}
+        <div id="offers" style={{ scrollMarginTop: '90px' }}>
+          <HomeOffersSlider />
+        </div>
+
         <div className="nov-comments-wrap">
           <CommentsSection />
         </div>
 
-        {/* ===== نقاط الثقة — صفين × اثنين، خلفية ذهبية فاتحة ===== */}
         <section className="rz-trust rz-trust--gold" aria-label={`لماذا ${BRAND.AR}`}>
           {trustItems.map((item, i) => {
             const Icon = [Truck, BadgeCheck, Headphones][i % 3];
@@ -254,7 +240,6 @@ const NovHomePage = () => {
           })}
         </section>
 
-        {/* ===== الأسئلة الشائعة ===== */}
         <section className="rz-faq" aria-label="الأسئلة الشائعة">
           <button
             type="button"
@@ -291,18 +276,8 @@ const NovHomePage = () => {
           )}
         </section>
 
-        {/* ===== التذييل الملكي — مختصر، بلا تكرار لروابط الترويسة =====
-            روابط الأقسام/الحراج/الحساب موجودة في القائمة العلوية ودرج (+)،
-            لذا تُطوى هنا داخل زر واحد بدل تكرارها في أربعة أعمدة. */}
         <footer className="rz-footer rz-footer--compact rz-footer--home-tight">
           <div className="rz-footer-inner">
-            <div className="rz-footer-top">
-              <img src={LOGO_SRC} alt={`شعار ${BRAND.FULL}`} className="rz-footer-logo" loading="lazy" />
-              <p className="rz-footer-tag" style={{ position: 'relative' }}>
-                  <Editable contentKey="home.footer_tag" defaultValue={FOOTER_TAG_DEFAULT} />
-              </p>
-            </div>
-
             <button
               type="button"
               className="rz-footer-links-toggle"
@@ -333,15 +308,14 @@ const NovHomePage = () => {
 
             <div className="rz-footer-bottom rz-footer-bottom--center">
               <Editable
-                contentKey="footer.copyright"
-                defaultValue={`جميع الحقوق محفوظة © 2026 ${BRAND.FULL}`}
+                contentKey="footer.copyright_line"
+                defaultValue={COPYRIGHT_DEFAULT}
               />
             </div>
           </div>
         </footer>
       </div>
 
-      {/* مودال «كيف أثبت التطبيق؟» — يبقى متاحاً من القائمة */}
       {showAddHelp && (
         <div className="nov-modal-overlay" onClick={() => setShowAddHelp(false)} role="presentation">
           <div className="nov-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
