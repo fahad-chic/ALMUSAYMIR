@@ -1,6 +1,7 @@
 // تدقيق الأزرار والروابط والتكرار في الموقع.
 // الاستخدام: BASE_URL=http://localhost:5173 npm run buttons
 import { chromium } from 'playwright';
+import fs from 'node:fs';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
 const ROUTES = [
@@ -39,7 +40,11 @@ const result = {
   skipped: [],
 };
 
-const browser = await chromium.launch({ headless: true });
+const launchOptions = { headless: true };
+if (process.env.CHROMIUM_PATH) launchOptions.executablePath = process.env.CHROMIUM_PATH;
+else if (fs.existsSync('/usr/bin/chromium')) launchOptions.executablePath = '/usr/bin/chromium';
+
+const browser = await chromium.launch(launchOptions);
 try {
   for (const route of ROUTES) {
     const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
