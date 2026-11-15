@@ -11,6 +11,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { db, auth } from '../../firebase/config';
+import { useAuth } from '../../context/AuthContext';
 import {
   collection,
   addDoc,
@@ -84,6 +85,7 @@ const compressImageToDataUrl = (file) =>
   });
 const AdFormPage = () => {
   const navigate = useNavigate();
+  const { user: memberUser } = useAuth();
   const [harajUser, setHarajUser] = useState(null);
   const [checkingUser, setCheckingUser] = useState(true);
   const [step, setStep] = useState(1);
@@ -145,6 +147,14 @@ const AdFormPage = () => {
       mounted = false;
     };
   }, []);
+
+  // هوية النشر: عضو Firebase موثّق (بريد مُوثَّق وغير مجهول) أو مستخدم حراج
+  // المحلي القديم. هذا يمنع إرباك الأعضاء المسجّلين الذين لم يمرّوا بنموذج
+  // تسجيل الحراج القديم (localStorage) بعد الآن.
+  const isVerifiedMember =
+    !!memberUser?.emailVerified && !memberUser?.isAnonymous;
+  const effectivePublisher = harajUser || (isVerifiedMember ? memberUser : null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -315,7 +325,7 @@ const AdFormPage = () => {
       setSubmitError('يجب الموافقة على الشروط قبل نشر الإعلان.');
       return;
     }
-    if (!harajUser) {
+    if (!effectivePublisher) {
       setSubmitError('يجب تسجيل الدخول أولاً.');
       navigate('/haraj');
       return;
@@ -403,15 +413,17 @@ const AdFormPage = () => {
           publisherName ||
           harajUser?.name ||
           harajUser?.userName ||
+          memberUser?.displayName ||
           '',
         userPhone: publisherPhone,
         userEmail:
-          harajUser.email ||
-          harajUser.userEmail ||
+          harajUser?.email ||
+          harajUser?.userEmail ||
+          memberUser?.email ||
           '',
         userRegion:
-          harajUser.region ||
-          harajUser.userRegion ||
+          harajUser?.region ||
+          harajUser?.userRegion ||
           '',
         /*
          * V3: userId = معرّف مصادقة Firebase (uid) لتفعيل ملكية الإعلان في
@@ -419,14 +431,14 @@ const AdFormPage = () => {
          */
         userId:
           auth?.currentUser?.uid ||
-          harajUser.uid ||
-          harajUser.userId ||
-          harajUser.id ||
+          harajUser?.uid ||
+          harajUser?.userId ||
+          harajUser?.id ||
           '',
         harajUserId:
-          harajUser.uid ||
-          harajUser.userId ||
-          harajUser.id ||
+          harajUser?.uid ||
+          harajUser?.userId ||
+          harajUser?.id ||
           '',
       };
       await addDoc(
@@ -493,7 +505,7 @@ const AdFormPage = () => {
       </div>
     );
   }
-  if (!harajUser) {
+  if (!effectivePublisher) {
     return (
       <div
         dir="rtl"

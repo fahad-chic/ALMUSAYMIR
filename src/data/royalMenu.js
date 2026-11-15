@@ -16,7 +16,7 @@ export const ROYAL_NAV = [
   { id: 'store', label: `متجر ${BRAND.AR}`, path: STORE_HOME_PATH, icon: 'store' },
   { id: 'catalogs', label: 'الأقسام', path: '/branches', icon: 'grid' },
   { id: 'haraj', label: 'الحراج', path: '/haraj', icon: 'tag' },
-  { id: 'offers', label: 'العروض', path: '/advertisements', icon: 'sparkles' },
+  { id: 'offers', label: 'العروض', path: '/#offers', icon: 'sparkles' },
   { id: 'about', label: 'من نحن', path: '/about', icon: 'info' },
 ];
 
@@ -28,7 +28,7 @@ export const ROYAL_DRAWER = [
     items: [
       { label: 'جميع المنتجات', path: STORE_HOME_PATH },
       { label: 'كل الأقسام', path: '/branches' },
-      { label: 'العروض', path: '/advertisements' },
+      { label: 'العروض', path: '/#offers' },
     ],
   },
   {
@@ -55,7 +55,6 @@ export const ROYAL_DRAWER = [
     icon: 'tag',
     items: [
       { label: 'الحراج الرئيسي', path: '/haraj' },
-      { label: 'كل الإعلانات', path: '/advertisements' },
       { label: 'أضف إعلانك', path: '/haraj/post' },
       { label: 'الطلبات الخاصة', path: '/wanted-dress' },
     ],
@@ -67,10 +66,10 @@ export const ROYAL_DRAWER = [
     authOnly: true,
     items: [
       { label: 'ملفي الشخصي', path: '/settings' },
+      { label: 'المفضلة', path: '/favorites' },
       { label: 'رسائلي', path: '/chat' },
       { label: 'صندوق الوارد', path: '/inbox' },
       { label: 'إشعاراتي', path: '/notifications' },
-      { label: 'المفضلة', path: '/settings' },
     ],
   },
   {
@@ -91,11 +90,10 @@ export const ROYAL_DRAWER = [
     icon: 'sparkles',
     items: [
       { label: 'أريد التسوق', path: STORE_HOME_PATH },
-      { label: 'أريد مشاهدة العروض', path: '/advertisements' },
+      { label: 'أريد مشاهدة العروض', path: '/#offers' },
       { label: 'أريد تصفح الحراج', path: '/haraj' },
       { label: 'أريد إضافة إعلان', path: '/haraj/post' },
       { label: 'أريد الوصول إلى حسابي', path: '/settings' },
-      { label: 'دخول الحراج', path: '/haraj' },
     ],
   },
 ];

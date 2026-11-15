@@ -27,6 +27,7 @@ const pages = [
   { name: 'UsersList', imp: () => import('./pages/UsersList'), path: '/users' },
   { name: 'AdminPage', imp: () => import('./components/pages/AdminPage'), path: '/admin' },
   { name: 'SettingsPage', imp: () => import('./components/pages/SettingsPage'), path: '/settings' },
+  { name: 'FavoritesPage', imp: () => import('./pages/FavoritesPage'), path: '/favorites' },
   { name: 'OTPPage', imp: () => import('./components/pages/OTPPage'), path: '/otp' },
   { name: 'ComplaintsPage', imp: () => import('./components/pages/ComplaintsPage'), path: '/complaints' },
   { name: 'Navigation', imp: () => import('./components/Navigation'), path: '/nav' },

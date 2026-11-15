@@ -17,6 +17,11 @@ const mockOnSnapshot = vi.fn(() => vi.fn());
 const mockQuery = vi.fn((ref) => ref);
 const mockOrderBy = vi.fn((ref) => ref);
 const mockLimit = vi.fn((ref) => ref);
+const mockWhere = vi.fn((ref) => ref);
+const mockGetDocs = vi.fn(() => Promise.resolve({ docs: [], empty: true, size: 0 }));
+const mockUpdateDoc = vi.fn(() => Promise.resolve());
+const mockArrayUnion = vi.fn((...v) => ({ __op: 'arrayUnion', v }));
+const mockArrayRemove = vi.fn((...v) => ({ __op: 'arrayRemove', v }));
 
 vi.mock('firebase/firestore', () => ({
   collection: mockCollection,
@@ -26,6 +31,11 @@ vi.mock('firebase/firestore', () => ({
   query: mockQuery,
   orderBy: mockOrderBy,
   limit: mockLimit,
+  where: mockWhere,
+  getDocs: mockGetDocs,
+  updateDoc: mockUpdateDoc,
+  arrayUnion: mockArrayUnion,
+  arrayRemove: mockArrayRemove,
   doc: vi.fn(() => ({})),
   getDoc: vi.fn(() => Promise.resolve({ exists: () => false })),
   setDoc: vi.fn(() => Promise.resolve()),
