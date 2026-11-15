@@ -707,12 +707,16 @@ service cloud.firestore {
     // UPDATE_GLOBAL_SETTINGS يغطي بقية الوثائق العامة فقط — وإلا لتجاوز
     // صلاحيات مثل CODE_SNIPPET_INJECTION (تصعيد صلاحيات).
     function isReservedSettingsDoc(docId) {
-      return docId in ['siteTexts','inlineStyles','maintenance',
+      return docId in ['siteTexts','siteContent','inlineStyles','maintenance',
                        'registrationGate','cacheBuster','navigation','snippets'];
     }
     match /settings/{docId} {
       allow read: if true;
       allow write: if isOwner()
+                   // محتوى الموقع الكامل (نصوص/أرقام/خيارات/قوائم) للمالك فقط —
+                   // لا صلاحية تمنحه ولا مشرف يكتبه. مذكور صراحةً هنا ليكون
+                   // الفرض واضحاً، ومحمي كذلك عبر isReservedSettingsDoc أعلاه.
+                   || (docId == 'siteContent' && isOwner())
                    || (docId == 'siteTexts' && hasPerm('INLINE_TEXT_EDIT'))
                    || (docId == 'inlineStyles' && inlineStyleAllowed())
                    || (docId == 'maintenance' && hasPerm('TOGGLE_MAINTENANCE_MODE'))

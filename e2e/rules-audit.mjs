@@ -468,6 +468,14 @@ await expectAllow('UPDATE_GLOBAL_SETTINGS: المالك يكتب', setDoc(doc(ow
 // UPDATE_GLOBAL_SETTINGS لا يتجاوز وثيقة مخصّصة (siteTexts = INLINE_TEXT_EDIT)
 await expectDeny('UPDATE_GLOBAL_SETTINGS: لا يكتب siteTexts (مخصّص لـINLINE_TEXT_EDIT)', setDoc(doc(adminA, 'settings', 'siteTexts'), { hero: 'x' }, { merge: true }));
 
+// siteContent — محتوى الموقع الكامل: المالك فقط يكتب، والقراءة عامة.
+await expectAllow('siteContent: المالك يكتب نصاً', setDoc(doc(owner, 'settings', 'siteContent'), { texts: { 'home.hero_sub': 'x' } }, { merge: true }));
+await expectAllow('siteContent: المالك يحذف عنصراً (hidden)', setDoc(doc(owner, 'settings', 'siteContent'), { hidden: { 'home.hero_sub': true } }, { merge: true }));
+await expectAllow('siteContent: المالك يكتب قائمة', setDoc(doc(owner, 'settings', 'siteContent'), { lists: { 'faq.items': [] } }, { merge: true }));
+await expectDeny('siteContent: المصرّح العام (UPDATE_GLOBAL_SETTINGS) مرفوض', setDoc(doc(adminA, 'settings', 'siteContent'), { texts: { 'home.hero_sub': 'hack' } }, { merge: true }));
+await expectDeny('siteContent: غير المصرّح مرفوض', setDoc(doc(adminB, 'settings', 'siteContent'), { texts: { x: 'y' } }, { merge: true }));
+await expectDeny('siteContent: الزائر مرفوض', setDoc(doc(visitor, 'settings', 'siteContent'), { texts: { x: 'y' } }, { merge: true }));
+
 // TOGGLE_MAINTENANCE_MODE
 await expectAllow('TOGGLE_MAINTENANCE_MODE: المصرّح يكتب settings/maintenance', setDoc(doc(adminA, 'settings', 'maintenance'), { enabled: false }, { merge: true }));
 await expectDeny('TOGGLE_MAINTENANCE_MODE: غير المصرّح مرفوض', setDoc(doc(adminB, 'settings', 'maintenance'), { enabled: true }, { merge: true }));

@@ -9,6 +9,28 @@
    يُستورد بعد NovHome.css ليتقدّم عليه.
    ============================================================ */
 
+/* ===== شعار أعلى الصفحة — تحت الترويسة مباشرة، بلا خلفية، أكبر قليلاً ===== */
+.nov-top-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem auto 0.25rem;
+  padding: 0 0.6rem;
+}
+
+.nov-hero-logo--top {
+  width: clamp(132px, 34vw, 210px) !important;
+  height: auto !important;
+  max-height: 168px !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  object-fit: contain !important;
+}
+
 /* ===== الهيرو: زجاجي مضغوط تظهر منه المدينة ===== */
 .nov-hero,
 .nov-hero.rz-hero {
@@ -42,6 +64,17 @@
   border: 0 !important;
 }
 
+/* الهيرو صار نصياً بالكامل (الشعار انتقل لأعلى الصفحة) — توسيط مرتب */
+.nov-hero-body {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.nov-hero-body .nov-hero-cta--side {
+  justify-content: center;
+}
+
 .nov-hero-title {
   font-size: clamp(1.25rem, 3.6vw, 1.9rem) !important;
   margin: 0.3rem 0 0.2rem !important;
@@ -50,7 +83,8 @@
 .nov-hero-sub {
   font-size: 0.82rem !important;
   line-height: 1.6 !important;
-  margin: 0 !important;
+  margin: 0 auto !important;
+  max-width: 52ch;
   opacity: 0.95;
 }
 

@@ -30,8 +30,8 @@ import {
 import MarqueeBanner from './MarqueeBanner';
 import CommentsSection from './CommentsSection';
 import HomeOffersSlider from './HomeOffersSlider';
-import OwnerTextEdit from '../OwnerTextEdit';
-import useSiteTexts from '../../store/useSiteTexts';
+import Editable from '../Editable';
+import useSiteContent from '../../store/useSiteContent';
 import { MARQUEE_BANNERS, MARQUEE_BANNERS_2 } from './sectionsData';
 import '../../styles/NovHome.css';
 
@@ -39,7 +39,14 @@ const LOGO_SRC = BRAND.LOGO;
 
 const HERO_SUB_DEFAULT =
   'متجرك الشامل — إلكترونيات وجوالات وأجهزة منزلية وأزياء وخدمات، بجودة وثقة وأسعار منافسة.';
+const HERO_TITLE_DEFAULT = BRAND.FULL;
+const HARAJ_CTA_DEFAULT = 'موقع الحراج — اضغط هنا';
 const FOOTER_TAG_DEFAULT = `${BRAND.FULL} — متجرك الشامل`;
+const TRUST_DEFAULTS = [
+  { id: 'trust-ship', title: 'شحن سريع', sub: 'لكل المناطق', path: '/faq' },
+  { id: 'trust-return', title: 'إرجاع 7 أيام', sub: 'استبدال واضح', path: '/faq' },
+  { id: 'trust-support', title: 'دعم دائم', sub: 'تواصل بأي وقت', path: '/contact' },
+];
 
 const FOOTER_LINKS = [
   {
@@ -133,9 +140,16 @@ const FAQ_ITEMS = [
 
 const NovHomePage = () => {
   const navigate = useNavigate();
-  const siteTexts = useSiteTexts((s) => s.texts);
-  const heroSub = siteTexts['home.hero_sub'] || HERO_SUB_DEFAULT;
-  const footerTag = siteTexts['home.footer_tag'] || FOOTER_TAG_DEFAULT;
+  const siteLists = useSiteContent((s) => s.lists);
+  const trustItems = Array.isArray(siteLists['home.trust']) && siteLists['home.trust'].length
+    ? siteLists['home.trust']
+    : TRUST_DEFAULTS;
+  const footerLinks = Array.isArray(siteLists['home.footer_links']) && siteLists['home.footer_links'].length
+    ? siteLists['home.footer_links'].map((it, i) => ({
+        ...(FOOTER_LINKS[i] || FOOTER_LINKS[0]),
+        ...it,
+      }))
+    : FOOTER_LINKS;
   const [showAddHelp, setShowAddHelp] = useState(false);
   const [footerOpen, setFooterOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
@@ -143,48 +157,54 @@ const NovHomePage = () => {
 
   return (
     <div className="ch-root" dir="rtl">
-      {/* شريطا التنبيهات — مرفوعان قليلاً لعدم تغطية الشريطين الثابتين */}
-      <div className="home-marquees-sticky" style={{ position: 'relative', zIndex: 30, marginTop: '2px' }}>
-        <MarqueeBanner
-          banners={MARQUEE_BANNERS}
-          editableKeys={['marquee1', 'marquee2', 'marquee3']}
-        />
-        <MarqueeBanner
-          banners={MARQUEE_BANNERS_2}
-          editableKeys={['marquee4', 'marquee5', 'marquee6']}
-          label={`عروض ${BRAND.AR}`}
+      {/* ===== شعار الموقع — أعلى الصفحة تحت الترويسة مباشرة بفراغ بسيط ===== */}
+      <div className="nov-top-logo">
+        <img
+          fetchPriority="high"
+          src={LOGO_SRC}
+          alt={`شعار ${BRAND.FULL}`}
+          className="nov-hero-logo nov-hero-logo--top"
         />
       </div>
 
       <div className="nov-home">
-        {/* ===== شريط العروض المتحرك — تحت الترويسة مباشرة ===== */}
+        {/* ===== الصور الست (شريط العروض) — مرفوعة تحت الشعار مباشرة ===== */}
         <HomeOffersSlider />
 
-        {/* ===== الهيرو الملكي — مضغوط ومميز ===== */}
+        {/* ===== شريطا التنبيهات — أسفل الصور ===== */}
+        <div className="home-marquees-sticky" style={{ position: 'relative', zIndex: 30, marginTop: '2px' }}>
+          <MarqueeBanner
+            banners={MARQUEE_BANNERS}
+            editableKeys={['marquee1', 'marquee2', 'marquee3']}
+          />
+          <MarqueeBanner
+            banners={MARQUEE_BANNERS_2}
+            editableKeys={['marquee4', 'marquee5', 'marquee6']}
+            label={`عروض ${BRAND.AR}`}
+          />
+        </div>
+
+        {/* ===== الهيرو الملكي (نص فقط) — مضغوط ومميز ===== */}
         <section className="nov-hero rz-hero nov-hero--compact">
-          <div className="nov-hero-grid nov-hero-grid--compact">
-            <img
-              fetchPriority="high"
-              src={LOGO_SRC}
-              alt={`شعار ${BRAND.FULL}`}
-              className="nov-hero-logo nov-hero-logo--lg"
+          <div className="nov-hero-body">
+            <Editable as="h1" className="nov-hero-title" contentKey="home.hero_title" defaultValue={HERO_TITLE_DEFAULT} />
+            <Editable
+              as="p"
+              className="nov-hero-sub"
+              contentKey="home.hero_sub"
+              defaultValue={HERO_SUB_DEFAULT}
+              multiline
+              style={{ position: 'relative' }}
             />
-            <div>
-              <h1 className="nov-hero-title">{BRAND.FULL}</h1>
-              <p className="nov-hero-sub" style={{ position: 'relative' }}>
-                {heroSub}
-                <OwnerTextEdit textKey="home.hero_sub" defaultValue={HERO_SUB_DEFAULT} />
-              </p>
-              <div className="nov-hero-cta nov-hero-cta--side">
-                <button
-                  type="button"
-                  className="nov-btn nov-btn-haraj-gold"
-                  onClick={() => navigate('/haraj')}
-                >
-                  <Flame size={15} strokeWidth={2.2} />
-                  موقع الحراج — اضغط هنا
-                </button>
-              </div>
+            <div className="nov-hero-cta nov-hero-cta--side">
+              <button
+                type="button"
+                className="nov-btn nov-btn-haraj-gold"
+                onClick={() => navigate('/haraj')}
+              >
+                <Flame size={15} strokeWidth={2.2} />
+                <Editable contentKey="home.haraj_cta" defaultValue={HARAJ_CTA_DEFAULT} />
+              </button>
             </div>
           </div>
         </section>
@@ -196,27 +216,23 @@ const NovHomePage = () => {
 
         {/* ===== نقاط الثقة — صفين × اثنين، خلفية ذهبية فاتحة ===== */}
         <section className="rz-trust rz-trust--gold" aria-label={`لماذا ${BRAND.AR}`}>
-          <button type="button" className="rz-trust-item" onClick={() => navigate('/faq')}>
-            <span className="rz-trust-ico"><Truck size={15} /></span>
-            <div>
-              <h4>شحن سريع</h4>
-              <p>لكل المناطق</p>
-            </div>
-          </button>
-          <button type="button" className="rz-trust-item" onClick={() => navigate('/faq')}>
-            <span className="rz-trust-ico"><BadgeCheck size={15} /></span>
-            <div>
-              <h4>إرجاع 7 أيام</h4>
-              <p>استبدال واضح</p>
-            </div>
-          </button>
-          <button type="button" className="rz-trust-item" onClick={() => navigate('/contact')}>
-            <span className="rz-trust-ico"><Headphones size={15} /></span>
-            <div>
-              <h4>دعم دائم</h4>
-              <p>تواصل بأي وقت</p>
-            </div>
-          </button>
+          {trustItems.map((item, i) => {
+            const Icon = [Truck, BadgeCheck, Headphones][i % 3];
+            return (
+              <button
+                type="button"
+                className="rz-trust-item"
+                key={item.id || i}
+                onClick={() => navigate(item.path || '/faq')}
+              >
+                <span className="rz-trust-ico"><Icon size={15} /></span>
+                <div>
+                  <Editable as="h4" contentKey={`home.trust.${i}.title`} defaultValue={item.title} />
+                  <Editable as="p" contentKey={`home.trust.${i}.sub`} defaultValue={item.sub} />
+                </div>
+              </button>
+            );
+          })}
         </section>
 
         {/* ===== الأسئلة الشائعة ===== */}
@@ -264,9 +280,8 @@ const NovHomePage = () => {
             <div className="rz-footer-top">
               <img src={LOGO_SRC} alt={`شعار ${BRAND.FULL}`} className="rz-footer-logo" loading="lazy" />
               <p className="rz-footer-tag" style={{ position: 'relative' }}>
-                  {footerTag}
-                  <OwnerTextEdit textKey="home.footer_tag" defaultValue={FOOTER_TAG_DEFAULT} />
-                </p>
+                  <Editable contentKey="home.footer_tag" defaultValue={FOOTER_TAG_DEFAULT} />
+              </p>
             </div>
 
             <button
@@ -281,16 +296,16 @@ const NovHomePage = () => {
 
             {footerOpen && (
               <div className="rz-footer-links-grid" aria-label="روابط ومعلومات الموقع">
-                {FOOTER_LINKS.map(({ title, path, icon: Icon }) => (
+                {footerLinks.map(({ title, path, icon: Icon }, i) => (
                   <button
                     type="button"
                     className="rz-footer-info-head"
-                    key={title}
+                    key={title || i}
                     onClick={() => navigate(path)}
                     aria-label={`فتح صفحة ${title}`}
                   >
                     <span className="rz-footer-info-icon"><Icon size={16} /></span>
-                    <span>{title}</span>
+                    <Editable contentKey={`home.footer_links.${i}.title`} defaultValue={title} />
                     <span className="rz-footer-info-arrow" aria-hidden="true">←</span>
                   </button>
                 ))}
@@ -298,7 +313,10 @@ const NovHomePage = () => {
             )}
 
             <div className="rz-footer-bottom rz-footer-bottom--center">
-              جميع الحقوق محفوظة © 2026 {BRAND.FULL}
+              <Editable
+                contentKey="footer.copyright"
+                defaultValue={`جميع الحقوق محفوظة © 2026 ${BRAND.FULL}`}
+              />
             </div>
           </div>
         </footer>

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import OwnerTextEdit from "../OwnerTextEdit";
-import useSiteTexts from "../../store/useSiteTexts";
+import Editable from "../Editable";
+import useSiteContent from "../../store/useSiteContent";
 import { Megaphone, ChevronLeft, Sparkles } from "lucide-react";
 
 // الشريط العام (التنبيهات والعروض) — نسخة مدمجة وأنيقة.
@@ -14,7 +14,7 @@ const MarqueeBanner = ({
   label = "جديد المسيمير",
   barBg = null,
 }) => {
-  const siteTexts = useSiteTexts((s) => s.texts);
+  const siteTexts = useSiteContent((s) => s.texts);
   const messageWindowRef = useRef(null);
   const messageTextRef = useRef(null);
   const [scrollDistance, setScrollDistance] = useState(0);
@@ -478,8 +478,9 @@ const MarqueeBanner = ({
               position: "relative",
             }}
           >
-            <OwnerTextEdit
-              textKey={editableKeys[0]}
+            <Editable
+              controlsOnly
+              contentKey={editableKeys[0]}
               defaultValue={banners[0]?.text || ""}
             />
           </div>
