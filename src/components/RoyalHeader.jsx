@@ -70,6 +70,17 @@ const RoyalHeader = ({
   }, [drawerOpen]);
 
   const go = useCallback((path) => {
+    // مسار بعنصر (#offers): ننتقل للصفحة الرئيسية ثم نُمرّر لعنصر العروض،
+    // بدل توجيه المستخدم إلى صفحة إدارية.
+    if (typeof path === 'string' && path.includes('#')) {
+      const [pathname, hash] = path.split('#');
+      navigate(pathname || '/');
+      closeDrawer();
+      window.setTimeout(() => {
+        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+      return;
+    }
     if (path) navigate(path);
     closeDrawer();
   }, [navigate, closeDrawer]);
@@ -111,7 +122,7 @@ const RoyalHeader = ({
 
           <div className="rz-actions">
             <button type="button" className="rz-icon-btn" aria-label="المفضلة" title="المفضلة"
-              onClick={() => go('/settings')}>
+              onClick={() => go('/favorites')}>
               <Heart size={19} />
             </button>
             <button type="button" className="rz-icon-btn" aria-label="الإشعارات" title="الإشعارات"
@@ -153,6 +164,14 @@ const RoyalHeader = ({
                 key={item.id}
                 to={item.path}
                 className={`rz-nav-link ${isActive ? 'is-active' : ''}`}
+                onClick={(e) => {
+                  // روابط بعنصر (#offers) تُمرَّر عبر go() لتُمرّر للعنصر
+                  // في نفس الصفحة بدل الاعتماد على سلوك المتصفح.
+                  if (item.path.includes('#')) {
+                    e.preventDefault();
+                    go(item.path);
+                  }
+                }}
               >
                 <Editable contentKey={`header.nav.${item.id}`} defaultValue={item.label} />
               </Link>

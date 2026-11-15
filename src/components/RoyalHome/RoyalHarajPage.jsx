@@ -52,6 +52,7 @@ import { db } from '../../firebase';
 import { BANK_ACCOUNTS as CONST_BANKS, COMMISSION_RATES } from '../../utils/constants';
 import CommissionAndBanks from '../shared/CommissionAndBanks';
 import { ensureFirebaseSession } from '../../utils/firebaseSession';
+import { useAuth } from '../../context/AuthContext';
 import HarajUserRegistration from '../haraj/HarajUserRegistration';
 import HarajAuth from '../haraj/HarajAuth';
 
@@ -826,6 +827,7 @@ const BankCard = ({ bank }) => {
 
 const RoyalHarajPage = () => {
   const navigate = useNavigate();
+  const { user: memberUser } = useAuth();
   const [sectionsOpen, setSectionsOpen] = useState(false);
 
   const [harajUser, setHarajUser] = useState(null);
@@ -886,6 +888,12 @@ const RoyalHarajPage = () => {
       localStorage.removeItem('harajUser');
     }
   }, []);
+
+  // عضو Firebase موثّق (بريد مُوثَّق وغير مجهول) يُعامل كمسجّل حراج حتى لو لم
+  // يمرّ بنموذج تسجيل الحراج القديم — يمنع إرباك الأعضاء المسجّلين.
+  const isVerifiedMember =
+    !!memberUser?.emailVerified && !memberUser?.isAnonymous;
+  const canUseHaraj = !!harajUser || isVerifiedMember;
 
   useEffect(() => {
     let isMounted = true;
@@ -959,13 +967,13 @@ const RoyalHarajPage = () => {
   }, []);
 
   const handleContact = useCallback(() => {
-    if (!harajUser) {
+    if (!canUseHaraj) {
       setShowHarajAuth(true);
       return false;
     }
 
     return true;
-  }, [harajUser]);
+  }, [canUseHaraj]);
 
   const handleRegistrationSuccess = (
     data
@@ -1285,7 +1293,7 @@ const RoyalHarajPage = () => {
               type="button"
               className="haraj-cta-banner haraj-add-ad-btn"
               onClick={() => {
-                if (!harajUser) {
+                if (!canUseHaraj) {
                   setShowHarajAuth(true);
                 } else {
                   navigate('/haraj/post');
@@ -1695,7 +1703,7 @@ const RoyalHarajPage = () => {
                   key={ad.id}
                   ad={ad}
                   isRegistered={
-                    !!harajUser
+                    canUseHaraj
                   }
                   onContact={
                     handleContact

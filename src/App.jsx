@@ -119,6 +119,7 @@ const AdDetailsPage = safeLazy(() => import('./pages/AdDetailsPage'));
 const ChatPage = safeLazy(() => import('./pages/ChatPage'));
 const TermsPage = safeLazy(() => import('./pages/TermsPage'));
 const WantedDressPage = safeLazy(() => import('./pages/WantedDressPage'));
+const FavoritesPage = safeLazy(() => import('./pages/FavoritesPage'));
 
 /* =========================================================
    Owner Broadcast
@@ -309,7 +310,7 @@ const UnauthorizedPage = () => {
             fontSize: '0.95rem',
           }}
         >
-          هذه الصفحة مخصصة لصاحب موقع «المسيمير | ALMUSAYMIR» فقط، وهي محمية بحماية
+          هذه الصفحة مخصصة لصاحب الموقع أو الإدارة المصرّح لها فقط، وهي محمية بحماية
           مشددة.
           <br />
           تم تسجيل محاولة الوصول هذه في سجل الأمان.
@@ -323,9 +324,13 @@ const UnauthorizedPage = () => {
    Protected Route
    ========================================================= */
 
-const ProtectedRoute = ({ children, roleRequired }) => {
+const ProtectedRoute = ({ children, roleRequired, rolesRequired }) => {
   const { user, userRole, isAuthenticated, membership } = useAuth();
   const guestSession = useStore((state) => state.guestSession);
+
+  // نطاق الأدوار المسموح: إمّا مصفوفة صريحة أو دور واحد. غيابه = أي عضو موثّق.
+  const requiredRoles =
+    rolesRequired || (roleRequired ? [roleRequired] : null);
 
   const liveAuth =
     auth ||
@@ -352,7 +357,7 @@ const ProtectedRoute = ({ children, roleRequired }) => {
 
   const sessionPending =
     hasFirebaseSession &&
-    (!isAuthenticated || (!!roleRequired && !userRole));
+    (!isAuthenticated || (!!requiredRoles && !userRole));
 
   const [pendingExpired, setPendingExpired] = useState(false);
 
@@ -375,7 +380,7 @@ const ProtectedRoute = ({ children, roleRequired }) => {
 
   // عضو مسجّل لكن بريده لم يُوثَّق → شاشة إثبات الملكية، ولا محتوى للمتجر.
   if (hasFirebaseSession && !isVerifiedMember) {
-    if (isActiveGuest && !roleRequired) {
+    if (isActiveGuest && !requiredRoles) {
       return children;
     }
     // جلسة مجهولة (زائر) بلا جلسة زائر نشطة — تُصفَّر جلسة الزائر عند إعادة
@@ -405,9 +410,9 @@ const ProtectedRoute = ({ children, roleRequired }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (roleRequired && userRole !== roleRequired) {
+  if (requiredRoles && !requiredRoles.includes(userRole)) {
     const isOwnerAccount =
-      roleRequired === 'owner' &&
+      requiredRoles.includes('owner') &&
       OWNER_EMAILS.has(
         String(
           user?.email ||
@@ -418,7 +423,7 @@ const ProtectedRoute = ({ children, roleRequired }) => {
 
     if (!isOwnerAccount) {
       recordKick('protected-route-unauthorized', {
-        roleRequired,
+        roleRequired: requiredRoles.join(','),
         userRole: userRole || null,
         email:
           user?.email ||
@@ -1452,7 +1457,7 @@ function AppContent() {
               <Route
                 path="/advertisements"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute rolesRequired={['owner', 'admin']}>
                     <AdvertisementsPage />
                   </ProtectedRoute>
                 }
@@ -1578,6 +1583,15 @@ function AppContent() {
                 element={
                   <ProtectedRoute>
                     <SettingsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/favorites"
+                element={
+                  <ProtectedRoute>
+                    <FavoritesPage />
                   </ProtectedRoute>
                 }
               />

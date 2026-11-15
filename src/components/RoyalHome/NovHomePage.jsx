@@ -100,7 +100,7 @@ const FOOTER_LINKS = [
   },
   {
     title: 'العروض',
-    path: '/advertisements',
+    path: '/#offers',
     icon: Sparkles,
     description:
       'فرصتكم الاستثمارية الكبرى للاستفادة من أقوى الخصومات والحملات الترويجية الحصرية. نلتزم بتقديم قيم مضافة حقيقية لعملائنا عبر باقات سعرية مدروسة ومزايا استثنائية متجددة، تمنحكم كفاءة الإنفاق وتجربة تسوق فريدة لا تُضاهى.',
@@ -140,6 +140,23 @@ const FAQ_ITEMS = [
 
 const NovHomePage = () => {
   const navigate = useNavigate();
+  // مسار داخلي بعنصر (#offers) يُمرّر لعنصر العروض في نفس الصفحة بدل التنقل
+  // لصفحة أخرى. غيره يُمرَّر كتنقّل عادي.
+  const goToPath = (path) => {
+    if (typeof path === 'string' && path.includes('#')) {
+      const [pathname, hash] = path.split('#');
+      if (pathname && pathname !== '/') {
+        navigate(pathname);
+        window.setTimeout(() => {
+          document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+        return;
+      }
+      document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    navigate(path);
+  };
   const siteLists = useSiteContent((s) => s.lists);
   const trustItems = Array.isArray(siteLists['home.trust']) && siteLists['home.trust'].length
     ? siteLists['home.trust']
@@ -169,7 +186,9 @@ const NovHomePage = () => {
 
       <div className="nov-home">
         {/* ===== الصور الست (شريط العروض) — مرفوعة تحت الشعار مباشرة ===== */}
-        <HomeOffersSlider />
+        <div id="offers" style={{ scrollMarginTop: '90px' }}>
+          <HomeOffersSlider />
+        </div>
 
         {/* ===== شريطا التنبيهات — أسفل الصور ===== */}
         <div className="home-marquees-sticky" style={{ position: 'relative', zIndex: 30, marginTop: '2px' }}>
@@ -301,7 +320,7 @@ const NovHomePage = () => {
                     type="button"
                     className="rz-footer-info-head"
                     key={title || i}
-                    onClick={() => navigate(path)}
+                    onClick={() => goToPath(path)}
                     aria-label={`فتح صفحة ${title}`}
                   >
                     <span className="rz-footer-info-icon"><Icon size={16} /></span>
