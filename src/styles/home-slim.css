@@ -14,14 +14,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0.5rem auto 0.25rem;
+  margin: 0.15rem auto 0;
   padding: 0 0.6rem;
 }
 
 .nov-hero-logo--top {
-  width: clamp(132px, 34vw, 210px) !important;
+  width: clamp(156px, 40vw, 240px) !important;
   height: auto !important;
-  max-height: 168px !important;
+  max-height: 200px !important;
   background: transparent !important;
   background-image: none !important;
   border: 0 !important;
@@ -206,7 +206,6 @@
   font-family: inherit;
   font-weight: 900;
   font-size: 0.76rem;
-  /* شمبانيا فوق خلفية داكنة أكثر — يضمن تباين AA (≥ 4.5:1) */
   color: var(--rz-champagne);
   background: rgba(var(--rz-white-rgb), 0.07);
   border: 1px solid rgba(var(--rz-gold-rgb), 0.28);
@@ -232,4 +231,94 @@
   .nov-hero-title {
     font-size: 1.2rem !important;
   }
+}
+
+/* ===== الرئيسية على الجوال: شعار ملاصق + نص + زر بلا كارد ===== */
+.nov-lead-under-logo {
+  margin: 0 auto 0.4rem !important;
+  padding: 0 0.85rem;
+  max-width: 36rem;
+  text-align: center;
+  color: #1c1917 !important;
+  -webkit-text-fill-color: #1c1917 !important;
+  background: none !important;
+  font-size: 0.92rem !important;
+  font-weight: 700 !important;
+  line-height: 1.65 !important;
+}
+
+.nov-haraj-standalone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem 0 0.2rem;
+}
+
+.nov-haraj-standalone .nov-btn-haraj-gold {
+  width: auto;
+  max-width: 100%;
+}
+
+.rz-subbar-tools {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.rz-subbar-tools .alm-appearance-controls {
+  margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .nov-top-logo {
+    margin: 0 auto !important;
+    padding: 0 0.35rem !important;
+  }
+
+  .nov-hero-logo--top {
+    width: clamp(180px, 50vw, 236px) !important;
+    max-height: 204px !important;
+  }
+
+  .nov-lead-under-logo {
+    margin: 0 auto 0.35rem !important;
+  }
+
+  .nov-home {
+    padding-top: 0 !important;
+  }
+
+  .home-marquees-sticky {
+    margin-top: 0 !important;
+  }
+}
+
+/* خيارات أسفل الصفحة: نص أبيض واضح 100% على الخلفية الداكنة */
+.rz-footer--home-tight .rz-footer-links-grid .rz-footer-info-head {
+  min-height: 48px;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.34) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+}
+
+.rz-footer--home-tight .rz-footer-links-grid .rz-footer-info-head > span:not(.rz-footer-info-icon),
+.rz-footer--home-tight .rz-footer-links-grid .rz-footer-info-head > p {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.rz-footer--home-tight .rz-footer-info-icon {
+  color: #1c140c !important;
+  -webkit-text-fill-color: #1c140c !important;
+}
+
+.rz-footer--home-tight .rz-footer-bottom,
+.rz-footer--home-tight .rz-footer-bottom * {
+  color: rgba(255, 255, 255, 0.92) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
 }
