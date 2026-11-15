@@ -335,7 +335,7 @@ export const AdvertisementsPage = () => {
           <div key={ad.id} className={`ad-card ${!ad.isActive ? 'inactive' : ''}`}>
             <div className="ad-image">
               {ad.imageUrl ? (
-                <img src={ad.imageUrl} alt={ad.title || 'صورة الإعلان'} />
+                <img src={ad.imageUrl} alt={ad.title || 'صورة الإعلان'} loading="lazy" decoding="async" />
               ) : null}
             </div>
             <div className="ad-content">

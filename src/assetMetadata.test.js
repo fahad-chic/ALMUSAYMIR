@@ -15,6 +15,18 @@ const readDims = (file) => {
   if (buf.slice(0, 4).toString('hex') === '89504e47') {
     return { format: 'png', width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
   }
+  // JPEG: ابحث عن أول علامة SOF (0xFFC0–0xFFCF عدا C4/C8/CC) واقرأ الأبعاد.
+  if (buf[0] === 0xff && buf[1] === 0xd8) {
+    let i = 2;
+    while (i < buf.length) {
+      if (buf[i] !== 0xff) { i += 1; continue; }
+      const marker = buf[i + 1];
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+        return { format: 'jpeg', height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+      }
+      i += 2 + buf.readUInt16BE(i + 2);
+    }
+  }
   return { format: 'unknown' };
 };
 

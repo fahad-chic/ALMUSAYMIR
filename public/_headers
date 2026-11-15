@@ -53,10 +53,6 @@
   ! Cache-Control
   Cache-Control: public, max-age=0, must-revalidate
 
-/assets/bg-riyadh-night.jpg
-  ! Cache-Control
-  Cache-Control: public, max-age=0, must-revalidate
-
 # Sounds - cache but allow revalidation
 /sounds/*
   Cache-Control: public, max-age=3600, must-revalidate
