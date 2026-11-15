@@ -12,6 +12,8 @@ Disallow: /owner-panel
 Disallow: /owner-private-room
 Disallow: /dashboard
 Disallow: /settings
+Disallow: /favorites
+Disallow: /advertisements
 Disallow: /inbox
 Disallow: /complaints
 Disallow: /notifications
