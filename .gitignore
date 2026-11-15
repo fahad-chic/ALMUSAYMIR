@@ -33,3 +33,7 @@ e2e/report/
 
 # wrangler محلي (miniflare cache/tmp) — لا يُلتزم
 .wrangler/
+
+# Local agent artifacts
+.agent_tmp/
+IMG_*.png
