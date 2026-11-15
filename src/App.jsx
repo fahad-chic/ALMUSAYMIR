@@ -1262,10 +1262,10 @@ function AppContent() {
           width: '100%',
           minWidth: 0,
           maxWidth: '100%',
-          position: 'relative',
+                    position: 'relative',
           zIndex: 1,
           boxSizing: 'border-box',
-          paddingTop: isAuthenticated ? 'var(--nav-height, 56px)' : 0,
+          paddingTop: isAuthenticated && location.pathname !== '/' ? 'var(--nav-height, 56px)' : 0,
           marginTop: 0,
         }}
       >
