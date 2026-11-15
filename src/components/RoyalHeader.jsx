@@ -41,6 +41,7 @@ const RoyalHeader = ({
   onOpenBroadcast,
   onOpenWelcome,
   onSearchSubmit,
+  tools = null,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -180,6 +181,7 @@ const RoyalHeader = ({
           </nav>
 
           <span className="rz-subbar-spacer" />
+          {tools ? <div className="rz-subbar-tools">{tools}</div> : null}
         </div>
       </div>
 
