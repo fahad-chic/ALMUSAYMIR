@@ -778,4 +778,19 @@ CI على الفرع **6/6 أخضر** (run `43630873845`). الالتزام `1e5
 **لا شيء يُنشَر للجمهور حتى يُدمج PR #37 في `main`** (أو يدفع المالك `main`). حتى ذلك الحين
 الموقع الحيّ يبقى على البناء القديم. لا دمج ولا نشر من جانبي (بقرار المالك).
 
+## الدمج والنشر (2026-11-15) — PR #37 مدموج ومباشر حيّاً
+- **PR #37 دُمج في `main`** بموافقة المالك الصريحة: merge commit `6195111` (2026-11-15T01:22Z).
+- **CI على `main` للالتزام `6195111`: 6/6 أخضر** (lint · unit tests · build · contrast ·
+  firestore rules · indexes preflight). run `43662790699`.
+- **النشر الحيّ مؤكَّد (Cloudflare Pages)**: البناء الحيّ صار يحمل `ownerGlobalTicker 32s linear 1`
+  و`nov-top-logo` في CSS — أي أن تعديلات الرئيسية ظاهرة على `almusaymir.pages.dev`.
+- **`firestore.rules` على `main`**: 897 سطراً، md5 `b8482cb533fc5f7634410c63be1c197d`، مطابق
+  لـ`origin/main` (diff = 0). يتضمّن: RBAC المجهري، `settings/siteContent` (المالك فقط)،
+  `reviews`/`review_private`، `comments`/`comment_private`، الحظر/إنهاء الجلسة، الصيانة، بوابة
+  التسجيل، الأرشيف، `audit_logs` للإلحاق فقط، والأدوار.
+- **فحص المحاكي (ليس إنتاجاً)**: `npm run test:rules` = **348/348 PASS**. يتطلب Java (ثُبِّت
+  `openjdk-21-jre-headless` عبر sudo) و`firebase-tools` (npx).
+- **⚠️ لم تُنشَر قواعد الإنتاج** — المالك ينشرها بنفسه من لوحة Firebase (الملف الكامل أُرسل له).
+
+
 
