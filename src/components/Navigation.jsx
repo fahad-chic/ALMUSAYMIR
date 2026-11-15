@@ -157,9 +157,10 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
         onOpenOwnerContact={() => setShowOwnerContact(true)}
         onOpenBroadcast={() => setShowBroadcast(true)}
         onOpenWelcome={() => setShowElegantWelcome(true)}
+        tools={location.pathname === '/' ? <AppearanceControls /> : null}
       />
 
-      <AppearanceControls />
+      {location.pathname !== '/' && <AppearanceControls />}
       <ExperienceTools />
 
       {showElegantWelcome && (
