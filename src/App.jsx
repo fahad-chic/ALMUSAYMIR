@@ -1167,7 +1167,7 @@ function AppContent() {
       <audio
         ref={audioRef}
         src={OWNER_ALERT_SOUND_URL}
-        preload="auto"
+        preload="none"
       />
 
       {guestSession?.active && (
