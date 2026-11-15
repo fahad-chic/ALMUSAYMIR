@@ -11,7 +11,7 @@ import {
   Send, Star, Flag, Edit3, Save, UserRound, ClipboardList, UserX,
   Radio, LayoutDashboard, BarChart3,
   Gauge, Moon, Sun, ArrowRight,
-  BadgeCheck, ArrowLeftRight, RotateCcw, Image, LayoutGrid, Type
+  BadgeCheck, ArrowLeftRight, RotateCcw, Image, LayoutGrid, Type, ShieldCheck
 } from 'lucide-react'
 import {
   auth, db,
@@ -27,6 +27,7 @@ import MonitoringPanel from '../components/owner/MonitoringPanel'
 import MaintenancePanel from '../components/owner/MaintenancePanel'
 import RegistrationPanel from '../components/owner/RegistrationPanel'
 import { ReportsPanel, ReviewsPanel } from '../components/owner/ModerationPanels'
+import PrivacyAuditPanel from '../components/owner/PrivacyAuditPanel'
 import { CategoriesManager, BannersManager } from '../components/admin/ContentPanels'
 import ContentManager from './ContentManager'
 import CloseButton from '../components/CloseButton'
@@ -1426,6 +1427,12 @@ const OwnerPrivateRoom = () => {
       group: 'content'
     },
     {
+      id: 'privacy',
+      label: 'تدقيق الخصوصية',
+      icon: ShieldCheck,
+      group: 'review'
+    },
+    {
       id: 'reports',
       label: 'البلاغات',
       icon: Flag,
@@ -2160,6 +2167,10 @@ const OwnerPrivateRoom = () => {
 
           {activeTab === 'reviews' && (
             <ReviewsPanel reviews={reviews} onChanged={loadAllData} />
+          )}
+
+          {activeTab === 'privacy' && (
+            <PrivacyAuditPanel />
           )}
 
           {activeTab === 'security' && (

@@ -21,7 +21,10 @@
     "buttons": "node e2e/button-audit.mjs",
     "preview": "vite preview --port 4173 --host",
     "analyze": "vite build --mode analyze",
-    "icons": "node scripts/generate-icons.cjs"
+    "icons": "node scripts/generate-icons.cjs",
+    "test:haraj-live": "npx -y firebase-tools@latest emulators:exec --only firestore --config firebase.rules-test.json --project demo-almusaymir \"node e2e/haraj-live-audit.mjs\"",
+    "report:legacy-privacy": "node scripts/legacy-privacy-report.mjs",
+    "test:privacy-repair": "npx -y firebase-tools@latest emulators:exec --only firestore --config firebase.rules-test.json --project demo-almusaymir \"npx vitest run --config vitest.emulator.config.mjs\""
   },
   "dependencies": {
     "firebase": "^13.1.0",

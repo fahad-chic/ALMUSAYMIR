@@ -44,7 +44,7 @@ import {
   collection,
   query,
   orderBy,
-  getDocs,
+  onSnapshot,
   where,
 } from 'firebase/firestore';
 
@@ -897,72 +897,93 @@ const RoyalHarajPage = () => {
 
   useEffect(() => {
     let isMounted = true;
+    let orderedUnsub = null;
+    let fallbackUnsub = null;
 
-    const fetchAds = async () => {
+    const sortByCreatedDesc = (list) =>
+      [...list].sort(
+        (a, b) =>
+          (b.createdAt?.toMillis?.() ?? 0) -
+          (a.createdAt?.toMillis?.() ?? 0)
+      );
+
+    const applySnapshot = (snap) => {
+      if (!isMounted) return;
+
+      setRealAds(
+        sortByCreatedDesc(
+          snap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          }))
+        )
+      );
+      setLoadingAds(false);
+    };
+
+    // بثّ احتياطي بلا ترتيب — يُستخدم عند غياب الفهرس المركّب
+    // (failed-precondition)، مع الترتيب على العميل كما كان سابقاً.
+    const subscribeUnordered = () => {
+      if (!isMounted) return;
+
+      fallbackUnsub = onSnapshot(
+        query(
+          collection(db, 'haraj_ads'),
+          where('status', '==', 'active')
+        ),
+        applySnapshot,
+        (error) => {
+          console.error('haraj live subscription:', error);
+
+          if (isMounted) {
+            setRealAds([]);
+            setLoadingAds(false);
+          }
+        }
+      );
+    };
+
+    const start = async () => {
       setLoadingAds(true);
 
       await ensureFirebaseSession();
 
-      const sortByCreatedDesc = (list) =>
-        [...list].sort(
-          (a, b) =>
-            (b.createdAt?.toMillis?.() ?? 0) -
-            (a.createdAt?.toMillis?.() ?? 0)
-        );
+      if (!isMounted) return;
 
       try {
-        let snapshot;
-        try {
-          // المحاولة الأولى: استعلام مرتب (يحتاج فهرساً مركباً)
-          snapshot = await getDocs(
-            query(
-              collection(db, 'haraj_ads'),
-              where('status', '==', 'active'),
-              orderBy('createdAt', 'desc')
-            )
-          );
-        } catch (queryError) {
-          // في حال غياب الفهرس (failed-precondition) نستعلم بدون ترتيب
-          // ونرتّب النتائج على العميل حتى تعمل الصفحة بدون توقف.
-          console.warn('haraj index fallback:', queryError?.message);
-          snapshot = await getDocs(
-            query(
-              collection(db, 'haraj_ads'),
-              where('status', '==', 'active')
-            )
-          );
-        }
+        orderedUnsub = onSnapshot(
+          query(
+            collection(db, 'haraj_ads'),
+            where('status', '==', 'active'),
+            orderBy('createdAt', 'desc')
+          ),
+          applySnapshot,
+          (error) => {
+            // فهرس مفقود: نُسقط الاستعلام المرتّب ونُبقي البثّ الحيّ
+            // بلا ترتيب بدل أن تتعطّل الصفحة.
+            console.warn('haraj index fallback (live):', error?.message);
 
-        const ads = sortByCreatedDesc(
-          snapshot.docs.map((d) => ({
-            id: d.id,
-            ...d.data(),
-          }))
+            if (orderedUnsub) {
+              orderedUnsub();
+              orderedUnsub = null;
+            }
+
+            subscribeUnordered();
+          }
         );
-
-        if (isMounted) {
-          setRealAds(ads);
-        }
       } catch (error) {
-        console.error(
-          'Error fetching ads:',
-          error
-        );
-
-        if (isMounted) {
-          setRealAds([]);
-        }
-      } finally {
-        if (isMounted) {
-          setLoadingAds(false);
-        }
+        console.error('Error subscribing to ads:', error);
+        subscribeUnordered();
       }
     };
 
-    fetchAds();
+    start();
 
     return () => {
       isMounted = false;
+
+      if (orderedUnsub) orderedUnsub();
+      if (fallbackUnsub) fallbackUnsub();
     };
   }, []);
 

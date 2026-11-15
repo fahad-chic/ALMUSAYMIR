@@ -78,6 +78,8 @@ jobs:
         run: java -version
       - name: Run Firestore rules tests
         run: npm run test:rules
+      - name: Run privacy repair tests (emulator)
+        run: npm run test:privacy-repair
 
   indexes:
     name: Firestore indexes preflight
