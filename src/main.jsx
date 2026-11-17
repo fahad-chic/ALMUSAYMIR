@@ -14,6 +14,7 @@ import './styles/theme.css'
 import './styles/rooz-luxury-3d.css'
 import './styles/rooz-site-backdrop.css'
 import './styles/home-slim.css'
+import './styles/info-pages.css'
 import './styles/console-shell.css'
 
 /* ── استقرار تحميل المقاطع (chunks) ──

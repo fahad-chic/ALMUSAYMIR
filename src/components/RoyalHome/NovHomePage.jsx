@@ -57,7 +57,7 @@ const FOOTER_LINKS = [
   },
   {
     title: 'وظائفنا',
-    path: '/contact',
+    path: '/careers',
     icon: BriefcaseBusiness,
     description:
       'انضم إلى فريق عمل طموح يصنع المستقبل ويقود التغيير في قطاع التجارة الرقمية والخدمات. نحن نؤمن بأن رأس المال البشري هو ركيزة نجاحنا؛ لذا نوفر بيئة عمل محفزة، تنافسية، وحاضنة للإبداع والابتكار، مع تقديم فرص حقيقية للتطور المهني المستمر ومسارات وظيفية واعدة توافق تطلعات الكفاءات الوطنية والعالمية.',
@@ -85,7 +85,7 @@ const FOOTER_LINKS = [
   },
   {
     title: 'شركاؤنا',
-    path: '/branches',
+    path: '/partners',
     icon: Users,
     description:
       'نفخر ببناء تحالفات استراتيجية وثيقة تعزز ريادتنا في السوق، وتضم شبكة شركائنا النخبة 3 شركاء استراتيجيين داخل المملكة العربية السعودية: (شركة الاتصالات السعودية STC، مصرف الراجحي، وشركة علم)، الذين يساهمون في تحقيق مستهدفات رؤية 2030 وتعميق الأثر المحلي، بالإضافة إلى شريكين عالميين: (شركة Microsoft، وشركة Amazon Web Services - AWS) يرفدون عملياتنا بأحدث الخبرات والتقنيات الدولية لتقديم حلول بمعايير عالمية.',
@@ -120,7 +120,7 @@ const FOOTER_LINKS = [
   },
   {
     title: 'الخصوصية',
-    path: '/terms',
+    path: '/privacy',
     icon: Shield,
     description:
       'نلتزم بأعلى معايير الحماية والتشفير لضمان سرية وأمان بياناتكم الشخصية. تعد خصوصية المستخدم خطاً أحمر، ونطبق سياسات صارمة تتوافق مع الأنظمة التشريعية لحماية البيانات، مما يمنحكم الأمان الكامل والثقة المطلقة أثناء استخدام منصتنا والاستفادة من خدماتنا.',
@@ -306,10 +306,20 @@ const NovHomePage = () => {
               </div>
             )}
 
-            <div className="rz-footer-bottom rz-footer-bottom--center">
+            <div className="rz-footer-bottom rz-footer-legal" aria-label="معلومات قانونية">
+              <span className="rz-footer-legal-line">
+                تم التطوير والتشغيل وفق أعلى معايير الأمان وحماية البيانات والخصوصية
+              </span>
+              <span className="rz-footer-legal-line">
+                نخضع للأنظمة واللوائح المعمول بها في المملكة العربية السعودية
+              </span>
+              <span className="rz-footer-legal-line">
+                موقعنا : المملكة العربية السعودية - حفر الباطن
+              </span>
               <Editable
                 contentKey="footer.copyright_line"
                 defaultValue={COPYRIGHT_DEFAULT}
+                className="rz-footer-legal-line"
               />
             </div>
           </div>
