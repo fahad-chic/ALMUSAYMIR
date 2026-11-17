@@ -118,6 +118,9 @@ const AIChat = safeLazy(() => import('./components/AIChat'));
 const AdDetailsPage = safeLazy(() => import('./pages/AdDetailsPage'));
 const ChatPage = safeLazy(() => import('./pages/ChatPage'));
 const TermsPage = safeLazy(() => import('./pages/TermsPage'));
+const CareersPage = safeLazy(() => import('./pages/CareersPage'));
+const PartnersPage = safeLazy(() => import('./pages/PartnersPage'));
+const PrivacyPage = safeLazy(() => import('./pages/PrivacyPage'));
 const WantedDressPage = safeLazy(() => import('./pages/WantedDressPage'));
 const FavoritesPage = safeLazy(() => import('./pages/FavoritesPage'));
 
@@ -1639,6 +1642,34 @@ function AppContent() {
                 element={
                   <ProtectedRoute>
                     <TermsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* صفحات المحتوى المستقلة (قراءة فقط) */}
+              <Route
+                path="/careers"
+                element={
+                  <ProtectedRoute>
+                    <CareersPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/partners"
+                element={
+                  <ProtectedRoute>
+                    <PartnersPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/privacy"
+                element={
+                  <ProtectedRoute>
+                    <PrivacyPage />
                   </ProtectedRoute>
                 }
               />

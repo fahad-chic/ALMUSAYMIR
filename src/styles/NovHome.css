@@ -428,9 +428,21 @@
   text-align: center !important;
 }
 
-.rz-footer--home-tight .rz-footer-bottom--center {
-  text-align: center !important;
+/* النص القانوني في التذييل — نص للقراءة فقط، كل جملة في سطر مستقل، محاذاة يمين */
+.rz-footer--home-tight .rz-footer-legal {
+  display: grid !important;
+  gap: 0.12rem !important;
+  text-align: right !important;
   direction: rtl !important;
+}
+
+.rz-footer--home-tight .rz-footer-legal .rz-footer-legal-line {
+  display: block !important;
+  font-size: 0.66rem !important;
+  line-height: 1.6 !important;
+  text-align: right !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.82) !important;
 }
 
 /* ===== HOME GLASS FOR RIYADH — إظهار الخلفية ===== */
