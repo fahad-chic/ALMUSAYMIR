@@ -124,23 +124,23 @@ const RoyalHeader = ({
           <div className="rz-actions">
             <button type="button" className="rz-icon-btn" aria-label="المفضلة" title="المفضلة"
               onClick={() => go('/favorites')}>
-              <Heart size={19} />
+              <Heart size={20} strokeWidth={1.75} />
             </button>
             <button type="button" className="rz-icon-btn" aria-label="الإشعارات" title="الإشعارات"
               onClick={() => go('/notifications')}>
-              <Bell size={19} />
+              <Bell size={20} strokeWidth={1.75} />
               {unreadNotifications > 0 && (
                 <span className="rz-icon-badge">{unreadNotifications > 9 ? '9+' : unreadNotifications}</span>
               )}
             </button>
-            <button type="button" className="rz-icon-btn" aria-label="الحساب والإعدادات" title="الحساب والإعدادات"
+            <button type="button" className="rz-icon-btn" aria-label="الحساب والإعدادات" title="الحساب"
               onClick={() => go('/settings')}>
-              <User size={19} />
+              <User size={20} strokeWidth={1.75} />
             </button>
             {typeof onOpenAIChat === 'function' && (
               <button type="button" className="rz-icon-btn" aria-label="المساعدة الذكية" title="المساعدة الذكية"
                 onClick={onOpenAIChat}>
-                <Bot size={19} />
+                <Bot size={20} strokeWidth={1.75} />
               </button>
             )}
           </div>
@@ -151,7 +151,7 @@ const RoyalHeader = ({
       <div className="rz-subbar">
         <div className="rz-subbar-inner">
           <button type="button" className="rz-burger" onClick={() => setDrawerOpen(true)} aria-label="فتح القائمة الكاملة">
-            <Menu size={19} />
+            <Menu size={18} strokeWidth={2.25} />
             <span>القائمة</span>
           </button>
 
