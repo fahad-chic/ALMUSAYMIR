@@ -23,6 +23,11 @@ export const INFO_PHONE_LOCAL = toLocalPhone(
 
 export const INFO_PHONE_TEL = `+${String(CONTACT_INFO.PHONE_1 || '966536667222').replace(/\D/g, '')}`;
 
+// الرقم الثاني (احتياطي/واتساب) — للصفحات التي تعرض رقمين.
+export const INFO_PHONE2_LOCAL = toLocalPhone(CONTACT_INFO.PHONE_2 || '966507882771');
+
+export const INFO_PHONE2_TEL = `+${String(CONTACT_INFO.PHONE_2 || '966507882771').replace(/\D/g, '')}`;
+
 // البريد الرسمي المعتمد للموقع (نفس بريد صفحة «تواصل معنا»).
 export const INFO_CONTACTS = Object.freeze({
   careers: 'kal6667222@gmail.com',

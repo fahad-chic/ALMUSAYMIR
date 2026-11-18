@@ -95,6 +95,14 @@ describe('PrivacyPage (/privacy)', () => {
     ).not.toBeNull();
     assertOnlyContactLinks(container);
   });
+
+  it('يعرض رقمي الجوال كرابطَي tel (0536667222 و 0507882771)', () => {
+    const { container } = renderPage(<PrivacyPage />);
+    const tels = Array.from(container.querySelectorAll('a[href^="tel:"]'));
+    expect(tels.map((a) => a.textContent)).toEqual(['0536667222', '0507882771']);
+    expect(tels[0].getAttribute('href')).toBe('tel:+966536667222');
+    expect(tels[1].getAttribute('href')).toBe('tel:+966507882771');
+  });
 });
 
 describe('الصفحات الثلاث: لا أزرار تنقّل غير زر الرجوع', () => {

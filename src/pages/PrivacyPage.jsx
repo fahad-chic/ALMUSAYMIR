@@ -3,7 +3,7 @@
 // الإيميل والجوال فقط روابط تواصل (mailto / tel).
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
-import { INFO_CONTACTS, INFO_PHONE_LOCAL, INFO_PHONE_TEL } from '../data/infoPages';
+import { INFO_CONTACTS, INFO_PHONE_LOCAL, INFO_PHONE_TEL, INFO_PHONE2_LOCAL, INFO_PHONE2_TEL } from '../data/infoPages';
 
 const SECTIONS = [
   {
@@ -74,9 +74,15 @@ export default function PrivacyPage() {
                 </a>
               </p>
               <p className="ip-contact-line">
-                الجوال:{' '}
+                الجوال / واتساب:{' '}
                 <a className="ip-link" href={`tel:${INFO_PHONE_TEL}`}>
                   {INFO_PHONE_LOCAL}
+                </a>
+              </p>
+              <p className="ip-contact-line">
+                أو{' '}
+                <a className="ip-link" href={`tel:${INFO_PHONE2_TEL}`}>
+                  {INFO_PHONE2_LOCAL}
                 </a>
               </p>
             </div>
