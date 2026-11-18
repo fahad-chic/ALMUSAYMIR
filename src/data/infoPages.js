@@ -23,8 +23,9 @@ export const INFO_PHONE_LOCAL = toLocalPhone(
 
 export const INFO_PHONE_TEL = `+${String(CONTACT_INFO.PHONE_1 || '966536667222').replace(/\D/g, '')}`;
 
+// البريد الرسمي المعتمد للموقع (نفس بريد صفحة «تواصل معنا»).
 export const INFO_CONTACTS = Object.freeze({
-  careers: 'careers@almusaymir.com',
-  partners: 'partners@almusaymir.com',
-  privacy: 'privacy@almusaymir.com',
+  careers: 'kal6667222@gmail.com',
+  partners: 'kal6667222@gmail.com',
+  privacy: 'kal6667222@gmail.com',
 });

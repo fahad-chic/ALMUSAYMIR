@@ -2,29 +2,16 @@
 // متجر المسيمير | ALMUSAYMIR — الصفحة الرئيسية (نسخة مرتبة واحترافية)
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { STORE_HOME_PATH } from '../../data/royalMenu';
 import { BRAND } from '../../data/brand';
 import {
-  Crown,
-  Mail,
-  Smartphone,
   Plus,
   Minus,
   X,
-  ShoppingBag,
-  Sparkles,
-  Store as StoreIcon,
   Flame,
   Truck,
   BadgeCheck,
   Headphones,
   ChevronDown,
-  Info,
-  BriefcaseBusiness,
-  Layers3,
-  FileText,
-  Users,
-  Shield,
 } from 'lucide-react';
 
 import MarqueeBanner from './MarqueeBanner';
@@ -47,86 +34,6 @@ const TRUST_DEFAULTS = [
   { id: 'trust-support', title: 'دعم دائم', sub: 'تواصل بأي وقت', path: '/contact' },
 ];
 
-const FOOTER_LINKS = [
-  {
-    title: 'لماذا نحن',
-    path: '/about',
-    icon: Info,
-    description:
-      'نحن الوجهة الرائدة التي تجمع بين الابتكار والموثوقية في تقديم الحلول السوقية المتكاملة، حيث نلتزم بأعلى معايير الجودة والشفافية. نتميز ببيئة تقنية متطورة تضمن للمستخدمين والشركاء تجربة استثنائية وآمنة، مدعومة برؤية استراتيجية تواكب تطلعات السوق المحلي والعالمي وتصنع الفارق في تلبية احتياجاتكم.',
-  },
-  {
-    title: 'وظائفنا',
-    path: '/careers',
-    icon: BriefcaseBusiness,
-    description:
-      'انضم إلى فريق عمل طموح يصنع المستقبل ويقود التغيير في قطاع التجارة الرقمية والخدمات. نحن نؤمن بأن رأس المال البشري هو ركيزة نجاحنا؛ لذا نوفر بيئة عمل محفزة، تنافسية، وحاضنة للإبداع والابتكار، مع تقديم فرص حقيقية للتطور المهني المستمر ومسارات وظيفية واعدة توافق تطلعات الكفاءات الوطنية والعالمية.',
-  },
-  {
-    title: 'كل الأقسام',
-    path: '/branches',
-    icon: Layers3,
-    description:
-      'بوابة متكاملة مصممة خصيصاً لتلبية كافة تطلعاتكم واحتياجاتكم المتنوعة في مكان واحد. بفضل هيكلتنا المنظمة وتصنيفاتنا الدقيقة، نتيح لكم تنقلاً سلساً واستكشافاً فورياً لشريحة واسعة من القطاعات والخدمات، مما يضمن لكم الوصول إلى ما تبحثون عنه بكفاءة متناهية وسرعة فائقة.',
-  },
-  {
-    title: 'الحراج',
-    path: '/haraj',
-    icon: StoreIcon,
-    description:
-      'المنصة التفاعلية الأكبر والسوق الرقمي الموثوق لعمليات البيع، الشراء، والمزايدة. نوفر مساحة حيوية وآمنة تتيح للمستخدمين عرض السلع والخدمات والتواصل المباشر مع المهتمين، مدعومة بأنظمة رقابية ذكية تضمن شفافية التعاملات وحفظ حقوق جميع الأطراف لتعزيز نمو وتدفق حركات البيع والشراء.',
-  },
-  {
-    title: 'شروط الاستخدام',
-    path: '/terms',
-    icon: FileText,
-    description:
-      'تمثل هذه الشروط الإطار القانوني والتنظيمي الذي يضمن بيئة تعامل عادلة وآمنة لجميع رواد المنصة. نحرص من خلال هذه السياسات على توضيح الحقوق والالتزام بالأنظمة المرعية، مما يعزز الموثوقية ويضمن استمرارية تقديم خدماتنا بأعلى مستويات النزاهة والاحترافية.',
-  },
-  {
-    title: 'شركاؤنا',
-    path: '/partners',
-    icon: Users,
-    description:
-      'نفخر ببناء تحالفات استراتيجية وثيقة تعزز ريادتنا في السوق، وتضم شبكة شركائنا النخبة 3 شركاء استراتيجيين داخل المملكة العربية السعودية: (شركة الاتصالات السعودية STC، مصرف الراجحي، وشركة علم)، الذين يساهمون في تحقيق مستهدفات رؤية 2030 وتعميق الأثر المحلي، بالإضافة إلى شريكين عالميين: (شركة Microsoft، وشركة Amazon Web Services - AWS) يرفدون عملياتنا بأحدث الخبرات والتقنيات الدولية لتقديم حلول بمعايير عالمية.',
-  },
-  {
-    title: 'جميع المنتجات',
-    path: STORE_HOME_PATH,
-    icon: ShoppingBag,
-    description:
-      'تصفح مجموعتنا الشاملة والمنسقة بعناية لتلبي أرقى الأذواق والمتطلبات اليومية والتجارية. نضمن لكم تنوعاً فريداً وخيارات متعددة تجمع بين الجودة العالية والأسعار التنافسية، مستندين إلى شبكة توريد قوية تضمن توفر المنتجات ومطابقتها للمواصفات والمقاييس المعتمدة.',
-  },
-  {
-    title: 'العروض',
-    path: '/#offers',
-    icon: Sparkles,
-    description:
-      'فرصتكم الاستثمارية الكبرى للاستفادة من أقوى الخصومات والحملات الترويجية الحصرية. نلتزم بتقديم قيم مضافة حقيقية لعملائنا عبر باقات سعرية مدروسة ومزايا استثنائية متجددة، تمنحكم كفاءة الإنفاق وتجربة تسوق فريدة لا تُضاهى.',
-  },
-  {
-    title: 'أضف إعلانك',
-    path: '/haraj/post',
-    icon: Plus,
-    description:
-      'المنصة المثالية لتوسيع نطاق أعمالك والوصول المباشر إلى جمهورك المستهدف. نضع بين يديك أدوات إعلانية متطورة وخطوات بسيطة تمكنك من صياغة ونشر إعلانك خلال ثوانٍ، لتضمن ظهوراً مميزاً يحقق أعلى معدلات التفاعل والانتشار لسلعك أو خدماتك.',
-  },
-  {
-    title: 'تواصل معنا',
-    path: '/contact',
-    icon: Headphones,
-    description:
-      'فريق الدعم الفني وخدمة العملاء جاهز دائماً للوقوف على استفساراتكم وتقديم الدعم الفوري. نحن نضع عملائنا في مقدمة أولوياتنا، ونوفر قنوات اتصال متعددة ومباشرة لنضمن لكم تجربة مستخدم سلسة ومستدامة تلبي تطلعاتكم في أي وقت.',
-  },
-  {
-    title: 'الخصوصية',
-    path: '/privacy',
-    icon: Shield,
-    description:
-      'نلتزم بأعلى معايير الحماية والتشفير لضمان سرية وأمان بياناتكم الشخصية. تعد خصوصية المستخدم خطاً أحمر، ونطبق سياسات صارمة تتوافق مع الأنظمة التشريعية لحماية البيانات، مما يمنحكم الأمان الكامل والثقة المطلقة أثناء استخدام منصتنا والاستفادة من خدماتنا.',
-  },
-];
-
 const FAQ_ITEMS = [
   { q: 'ما مدة الشحن؟', a: 'الشحن لجميع مناطق المملكة، ويستغرق عادة من 2 إلى 5 أيام عمل حسب المدينة.' },
   { q: 'هل يمكنني الإرجاع؟', a: 'نعم، يمكن الاستبدال أو الإرجاع خلال 7 أيام من الاستلام بشرط سلامة المنتج والتغليف.' },
@@ -139,33 +46,11 @@ const FAQ_ITEMS = [
 
 const NovHomePage = () => {
   const navigate = useNavigate();
-  const goToPath = (path) => {
-    if (typeof path === 'string' && path.includes('#')) {
-      const [pathname, hash] = path.split('#');
-      if (pathname && pathname !== '/') {
-        navigate(pathname);
-        window.setTimeout(() => {
-          document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 80);
-        return;
-      }
-      document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-    navigate(path);
-  };
   const siteLists = useSiteContent((s) => s.lists);
   const trustItems = Array.isArray(siteLists['home.trust']) && siteLists['home.trust'].length
     ? siteLists['home.trust']
     : TRUST_DEFAULTS;
-  const footerLinks = Array.isArray(siteLists['home.footer_links']) && siteLists['home.footer_links'].length
-    ? siteLists['home.footer_links'].map((it, i) => ({
-        ...(FOOTER_LINKS[i] || FOOTER_LINKS[0]),
-        ...it,
-      }))
-    : FOOTER_LINKS;
   const [showAddHelp, setShowAddHelp] = useState(false);
-  const [footerOpen, setFooterOpen] = useState(true);
   const [openFaq, setOpenFaq] = useState(null);
   const [faqSectionOpen, setFaqSectionOpen] = useState(false);
 
@@ -278,34 +163,6 @@ const NovHomePage = () => {
 
         <footer className="rz-footer rz-footer--compact rz-footer--home-tight">
           <div className="rz-footer-inner">
-            <button
-              type="button"
-              className="rz-footer-links-toggle"
-              aria-expanded={footerOpen}
-              onClick={() => setFooterOpen((value) => !value)}
-            >
-              <span><Info size={16} /> روابط الموقع</span>
-              <ChevronDown size={17} className={footerOpen ? 'is-open' : ''} />
-            </button>
-
-            {footerOpen && (
-              <div className="rz-footer-links-grid" aria-label="روابط ومعلومات الموقع">
-                {footerLinks.map(({ title, path, icon: Icon }, i) => (
-                  <button
-                    type="button"
-                    className="rz-footer-info-head"
-                    key={title || i}
-                    onClick={() => goToPath(path)}
-                    aria-label={`فتح صفحة ${title}`}
-                  >
-                    <span className="rz-footer-info-icon"><Icon size={16} /></span>
-                    <Editable contentKey={`home.footer_links.${i}.title`} defaultValue={title} />
-                    <span className="rz-footer-info-arrow" aria-hidden="true">←</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
             <div className="rz-footer-bottom rz-footer-legal" aria-label="معلومات قانونية">
               <span className="rz-footer-legal-line">
                 تم التطوير والتشغيل وفق أعلى معايير الأمان وحماية البيانات والخصوصية

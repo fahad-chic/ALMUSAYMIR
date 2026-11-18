@@ -54,7 +54,6 @@ export const CONTENT_FIELDS = Object.freeze([
 export const CONTENT_LISTS = Object.freeze([
   { key: 'faq.items', label: 'الأسئلة الشائعة — قائمة الأسئلة', group: 'faq' },
   { key: 'home.trust', label: 'الرئيسية — نقاط الثقة', group: 'home' },
-  { key: 'home.footer_links', label: 'التذييل — روابط الموقع', group: 'footer' },
 ]);
 
 const FIELD_BY_KEY = new Map(CONTENT_FIELDS.map((f) => [f.key, f]));

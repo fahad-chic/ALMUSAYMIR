@@ -30,9 +30,9 @@ describe('CareersPage (/careers)', () => {
 
   it('يعرض بريد التوظيف كرابط mailto', () => {
     const { container } = renderPage(<CareersPage />);
-    const mail = container.querySelector('a[href="mailto:careers@almusaymir.com"]');
+    const mail = container.querySelector('a[href="mailto:kal6667222@gmail.com"]');
     expect(mail).not.toBeNull();
-    expect(mail.textContent).toContain('careers@almusaymir.com');
+    expect(mail.textContent).toContain('kal6667222@gmail.com');
   });
 
   it('يعرض الجوال كرابط tel بصيغة محلية 05xxxxxxxx', () => {
@@ -67,7 +67,7 @@ describe('PartnersPage (/partners)', () => {
   it('بريد الشراكات رابط mailto فقط', () => {
     const { container } = renderPage(<PartnersPage />);
     expect(
-      container.querySelector('a[href="mailto:partners@almusaymir.com"]')
+      container.querySelector('a[href="mailto:kal6667222@gmail.com"]')
     ).not.toBeNull();
     assertOnlyContactLinks(container);
   });
@@ -91,7 +91,7 @@ describe('PrivacyPage (/privacy)', () => {
   it('بريد الخصوصية رابط mailto فقط', () => {
     const { container } = renderPage(<PrivacyPage />);
     expect(
-      container.querySelector('a[href="mailto:privacy@almusaymir.com"]')
+      container.querySelector('a[href="mailto:kal6667222@gmail.com"]')
     ).not.toBeNull();
     assertOnlyContactLinks(container);
   });

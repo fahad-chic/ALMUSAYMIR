@@ -1,7 +1,7 @@
 // اختبار تذييل الصفحة الرئيسية: النص القانوني نصّي للقراءة فقط،
-// وروابط «وظائفنا/شركاؤنا/الخصوصية» تشير لمساراتها الصحيحة بلا تكرار.
+// ولم يعد يحتوي قسم «روابط الموقع» (نُقل إلى قائمة الثلاث شرطات باسم «استكشف الموقع»).
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('../../context/AuthContext', () => ({
@@ -26,7 +26,6 @@ describe('تذييل الرئيسية — النص القانوني', () => {
 
   it('يعرض الجمل القانونية الأربع كنص قراءة فقط', () => {
     renderHome();
-    // نفتح قائمة الروابط لتظهر بقية التذييل كما يراه الزائر
     expect(
       screen.getByText('تم التطوير والتشغيل وفق أعلى معايير الأمان وحماية البيانات والخصوصية')
     ).toBeInTheDocument();
@@ -39,7 +38,7 @@ describe('تذييل الرئيسية — النص القانوني', () => {
     expect(screen.getByText('جميع الحقوق محفوظة © 2026')).toBeInTheDocument();
   });
 
-  it('الجمل القانونية ليست أزراراً', () => {
+  it('الجمل القانونية ليست أزراراً ولا روابط', () => {
     const { container } = renderHome();
     const legal = container.querySelector('.rz-footer-legal');
     expect(legal).not.toBeNull();
@@ -47,11 +46,12 @@ describe('تذييل الرئيسية — النص القانوني', () => {
     expect(legal.querySelectorAll('a').length).toBe(0);
   });
 
-  it('روابط «وظائفنا/شركاؤنا/الخصوصية» موجودة في التذييل بمساراتها الصحيحة', () => {
-    renderHome();
-    // الروابط أزرار تُفتح عبر goToPath — نتحقق من وجود عناوينها
-    expect(screen.getByText('وظائفنا')).toBeInTheDocument();
-    expect(screen.getByText('شركاؤنا')).toBeInTheDocument();
-    expect(screen.getByText('الخصوصية')).toBeInTheDocument();
+  it('لا يحتوي التذييل قسم «روابط الموقع» بعد النقل', () => {
+    const { container } = renderHome();
+    expect(screen.queryByText('روابط الموقع')).toBeNull();
+    expect(container.querySelector('.rz-footer-links-toggle')).toBeNull();
+    expect(container.querySelector('.rz-footer-links-grid')).toBeNull();
+    // روابط الصفحات لم تعد داخل التذييل
+    expect(container.querySelector('.rz-footer-legal')?.textContent).not.toContain('وظائفنا');
   });
 });

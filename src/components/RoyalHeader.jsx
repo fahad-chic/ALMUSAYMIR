@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Search, Heart, Bell, User, Menu, X, Plus, Minus, Home, Store,
-  LayoutGrid, Tag, Sparkles, Info, Crown, LogOut, Bot,
+  LayoutGrid, Tag, Sparkles, Info, Crown, LogOut, Bot, Compass,
 } from 'lucide-react';
 import { ROYAL_NAV, ROYAL_DRAWER, STORE_HOME_PATH } from '../data/royalMenu';
 import { BRAND } from '../data/brand';
@@ -24,6 +24,7 @@ const NAV_ICONS = {
   info: Info,
   user: User,
   help: Info,
+  compass: Compass,
 };
 const ICON = ({ name, size = 18 }) => {
   const C = NAV_ICONS[name] || Sparkles;

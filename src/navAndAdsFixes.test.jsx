@@ -8,7 +8,7 @@ import useStore from './store/useStore';
 import { ROYAL_NAV, ROYAL_DRAWER } from './data/royalMenu';
 
 // جولة إصلاحات التنقّل: /advertisements مالك/مشرف فقط، والمفضلة تشير
-// لصفحة المفضلة الحقيقية، ولا روابط مكرّرة في «خدمات سريعة».
+// لصفحة المفضلة الحقيقية، وصفر تكرار للمسارات داخل الدرج.
 
 const setVerifiedMember = (email = 'user@example.com') => {
   vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
@@ -59,10 +59,13 @@ describe('قائمة التنقل الملكية — لا روابط مكرّر�
     }
   });
 
-  it('لا تكرار لمسار /haraj داخل «خدمات سريعة»', () => {
-    const quick = ROYAL_DRAWER.find((g) => g.id === 'quick');
-    const harajLinks = quick.items.filter((i) => i.path === '/haraj');
-    expect(harajLinks).toHaveLength(1);
+  it('مجموعة «استكشف الموقع» تحتوي روابط الصفحات الثلاث غير المكرّرة', () => {
+    const explore = ROYAL_DRAWER.find((g) => g.id === 'explore');
+    expect(explore).toBeDefined();
+    expect(explore.label).toBe('استكشف الموقع');
+    expect(explore.items.map((i) => i.path).sort()).toEqual(
+      ['/careers', '/partners', '/privacy'].sort()
+    );
   });
 
   it('«المفضلة» يشير لصفحة المفضلة الحقيقية لا للإعدادات', () => {
@@ -76,5 +79,20 @@ describe('قائمة التنقل الملكية — لا روابط مكرّر�
       const paths = group.items.map((i) => i.path);
       expect(new Set(paths).size).toBe(paths.length);
     }
+  });
+
+  it('لا مسار مكرّر بين أي مجموعتين في الدرج (صفر تكرار)', () => {
+    const seen = new Map();
+    for (const group of ROYAL_DRAWER) {
+      for (const item of group.items) {
+        if (seen.has(item.path)) {
+          throw new Error(
+            `مسار مكرّر: ${item.path} في «${seen.get(item.path)}» و«${group.label}»`
+          );
+        }
+        seen.set(item.path, group.label);
+      }
+    }
+    expect(seen.size).toBeGreaterThan(0);
   });
 });
