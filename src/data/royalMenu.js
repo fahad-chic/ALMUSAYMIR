@@ -26,7 +26,6 @@ export const ROYAL_DRAWER = [
     label: `متجر ${BRAND.AR}`,
     icon: 'store',
     items: [
-      { label: 'جميع المنتجات', path: STORE_HOME_PATH },
       { label: 'كل الأقسام', path: '/branches' },
       { label: 'العروض', path: '/#offers' },
     ],
@@ -85,15 +84,13 @@ export const ROYAL_DRAWER = [
     ],
   },
   {
-    id: 'quick',
-    label: 'خدمات سريعة',
-    icon: 'sparkles',
+    id: 'explore',
+    label: 'استكشف الموقع',
+    icon: 'compass',
     items: [
-      { label: 'أريد التسوق', path: STORE_HOME_PATH },
-      { label: 'أريد مشاهدة العروض', path: '/#offers' },
-      { label: 'أريد تصفح الحراج', path: '/haraj' },
-      { label: 'أريد إضافة إعلان', path: '/haraj/post' },
-      { label: 'أريد الوصول إلى حسابي', path: '/settings' },
+      { label: 'وظائفنا', path: '/careers' },
+      { label: 'شركاؤنا', path: '/partners' },
+      { label: 'الخصوصية', path: '/privacy' },
     ],
   },
 ];

@@ -1128,3 +1128,56 @@ a { color: var(--rz-burgundy); }
     transition: none !important;
   }
 }
+
+/* ============================================================
+   تحسين محافظ للترويسة — مسافات وأهداف لمس ولمسات فاخرة فقط.
+   لا يغيّر أي زر أو مسار أو سلوك؛ فقط مظهر/أبعاد آمنة.
+   ============================================================ */
+/* هدف لمس مريح للأيقونات (≥44px) مع الحفاظ على الشكل الدائري */
+.rz-icon-btn {
+  width: 44px;
+  height: 44px;
+}
+
+/* مساحة تنفّس أفقية أفضل على الجوال + تمرير أفقي سلس لشريط التنقل */
+@media (max-width: 720px) {
+  .rz-topbar-inner {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  .rz-logo img {
+    height: 38px;
+  }
+  .rz-subbar-inner {
+    padding: 0 10px;
+    gap: 4px;
+    scrollbar-width: none;
+  }
+  .rz-subbar-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* أهداف لمس ≥44px على الجوال */
+  .rz-nav-link,
+  .rz-burger {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .rz-group-btn {
+    min-height: 48px;
+  }
+  .rz-sub-item {
+    min-height: 44px;
+  }
+  .rz-drawer-close {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* لمسة فاخرة خفيفة: حد ذهبي دقيق أسفل شريط التنقل */
+  .rz-subbar {
+    border-bottom: 1px solid var(--rz-line-gold);
+    box-shadow: var(--rz-shadow-sm);
+  }
+}
