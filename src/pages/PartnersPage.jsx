@@ -6,10 +6,10 @@ import { ArrowRight } from 'lucide-react';
 import { INFO_CONTACTS, INFO_PHONE_LOCAL, INFO_PHONE_TEL } from '../data/infoPages';
 
 const PARTNERS = [
-  { name: 'stc', role: 'شريك البنية التحتية والاتصالات.' },
-  { name: 'علم (Elm)', role: 'شريك الحلول الرقمية والربط التقني.' },
-  { name: 'سبل (البريد السعودي)', role: 'شريك الخدمات اللوجستية والتوصيل.' },
-  { name: 'AWS', role: 'شريك الحوسبة السحابية واستضافة البيانات.' },
+  { name: 'شركة الاتصالات السعودية (stc)', role: 'شريك البنية التحتية والاتصالات.' },
+  { name: 'شركة علم (Elm)', role: 'شريك الحلول الرقمية والربط التقني.' },
+  { name: 'شركة سبل (البريد السعودي)', role: 'شريك الخدمات اللوجستية والتوصيل.' },
+  { name: 'شركة أمازون ويب سيرفيسز (AWS)', role: 'شريك الحوسبة السحابية واستضافة البيانات.' },
 ];
 
 export default function PartnersPage() {

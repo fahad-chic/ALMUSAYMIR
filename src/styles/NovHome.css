@@ -445,6 +445,32 @@
   -webkit-text-fill-color: rgba(255, 255, 255, 0.82) !important;
 }
 
+/* صفحات الموقع في التذييل — نص قراءة فقط (ليست أزراراً)، بخط صغير عريض، محاذاة يمين */
+.rz-footer--home-tight .rz-footer-pages {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.25rem 0.7rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: right !important;
+  direction: rtl !important;
+  justify-content: flex-start !important;
+}
+
+.rz-footer--home-tight .rz-footer-page {
+  font-size: 0.62rem !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
+  cursor: default !important;
+}
+
+/* فراغ بسيط جداً بين قائمة الصفحات والنص القانوني الذي يليها */
+.rz-footer--home-tight .rz-footer-pages + .rz-footer-legal {
+  margin-top: 0.3rem !important;
+}
+
 /* ===== HOME GLASS FOR RIYADH — إظهار الخلفية ===== */
 .nov-comments-wrap,
 .nov-comments-wrap .comments-section {

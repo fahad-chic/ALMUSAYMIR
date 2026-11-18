@@ -54,4 +54,16 @@ describe('تذييل الرئيسية — النص القانوني', () => {
     // روابط الصفحات لم تعد داخل التذييل
     expect(container.querySelector('.rz-footer-legal')?.textContent).not.toContain('وظائفنا');
   });
+
+  it('يعرض أسماء الصفحات كنص قراءة فقط (ليست روابط ولا أزرار)', () => {
+    const { container } = renderHome();
+    const pages = container.querySelector('.rz-footer-pages');
+    expect(pages).not.toBeNull();
+    expect(pages.textContent).toContain('شركاؤنا');
+    expect(pages.textContent).toContain('وظائفنا');
+    expect(pages.textContent).toContain('الخصوصية');
+    // نص فقط: لا روابط ولا أزرار داخل قائمة الصفحات
+    expect(pages.querySelectorAll('a').length).toBe(0);
+    expect(pages.querySelectorAll('button').length).toBe(0);
+  });
 });

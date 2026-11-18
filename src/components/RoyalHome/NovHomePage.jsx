@@ -163,6 +163,11 @@ const NovHomePage = () => {
 
         <footer className="rz-footer rz-footer--compact rz-footer--home-tight">
           <div className="rz-footer-inner">
+            <p className="rz-footer-pages" aria-label="صفحات الموقع">
+              <span className="rz-footer-page">شركاؤنا</span>
+              <span className="rz-footer-page">وظائفنا</span>
+              <span className="rz-footer-page">الخصوصية</span>
+            </p>
             <div className="rz-footer-bottom rz-footer-legal" aria-label="معلومات قانونية">
               <span className="rz-footer-legal-line">
                 تم التطوير والتشغيل وفق أعلى معايير الأمان وحماية البيانات والخصوصية
