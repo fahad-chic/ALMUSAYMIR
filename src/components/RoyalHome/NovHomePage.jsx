@@ -207,11 +207,9 @@ const NovHomePage = () => {
                   </p>
                 ))}
                 <p className="rz-footer-info-text">
+                  {/* البريد الرسمي معروض مرة واحدة في كتلة «وظائفنا» أعلاه،
+                      فنعرض هنا رقم الجوال فقط لتفادي تكرار وسيلة التواصل. */}
                   {INFO_PRIVACY.contact}{' '}
-                  <a className="rz-footer-info-link" href={`mailto:${INFO_CONTACTS.privacy}`}>
-                    {INFO_CONTACTS.privacy}
-                  </a>
-                  {' — '}
                   <a className="rz-footer-info-link" href={INFO_PHONE_TEL}>
                     {INFO_PHONE_LOCAL}
                   </a>
