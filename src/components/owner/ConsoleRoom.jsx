@@ -18,6 +18,8 @@ import OwnerGatekeeper from './OwnerGatekeeper';
 import usePermissions from '../../permissions/usePermissions';
 import { useAuth } from '../../context/AuthContext';
 import { CONSOLE_SECTIONS, visibleItems } from '../../data/consoleSections';
+import { auth } from '../../firebase';
+import { hasOwnerGateSession, saveOwnerGateSession } from '../../utils/ownerGate';
 import { OWNER_ROOM_PATH } from '../../permissions/permissionRoutes';
 
 const ICONS = {
@@ -103,7 +105,10 @@ const ConsoleRoom = () => {
   const { can, ready } = usePermissions();
   const isOwner = userRole === 'owner';
 
-  const [gatePassed, setGatePassed] = useState(false);
+  // جلسة الرمز مشتركة مع غرفة المالك: لا إعادة رمز عند التنقل بين الأقسام.
+  const [gatePassed, setGatePassed] = useState(() =>
+    hasOwnerGateSession(auth?.currentUser?.uid)
+  );
 
   const sections = useMemo(
     () =>
@@ -133,24 +138,23 @@ const ConsoleRoom = () => {
     );
   }
 
-  // البوابة: صاحب الموقع يمرّ بحارس الرمز؛ المشرف يحتاج صلاحية صريحة.
-  if (!gatePassed) {
-    if (isOwner) {
-      return (
-        <OwnerGatekeeper
-          onPassed={() => setGatePassed(true)}
-          onCancel={() => navigate('/', { replace: true })}
-        />
-      );
-    }
+  // التصريح يُفرَض دائماً — قبل البوابة أيضاً. جلسة رمز سارية لا تمنح
+  // مشرفاً بلا صلاحيات حق الدخول (كان الفحص داخل فرع !gatePassed فقط).
+  if (!isOwner) {
     const allowedAdmin = ['ADD_NEW_EMPLOYEE', 'GRANT_SUB_ADMIN_PERMISSIONS', 'MANAGE_REPORTS',
       'MANAGE_REVIEWS', 'MANAGE_NOTIFICATIONS', 'MANAGE_CATEGORIES', 'MANAGE_SITE_BANNERS',
       'MANAGE_USER_VERIFICATION'].some((key) => can(key));
     if (!allowedAdmin) return <Navigate to="/unauthorized" replace />;
-    // مشرف مفوَّض: يبقى محتاجاً للرمز كطبقة ثانية.
+  }
+
+  // البوابة: صاحب الموقع يمرّ بحارس الرمز؛ المشرف المفوَّض يمرّ بها كطبقة ثانية.
+  if (!gatePassed) {
     return (
       <OwnerGatekeeper
-        onPassed={() => setGatePassed(true)}
+        onPassed={() => {
+          saveOwnerGateSession(auth?.currentUser?.uid);
+          setGatePassed(true);
+        }}
         onCancel={() => navigate('/', { replace: true })}
       />
     );

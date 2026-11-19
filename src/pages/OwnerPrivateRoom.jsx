@@ -1,5 +1,5 @@
 // src/pages/OwnerPrivateRoom.jsx - غرفة صاحب الموقع السرية 100%
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { markManualSignOut } from '../utils/kickLog'
 import { buildAdRejectUpdate } from '../utils/adActions'
@@ -36,37 +36,22 @@ import { requirePerm } from '../permissions/rbacService'
 import { writeAuditLog } from '../permissions/audit'
 import { archiveAndDelete } from '../utils/archive'
 import { OWNER_EMAIL_SET } from '../utils/ownerEmails'
+import {
+  OWNER_GATE_KEY,
+  OWNER_GATE_TTL_MS,
+  hasOwnerGateSession,
+  saveOwnerGateSession,
+  clearOwnerGateSession,
+  ownerGateRemainingMs
+} from '../utils/ownerGate'
+import { OWNER_ROOM_PATH } from '../permissions/permissionRoutes'
 
 const isOwnerEmail = (email) =>
   OWNER_EMAIL_SET.has(
     String(email || '').trim().toLowerCase()
   )
 
-const OWNER_GATE_KEY = 'rooz_owner_gate_ok'
-const OWNER_GATE_TTL_MS = 15 * 60 * 1000
-
-const readOwnerGate = () => {
-  try {
-    const currentUid = auth?.currentUser?.uid
-    const raw = sessionStorage.getItem(OWNER_GATE_KEY)
-    const record = raw ? JSON.parse(raw) : null
-
-    if (
-      !currentUid ||
-      !record ||
-      record.uid !== currentUid ||
-      !Number.isFinite(record.expiresAt) ||
-      record.expiresAt <= Date.now()
-    ) {
-      sessionStorage.removeItem(OWNER_GATE_KEY)
-      return false
-    }
-
-    return true
-  } catch {
-    return false
-  }
-}
+const readOwnerGate = () => hasOwnerGateSession(auth?.currentUser?.uid)
 
 const logSecurityEvent = async (type, details, severity = 'info') => {
   try {
@@ -163,7 +148,6 @@ const OwnerPrivateRoom = () => {
   const [editingAdDescription, setEditingAdDescription] = useState('')
 
   // مسار التنقل الذكي — خطوة واحدة فقط للخلف
-  const [tabHistory, setTabHistory] = useState(['center'])
 
   // وضع الليل — يُحفظ في localStorage
   const [darkMode, setDarkMode] = useState(() => {
@@ -195,64 +179,56 @@ const OwnerPrivateRoom = () => {
     }, 3200)
   }
 
-  // رجوع داخل الغرفة فقط — لا يخرج للصفحة الرئيسية ولا يسجّل خروجاً
+  // مراجع حيّة تُقرأ داخل مستمع popstate بلا إعادة اشتراك
+  const activeTabRef = useRef(activeTab)
+  const tabsRef = useRef([])
+  const skipUrlPush = useRef(false)
+  activeTabRef.current = activeTab
+
+  // التنقل بين الأقسام: يحدّث القسم فقط، والرابط يُدفَع في أثر منفصل
   const goToTab = (tabId) => {
-    setTabHistory((prev) => {
-      if (prev[prev.length - 1] === tabId) return prev
-      return [...prev, tabId]
-    })
+    if (tabId === activeTabRef.current) return
     setActiveTab(tabId)
     setSearchTerm('')
     setFilterType('all')
   }
 
+  // زر ❌ = رجوع خطوة واحدة للقسم السابق (لا يمسّ جلسة الرمز)
   const goBackOneStep = () => {
-    setTabHistory((prev) => {
-      // إن كنا في المركز فقط: ابقَ هنا — ممنوع الخروج من الغرفة بزر الرجوع
-      if (prev.length <= 1) {
-        setActiveTab('center')
-        return ['center']
-      }
-      const next = prev.slice(0, -1)
-      const target = next[next.length - 1] || 'center'
-      setActiveTab(target)
-      setSearchTerm('')
-      setFilterType('all')
-      return next.length ? next : ['center']
-    })
+    window.history.back()
   }
 
   // منع زر رجوع المتصفح من إخراج المالك من الغرفة بعد إدخال الرمز
   useEffect(() => {
     if (!gatePassed) return undefined
 
-    let expiresAt = Date.now() + OWNER_GATE_TTL_MS
-    try {
-      const raw = sessionStorage.getItem(OWNER_GATE_KEY)
-      const record = raw ? JSON.parse(raw) : null
-      if (Number.isFinite(record?.expiresAt)) {
-        expiresAt = record.expiresAt
-      }
-    } catch { /* use the safe fallback */ }
-
-    const remaining = Math.max(0, expiresAt - Date.now())
+    const remaining = ownerGateRemainingMs() || OWNER_GATE_TTL_MS
     const expiryTimer = window.setTimeout(() => {
-      try {
-        sessionStorage.removeItem(OWNER_GATE_KEY)
-      } catch { /* ignore */ }
+      clearOwnerGateSession()
       setGatePassed(false)
     }, remaining)
 
-    const lockState = () => {
-      try {
-        window.history.pushState({ roozOwnerRoom: true }, '', window.location.href)
-      } catch { /* ignore */ }
-    }
-    lockState()
+    // زر «رجوع» يتبع الرابط: القسم السابق إن وُجد، وإلا المركز.
+    // لا يُسقط جلسة الرمز ولا يخرج من الغرفة.
     const onPop = () => {
-      // أعد تثبيت الحالة وارجع خطوة داخل الغرفة فقط
-      lockState()
-      goBackOneStep()
+      const inRoom = window.location.pathname === OWNER_ROOM_PATH
+      if (!inRoom) {
+        // محاولة خروج بزر الرجوع ⇒ ثبّت الغرفة على القسم السابق داخلياً
+        try {
+          window.history.pushState(
+            { roozOwnerRoom: true },
+            '',
+            `${OWNER_ROOM_PATH}?tab=${activeTabRef.current}`
+          )
+        } catch { /* ignore */ }
+        return
+      }
+      const tabFromUrl =
+        new URLSearchParams(window.location.search).get('tab') || 'center'
+      skipUrlPush.current = true
+      setActiveTab(tabsRef.current.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'center')
+      setSearchTerm('')
+      setFilterType('all')
     }
     window.addEventListener('popstate', onPop)
     return () => {
@@ -296,9 +272,7 @@ const OwnerPrivateRoom = () => {
         isOwnerEmail(currentUser.email)
 
       if (!ownerAccess) {
-        try {
-          sessionStorage.removeItem(OWNER_GATE_KEY)
-        } catch { /* ignore */ }
+        clearOwnerGateSession()
 
         setUser(null)
 
@@ -1150,6 +1124,9 @@ const OwnerPrivateRoom = () => {
     } catch (error) {
       console.error(error)
     } finally {
+      // خروج صريح = إنهاء جلسة الرمز (وحده يُسقطها، لا زر ❌ ولا الرجوع)
+      clearOwnerGateSession()
+      setGatePassed(false)
       markManualSignOut()
       await auth.signOut()
       navigate('/login', { replace: true })
@@ -1401,22 +1378,31 @@ const OwnerPrivateRoom = () => {
     }
   ]
 
+  // تُربَط بعد تعريف tabs (قبل ذلك تكون undefined ⇒ TDZ)
+  tabsRef.current = tabs
+
   // تبويب من الرابط غير موجود ⇒ ارجع للمركز الرئيسي بدل شاشة فارغة.
   // كلا الأثرين قبل `if (loading)` كي لا يتغيّر ترتيب الـ hooks بين الرندرات،
   // وبعد تعريف tabs كي لا يُقرأ قبل تهيئته (TDZ). `tabs` مصفوفة جديدة كل render
   // فلا تُدرَج في الاعتماديات (وإلا دارت حلقة تحديث لا نهائية).
   useEffect(() => {
     if (!tabs.some((t) => t.id === activeTab)) setActiveTab('center')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab])
 
-  // التنقل بين تبويبات الغرفة يُحدّث ?tab= في الرابط، فيبقى الزر «رجوع»
-  // في المتصفح صحيحاً ويُمكن مشاركة رابط القسم مباشرة.
+  // كل قسم = مُدخل تاريخ حقيقي، فيرجع زر المتصفح خطوة واحدة لنفس القسم السابق.
+  // (كان replace:true فيتخطّى الأقسام ويبدو السلوك عشوائياً.)
   useEffect(() => {
+    if (skipUrlPush.current) {
+      skipUrlPush.current = false
+      return
+    }
     const current = new URLSearchParams(location.search).get('tab') || 'center'
     if (current === activeTab) return
-    const next = activeTab === 'center' ? location.pathname : `${location.pathname}?tab=${activeTab}`
-    navigate(next, { replace: true })
+    const next =
+      activeTab === 'center'
+        ? location.pathname
+        : `${location.pathname}?tab=${activeTab}`
+    navigate(next)
   }, [activeTab, location.pathname, location.search, navigate])
 
   if (loading) {
@@ -1455,18 +1441,7 @@ const OwnerPrivateRoom = () => {
     return (
       <OwnerGatekeeper
         onPassed={() => {
-          try {
-            const uid = auth?.currentUser?.uid
-            if (uid) {
-              sessionStorage.setItem(
-                OWNER_GATE_KEY,
-                JSON.stringify({
-                  uid,
-                  expiresAt: Date.now() + OWNER_GATE_TTL_MS
-                })
-              )
-            }
-          } catch { /* ignore */ }
+          saveOwnerGateSession(auth?.currentUser?.uid)
           setGatePassed(true)
         }}
         onCancel={() => safeStepBack('/')}
@@ -1790,9 +1765,9 @@ const OwnerPrivateRoom = () => {
         </div>
       )}
 
-      <header className="royal-surface backdrop-blur-md border-b royal-border px-3 py-3 md:px-6 md:py-4 sticky top-0 z-30">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-2 md:gap-4 min-w-0">
+      <header className="royal-surface backdrop-blur-md border-b royal-border px-2 py-2 md:px-6 md:py-4 sticky top-0 z-30">
+        <div className="flex items-center justify-between gap-2 md:gap-3 flex-nowrap">
+          <div className="flex items-center gap-1.5 md:gap-4 min-w-0 flex-1">
             <OwnerConsoleMenu
               tabs={tabs}
               activeId={activeTab}
@@ -1804,21 +1779,21 @@ const OwnerPrivateRoom = () => {
             />
 
             <div className="min-w-0">
-              <h1 className="text-base md:text-xl font-bold flex items-center gap-2 royal-text">
+              <h1 className="text-[13px] leading-tight md:text-xl font-bold flex items-center gap-1.5 royal-text">
                 <Crown
-                  className="text-[var(--rz-primary)] flex-shrink-0"
-                  size={24}
+                  className="text-[var(--rz-primary)] flex-shrink-0 hidden sm:block"
+                  size={20}
                 />
-                غرفة صاحب موقع المسيمير | ALMUSAYMIR
+                <span className="truncate">غرفة صاحب الموقع</span>
               </h1>
 
-              <p className="text-xs md:text-sm royal-muted font-medium">
-                مركز التحكم والمراقبة والحماية
+              <p className="text-[10px] leading-tight md:text-sm royal-muted font-medium truncate">
+                المسيمير | ALMUSAYMIR
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+          <div className="flex items-center gap-0.5 md:gap-3 flex-shrink-0">
             <button
               type="button"
               onClick={sendBroadcast}
@@ -1832,12 +1807,12 @@ const OwnerPrivateRoom = () => {
             <button
               type="button"
               onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg relative royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
+              className="p-1.5 md:p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg relative royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
               title="الإشعارات"
               aria-label="الإشعارات"
               aria-expanded={showNotifications}
             >
-              <Bell size={20} />
+              <Bell size={18} />
 
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-[var(--rz-primary)] rounded-full text-[10px] text-white flex items-center justify-center font-bold">
@@ -1853,21 +1828,21 @@ const OwnerPrivateRoom = () => {
                   showToast('تم حفظ التعديل بنجاح')
                 )
               }
-              className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
+              className="hidden sm:inline-flex p-1.5 md:p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
               title="تحديث البيانات"
               aria-label="تحديث البيانات"
             >
-              <RefreshCw size={20} />
+              <RefreshCw size={18} />
             </button>
 
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
+              className="p-1.5 md:p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg royal-text border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
               title={darkMode ? 'الوضع النهاري' : 'وضع الليل'}
               aria-label={darkMode ? 'الوضع النهاري' : 'وضع الليل'}
             >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
             <CloseButton
@@ -1889,11 +1864,11 @@ const OwnerPrivateRoom = () => {
             <button
               type="button"
               onClick={handleLogout}
-              className="p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)] border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
+              className="p-1.5 md:p-2.5 hover:bg-[var(--rz-primary)]/10 rounded-lg text-[var(--rz-primary)] border border-transparent hover:border-[var(--rz-primary)]/20 transition-colors"
               title="تسجيل الخروج"
               aria-label="تسجيل الخروج"
             >
-              <LogOut size={20} />
+              <LogOut size={18} />
             </button>
           </div>
         </div>
@@ -2172,6 +2147,7 @@ const OwnerPrivateRoom = () => {
 
           {activeTab === 'messages' && (
             <MessagesPanel
+              users={users}
               messages={filteredMessages}
               privateChats={privateChats}
               selectedChat={selectedChat}
@@ -2325,7 +2301,8 @@ const StatCard = ({
   icon: Icon,
   value,
   label,
-  color
+  color,
+  onClick
 }) => {
   const colors = {
     gold: 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] border-[var(--rz-primary)]/25',
@@ -2336,10 +2313,20 @@ const StatCard = ({
     orange: 'bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] border-[var(--rz-primary)]/25'
   }
 
+  // كل رقم = مدخل لمكان العمل الحقيقي المرتبط به (لا بطاقة للقراءة فقط)
+  const Tag = onClick ? 'button' : 'div'
+
   return (
-    <div
-      className={`royal-surface rounded-xl p-3 md:p-4 border ${
+    <Tag
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+      aria-label={onClick ? `${label} — فتح القائمة` : undefined}
+      className={`royal-surface rounded-xl p-3 md:p-4 border text-right w-full ${
         colors[color] || colors.gold
+      } ${
+        onClick
+          ? 'cursor-pointer transition-transform hover:scale-[1.02] hover:border-[var(--rz-primary)]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rz-primary)]'
+          : ''
       }`}
     >
       <div className="flex items-center gap-2 mb-2">
@@ -2352,7 +2339,7 @@ const StatCard = ({
       <p className="text-xl md:text-2xl font-bold text-[var(--rz-ink)]">
         {formatNumber(value)}
       </p>
-    </div>
+    </Tag>
   )
 }
 
@@ -2411,36 +2398,42 @@ const OverviewPanel = ({ stats, onTab }) => (
         value={stats.totalUsers}
         label="إجمالي المستخدمين"
         color="gold"
+        onClick={() => onTab('users')}
       />
       <StatCard
         icon={Ban}
         value={stats.bannedUsers}
         label="المحظورون"
         color="red"
+        onClick={() => onTab('users')}
       />
       <StatCard
         icon={Crown}
         value={stats.adminUsers}
         label="المدراء"
         color="yellow"
+        onClick={() => onTab('permissions')}
       />
       <StatCard
         icon={ShoppingBag}
         value={stats.activeAds}
         label="الإعلانات النشطة"
         color="green"
+        onClick={() => onTab('ads')}
       />
       <StatCard
         icon={MessageSquare}
         value={stats.totalMessages}
         label="الرسائل"
         color="purple"
+        onClick={() => onTab('messages')}
       />
       <StatCard
         icon={AlertTriangle}
         value={stats.securityAlerts}
         label="تنبيهات الأمان"
         color="orange"
+        onClick={() => onTab('security')}
       />
     </div>
 
@@ -2460,21 +2453,25 @@ const OverviewPanel = ({ stats, onTab }) => (
           icon={Users}
           value={stats.totalUsers}
           label="المستخدمون"
+          onClick={() => onTab('users')}
         />
         <MiniStat
           icon={Crown}
           value={stats.adminUsers}
           label="المدراء"
+          onClick={() => onTab('permissions')}
         />
         <MiniStat
           icon={ShoppingBag}
           value={stats.totalAds}
           label="الإعلانات"
+          onClick={() => onTab('ads')}
         />
         <MiniStat
           icon={Activity}
           value={stats.activeAds}
           label="النشطة"
+          onClick={() => onTab('ads')}
         />
       </div>
     </div>
@@ -2654,22 +2651,34 @@ const LiveActivityPanel = ({
   </div>
 )
 
-const MiniStat = ({ icon: Icon, value, label }) => (
-  <div className="text-center p-4 bg-[var(--rz-primary)]/5 rounded-xl border border-[var(--rz-primary)]/10">
-    <Icon
-      size={20}
-      className="mx-auto mb-2 text-[var(--rz-primary)]"
-    />
+const MiniStat = ({ icon: Icon, value, label, onClick }) => {
+  const Tag = onClick ? 'button' : 'div'
+  return (
+    <Tag
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+      aria-label={onClick ? `${label} — فتح القائمة` : undefined}
+      className={`text-center p-4 bg-[var(--rz-primary)]/5 rounded-xl border border-[var(--rz-primary)]/10 w-full ${
+        onClick
+          ? 'cursor-pointer transition-transform hover:scale-[1.02] hover:border-[var(--rz-primary)]/55 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rz-primary)]'
+          : ''
+      }`}
+    >
+      <Icon
+        size={20}
+        className="mx-auto mb-2 text-[var(--rz-primary)]"
+      />
 
-    <p className="text-2xl font-bold royal-text">
-      {formatNumber(value)}
-    </p>
+      <p className="text-2xl font-bold royal-text">
+        {formatNumber(value)}
+      </p>
 
-    <p className="text-xs royal-muted font-bold">
-      {label}
-    </p>
-  </div>
-)
+      <p className="text-xs royal-muted font-bold">
+        {label}
+      </p>
+    </Tag>
+  )
+}
 
 const LiveStat = ({ value, label, icon: Icon }) => (
   <div className="text-center p-4 bg-[var(--rz-primary)]/5 rounded-xl border border-[var(--rz-primary)]/10">
@@ -3226,7 +3235,22 @@ const MessagesPanel = ({
   chatMessages = [],
   setChatMessages,
   db,
+  users = [],
 }) => {
+  // عرض اسم مفهوم بدل المعرّف الخام (uid / postdeploy_chat_…)
+  const nameOf = (key, fallback = 'مستخدم') => {
+    if (!key) return fallback
+    const found = (users || []).find(
+      (u) => u?.id === key || u?.uid === key
+    )
+    const name = found?.displayName || found?.name || found?.email
+    if (name) return String(name)
+    const raw = String(key)
+    if (raw.includes('@')) return raw
+    // معرّف تقني بلا اسم معروف — لا نعرضه كما هو
+    return fallback
+  }
+
   const openChat = async (chat) => {
     setSelectedChat(chat)
     setChatMessages([])
@@ -3278,7 +3302,7 @@ const MessagesPanel = ({
             <div>
               <p className="font-bold royal-text text-sm">{chat.adTitle || 'إعلان'}</p>
               <p className="text-[11px] royal-muted">
-                مشتري: {chat.buyerName || chat.buyerKey || '—'} | بائع: {chat.sellerKey || '—'}
+                مشتري: {chat.buyerName || nameOf(chat.buyerKey || chat.buyerUid, 'مشترٍ')} | بائع: {chat.sellerName || nameOf(chat.sellerKey || chat.sellerUid, 'معلن')}
               </p>
             </div>
             <button
@@ -3307,7 +3331,7 @@ const MessagesPanel = ({
           {chatMessages.length === 0 && <p className="text-sm royal-muted">لا رسائل أو جاري التحميل...</p>}
           {chatMessages.map((m) => (
             <div key={m.id} className="p-2 rounded-lg" style={{ background: 'var(--rz-ivory)', border: '1px solid rgba(var(--rz-primary-rgb), 0.2)' }}>
-              <p className="text-[11px] royal-muted font-medium">{m.senderName || m.senderKey || '—'}</p>
+              <p className="text-[11px] royal-muted font-medium">{m.senderName || nameOf(m.senderUid || m.senderKey, 'مرسل')}</p>
               <p className="royal-text text-sm break-words font-medium">{m.text || m.content || '—'}</p>
             </div>
           ))}
@@ -3322,10 +3346,10 @@ const MessagesPanel = ({
           <div key={msg.id} className="royal-surface rounded-xl p-4 border royal-border">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <span className="text-xs royal-muted font-medium">
-                من: {String(msg.senderId || '').slice(0, 8) || '—'}
+                من: {nameOf(msg.senderId, 'مستخدم')}
               </span>
               <span className="text-xs royal-muted font-medium">
-                إلى: {String(msg.receiverId || '').slice(0, 8) || '—'}
+                إلى: {nameOf(msg.receiverId, 'مستخدم')}
               </span>
             </div>
             <p className="royal-text break-words font-medium">{msg.content || '—'}</p>
