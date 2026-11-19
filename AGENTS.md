@@ -122,3 +122,49 @@
   PRIVACY-REPAIR **9/9** · LINT 0 · BUILD ✓ · CONTRAST 1017 عنصراً/0 مخالفة · CI على `70985ef` أخضر.
 - **درس**: `npm run contrast` افتراضياً يقرأ `localhost:12000`؛ إن لم يكن خادماً يعمل
   يُبلّغ «0 elements checked / PASS» — **نجاح زائف**. استخدم `BASE_URL=<preview>`.
+
+## جولة 2026-11-06 (PR #50) — بوابة غرفة القيادة + مواصفات الدخول + تباين AA
+**`main` = `70985ef`. لم يُدمج شيء، ولم يُنشر Cloudflare/Firebase، ولم يُشغَّل ترحيل.**
+
+### تصحيح حالة التقارير السابقة (مُتحقَّق بـAPI وقراءة كود)
+- **PR #24 (`fix/reviews-privacy`): مغلق بلا دمج**، رأسه `6db27cff`. **PR #25: مدموج** (`3282245`).
+- **`publicSafe` غير موجود في `main`** (0 مرجع في `src/`, `scripts/`, `firestore.rules`)،
+  و**`scripts/backfill-public-safe.mjs` غير موجود**. نموذج الإنتاج هو `hidden`/`status`:
+  `reviews.list` = `hidden == false`، `comments.list` = `status == 'approved'` + منع `email` غير فارغ.
+- الاستعلامات تُطابق القواعد فعلاً (`where('hidden','==',false)` في `firestore.js`،
+  `where('status','==','approved')` في `CommentsSection.jsx`) ⇒ **السجلات القديمة تبقى ظاهرة بلا ترحيل**.
+  خطاب «backfill publicSafe» يخصّ فرع PR #24 غير المدموج ⇒ **مهجور**.
+
+### أخطاء حقيقية أُصلحت في هذه الجولة
+- **`OwnerPrivateRoom.jsx` — `ReferenceError` (TDZ)**: `tabs` كان يُقرأ في مصفوفة اعتماديات
+  `useEffect` **قبل تعريفه** بـ86 سطراً ⇒ انهيار الغرفة لأي مالك مسجّل. ونُقل الأثران **قبل**
+  `if (loading)` (احترام ترتيب الـhooks)، وأُزيلت `tabs` من الاعتماديات (مصفوفة جديدة كل render
+  ⇒ حلقة تحديث لا نهائية).
+- **`SettingsPage.jsx` — نص غير مقروء**: `text-gray-300`/`text-gray-400` أبيض/رمادي فاتح على خلفية
+  كريمية = **1.03:1**. صار `--rz-ink`/`--rz-muted` ⇒ **17.2–20.7:1**.
+- **`rooz-site-backdrop.css` — `btn-gold`**: نص أبيض على ذهبي فاتح، ونهاية تدرّج `#8F6C52`
+  = **4.43:1** (تحت AA). صار نصاً أسود ونهاية `#A87D46` ⇒ **5.69–20.7:1**.
+- **`theme.css` — `--rz-gold-deep` كان غير معرّف** (الموجود `--rz-gold-deep-rgb` فقط) ⇒ أي
+  `var(--rz-gold-deep)` يسقط صامتاً. أُضيف التعريف (المصدر الوحيد للألوان).
+
+### ما بُني
+- `ConsoleGateScreen` داخل `ConsoleRoom.jsx`؛ `/console` صار مفتوحاً (بلا `ProtectedRoute`)
+  ويعرض **حقل الرمز فقط** للزائر — صفر أقسام/بيانات قبل التحقق.
+- `consoleSections.js`: `complaints` → `ownerOnly` + `/complaints` (كانت `MANAGE_CONTACT_MESSAGES`
+  المؤجّلة)، وعناصر `{kind:'tab'}` تُخفى عن غير المالك (كل تبويب في `/owner-private-room` المحمي).
+- اختبارات جديدة: `ConsoleRoom.test.jsx` (6) و`consoleSections.test.js` (9).
+
+### قياسات صفحة الدخول (390px، Playwright)
+اسم الشعار `rgb(0,0,0)` وزن 900 · «بوابتك نحو تجارة ذكية» وزن 900 · الوصف وزن 300 **سطر واحد** ·
+بطاقة المالك 202px مقابل 124px (**1.63×**) · عنوان المالك/المشرف `rgb(118,80,11)` = **7.19:1** ·
+وصف المشرف أسود **21.0:1** · الشارة «⚜️ دخول صاحب الموقع ⚜️» سطر واحد ·
+زر الحراج «موقع حراج أونلاين» 10.88px · أزرار إنشاء حساب/نسيان/Google/زائر 10.88px بلا تجاوز.
+**الضغط الثلاثي آمن**: يفتح مودالاً (بريد + كلمة مرور + رمز) والرمز يُتحقق **خادمياً** عبر `/api/owner-pin`.
+
+### البوابات (محلي) وCI
+LINT exit 0 · VITEST **39 ملفاً/292 اختباراً** · BUILD=0 · CONTRAST **1074 عنصراً، 0 مخالفة، PASS** ·
+**CI على PR #50: 7/7 خضراء** (Lint, Unit tests, Production build, Firestore rules, Indexes, Contrast, Cloudflare Pages).
+- **5 «suspects» متبقية = إيجابيات كاذبة مُتحقَّق منها بالبكسل**: أيقونة واتساب بيضاء على تدرّج داكن
+  (`rgb(28,25,23)→rgb(143,108,82)`)، ومقابض Toggle بيضاء على خلفية داكنة. المفحص يقرأ `color`
+  الموروث لا لون الرسم الفعلي.
+- **لا اختبار إنتاج**: كل ما سبق محلي (preview + unit). اختبار المحاكي/الوحدات **ليس** اختبار إنتاج.

@@ -111,6 +111,7 @@
   --rz-pearl-shadow-rgb: 50, 66, 88;
   --rz-champagne: #D8B98A;
   --rz-champagne-rgb: 216, 185, 138;
+  --rz-gold-deep: rgb(var(--rz-gold-deep-rgb));
   --rz-gold-deep-rgb: 166, 124, 46;
   --rz-gold-shadow-rgb: 150, 138, 108;
   --rz-shadow-warm-rgb: 120, 112, 96;

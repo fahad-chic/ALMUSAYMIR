@@ -22,7 +22,7 @@ const Toggle = ({ on, onClick, dangerOff = false }) => (
     onClick={onClick}
     aria-pressed={on}
     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-      on ? (dangerOff ? 'bg-red-600' : 'bg-luxury-gold') : 'bg-gray-600'
+      on ? (dangerOff ? 'bg-[var(--rz-error)]' : 'bg-[var(--rz-gold-deep)]') : 'bg-[var(--rz-muted)]'
     }`}
   >
     <span
