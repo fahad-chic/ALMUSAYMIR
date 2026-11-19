@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { CONTACT_INFO as CI, BANK_ACCOUNTS as CONST_BANKS } from '../../utils/constants';
 import { useNavigate } from 'react-router-dom';
 import { colorAlpha } from '../../utils/color';
+import { toTelHref } from '../../data/infoPages';
 import Editable from '../Editable';
 import {
   Phone,
@@ -123,7 +124,7 @@ const ContactPage = () => {
       return;
     }
 
-    window.location.href = `tel:+${cleanNumber}`;
+    window.location.href = toTelHref(cleanNumber);
   };
 
   const openSnapchat = () => {

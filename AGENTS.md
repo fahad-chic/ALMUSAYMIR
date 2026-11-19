@@ -75,3 +75,26 @@
   مسافات جوال، شريط تنقل بتمرير أفقي بلا scrollbar — **بلا تغيير أي زر/مسار/سلوك**.
 - **مصدر الجوال** يبقى `CONTACT_INFO.PHONE_1` → يُعرض `0536667222`.
 - **حالة**: 253 اختباراً · lint 0 · build ✓. الصفحات الثلاث تبقى محميّة بعد تسجيل الدخول (لا تغيير).
+
+## جولة جلسة الزائر + روابط tel (PR #49، 2026-11-19) — غير مدموج
+- **جلسة الزائر (دقيقتان)**: `expireGuestSession` + `acknowledgeGuestExpired` في `useStore.js`،
+  وعدّاد/لافتة/تحويل في `App.jsx`. لافتة تتحول للأحمر في آخر 10 ثوان (`rgba(179,38,30,.96)`)
+  ثم `/login` مع `guestExpiredMsg` في `sessionStorage` تُقرأ في `Login.jsx`.
+  **إصلاح**: `get().guestSession.active` كان يرمي TypeError إذا كانت الجلسة `null` → `?.`.
+- **درس اختبار**: `getGuestRemaining()` يُرجع **مللي ثانية** لا ثوانٍ.
+- **`tel:` المزدوج**: `INFO_PHONE_TEL` في `src/data/infoPages.js` صار `tel:+966…` كاملاً،
+  والصفحات تستخدمه مباشرة بلا `"tel:" +`. `toTelHref()` يوحّد 05…/966…/00966….
+- **`.rl-eye`**: كان بلا تنسيق (18×18) → صار 44×44.
+- **درس تصميم**: المالك طلب أزرار الدخول **أصغر** — لا تُكبّرها إلى 44px.
+
+## تصحيح مهم: لا يوجد ترحيل `publicSafe` على `main`
+- `scripts/backfill-public-safe.mjs` **غير موجود على `main`** — فقط على الفرع المُغلق
+  `fix/reviews-privacy`. و`publicSafe` **لا وجود له في `firestore.rules`** (0 نتيجة).
+- نموذج `main` الفعلي: `reviews` عام إذا `hidden == false` · `comments` عام إذا
+  `status == 'approved'` · الحماية عبر `hasNoPublicPII` تمنع كتابة حقول الهوية من المصدر.
+- **لذلك لا backfill لإعادة الإظهار** — السجلات القديمة تبقى ظاهرة كما هي. الخطر محصور
+  في سجلات قديمة تحمل حقول هوية.
+- **الأدوات الجاهزة**: `PrivacyAuditPanel` (غرفة المالك → «تدقيق الخصوصية») يعرض 4 فئات
+  ويُصلح/يحذف مع أرشفة + تدقيق. و`scripts/legacy-privacy-report.mjs` قراءة فقط
+  (fetch واحد بلا `method`، لا `--apply`).
+- **بيئة العمل**: لا Java ولا محاكي Firestore → `npm run test:rules` غير قابل للتشغيل هنا.

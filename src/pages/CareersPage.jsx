@@ -43,7 +43,7 @@ export default function CareersPage() {
               </p>
               <p className="ip-contact-line">
                 الجوال:{' '}
-                <a className="ip-link" href={`tel:${INFO_PHONE_TEL}`}>
+                <a className="ip-link" href={INFO_PHONE_TEL}>
                   {INFO_PHONE_LOCAL}
                 </a>
               </p>

@@ -17,6 +17,7 @@ import {
   arrayUnion,
 } from 'firebase/firestore';
 import { ensureFirebaseSession } from '../utils/firebaseSession';
+import { toTelHref } from '../data/infoPages';
 import { notifyOwner } from '../utils/visitorNotify';
 import { db, auth } from '../firebase/config';
 import VerifiedBadge from '../components/haraj/VerifiedBadge';
@@ -397,7 +398,7 @@ export default function AdDetailsPage() {
 
   const handleCall = () => {
     const phone = ad?.userPhone || ad?.phone;
-    if (phone) window.location.href = `tel:${phone}`;
+    if (phone) window.location.href = toTelHref(phone);
   };
 
   // إرسال مزايدة جديدة في المزاد العلني (٤٨ ساعة)

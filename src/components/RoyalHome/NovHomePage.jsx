@@ -26,7 +26,7 @@ import {
   INFO_PRIVACY,
   INFO_CONTACTS,
   INFO_PHONE_LOCAL,
-  INFO_PHONE2_LOCAL,
+  INFO_PHONE_TEL,
   INFO_LEGAL_LINES,
 } from '../../data/infoPages';
 import '../../styles/NovHome.css';
@@ -178,16 +178,10 @@ const NovHomePage = () => {
                 <h4 className="rz-footer-info-title">{INFO_CAREERS.title}</h4>
                 <p className="rz-footer-info-text">{INFO_CAREERS.lead}</p>
                 <p className="rz-footer-info-text">{INFO_CAREERS.body}</p>
+                <p className="rz-footer-info-text">{INFO_CAREERS.apply}</p>
                 <p className="rz-footer-info-text">
-                  {INFO_CAREERS.apply}{' '}
                   <a className="rz-footer-info-link" href={`mailto:${INFO_CONTACTS.careers}`}>
                     {INFO_CONTACTS.careers}
-                  </a>
-                </p>
-                <p className="rz-footer-info-text">
-                  الجوال:{' '}
-                  <a className="rz-footer-info-link" href={`tel:+${INFO_PHONE_LOCAL.replace(/\D/g, '')}`}>
-                    {INFO_PHONE_LOCAL}
                   </a>
                 </p>
               </section>
@@ -201,16 +195,6 @@ const NovHomePage = () => {
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
-                <p className="rz-footer-info-text">
-                  {INFO_PARTNERS.contact}{' '}
-                  <a className="rz-footer-info-link" href={`mailto:${INFO_CONTACTS.partners}`}>
-                    {INFO_CONTACTS.partners}
-                  </a>
-                  {' — '}
-                  <a className="rz-footer-info-link" href={`tel:+${INFO_PHONE_LOCAL.replace(/\D/g, '')}`}>
-                    {INFO_PHONE_LOCAL}
-                  </a>
-                </p>
               </section>
 
               <section className="rz-footer-info-block">
@@ -223,17 +207,11 @@ const NovHomePage = () => {
                   </p>
                 ))}
                 <p className="rz-footer-info-text">
+                  {/* البريد الرسمي معروض مرة واحدة في كتلة «وظائفنا» أعلاه،
+                      فنعرض هنا رقم الجوال فقط لتفادي تكرار وسيلة التواصل. */}
                   {INFO_PRIVACY.contact}{' '}
-                  <a className="rz-footer-info-link" href={`mailto:${INFO_CONTACTS.privacy}`}>
-                    {INFO_CONTACTS.privacy}
-                  </a>
-                  {' — '}
-                  <a className="rz-footer-info-link" href={`tel:+${INFO_PHONE_LOCAL.replace(/\D/g, '')}`}>
+                  <a className="rz-footer-info-link" href={INFO_PHONE_TEL}>
                     {INFO_PHONE_LOCAL}
-                  </a>
-                  {' — '}
-                  <a className="rz-footer-info-link" href={`tel:+${INFO_PHONE2_LOCAL.replace(/\D/g, '')}`}>
-                    {INFO_PHONE2_LOCAL}
                   </a>
                 </p>
               </section>

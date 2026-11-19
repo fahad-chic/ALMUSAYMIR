@@ -52,13 +52,13 @@ export default function PrivacyPage() {
               </p>
               <p className="ip-contact-line">
                 الجوال / واتساب:{' '}
-                <a className="ip-link" href={`tel:${INFO_PHONE_TEL}`}>
+                <a className="ip-link" href={INFO_PHONE_TEL}>
                   {INFO_PHONE_LOCAL}
                 </a>
               </p>
               <p className="ip-contact-line">
                 أو{' '}
-                <a className="ip-link" href={`tel:${INFO_PHONE2_TEL}`}>
+                <a className="ip-link" href={INFO_PHONE2_TEL}>
                   {INFO_PHONE2_LOCAL}
                 </a>
               </p>
