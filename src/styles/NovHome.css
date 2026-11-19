@@ -428,47 +428,106 @@
   text-align: center !important;
 }
 
-/* النص القانوني في التذييل — نص للقراءة فقط، كل جملة في سطر مستقل، محاذاة يمين */
+/* النص القانوني في التذييل — نص للقراءة فقط، كل جملة في سطر مستقل، محاذاة وسط */
 .rz-footer--home-tight .rz-footer-legal {
   display: grid !important;
   gap: 0.12rem !important;
-  text-align: right !important;
+  text-align: center !important;
+  justify-items: center !important;
   direction: rtl !important;
 }
 
 .rz-footer--home-tight .rz-footer-legal .rz-footer-legal-line {
   display: block !important;
+  width: 100% !important;
   font-size: 0.66rem !important;
   line-height: 1.6 !important;
-  text-align: right !important;
+  text-align: center !important;
   color: rgba(255, 255, 255, 0.82) !important;
   -webkit-text-fill-color: rgba(255, 255, 255, 0.82) !important;
 }
 
-/* صفحات الموقع في التذييل — نص قراءة فقط (ليست أزراراً)، بخط صغير عريض، محاذاة يمين */
-.rz-footer--home-tight .rz-footer-pages {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 0.25rem 0.7rem !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  text-align: right !important;
+/* أقسام التذييل الثلاثة (وظائفنا / شركاؤنا / الخصوصية) — نص قراءة فقط،
+   محاذاة يمين، العنوان صغير عريض والنص تحته أصغر. */
+.rz-footer--home-tight .rz-footer-info {
+  display: grid !important;
+  gap: 0.7rem !important;
   direction: rtl !important;
-  justify-content: flex-start !important;
+  text-align: right !important;
 }
 
-.rz-footer--home-tight .rz-footer-page {
+.rz-footer--home-tight .rz-footer-info-block {
+  display: block !important;
+  text-align: right !important;
+  direction: rtl !important;
+  padding: 0 !important;
+}
+
+.rz-footer--home-tight .rz-footer-info-title {
+  margin: 0 0 0.22rem !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  line-height: 1.35 !important;
+  color: var(--rz-gold) !important;
+  text-align: right !important;
+}
+
+.rz-footer--home-tight .rz-footer-info-text {
+  margin: 0 0 0.14rem !important;
   font-size: 0.62rem !important;
+  font-weight: 300 !important;
+  line-height: 1.65 !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.82) !important;
+  text-align: right !important;
+  overflow-wrap: anywhere !important;
+}
+
+.rz-footer--home-tight .rz-footer-info-text b {
+  font-weight: 800 !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.94) !important;
+}
+
+.rz-footer--home-tight .rz-footer-info-list {
+  margin: 0.1rem 0 0.14rem !important;
+  padding: 0 !important;
+  list-style: none !important;
+  display: grid !important;
+  gap: 0.1rem !important;
+}
+
+.rz-footer--home-tight .rz-footer-info-list li {
+  position: relative !important;
+  font-size: 0.62rem !important;
+  font-weight: 300 !important;
+  line-height: 1.6 !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.82) !important;
+  text-align: right !important;
+  padding-inline-start: 0.75rem !important;
+}
+
+.rz-footer--home-tight .rz-footer-info-list li::before {
+  content: '•' !important;
+  position: absolute !important;
+  inset-inline-start: 0 !important;
+  color: var(--rz-gold) !important;
+  font-weight: 900 !important;
+}
+
+.rz-footer--home-tight .rz-footer-info-link {
+  color: var(--rz-champagne) !important;
+  -webkit-text-fill-color: var(--rz-champagne) !important;
   font-weight: 700 !important;
-  line-height: 1.4 !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
-  cursor: default !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+  cursor: pointer !important;
 }
 
 /* فراغ بسيط جداً بين قائمة الصفحات والنص القانوني الذي يليها */
-.rz-footer--home-tight .rz-footer-pages + .rz-footer-legal {
-  margin-top: 0.3rem !important;
+.rz-footer--home-tight .rz-footer-info + .rz-footer-legal {
+  margin-top: 0.5rem !important;
 }
 
 /* ===== HOME GLASS FOR RIYADH — إظهار الخلفية ===== */

@@ -3,7 +3,12 @@
 // الإيميل والجوال فقط روابط تواصل (mailto / tel).
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, BriefcaseBusiness } from 'lucide-react';
-import { INFO_CONTACTS, INFO_PHONE_LOCAL, INFO_PHONE_TEL } from '../data/infoPages';
+import {
+  INFO_CAREERS,
+  INFO_CONTACTS,
+  INFO_PHONE_LOCAL,
+  INFO_PHONE_TEL,
+} from '../data/infoPages';
 
 export default function CareersPage() {
   const navigate = useNavigate();
@@ -18,29 +23,20 @@ export default function CareersPage() {
         <header className="ip-header">
           <h1 className="ip-title">
             <BriefcaseBusiness size={18} style={{ verticalAlign: 'middle', marginInlineEnd: 6 }} />
-            وظائفنا
+            {INFO_CAREERS.title}
           </h1>
-          <p className="ip-subtitle">انضم إلى فريق عملنا</p>
+          <p className="ip-subtitle">{INFO_CAREERS.lead}</p>
         </header>
 
         <div className="ip-cards">
           <section className="ip-card">
-            <p className="ip-text">
-              نبحث دائماً عن الكفاءات الطموحة والمواهب المبدعة التي تسعى لصناعة أثر حقيقي في
-              بيئة عمل احترافية ومحفزة. نؤمن بأن استثمارنا الحقيقي يبدأ من فريق العمل، ونحرص
-              على توفير فرص التطور المهني والنمو المستمر وفق أعلى المعايير.
-            </p>
+            <p className="ip-text">{INFO_CAREERS.body}</p>
           </section>
 
           <section className="ip-card">
-            <h2 className="ip-card-title">آلية التقديم</h2>
-            <p className="ip-text">
-              للتقديم على الفرص الوظيفية المتاحة أو الانضمام إلى قاعدة بيانات الكفاءات لدينا،
-              يرجى إرسال السيرة الذاتية مع ذكر المسمى الوظيفي في عنوان الرسالة إلى:
-            </p>
+            <p className="ip-text">{INFO_CAREERS.apply}</p>
             <div className="ip-contact">
               <p className="ip-contact-line">
-                البريد:{' '}
                 <a className="ip-link" href={`mailto:${INFO_CONTACTS.careers}`}>
                   {INFO_CONTACTS.careers}
                 </a>

@@ -41,22 +41,25 @@ small, .rz-muted { color: var(--rz-muted) !important; }
   isolation: isolate;
 }
 
-/* الترويسة sticky وتحتل مساحتها داخل التدفق */
+/* الترويسة sticky وتحتل مساحتها داخل التدفق.
+   مهم: يجب ألّا يكون أي سلف (html/body/#root/جذر التطبيق) بحالة
+   overflow-x: hidden لأنها تكسر sticky — نستخدم clip في global.css. */
 body.rooz-has-nav { padding-top: 0 !important; }
 
 .rz-topbar {
   /* يحترم Dynamic Island / شريط الحالة على iPhone */
   padding-top: env(safe-area-inset-top, 0px);
   padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
-  /* تدرج شوكولاتة ملكي أعمق + لمسة ذهبية فاخرة */
+  /* تدرج شوكولاتة ملكي أعمق + لمعة ذهبية فاخرة */
   background:
-    linear-gradient(180deg, rgba(212, 175, 55, 0.12) 0%, transparent 40%),
-    linear-gradient(135deg, #2A1C14 0%, #3D2A1F 28%, #5C4033 58%, #3D2A1F 82%, #241810 100%);
+    radial-gradient(130% 150% at 12% 0%, rgba(212, 175, 55, 0.18) 0%, transparent 52%),
+    linear-gradient(135deg, #241810 0%, #3A2719 30%, #503922 56%, #33220F 80%, #1C120B 100%);
   color: var(--rz-white);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.55);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.5);
   box-shadow:
-    0 1px 0 rgba(212, 175, 55, 0.18),
-    0 4px 24px rgba(0, 0, 0, 0.38);
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 0 rgba(212, 175, 55, 0.2),
+    0 6px 26px rgba(0, 0, 0, 0.42);
   position: relative;
 }
 /* خط ذهبي رفيع فاخر تحت الترويسة العلوية */
@@ -201,11 +204,11 @@ body.rooz-has-nav { padding-top: 0 !important; }
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* الطبقة الثانية: شريط التنقل */
+/* الطبقة الثانية: شريط التنقل — فخم داكن بلمسة ذهبية */
 .rz-subbar {
-  background: linear-gradient(180deg, #FFFDF9 0%, #F7F1E8 100%);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.28);
-  box-shadow: 0 3px 14px rgba(47, 33, 24, 0.07);
+  background: linear-gradient(180deg, #2E1F14 0%, #1F140C 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.34);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.28);
 }
 .rz-subbar-inner {
   max-width: 1320px;
@@ -222,9 +225,9 @@ body.rooz-has-nav { padding-top: 0 !important; }
   gap: 7px;
   padding: 8px 15px;
   border-radius: 999px;
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  background: linear-gradient(145deg, #5C4033 0%, #3D2A1F 55%, #2F2118 100%);
-  color: #F8F3EB;
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  background: linear-gradient(145deg, #6B4A2C 0%, #4A321C 55%, #33220F 100%);
+  color: #FBF6EC;
   font-family: var(--rz-font);
   font-weight: 700;
   font-size: 0.85rem;
@@ -232,21 +235,21 @@ body.rooz-has-nav { padding-top: 0 !important; }
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
   flex-shrink: 0;
   box-shadow:
-    0 2px 10px rgba(47, 33, 24, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 2px 10px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .rz-burger:hover {
-  background: linear-gradient(145deg, #6B4E3D 0%, #4A3428 55%, #3D2A1F 100%);
+  background: linear-gradient(145deg, #7C5836 0%, #5A3E23 55%, #402A12 100%);
   border-color: #D4AF37;
   box-shadow:
-    0 4px 16px rgba(47, 33, 24, 0.32),
-    0 0 0 1px rgba(212, 175, 55, 0.2);
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(212, 175, 55, 0.24);
   transform: translateY(-1px);
 }
 .rz-nav-link {
   padding: 8px 15px;
   border-radius: 8px;
-  color: #3D2A1F;
+  color: rgba(251, 246, 236, 0.88);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;
@@ -255,13 +258,13 @@ body.rooz-has-nav { padding-top: 0 !important; }
   letter-spacing: 0.01em;
 }
 .rz-nav-link:hover {
-  color: #2F2118;
-  background: rgba(212, 175, 55, 0.12);
+  color: #F6E7B8;
+  background: rgba(212, 175, 55, 0.14);
 }
 .rz-nav-link.is-active {
-  color: #2A1C14;
+  color: #F8E7B0;
   font-weight: 800;
-  background: rgba(212, 175, 55, 0.14);
+  background: rgba(212, 175, 55, 0.16);
   box-shadow: inset 0 -2.5px 0 #D4AF37;
   border-radius: 8px 8px 0 0;
 }

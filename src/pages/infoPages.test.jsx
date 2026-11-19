@@ -80,12 +80,12 @@ describe('PrivacyPage (/privacy)', () => {
     expect(screen.getByText('سياسة الخصوصية وحماية البيانات')).toBeInTheDocument();
   });
 
-  it('يعرض الأقسام الأربعة', () => {
+  it('يعرض الأقسام الثلاثة + قسم التواصل', () => {
     renderPage(<PrivacyPage />);
-    expect(screen.getByText(/1\) جمع المعلومات/)).toBeInTheDocument();
-    expect(screen.getByText(/2\) حماية البيانات ومشاركتها/)).toBeInTheDocument();
-    expect(screen.getByText(/3\) ملفات تعريف الارتباط/)).toBeInTheDocument();
-    expect(screen.getByText(/4\) التواصل والاستفسارات/)).toBeInTheDocument();
+    expect(screen.getByText(/1\. جمع المعلومات/)).toBeInTheDocument();
+    expect(screen.getByText(/2\. حماية البيانات ومشاركتها/)).toBeInTheDocument();
+    expect(screen.getByText(/3\. ملفات تعريف الارتباط/)).toBeInTheDocument();
+    expect(screen.getByText(/4\. التواصل والاستفسارات/)).toBeInTheDocument();
   });
 
   it('بريد الخصوصية رابط mailto فقط', () => {
