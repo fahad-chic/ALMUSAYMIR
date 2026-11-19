@@ -1,5 +1,5 @@
-// اختبار تذييل الصفحة الرئيسية: النص القانوني نصّي للقراءة فقط،
-// ولم يعد يحتوي قسم «روابط الموقع» (نُقل إلى قائمة الثلاث شرطات باسم «استكشف الموقع»).
+// اختبار تذييل الصفحة الرئيسية: أقسام وظائفنا/شركاؤنا/الخصوصية نصّية للقراءة فقط
+// (عدا روابط التواصل mailto/tel)، والنص القانوني في الوسط آخر شيء، كل جملة في سطر.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -46,24 +46,35 @@ describe('تذييل الرئيسية — النص القانوني', () => {
     expect(legal.querySelectorAll('a').length).toBe(0);
   });
 
-  it('لا يحتوي التذييل قسم «روابط الموقع» بعد النقل', () => {
+  it('لا يحتوي التذييل قسم «روابط الموقع» القديم', () => {
     const { container } = renderHome();
     expect(screen.queryByText('روابط الموقع')).toBeNull();
     expect(container.querySelector('.rz-footer-links-toggle')).toBeNull();
     expect(container.querySelector('.rz-footer-links-grid')).toBeNull();
-    // روابط الصفحات لم تعد داخل التذييل
-    expect(container.querySelector('.rz-footer-legal')?.textContent).not.toContain('وظائفنا');
   });
 
-  it('يعرض أسماء الصفحات كنص قراءة فقط (ليست روابط ولا أزرار)', () => {
+  it('يعرض الأقسام الثلاثة يميناً: وظائفنا / شركاؤنا / الخصوصية بعناوين صغيرة عريضة', () => {
     const { container } = renderHome();
-    const pages = container.querySelector('.rz-footer-pages');
-    expect(pages).not.toBeNull();
-    expect(pages.textContent).toContain('شركاؤنا');
-    expect(pages.textContent).toContain('وظائفنا');
-    expect(pages.textContent).toContain('الخصوصية');
-    // نص فقط: لا روابط ولا أزرار داخل قائمة الصفحات
-    expect(pages.querySelectorAll('a').length).toBe(0);
-    expect(pages.querySelectorAll('button').length).toBe(0);
+    const info = container.querySelector('.rz-footer-info');
+    expect(info).not.toBeNull();
+    const titles = Array.from(info.querySelectorAll('.rz-footer-info-title')).map((el) => el.textContent);
+    expect(titles).toEqual(['وظائفنا', 'شركاؤنا', 'الخصوصية']);
+  });
+
+  it('الأقسام الثلاثة نصّية: لا أزرار إطلاقاً، والروابط الوحيدة mailto/tel', () => {
+    const { container } = renderHome();
+    const info = container.querySelector('.rz-footer-info');
+    expect(info.querySelectorAll('button').length).toBe(0);
+    for (const a of Array.from(info.querySelectorAll('a'))) {
+      const href = a.getAttribute('href') || '';
+      expect(href.startsWith('mailto:') || href.startsWith('tel:')).toBe(true);
+    }
+  });
+
+  it('النص القانوني آخر عنصر داخل التذييل ومحاذاته وسط', () => {
+    const { container } = renderHome();
+    const inner = container.querySelector('.rz-footer-inner');
+    const children = Array.from(inner.children);
+    expect(children[children.length - 1].classList.contains('rz-footer-legal')).toBe(true);
   });
 });

@@ -20,6 +20,15 @@ import HomeOffersSlider from './HomeOffersSlider';
 import Editable from '../Editable';
 import useSiteContent from '../../store/useSiteContent';
 import { MARQUEE_BANNERS, MARQUEE_BANNERS_2 } from './sectionsData';
+import {
+  INFO_CAREERS,
+  INFO_PARTNERS,
+  INFO_PRIVACY,
+  INFO_CONTACTS,
+  INFO_PHONE_LOCAL,
+  INFO_PHONE2_LOCAL,
+  INFO_LEGAL_LINES,
+} from '../../data/infoPages';
 import '../../styles/NovHome.css';
 
 const LOGO_SRC = BRAND.LOGO;
@@ -163,21 +172,78 @@ const NovHomePage = () => {
 
         <footer className="rz-footer rz-footer--compact rz-footer--home-tight">
           <div className="rz-footer-inner">
-            <p className="rz-footer-pages" aria-label="صفحات الموقع">
-              <span className="rz-footer-page">شركاؤنا</span>
-              <span className="rz-footer-page">وظائفنا</span>
-              <span className="rz-footer-page">الخصوصية</span>
-            </p>
+            {/* الأقسام الثلاثة — نص قراءة فقط، محاذاة يمين، خط صغير عريض مع النص تحته */}
+            <div className="rz-footer-info" aria-label="معلومات الموقع">
+              <section className="rz-footer-info-block">
+                <h4 className="rz-footer-info-title">{INFO_CAREERS.title}</h4>
+                <p className="rz-footer-info-text">{INFO_CAREERS.lead}</p>
+                <p className="rz-footer-info-text">{INFO_CAREERS.body}</p>
+                <p className="rz-footer-info-text">
+                  {INFO_CAREERS.apply}{' '}
+                  <a className="rz-footer-info-link" href={`mailto:${INFO_CONTACTS.careers}`}>
+                    {INFO_CONTACTS.careers}
+                  </a>
+                </p>
+                <p className="rz-footer-info-text">
+                  الجوال:{' '}
+                  <a className="rz-footer-info-link" href={`tel:+${INFO_PHONE_LOCAL.replace(/\D/g, '')}`}>
+                    {INFO_PHONE_LOCAL}
+                  </a>
+                </p>
+              </section>
+
+              <section className="rz-footer-info-block">
+                <h4 className="rz-footer-info-title">{INFO_PARTNERS.title}</h4>
+                <p className="rz-footer-info-text">{INFO_PARTNERS.lead}</p>
+                <p className="rz-footer-info-text">{INFO_PARTNERS.body}</p>
+                <ul className="rz-footer-info-list">
+                  {INFO_PARTNERS.list.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+                <p className="rz-footer-info-text">
+                  {INFO_PARTNERS.contact}{' '}
+                  <a className="rz-footer-info-link" href={`mailto:${INFO_CONTACTS.partners}`}>
+                    {INFO_CONTACTS.partners}
+                  </a>
+                  {' — '}
+                  <a className="rz-footer-info-link" href={`tel:+${INFO_PHONE_LOCAL.replace(/\D/g, '')}`}>
+                    {INFO_PHONE_LOCAL}
+                  </a>
+                </p>
+              </section>
+
+              <section className="rz-footer-info-block">
+                <h4 className="rz-footer-info-title">{INFO_PRIVACY.title}</h4>
+                <p className="rz-footer-info-text">{INFO_PRIVACY.lead}</p>
+                <p className="rz-footer-info-text">{INFO_PRIVACY.intro}</p>
+                {INFO_PRIVACY.sections.map((s) => (
+                  <p className="rz-footer-info-text" key={s.title}>
+                    <b>{s.title}:</b> {s.body}
+                  </p>
+                ))}
+                <p className="rz-footer-info-text">
+                  {INFO_PRIVACY.contact}{' '}
+                  <a className="rz-footer-info-link" href={`mailto:${INFO_CONTACTS.privacy}`}>
+                    {INFO_CONTACTS.privacy}
+                  </a>
+                  {' — '}
+                  <a className="rz-footer-info-link" href={`tel:+${INFO_PHONE_LOCAL.replace(/\D/g, '')}`}>
+                    {INFO_PHONE_LOCAL}
+                  </a>
+                  {' — '}
+                  <a className="rz-footer-info-link" href={`tel:+${INFO_PHONE2_LOCAL.replace(/\D/g, '')}`}>
+                    {INFO_PHONE2_LOCAL}
+                  </a>
+                </p>
+              </section>
+            </div>
+
+            {/* النص القانوني — آخر شيء، محاذاة وسط، كل جملة في سطر */}
             <div className="rz-footer-bottom rz-footer-legal" aria-label="معلومات قانونية">
-              <span className="rz-footer-legal-line">
-                تم التطوير والتشغيل وفق أعلى معايير الأمان وحماية البيانات والخصوصية
-              </span>
-              <span className="rz-footer-legal-line">
-                نخضع للأنظمة واللوائح المعمول بها في المملكة العربية السعودية
-              </span>
-              <span className="rz-footer-legal-line">
-                موقعنا : المملكة العربية السعودية - حفر الباطن
-              </span>
+              {INFO_LEGAL_LINES.map((line) => (
+                <span className="rz-footer-legal-line" key={line}>{line}</span>
+              ))}
               <Editable
                 contentKey="footer.copyright_line"
                 defaultValue={COPYRIGHT_DEFAULT}

@@ -16,7 +16,9 @@ html {
 }
 
 body {
+  /* clip بدل hidden: يمنع التمرير الأفقي دون كسر position: sticky للترويسة */
   overflow-x: hidden;
+  overflow-x: clip;
   font-family: 'Tajawal', 'Segoe UI', 'Arial', 'Tahoma', sans-serif;
   font-weight: 400;
   /* الخلفية البصرية من rooz-site-backdrop.css */

@@ -1071,7 +1071,9 @@ function AppContent() {
         flexDirection: 'column',
         minHeight: '100vh',
         width: '100%',
-        overflowX: 'hidden',
+        /* clip (لا hidden) لمنع التمرير الأفقي دون كسر sticky للترويسة.
+           الحماية على مستوى الصفحة تبقى من html/body/#root. */
+        overflowX: 'clip',
         /* شفاف ليظهر غلاف الموقع فوق صورة المدينة (الخلفية في rooz-site-backdrop.css) */
         background: 'transparent',
         color: 'var(--rz-ink)',
