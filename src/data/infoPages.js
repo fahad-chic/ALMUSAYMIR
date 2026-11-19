@@ -16,17 +16,32 @@ export const toLocalPhone = (raw) => {
     : `0${withoutCountry}`;
 };
 
+// يبني رابط tel: بصيغة E.164 صحيحة: 00966536667222 / 0536667222 / 966536667222
+// → tel:+966536667222. (الصيغة السابقة tel:+0536667222 كانت خاطئة: + قبل الصفر.)
+export const toTelHref = (raw) => {
+  const digits = String(raw || '').replace(/\D/g, '');
+  const withoutCountry = digits.startsWith('00966')
+    ? digits.slice(5)
+    : digits.startsWith('966')
+      ? digits.slice(3)
+      : digits;
+  const local = withoutCountry.startsWith('0')
+    ? withoutCountry.slice(1)
+    : withoutCountry;
+  return `tel:+966${local}`;
+};
+
 // الرقم المحلي الرسمي المعروض في الصفحات (قابل للضبط من VITE_PHONE_1).
 export const INFO_PHONE_LOCAL = toLocalPhone(
   CONTACT_INFO.PHONE_1 || '966536667222'
 );
 
-export const INFO_PHONE_TEL = `+${String(CONTACT_INFO.PHONE_1 || '966536667222').replace(/\D/g, '')}`;
+export const INFO_PHONE_TEL = toTelHref(CONTACT_INFO.PHONE_1 || '966536667222');
 
 // الرقم الثاني (احتياطي/واتساب) — للصفحات التي تعرض رقمين.
 export const INFO_PHONE2_LOCAL = toLocalPhone(CONTACT_INFO.PHONE_2 || '966507882771');
 
-export const INFO_PHONE2_TEL = `+${String(CONTACT_INFO.PHONE_2 || '966507882771').replace(/\D/g, '')}`;
+export const INFO_PHONE2_TEL = toTelHref(CONTACT_INFO.PHONE_2 || '966507882771');
 
 // البريد الرسمي المعتمد للموقع (نفس بريد صفحة «تواصل معنا»).
 export const INFO_CONTACTS = Object.freeze({

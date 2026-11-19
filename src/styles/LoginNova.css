@@ -251,6 +251,15 @@
 }
 .rl-input::placeholder { color: var(--rz-muted) !important; }
 .rl-input-ic { color: var(--rz-primary) !important; flex-shrink: 0 !important; width: 18px !important; height: 18px !important; }
+/* زر إظهار/إخفاء كلمة المرور — لم يكن له أي تنسيق فبقي 18×18 بلا مساحة لمس */
+.rl-eye {
+  display: inline-flex !important; align-items: center !important; justify-content: center !important;
+  flex: 0 0 auto !important; width: 44px !important; height: 44px !important;
+  margin-inline-end: -8px !important; padding: 0 !important;
+  border: none !important; background: transparent !important; color: var(--rz-primary) !important;
+  cursor: pointer !important;
+}
+.rl-eye:disabled { opacity: 0.55 !important; cursor: not-allowed !important; }
 .rl-fields-box { display: flex !important; flex-direction: column !important; gap: 10px !important; }
 
 /* زر الدخول الرئيسي — كحلي فخم */

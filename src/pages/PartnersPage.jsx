@@ -43,7 +43,7 @@ export default function PartnersPage() {
                   {INFO_CONTACTS.partners}
                 </a>
                 {' — '}
-                <a className="ip-link" href={`tel:${INFO_PHONE_TEL}`}>
+                <a className="ip-link" href={INFO_PHONE_TEL}>
                   {INFO_PHONE_LOCAL}
                 </a>
               </p>

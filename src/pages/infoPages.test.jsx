@@ -35,7 +35,7 @@ describe('CareersPage (/careers)', () => {
     expect(mail.textContent).toContain('kal6667222@gmail.com');
   });
 
-  it('يعرض الجوال كرابط tel بصيغة محلية 05xxxxxxxx', () => {
+  it('يعرض الجوال كرابط tel بصيغة E.164 صحيحة (+966 بلا صفر)', () => {
     const { container } = renderPage(<CareersPage />);
     const tel = container.querySelector('a[href^="tel:"]');
     expect(tel).not.toBeNull();
