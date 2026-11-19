@@ -26,6 +26,7 @@ import {
   KeyRound,
   UserRound,
   Phone,
+  SlidersHorizontal,
 } from 'lucide-react';
 import ContactOwnerModal from './ContactOwnerModal';
 import { markManualSignOut, readKickLog, kickReasonLabel } from '../utils/kickLog';
@@ -1202,6 +1203,21 @@ const Login = () => {
           >
             ‹
           </span>
+        </button>
+
+        {/* إعدادات الموقع للجميع — مدخل واضح على صفحة الدخول نفسها،
+            فلا يحتاج الزائر حساباً ولا المرور بغرفة صاحب الموقع.
+            الصفحة تخصّص جهاز المستخدم فقط (خط/ألوان/تباين/صوت). */}
+        <button
+          type="button"
+          onClick={() => navigate('/settings')}
+          className="rl-haraj-gate rl-settings-gate"
+          aria-label="إعدادات الموقع — حجم الخط والألوان والتباين والصوت"
+          title="إعدادات الموقع — حجم الخط والألوان والتباين والصوت"
+        >
+          <SlidersHorizontal size={14} aria-hidden="true" />
+          <span>إعدادات الموقع</span>
+          <span className="rl-haraj-gate-arrow" aria-hidden="true">‹</span>
         </button>
 
         {hiddenMode && (

@@ -276,6 +276,15 @@ body.rooz-has-nav { padding-top: 0 !important; }
 }
 .rz-subbar-spacer { flex: 1; }
 
+.rz-nav {
+  display: flex;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rz-nav::-webkit-scrollbar { display: none; }
+
 .rz-footer-links-toggle {
   width: 100%;
   display: flex;
@@ -1028,27 +1037,17 @@ a { color: var(--rz-burgundy); }
   }
   .rz-footer-cols { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 }
+
+/* الطبقة الأولى على الجوال: شعار وأيقونات أصغر لتبقى كل الأزرار في سطر واحد */
 @media (max-width: 480px) {
   .rz-footer-cols { grid-template-columns: 1fr; }
-  .rz-logo img { height: 30px; }
-  .rz-topbar-inner {
-    padding: 6px 10px;
-    gap: 6px;
-  }
-  .rz-icon-btn {
-    width: 36px;
-    height: 36px;
-  }
-  .rz-search input {
-    padding: 7px 10px !important;
-    font-size: 0.78rem;
-  }
-  .rz-subbar-inner {
-    min-height: 42px;
-    padding: 0 10px;
-  }
+  .rz-logo img { height: 26px; }
+  .rz-topbar-inner { padding: 5px 8px; gap: 5px; }
+  .rz-icon-btn { width: 34px; height: 34px; }
+  .rz-actions { gap: 0; }
+  .rz-search { min-width: 44px; }
+  .rz-search input { padding: 7px 8px !important; font-size: 0.76rem; }
 }
-
 
 /* طيّ قسم الأسئلة الشائعة */
 .rz-faq-toggle {
@@ -1190,3 +1189,65 @@ a { color: var(--rz-burgundy); }
     box-shadow: var(--rz-shadow-sm);
   }
 }
+
+/* الجوال الصغير: التنقل كله ظاهر بلا قص ولا تمرير أفقي.
+   كان الشريط يُقتطع أفقيًا (460px داخل 203px) فيختفي نصف الأقسام.
+   الآن: صف علوي (القائمة + أدوات) ثم شبكة 3 أعمدة لبقية الأقسام،
+   فيظهر كل رابط كاملاً بارتفاع مضغوط بلا ازدحام. */
+@media (max-width: 560px) {
+  .rz-subbar-inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 4px 6px;
+    padding: 6px;
+    min-height: 0;
+    overflow: visible;
+  }
+  .rz-burger {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 6px 10px;
+    font-size: 0.74rem;
+  }
+  .rz-subbar-tools {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    justify-content: flex-end;
+    width: auto;
+  }
+  .rz-subbar-inner nav,
+  .rz-subbar-inner .rz-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2px;
+    width: 100%;
+    overflow: visible;
+  }
+  .rz-nav-link,
+  .rz-burger {
+    min-height: 0;
+  }
+  .rz-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 6px 2px;
+    font-size: 0.73rem;
+    line-height: 1.35;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rz-subbar-spacer { display: none; }
+}
+
+@media (max-width: 400px) {
+  .rz-nav-link { font-size: 0.68rem; padding: 6px 1px; }
+}
+

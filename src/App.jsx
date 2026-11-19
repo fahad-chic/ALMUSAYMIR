@@ -113,6 +113,7 @@ const AdvertisementsPage = safeLazy(() =>
 );
 const EmployeesPage = safeLazy(() => import('./pages/EmployeesPage'));
 const AdminRoom = safeLazy(() => import('./pages/AdminRoom'));
+const ConsoleRoom = safeLazy(() => import('./components/owner/ConsoleRoom'));
 const AboutPage = safeLazy(() => import('./pages/AboutPage'));
 const AIChat = safeLazy(() => import('./components/AIChat'));
 const AdDetailsPage = safeLazy(() => import('./pages/AdDetailsPage'));
@@ -1670,6 +1671,13 @@ function AppContent() {
                 }
               />
 
+              {/* غرفة القيادة — يراها الجميع في القائمة، ومحتواها خلف بوابة
+                  الرمز داخل المكوّن نفسه. المسار مفتوح للزائر *ليُعرض له
+                  الرمز أولاً* فقط؛ ولا يُعرض أي قسم أو بيانات قبل إثبات
+                  الهوية + اجتياز /api/owner-pin. الحجب الحقيقي للدور
+                  والصلاحية والرمز داخل ConsoleRoom. */}
+              <Route path="/console" element={<ConsoleRoom />} />
+
               {/* غرفة المشرف — لغير المالك ممن يملك صلاحيات فعلية.
                   الفتح مشروط بعضوية موثّقة، والأقسام تُفلتر بالصلاحيات
                   (ومن لا يملك أي صلاحية يُحوَّل إلى /unauthorized). */}
@@ -1682,13 +1690,11 @@ function AppContent() {
                 }
               />
 
+              {/* إعدادات العرض للجميع (زوار وأعضاء) — تفضيلات محلية على
+                  جهاز المستخدم فقط (خط/تباين/حركة/صوت)، لا بيانات إدارية. */}
               <Route
                 path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <SettingsPage />
-                  </ProtectedRoute>
-                }
+                element={<SettingsPage />}
               />
 
               <Route

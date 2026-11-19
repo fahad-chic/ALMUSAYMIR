@@ -1,6 +1,6 @@
 // src/pages/OwnerPrivateRoom.jsx - غرفة صاحب الموقع السرية 100%
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { markManualSignOut } from '../utils/kickLog'
 import { buildAdRejectUpdate } from '../utils/adActions'
 import {
@@ -110,9 +110,18 @@ const formatDate = (value) => {
 
 const OwnerPrivateRoom = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('center')
+  const [activeTab, setActiveTab] = useState(() => {
+    // فتح تبويب محدد من رابط (?tab=ads) — تستخدمه أزرار غرفة القيادة
+    // وخريطة الصلاحيات. القيمة غير المعروفة تُصحَّح أدناه بعد تعريف tabs.
+    try {
+      return new URLSearchParams(window.location.search).get('tab') || 'center'
+    } catch {
+      return 'center'
+    }
+  })
   const [sidebarOpen, setSidebarOpen] = useState(() =>
     typeof window !== 'undefined' &&
     window.matchMedia('(min-width: 1024px)').matches
@@ -1269,78 +1278,6 @@ const OwnerPrivateRoom = () => {
     }
   }, [])
 
-  if (loading) {
-    return (
-      <div dir="rtl" lang="ar" className="min-h-screen bg-[var(--rz-ivory)] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin w-14 h-14 border-4 border-[var(--rz-primary)]/30 border-t-[var(--rz-primary)] rounded-full mx-auto mb-4" />
-          <p className="text-[var(--rz-ink)] font-bold">
-            جاري تحميل غرفة صاحب موقع المسيمير | ALMUSAYMIR...
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  const safeStepBack = (fallback = '/') => {
-    const prev = window.history.state?.prevPath
-
-    const url =
-      prev &&
-      prev !== '/owner-private-room' &&
-      prev !== '/owner-room'
-        ? prev
-        : fallback
-
-    const nav = window.__ROOZ_NAV__
-
-    if (typeof nav === 'function') {
-      nav(url, prev ? false : true)
-    } else {
-      navigate(url, { replace: !prev })
-    }
-  }
-
-  if (!gatePassed) {
-    return (
-      <OwnerGatekeeper
-        onPassed={() => {
-          try {
-            const uid = auth?.currentUser?.uid
-            if (uid) {
-              sessionStorage.setItem(
-                OWNER_GATE_KEY,
-                JSON.stringify({
-                  uid,
-                  expiresAt: Date.now() + OWNER_GATE_TTL_MS
-                })
-              )
-            }
-          } catch { /* ignore */ }
-          setGatePassed(true)
-        }}
-        onCancel={() => safeStepBack('/')}
-      />
-    )
-  }
-
-  // زر ❌ = رجوع خطوة واحدة فقط (نفس goBackOneStep) — ليس خروجاً من الغرفة
-  const handlePanelClose = () => {
-    goBackOneStep()
-  }
-
-  // تبويبات منفصلة — لا صفحة طويلة
-  // كل تبويب ينتمي لقسم واحد واضح (group) — لا بعثرة ولا تكرار.
-  const GROUP_LABELS = {
-    center: 'المركز الرئيسي',
-    users: 'المستخدمون والأمان',
-    haraj: 'الحراج',
-    content: 'الكتالوج والمحتوى',
-    review: 'البلاغات والتقييمات',
-    comms: 'التنبيهات والتواصل',
-    monitor: 'المراقبة والسجلات',
-    staff: 'الموظفون والصلاحيات'
-  }
   const tabs = [
     {
       id: 'center',
@@ -1463,6 +1400,97 @@ const OwnerPrivateRoom = () => {
       group: 'staff'
     }
   ]
+
+  // تبويب من الرابط غير موجود ⇒ ارجع للمركز الرئيسي بدل شاشة فارغة.
+  // كلا الأثرين قبل `if (loading)` كي لا يتغيّر ترتيب الـ hooks بين الرندرات،
+  // وبعد تعريف tabs كي لا يُقرأ قبل تهيئته (TDZ). `tabs` مصفوفة جديدة كل render
+  // فلا تُدرَج في الاعتماديات (وإلا دارت حلقة تحديث لا نهائية).
+  useEffect(() => {
+    if (!tabs.some((t) => t.id === activeTab)) setActiveTab('center')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
+
+  // التنقل بين تبويبات الغرفة يُحدّث ?tab= في الرابط، فيبقى الزر «رجوع»
+  // في المتصفح صحيحاً ويُمكن مشاركة رابط القسم مباشرة.
+  useEffect(() => {
+    const current = new URLSearchParams(location.search).get('tab') || 'center'
+    if (current === activeTab) return
+    const next = activeTab === 'center' ? location.pathname : `${location.pathname}?tab=${activeTab}`
+    navigate(next, { replace: true })
+  }, [activeTab, location.pathname, location.search, navigate])
+
+  if (loading) {
+    return (
+      <div dir="rtl" lang="ar" className="min-h-screen bg-[var(--rz-ivory)] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-14 h-14 border-4 border-[var(--rz-primary)]/30 border-t-[var(--rz-primary)] rounded-full mx-auto mb-4" />
+          <p className="text-[var(--rz-ink)] font-bold">
+            جاري تحميل غرفة صاحب موقع المسيمير | ALMUSAYMIR...
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const safeStepBack = (fallback = '/') => {
+    const prev = window.history.state?.prevPath
+
+    const url =
+      prev &&
+      prev !== '/owner-private-room' &&
+      prev !== '/owner-room'
+        ? prev
+        : fallback
+
+    const nav = window.__ROOZ_NAV__
+
+    if (typeof nav === 'function') {
+      nav(url, prev ? false : true)
+    } else {
+      navigate(url, { replace: !prev })
+    }
+  }
+
+  if (!gatePassed) {
+    return (
+      <OwnerGatekeeper
+        onPassed={() => {
+          try {
+            const uid = auth?.currentUser?.uid
+            if (uid) {
+              sessionStorage.setItem(
+                OWNER_GATE_KEY,
+                JSON.stringify({
+                  uid,
+                  expiresAt: Date.now() + OWNER_GATE_TTL_MS
+                })
+              )
+            }
+          } catch { /* ignore */ }
+          setGatePassed(true)
+        }}
+        onCancel={() => safeStepBack('/')}
+      />
+    )
+  }
+
+  // زر ❌ = رجوع خطوة واحدة فقط (نفس goBackOneStep) — ليس خروجاً من الغرفة
+  const handlePanelClose = () => {
+    goBackOneStep()
+  }
+
+  // تبويبات منفصلة — لا صفحة طويلة
+  // كل تبويب ينتمي لقسم واحد واضح (group) — لا بعثرة ولا تكرار.
+  const GROUP_LABELS = {
+    center: 'المركز الرئيسي',
+    users: 'المستخدمون والأمان',
+    haraj: 'الحراج',
+    content: 'الكتالوج والمحتوى',
+    review: 'البلاغات والتقييمات',
+    comms: 'التنبيهات والتواصل',
+    monitor: 'المراقبة والسجلات',
+    staff: 'الموظفون والصلاحيات'
+  }
 
   // الأقسام الثمانية — ترتيب ثابت واضح
   const tabGroups = [
@@ -2053,9 +2081,6 @@ const OwnerPrivateRoom = () => {
             <CenterPanel
               onTab={goToTab}
               onBroadcast={sendBroadcast}
-              onSettings={() => navigate('/settings')}
-              onAdminPanel={() => navigate('/admin')}
-              onComplaints={() => navigate('/complaints')}
             />
           )}
 
@@ -2332,41 +2357,12 @@ const StatCard = ({
 }
 
 /* ===== المركز الرئيسي (بدون نظرة عامة أو نشاط لحظي) ===== */
-const CenterPanel = ({
-  onTab,
-  onBroadcast,
-  onSettings,
-  onAdminPanel,
-  onComplaints
-}) => {
-  const [openGroup, setOpenGroup] = useState('dashboard')
-
-  const groups = [
-    {
-      id: 'dashboard',
-      title: 'لوحة التحكم الكاملة',
-      icon: LayoutDashboard,
-      items: [
-        { id: 'overview', label: 'نظرة عامة / الإحصائيات', icon: BarChart3, action: () => onTab('overview') },
-        { id: 'live', label: 'النشاط اللحظي', icon: Gauge, action: () => onTab('live') },
-        { id: 'ads', label: 'إدارة الإعلانات', icon: ShoppingBag, action: () => onTab('ads') },
-        { id: 'users', label: 'إدارة المستخدمين', icon: Users, action: () => onTab('users') },
-        { id: 'messages', label: 'الرسائل الخاصة', icon: MessageSquare, action: () => onTab('messages') },
-        { id: 'comments', label: 'تعليقات الحراج', icon: Star, action: () => onTab('comments') },
-        { id: 'complaints', label: 'الشكاوى / المراسلات', icon: AlertTriangle, action: onComplaints },
-        { id: 'broadcast', label: 'إرسال تنبيه جماعي', icon: Radio, action: () => onTab('broadcast') },
-        { id: 'reports', label: 'البلاغات', icon: Flag, action: () => onTab('reports') },
-        { id: 'reviews', label: 'تقييمات المنتجات', icon: Star, action: () => onTab('reviews') },
-        { id: 'categories', label: 'التصنيفات', icon: LayoutGrid, action: () => onTab('categories') },
-        { id: 'banners', label: 'البنرات', icon: Image, action: () => onTab('banners') },
-        { id: 'sitecontent', label: 'مدير المحتوى (تعديل/حذف أي نص)', icon: Type, action: () => onTab('sitecontent') },
-        { id: 'security', label: 'سجلات الأمان', icon: Shield, action: () => onTab('security') },
-        { id: 'permissions', label: 'مصفوفة الصلاحيات (تشغيل / إيقاف)', icon: Key, action: () => onTab('permissions') },
-        { id: 'orders', label: 'الطلبات', icon: Activity, action: () => onTab('orders') },
-        { id: 'admin', label: 'لوحة الإدارة', icon: Settings, action: onAdminPanel },
-        { id: 'settings', label: 'إعدادات الموقع', icon: Settings, action: onSettings },
-      ],
-    },
+const CenterPanel = ({ onTab, onBroadcast }) => {
+  // لا نكرر أزرار التبويبات هنا: الشريط الجانبي يعرضها كلها مرة واحدة.
+  // هذه الشاشة ملخص + مدخل واحد لكل وجهة حقيقية غير موجودة في الشريط.
+  const shortcuts = [
+    { id: 'overview', label: 'نظرة عامة / الإحصائيات', icon: BarChart3, action: () => onTab('overview') },
+    { id: 'broadcast', label: 'رسالة البث', icon: Radio, action: onBroadcast },
   ]
 
   return (
@@ -2378,50 +2374,30 @@ const CenterPanel = ({
         </div>
         <h2 className="text-lg font-bold royal-text">غرفة صاحب الموقع</h2>
         <p className="text-xs royal-muted mt-1 font-medium">
-          افتح لوحة التحكم من زر (+/−) ثم اختر أي قسم — زر الرجوع ينقلك للقسم السابق داخل الغرفة
+          اختر أي قسم من الشريط الجانبي — كل قسم يفتح مكان العمل الفعلي الخاص به
         </p>
       </div>
 
-      <div className="space-y-2">
-        {groups.map((g) => {
-          const open = openGroup === g.id
-          return (
-            <div key={g.id} className="royal-surface rounded-xl border royal-border overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setOpenGroup(open ? null : g.id)}
-                className="w-full flex items-center justify-between gap-3 px-4 py-3 text-right hover:bg-[var(--rz-primary)]/5 transition-colors"
-                aria-expanded={open}
-              >
-                <span className="flex items-center gap-2 font-extrabold text-sm royal-text">
-                  <g.icon size={16} className="text-[var(--rz-primary)]" aria-hidden="true" />
-                  {g.title}
-                </span>
-                <span className="text-xs font-bold text-[var(--rz-primary)] min-w-[1.5rem] text-center">
-                  {open ? '−' : '+'}
-                </span>
-              </button>
-              {open && (
-                <div className="border-t border-[var(--rz-primary)]/15 px-2 py-2 space-y-1">
-                  {g.items.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={item.action}
-                      className="w-full text-right px-3 py-2.5 rounded-lg text-sm font-bold royal-text hover:bg-[var(--rz-primary)]/10 transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <item.icon size={15} className="text-[var(--rz-primary)]" aria-hidden="true" />
-                        {item.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )
-        })}
+      <div className="royal-surface rounded-xl border royal-border overflow-hidden divide-y divide-[var(--rz-primary)]/12">
+        {shortcuts.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={item.action}
+            className="w-full text-right px-4 py-3 rounded-none text-sm font-bold royal-text hover:bg-[var(--rz-primary)]/10 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <item.icon size={15} className="text-[var(--rz-primary)]" aria-hidden="true" />
+              {item.label}
+            </span>
+          </button>
+        ))}
       </div>
+
+      <p className="text-[11px] font-semibold royal-muted text-center leading-6">
+        إعدادات العرض (الخط والألوان والتباين والصوت) لم تعد هنا — صارت متاحة للجميع من
+        أيقونة الإعدادات في الترويسة أو صفحة <span dir="ltr">/settings</span>.
+      </p>
     </div>
   )
 }
@@ -2475,16 +2451,8 @@ const OverviewPanel = ({ stats, onTab }) => (
             size={18}
             className="text-[var(--rz-primary)]"
           />
-          نظرة عامة
+          ملخص سريع
         </h3>
-
-        <button
-          type="button"
-          onClick={() => onTab('users')}
-          className="text-xs text-[var(--rz-primary)] hover:text-[var(--rz-primary)] hover:underline font-bold"
-        >
-          تفاصيل المستخدمين
-        </button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
