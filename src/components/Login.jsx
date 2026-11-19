@@ -1196,13 +1196,6 @@ const Login = () => {
           <span>
             موقع حراج أونلاين
           </span>
-
-          <span
-            className="rl-haraj-gate-arrow"
-            aria-hidden="true"
-          >
-            ‹
-          </span>
         </button>
 
         {/* إعدادات الموقع للجميع — مدخل واضح على صفحة الدخول نفسها،

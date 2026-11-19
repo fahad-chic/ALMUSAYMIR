@@ -1489,7 +1489,6 @@
   line-height: 1.2 !important;
 }
 
-.rl-haraj-gate > svg,
 .rl-haraj-gate-arrow {
   flex: 0 0 13px !important;
   width: 13px !important;
@@ -1497,6 +1496,7 @@
   font-size: 13px !important;
 }
 
+.rl-haraj-gate > svg,
 .rl-haraj-gate > span:not(.rl-haraj-gate-arrow) {
   min-width: 0 !important;
   max-width: 100% !important;
