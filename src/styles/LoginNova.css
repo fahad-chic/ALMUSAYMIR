@@ -292,7 +292,7 @@
   line-height: 1.25 !important;
 }
 .rl-link:hover:not(:disabled), .rl-google:hover:not(:disabled) {
-  border-color: var(--rz-gold) !important; color: var(--rz-primary) !important;
+  border-color: var(--rz-gold) !important; color: var(--rz-primary-strong) !important;
   background: var(--rz-ivory) !important;
 }
 .rl-link:disabled, .rl-google:disabled { opacity: 0.55 !important; cursor: not-allowed !important; }
