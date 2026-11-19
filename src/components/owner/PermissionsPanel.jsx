@@ -3,6 +3,7 @@
 // ثم 7 أقسام، كل صلاحية بمفتاح تفعيل/تعطيل (Toggle) مع زر تعديل/حفظ.
 // الكتابة على rbac/{uid} مقيّدة بالقواعد للمالك فقط — أي تلاعب من حساب آخر يرفضه الخادم ويُسجَّل.
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Crown, Users, ShoppingBag, Database, UserCheck, Eye, Pencil,
   Shield, Snowflake, Sun, Check, X, Info,
@@ -29,6 +30,7 @@ import {
   toggleGrant,
   logPermissionAudit
 } from '../../permissions/rbacService';
+import { permissionRoute } from '../../permissions/permissionRoutes';
 
 const OWNER_ONLY_PERMISSION_KEYS =
   permissionCatalog.OWNER_ONLY_PERMISSION_KEYS ||
@@ -148,6 +150,7 @@ const CATEGORY_ICONS = {
 const OWNER_ONLY_EMAILS = OWNER_EMAILS;
 
 const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = false }) => {
+  const navigate = useNavigate();
   const [target, setTarget] = useState(null);
   const [rbac, setRbac] = useState(null);
   const [loadingRbac, setLoadingRbac] = useState(false);
@@ -278,8 +281,11 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
     }
   };
 
+  // الصلاحيات المؤجلة/المعطّلة لا تُمنح ولا تُنفَّذ، فتبقى في الكتالوج
+  // للتوثيق فقط ولا تُعرض كمفتاح تشغيل/إيقاف بلا وظيفة.
   const categoryPerms = permissionsByCategory(activeCategory)
-    .filter((permission) => !OWNER_ONLY_PERMISSION_KEYS.has(permission.key));
+    .filter((permission) => !OWNER_ONLY_PERMISSION_KEYS.has(permission.key))
+    .filter((permission) => permissionCatalog.isGrantablePermissionKey?.(permission.key) !== false);
 
   return (
     <div className="space-y-5" dir="rtl" lang="ar">
@@ -502,6 +508,19 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
                       </div>
 
                       <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* كل صلاحية تنقل لمكان عملها الحقيقي — لا تبقى في القائمة بلا فائدة.
+                            تظهر فقط للمفاتيح التي لها وجهة فعلية وممنوحة حالياً. */}
+                        {on && !locked && permissionRoute(p.key) && (
+                          <button
+                            type="button"
+                            onClick={() => navigate(permissionRoute(p.key))}
+                            className="text-[11px] px-2.5 py-1.5 rounded-lg border border-[var(--rz-primary)]/35 bg-[var(--rz-white)] text-[var(--rz-primary)] font-extrabold hover:bg-[var(--rz-primary)]/10 transition-colors"
+                            aria-label={`الانتقال إلى مكان عمل ${p.label}`}
+                            title="الانتقال إلى مكان العمل"
+                          >
+                            فتح
+                          </button>
+                        )}
                         <span className={`text-[11px] font-extrabold min-w-[3rem] text-center ${on ? 'text-[var(--rz-success)]' : 'text-[var(--rz-muted)]'}`}>
                           {disabled ? 'معطّلة' : deferred ? 'مؤجلة' : on ? 'تشغيل' : 'إيقاف'}
                         </span>

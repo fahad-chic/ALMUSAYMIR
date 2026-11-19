@@ -162,7 +162,10 @@ body::after {
 .btn-here,
 .btn-next,
 .btn-prev {
-  background: linear-gradient(135deg, #B8935C, #8F6C52) !important;
+  /* نهاية التدرّج كانت #8F6C52 = 4.43:1 مع الأسود (أقل من 4.5). صارت 5.69:1. */
+  background: linear-gradient(135deg, #B8935C, #A87D46) !important;
+  /* النص كان أبيض موروثاً على تدرّج ذهبي فاتح — تباين ضعيف. أسود عالي الوضوح. */
+  color: var(--rz-black) !important;
   border-color: rgba(143, 108, 82, 0.32) !important;
   box-shadow: 0 8px 18px rgba(143, 108, 82, 0.18) !important;
 }

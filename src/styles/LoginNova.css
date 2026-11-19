@@ -714,7 +714,7 @@
   justify-content: center !important;
   gap: .3em !important;
   margin-top: 2px !important;
-  color: #493a27 !important;
+  color: var(--rz-black) !important;
   font-size: clamp(.9rem, 3.6vw, 1.08rem) !important;
   font-weight: 900 !important;
   line-height: 1.4 !important;
@@ -796,7 +796,7 @@
   justify-content: center !important;
   gap: .3em !important;
   margin-top: 2px !important;
-  color: #493a27 !important;
+  color: var(--rz-black) !important;
   font-size: clamp(.9rem, 3.6vw, 1.08rem) !important;
   font-weight: 900 !important;
   line-height: 1.4 !important;
@@ -852,7 +852,7 @@
   justify-content: center !important;
   gap: .3em !important;
   margin-top: 2px !important;
-  color: #493a27 !important;
+  color: var(--rz-black) !important;
   font-size: clamp(.9rem, 3.6vw, 1.08rem) !important;
   font-weight: 900 !important;
   line-height: 1.4 !important;
@@ -908,7 +908,7 @@
 
 .rl-brand-name {
   margin-top: 1px !important;
-  color: #493a27 !important;
+  color: var(--rz-black) !important;
   font-size: clamp(.88rem, 3.4vw, 1.05rem) !important;
   font-weight: 900 !important;
   line-height: 1.35 !important;
@@ -1345,7 +1345,7 @@
   justify-content: center !important;
   gap: .3em !important;
   margin-top: 2px !important;
-  color: #493a27 !important;
+  color: var(--rz-black) !important;
   font-size: clamp(.9rem, 3.6vw, 1.08rem) !important;
   font-weight: 900 !important;
   line-height: 1.4 !important;
@@ -1489,7 +1489,6 @@
   line-height: 1.2 !important;
 }
 
-.rl-haraj-gate > svg,
 .rl-haraj-gate-arrow {
   flex: 0 0 13px !important;
   width: 13px !important;
@@ -1497,6 +1496,7 @@
   font-size: 13px !important;
 }
 
+.rl-haraj-gate > svg,
 .rl-haraj-gate > span:not(.rl-haraj-gate-arrow) {
   min-width: 0 !important;
   max-width: 100% !important;
@@ -1650,4 +1650,19 @@
   .rl-root .rl-card--big .rl-owner-badge.rl-hidden-trigger {
     font-size: .61rem !important;
   }
+}
+
+/* مدخل «إعدادات الموقع» للجميع — أسفل زر الحراج، بنفس الشكل لكن أخفّ
+   ليبقى الحراج هو الزر الأبرز. متاح للزائر بلا حساب. */
+.rl-settings-gate {
+  margin-top: 6px !important;
+  min-height: 40px !important;
+  background: transparent !important;
+  border-color: rgba(var(--rz-primary-rgb), 0.22) !important;
+  color: var(--rz-primary) !important;
+  font-size: 0.74rem !important;
+}
+.rl-settings-gate:hover {
+  background: rgba(var(--rz-primary-rgb), 0.08) !important;
+  border-color: rgba(var(--rz-primary-rgb), 0.45) !important;
 }
