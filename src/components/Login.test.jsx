@@ -100,6 +100,31 @@ describe('الدخول المخفي بالرمز السري', () => {
   });
 });
 
+describe('نصوص صفحة الدخول المتفق عليها (قفل انحدار)', () => {
+  it('الاسم والعبارتان وبطاقتا الدور وزر الحراج بالنص المطلوب حرفياً', () => {
+    renderLogin();
+    const text = document.body.textContent.replace(/\s+/g, ' ');
+
+    expect(text).toMatch(/متجر المسيمير/);
+    expect(text).toMatch(/ALMUSAYMIR/);
+    expect(text).toMatch(/بوابتك نحو تجارة ذكية/);
+    expect(text).toMatch(/نجمع فيها بين رقي المتاجر الفاخرة ومرونة الأسواق الحرة\./);
+    expect(text).toMatch(/دخول صاحب الموقع/);
+    expect(text).toMatch(/الإدارة والإشراف العام/);
+    expect(text).toMatch(/دخول المشرفين والمراقبين/);
+    expect(text).toMatch(/يحسمون التفاصيل لتظل تجربة زوارنا مثالية بلا عيوب\./);
+    expect(text).toMatch(/⚜️ دخول صاحب الموقع ⚜️/);
+    expect(text).toMatch(/موقع حراج أونلاين/);
+  });
+
+  it('لا يعود نص «المالك الرئيسي» ولا رمز ®️ القديم', () => {
+    renderLogin();
+    const text = document.body.textContent || '';
+    expect(text).not.toMatch(/المالك الرئيسي/);
+    expect(text).not.toMatch(/®/);
+  });
+});
+
 describe('بطاقتا اختيار الدور', () => {
   it('ضغطة بطاقة صاحب الموقع تخصص العنوان وتنقل التركيز لخانة البريد', async () => {
     renderLogin();
