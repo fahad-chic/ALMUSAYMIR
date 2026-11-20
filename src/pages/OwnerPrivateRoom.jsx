@@ -2356,7 +2356,7 @@ const OverviewPanel = ({ stats, onTab }) => (
         value={stats.adminUsers}
         label="المدراء"
         color="yellow"
-        onClick={() => onTab('permissions')}
+        onClick={() => onTab('users', 'admins')}
       />
       <StatCard
         icon={ShoppingBag}
@@ -2403,7 +2403,7 @@ const OverviewPanel = ({ stats, onTab }) => (
           icon={Crown}
           value={stats.adminUsers}
           label="المدراء"
-          onClick={() => onTab('permissions')}
+          onClick={() => onTab('users', 'admins')}
         />
         <MiniStat
           icon={ShoppingBag}

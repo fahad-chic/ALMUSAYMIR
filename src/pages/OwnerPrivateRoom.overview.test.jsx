@@ -184,6 +184,18 @@ describe('نظرة عامة — الرقم يطابق القائمة التي ي
     cards.forEach((c) => expect(c.textContent).toMatch(/[٣3]/))
   })
 
+  it('«المدراء» يفتح قائمة الطاقم وحدهم — الرقم ٣ يطابق ما تراه', async () => {
+    renderRoom('/owner-private-room?tab=overview')
+    const [card] = await screen.findAllByRole('button', { name: /^المدراء/ })
+    fireEvent.click(card)
+    // الثلاثة فقط: admin + staff + editor — لا مستخدم عادي
+    expect(await screen.findByText('خالد الحربي')).toBeTruthy()
+    expect(await screen.findByText('ماجد الشمري')).toBeTruthy()
+    expect(await screen.findByText('هند العنزي')).toBeTruthy()
+    expect(screen.queryByText('سارة العتيبي')).toBe(null)
+    expect(screen.queryByText('نورة القحطاني')).toBe(null)
+  })
+
   it('«الإعلانات النشطة» يفتح قائمة الإعلانات مصفّاة بالنشطة', async () => {
     renderRoom('/owner-private-room?tab=overview')
     const card = await screen.findByRole('button', { name: /^الإعلانات النشطة/ })
