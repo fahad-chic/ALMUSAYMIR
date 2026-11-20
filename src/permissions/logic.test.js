@@ -87,13 +87,15 @@ describe('computeEffectiveGrants', () => {
       role: 'user',
       rbacDoc: { grants: { SUPER_ADMIN_FULL_ACCESS: true } }
     });
-    // صلاحيات المراقبة/التدقيق السبع محجوزة للمالك حتى مع
+    // صلاحيات المراقبة/التدقيق التسع محجوزة للمالك حتى مع
     // SUPER_ADMIN_FULL_ACCESS، والصلاحيات المؤجلة (12، تتقاطع مع المحجوزة في
     // MONITOR_USER_TRAFFIC_LIVE) والمعطّلة نهائياً (2) لا تُمنح لأي حساب غير
-    // المالك => 61 - 7 - 12 - 2 + 1 = 41.
-    expect(countGranted(grants)).toBe(41);
+    // المالك => 61 - 9 - 12 + 1 - 2 = 39.
+    expect(countGranted(grants)).toBe(39);
     expect(grants.MONITOR_PRIVATE_MESSAGES).toBe(false);
     expect(grants.VIEW_SYSTEM_AUDIT_LOGS).toBe(false);
+    expect(grants.VIEW_USER_IP_HISTORY).toBe(false);
+    expect(grants.GRANT_SUB_ADMIN_PERMISSIONS).toBe(false);
     expect(grants.EXPORT_AUDIT_REPORTS).toBe(false);
     expect(grants.VIEW_EMPLOYEE_SALARIES).toBe(false);
     expect(grants.BYPASS_FIREBASE_RULES).toBe(false);

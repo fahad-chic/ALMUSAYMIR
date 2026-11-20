@@ -9,6 +9,7 @@ import {
   collection, getDocs, doc, addDoc, deleteDoc, onSnapshot, serverTimestamp,
 } from '../../firebase';
 import FreeImageField from '../FreeImageField';
+import { clearImageDraft } from '../../utils/imageDraft';
 import usePermissions from '../../permissions/usePermissions';
 import { requirePerm } from '../../permissions/rbacService';
 import { writeAuditLog } from '../../permissions/audit';
@@ -151,6 +152,7 @@ const BannerForm = ({ onClose, onSave }) => {
         targetType: 'banners', targetId: form.title || '-', result: 'success',
         details: `إضافة بنر: ${form.title || '-'}`, severity: 'medium',
       });
+      clearImageDraft('banner-new');
       onSave();
     } catch (err) {
       toast.error(err?.code === 'no-permission' ? err.message : 'حدث خطأ');
@@ -171,6 +173,7 @@ const BannerForm = ({ onClose, onSave }) => {
             value={form.image}
             onChange={(image) => setForm({ ...form, image })}
             label="صورة الإعلان"
+            draftKey="banner-new"
           />
           <input type="url" placeholder="رابط النقر" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className="w-full bg-[var(--rz-ivory)] border border-[rgba(var(--rz-ink-rgb),0.10)] rounded-lg px-4 py-3 text-[var(--rz-ink)] placeholder:text-[var(--rz-muted)] focus:border-pink-500 focus:outline-none focus:ring-1 focus:ring-pink-500/20 transition-all" required />
           <div className="flex gap-4 pt-4">
