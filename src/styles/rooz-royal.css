@@ -1044,9 +1044,23 @@ a { color: var(--rz-burgundy); }
   .rz-logo img { height: 26px; }
   .rz-topbar-inner { padding: 5px 8px; gap: 5px; }
   .rz-icon-btn { width: 34px; height: 34px; }
+  /* 34px + هامش 5px من كل جهة = هدف لمس 44px */
+  .rz-icon-btn::after { inset: -5px; }
   .rz-actions { gap: 0; }
-  .rz-search { min-width: 44px; }
+  .rz-search { min-width: 0; }
   .rz-search input { padding: 7px 8px !important; font-size: 0.76rem; }
+}
+
+/* الجوال الضيق (320–400px): كل الأيقونات الأربع تبقى ظاهرة وكاملة،
+   ونصغّرها قليلاً كي لا تُدفع الرابعة خارج الشاشة ويبقى للبحث عرض مفيد. */
+@media (max-width: 400px) {
+  .rz-topbar-inner { padding: 4px 6px; gap: 4px; }
+  .rz-logo img { height: 24px; }
+  .rz-icon-btn { width: 30px; height: 30px; }
+  .rz-icon-btn::after { inset: -7px; }
+  .rz-icon-btn svg { width: 17px; height: 17px; }
+  .rz-search { min-width: 56px; }
+  .rz-search input { padding: 6px 6px !important; font-size: 0.7rem; }
 }
 
 /* طيّ قسم الأسئلة الشائعة */
@@ -1141,10 +1155,15 @@ a { color: var(--rz-burgundy); }
    تحسين محافظ للترويسة — مسافات وأهداف لمس ولمسات فاخرة فقط.
    لا يغيّر أي زر أو مسار أو سلوك؛ فقط مظهر/أبعاد آمنة.
    ============================================================ */
-/* هدف لمس مريح للأيقونات (≥44px) مع الحفاظ على الشكل الدائري */
-.rz-icon-btn {
-  width: 44px;
-  height: 44px;
+/* هدف لمس مريح للأيقونات (≥44px) — على الشاشات الواسعة فقط.
+   كان هذا السطر بلا استعلام وسائط فيُلغي مقاسات الجوال (34/38px) المعرّفة
+   أعلاه، فتصير الأيقونات الأربع 176px وتُدفع الرابعة خارج الشاشة عند 320px.
+   على الجوال نحافظ على هدف اللمس 44px عبر ::after شفاف بدل تكبير الزر نفسه. */
+@media (min-width: 901px) {
+  .rz-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 /* مساحة تنفّس أفقية أفضل على الجوال + تمرير أفقي سلس لشريط التنقل */
@@ -1171,6 +1190,13 @@ a { color: var(--rz-burgundy); }
     min-height: 44px;
     display: inline-flex;
     align-items: center;
+  }
+  /* الأيقونة نفسها تبقى صغيرة (38px) لكن هدف اللمس الفعلي 44px */
+  .rz-icon-btn::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
   }
   .rz-group-btn {
     min-height: 48px;
@@ -1199,16 +1225,16 @@ a { color: var(--rz-burgundy); }
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: center;
-    gap: 4px 6px;
-    padding: 6px;
+    gap: 3px 6px;
+    padding: 4px 6px;
     min-height: 0;
     overflow: visible;
   }
   .rz-burger {
     grid-column: 1;
     grid-row: 1;
-    padding: 6px 10px;
-    font-size: 0.74rem;
+    padding: 4px 9px;
+    font-size: 0.72rem;
   }
   .rz-subbar-tools {
     grid-column: 2;
@@ -1223,7 +1249,7 @@ a { color: var(--rz-burgundy); }
     grid-row: 2;
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2px;
+    gap: 1px 2px;
     width: 100%;
     overflow: visible;
   }
@@ -1236,9 +1262,9 @@ a { color: var(--rz-burgundy); }
     align-items: center;
     justify-content: center;
     min-height: 0;
-    padding: 6px 2px;
-    font-size: 0.73rem;
-    line-height: 1.35;
+    padding: 4px 2px;
+    font-size: 0.72rem;
+    line-height: 1.25;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -1248,6 +1274,6 @@ a { color: var(--rz-burgundy); }
 }
 
 @media (max-width: 400px) {
-  .rz-nav-link { font-size: 0.68rem; padding: 6px 1px; }
+  .rz-nav-link { font-size: 0.67rem; padding: 4px 1px; }
 }
 

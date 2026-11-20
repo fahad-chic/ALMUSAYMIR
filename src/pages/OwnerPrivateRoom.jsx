@@ -33,6 +33,7 @@ import ContentManager from './ContentManager'
 import CloseButton from '../components/CloseButton'
 import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
+import { isBannedUser, isStaffRole } from '../permissions/catalog'
 import { writeAuditLog } from '../permissions/audit'
 import { archiveAndDelete } from '../utils/archive'
 import { OWNER_EMAIL_SET } from '../utils/ownerEmails'
@@ -185,12 +186,14 @@ const OwnerPrivateRoom = () => {
   const skipUrlPush = useRef(false)
   activeTabRef.current = activeTab
 
-  // التنقل بين الأقسام: يحدّث القسم فقط، والرابط يُدفَع في أثر منفصل
-  const goToTab = (tabId) => {
-    if (tabId === activeTabRef.current) return
-    setActiveTab(tabId)
+  // التنقل بين الأقسام: يحدّث القسم فقط، والرابط يُدفَع في أثر منفصل.
+  // `filter` يمرّره رقم «نظرة عامة» ليفتح القائمة مصفّاة بنفس ما يعدّه الرقم —
+  // وإلا عرض الرقم ٣ ثم فتح قائمة كاملة، فصار الرقم لا يطابق ما تراه.
+  const goToTab = (tabId, filter) => {
+    if (tabId === activeTabRef.current && !filter) return
+    if (tabId !== activeTabRef.current) setActiveTab(tabId)
     setSearchTerm('')
-    setFilterType('all')
+    setFilterType(filter || 'all')
   }
 
   // زر ❌ = رجوع خطوة واحدة للقسم السابق (لا يمسّ جلسة الرمز)
@@ -272,11 +275,13 @@ const OwnerPrivateRoom = () => {
         isOwnerEmail(currentUser.email)
 
       if (!ownerAccess) {
-        clearOwnerGateSession()
-
         setUser(null)
 
+        // حساب غير مصرّح (مسجّل ببريد آخر) = محاولة دخول: تُسقط جلسة الرمز
+        // وتُسجَّل. أما `null` فهي الحالة العابرة أثناء استعادة Firebase؛
+        // إسقاط الجلسة عندها كان يُطالب المالك بالرمز في كل تحديث للصفحة.
         if (currentUser) {
+          clearOwnerGateSession()
           try {
             await logSecurityEvent(
               'unauthorized_owner_room_attempt',
@@ -1148,11 +1153,11 @@ const OwnerPrivateRoom = () => {
     }
 
     if (filterType === 'banned') {
-      result = result.filter(u => u?.banned)
+      result = result.filter(isBannedUser)
     } else if (filterType === 'admins') {
-      result = result.filter(u => u?.role === 'admin')
+      result = result.filter(u => isStaffRole(u?.role))
     } else if (filterType === 'active') {
-      result = result.filter(u => !u?.banned)
+      result = result.filter(u => !isBannedUser(u))
     }
 
     return result
@@ -1210,12 +1215,10 @@ const OwnerPrivateRoom = () => {
 
     return {
       totalUsers: safeUsers.length,
-      bannedUsers: safeUsers.filter(u => u?.banned).length,
-      adminUsers: safeUsers.filter(
-        u => u?.role === 'admin'
-      ).length,
+      bannedUsers: safeUsers.filter(isBannedUser).length,
+      adminUsers: safeUsers.filter(u => isStaffRole(u?.role)).length,
       activeUsers: safeUsers.filter(
-        u => !u?.banned
+        u => !isBannedUser(u)
       ).length,
       totalAds: safeAds.length,
       pendingAds: safeAds.filter(
@@ -2339,14 +2342,14 @@ const OverviewPanel = ({ stats, onTab }) => (
         value={stats.totalUsers}
         label="إجمالي المستخدمين"
         color="gold"
-        onClick={() => onTab('users')}
+        onClick={() => onTab('users', 'all')}
       />
       <StatCard
         icon={Ban}
         value={stats.bannedUsers}
         label="المحظورون"
         color="red"
-        onClick={() => onTab('users')}
+        onClick={() => onTab('users', 'banned')}
       />
       <StatCard
         icon={Crown}
@@ -2360,7 +2363,7 @@ const OverviewPanel = ({ stats, onTab }) => (
         value={stats.activeAds}
         label="الإعلانات النشطة"
         color="green"
-        onClick={() => onTab('ads')}
+        onClick={() => onTab('ads', 'active')}
       />
       <StatCard
         icon={MessageSquare}
@@ -2394,7 +2397,7 @@ const OverviewPanel = ({ stats, onTab }) => (
           icon={Users}
           value={stats.totalUsers}
           label="المستخدمون"
-          onClick={() => onTab('users')}
+          onClick={() => onTab('users', 'all')}
         />
         <MiniStat
           icon={Crown}
@@ -2406,13 +2409,13 @@ const OverviewPanel = ({ stats, onTab }) => (
           icon={ShoppingBag}
           value={stats.totalAds}
           label="الإعلانات"
-          onClick={() => onTab('ads')}
+          onClick={() => onTab('ads', 'all')}
         />
         <MiniStat
           icon={Activity}
           value={stats.activeAds}
           label="النشطة"
-          onClick={() => onTab('ads')}
+          onClick={() => onTab('ads', 'active')}
         />
       </div>
     </div>

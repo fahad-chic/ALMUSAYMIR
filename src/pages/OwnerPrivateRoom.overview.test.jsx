@@ -29,9 +29,15 @@ vi.mock('../firebase', () => {
   })
   const users = [
     { id: 'u1', displayName: 'سارة العتيبي', email: 'sara@example.com', role: 'user' },
-    { id: 'u2', displayName: 'خالد الحربي', email: 'khaled@example.com', role: 'admin' }
+    { id: 'u2', displayName: 'خالد الحربي', email: 'khaled@example.com', role: 'admin' },
+    { id: 'u3', displayName: 'نورة القحطاني', email: 'noura@example.com', role: 'user', banned: true },
+    { id: 'u4', displayName: 'ماجد الشمري', email: 'majed@example.com', role: 'staff', status: 'banned' },
+    { id: 'u5', displayName: 'هند العنزي', email: 'hind@example.com', role: 'editor' }
   ]
-  const ads = [{ id: 'a1', title: 'عباية مطرزة', status: 'active', userId: 'u1' }]
+  const ads = [
+    { id: 'a1', title: 'عباية مطرزة', status: 'active', userId: 'u1' },
+    { id: 'a2', title: 'ساعة قديمة', status: 'pending', userId: 'u1' }
+  ]
   const messages = [
     { id: 'm1', senderId: 'u1', receiverId: 'u2', text: 'هل المقاس متوفر؟' }
   ]
@@ -153,6 +159,37 @@ describe('نظرة عامة — كل رقم يفتح مكان العمل الح�
     await waitFor(async () => {
       expect(await screen.findByText('سارة العتيبي')).toBeTruthy()
     })
+  })
+})
+
+describe('نظرة عامة — الرقم يطابق القائمة التي يفتحها', () => {
+  it('«المحظورون» يعدّ الصيغتين ويفتح القائمة مصفّاة بالمحظورين فقط', async () => {
+    renderRoom('/owner-private-room?tab=overview')
+    // محظوران بصيغتين مختلفتين في المشروع: banned:true و status:'banned'
+    const bannedCard = await screen.findByRole('button', { name: /^المحظورون/ })
+    expect(bannedCard.textContent).toMatch(/[٢2]/)
+    fireEvent.click(bannedCard)
+    expect(await screen.findByText('نورة القحطاني')).toBeTruthy()
+    expect(await screen.findByText('ماجد الشمري')).toBeTruthy()
+    // غير المحظورين لا يظهرون في القائمة المصفّاة
+    expect(screen.queryByText('سارة العتيبي')).toBe(null)
+    expect(screen.queryByText('هند العنزي')).toBe(null)
+  })
+
+  it('«المدراء» يعدّ كل أدوار الطاقم (admin/staff/editor) لا admin وحدها', async () => {
+    renderRoom('/owner-private-room?tab=overview')
+    // admin + staff + editor = 3 (المدراء والمدراء المصغّرة تعرضان نفس الرقم)
+    const cards = await screen.findAllByRole('button', { name: /^المدراء/ })
+    expect(cards.length).toBeGreaterThan(0)
+    cards.forEach((c) => expect(c.textContent).toMatch(/[٣3]/))
+  })
+
+  it('«الإعلانات النشطة» يفتح قائمة الإعلانات مصفّاة بالنشطة', async () => {
+    renderRoom('/owner-private-room?tab=overview')
+    const card = await screen.findByRole('button', { name: /^الإعلانات النشطة/ })
+    fireEvent.click(card)
+    expect(await screen.findByText(/عباية مطرزة/)).toBeTruthy()
+    expect(screen.queryByText(/ساعة قديمة/)).toBe(null)
   })
 })
 

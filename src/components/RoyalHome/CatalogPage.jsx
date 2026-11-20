@@ -40,6 +40,7 @@ import { db } from '../../firebase/config';
 import { AuthContext } from '../../context/AuthContext';
 import ProductCard from './ProductCard';
 import FreeImageField from '../FreeImageField';
+import { clearImageDraft } from '../../utils/imageDraft';
 import { ROYAL_SECTIONS } from './sectionsData';
 import useStore from '../../store/useStore';
 import '../../styles/RoyalHome.css';
@@ -1325,6 +1326,10 @@ const AddProductModal = ({
         };
       }
 
+      clearImageDraft(
+        editingProduct?.id ? `catalog-${editingProduct.id}` : 'catalog-new'
+      );
+
       onSave(
         savedProduct,
         Boolean(
@@ -1535,6 +1540,7 @@ const AddProductModal = ({
                 }))
               }
               label="صورة المنتج"
+              draftKey={editingProduct?.id ? `catalog-${editingProduct.id}` : 'catalog-new'}
             />
           </div>
 

@@ -104,6 +104,11 @@ export const PERMISSION_KEYS = PERMISSIONS.map((p) => p.key);
 // بيانات المراقبة والخصوصية لا تُمنح للمشرفين أو الموظفين.
 // وجودها في الكتالوج يسمح للمالك بعرضها وفهمها، لكن طبقة القواعد تمنع
 // استخدامها خارج حسابات المالك المعتمدة.
+//
+// VIEW_USER_IP_HISTORY و GRANT_SUB_ADMIN_PERMISSIONS أُضيفا هنا لأنهما بلا
+// أثر فعلي لأي حساب غير المالك: الأولى تُقرأ من /api/auth-events الذي يتحقق
+// من قائمة المالك خادمياً، والثانية تكتب في rbac/ وهي owner-only في القواعد.
+// منحهما لمشرف كان ينتج مفتاحاً يبدو فعّالاً ولا يفتح أي قدرة (زر ميت).
 export const OWNER_ONLY_PERMISSION_KEYS = new Set([
   'MONITOR_PRIVATE_MESSAGES',
   'VIEW_SYSTEM_AUDIT_LOGS',
@@ -112,6 +117,8 @@ export const OWNER_ONLY_PERMISSION_KEYS = new Set([
   'RECOVER_DELETED_ITEMS_ARCHIVE',
   'TRACK_FAILED_LOGINS',
   'MONITOR_USER_TRAFFIC_LIVE',
+  'VIEW_USER_IP_HISTORY',
+  'GRANT_SUB_ADMIN_PERMISSIONS',
 ]);
 
 // صلاحيات مؤجلة: تبقى في الكتالوج لكنها خارج نطاق التنفيذ الحالي.
@@ -155,9 +162,31 @@ export const DISABLED_PERMISSION_KEYS = new Set([
 export const isDeferredPermissionKey = (key) => DEFERRED_PERMISSION_KEYS.has(key);
 export const isDisabledPermissionKey = (key) => DISABLED_PERMISSION_KEYS.has(key);
 
+// الأدوار التي تُعدّ «طاقم إدارة» في الموقع. مصدر واحد يستخدمه عدّاد
+// «المدراء» في نظرة عامة ومصفوفة الصلاحيات معاً، وإلا اختلف الرقم عن
+// القائمة التي يفتحها — رقم لا يطابق ما تراه = رقم خاطئ.
+export const STAFF_ROLES = new Set([
+  'admin', 'staff', 'employee', 'moderator', 'sub_admin', 'manager', 'editor',
+]);
+
+export const isStaffRole = (role) =>
+  STAFF_ROLES.has(String(role || '').trim().toLowerCase());
+
+// الحظر مكتوب بصيغتين في المشروع: banned:true (غرفة المالك) و status:'banned'
+// (لوحة الشكاوى/المتجر) — والقواعد تفرض الاثنين، فيجب عدّ الاثنين.
+export const isBannedUser = (user) =>
+  user?.banned === true || String(user?.status || '').trim().toLowerCase() === 'banned';
+
 // صلاحية قابلة للمنح فعلاً: ليست مؤجلة ولا معطّلة.
 export const isGrantablePermissionKey = (key) =>
   !DEFERRED_PERMISSION_KEYS.has(key) && !DISABLED_PERMISSION_KEYS.has(key);
+
+// المفاتيح التي يمكن أن تظهر فعّالة لحساب غير المالك. أي «س من ص» في الواجهة
+// يجب أن يستخدم هذا المقام — وإلا ظهر «39 من 61» كأنها ناقصة بينما الباقي
+// محجوز للمالك أو مؤجل أو معطّل بقرار.
+export const GRANTABLE_PERMISSION_KEYS = PERMISSION_KEYS.filter(
+  (key) => isGrantablePermissionKey(key) && !OWNER_ONLY_PERMISSION_KEYS.has(key)
+);
 
 const BY_KEY = new Map(PERMISSIONS.map((p) => [p.key, p]));
 
