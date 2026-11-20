@@ -6,7 +6,7 @@ export default function VerifiedBadge({ verified, size = 16, withLabel = false }
   if (!verified) return null;
   return (
     <span
-      className="rooz-verified-badge"
+      className="alm-verified-badge"
       title="مستخدم موثق — تم التحقق من الهوية"
       style={{
         display: 'inline-flex',

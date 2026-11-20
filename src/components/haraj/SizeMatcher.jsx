@@ -27,7 +27,7 @@ export default function SizeMatcher({ dress = {} }) {
 
   return (
     <div
-      className="rooz-size-matcher"
+      className="alm-size-matcher"
       style={{
         background: 'var(--rz-white)',
         border: '1px solid var(--rz-ivory)',

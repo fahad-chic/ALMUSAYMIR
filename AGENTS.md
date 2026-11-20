@@ -386,3 +386,36 @@ CI على PR **7/7** · معاينة Cloudflare 200 على `/`, `/login`, `/owne
 ### البوابات (محلي، `661644a`)
 `npm run lint` = 0 · `npx vitest run` = **54 ملفاً/364 اختباراً** · `npm run build` ✓ ·
 CI على `661644a` = `44803355621` **success** (6/6).
+
+## تسمية «rooz» → «alm» — فحص وتنفيذ آمن فقط (2026-11-20)
+**القاعدة الحاكمة**: لا تُعِد تسمية أي **مفتاح تخزين** (`localStorage`/`sessionStorage`)
+ولا أي **عقد خارجي**. إعادة تسمية مفتاح = فقدان بيانات المستخدمين القائمة فوراً.
+
+### أ) آمن — أُعيد تسميته (تجميلي داخلي، بلا حالة محفوظة)
+| النوع | قبل | بعد |
+|---|---|---|
+| ملفات CSS | `rooz-royal/pearl/luxury-3d/site-backdrop.css` | `alm-*.css` |
+| أصناف DOM | `rooz-has-nav`, `rooz-guest-mode`, `rooz-app-main`, `rooz-page-content`, `rooz-badge*`, `rooz-boot*`, `rooz-escrow/auction/size-matcher/verified-badge`, `rooz-users-*`, `rooz-register-animation` | `alm-*` |
+| متغيرات CSS | `--rooz-top-offset`, `--rooz-scroll-distance`, `--rooz-glow`, `--rooz-header-h` | `--alm-*` |
+| keyframes | `roozFadeIn/Slide/Badge*/GradientFlow/IconSparkle/TextScrollReverse/Crown3D/Star3D/UsersSpin/RegisterSpin` | `alm*` |
+| خطاف تنقّل | `window.__ROOZ_NAV__` | `window.__ALM_NAV__` |
+| history state | `{ roozOwnerRoom: true }` | `{ almOwnerRoom: true }` |
+
+**لماذا آمنة**: لا شيء منها يُقرأ من تخزين دائم، ولا يُخزَّن كقيمة، ولا يُستهلك خارج الشجرة
+(`e2e/`, `scripts/`, `functions/`, `public/`, CI = **0 مرجع**). تُعاد كتابتها مع كل تحميل.
+
+### ب) خطِر — لم يُمسّ (مفاتيح تخزين تحمل حالة مستخدمين)
+`rooz_owner_gate_ok` · `rooz_kick_log` · `rooz_manual_signout` · `rooz_visit_notified`
+· `rooz_owner_dark` · `rooz_owner_banner` · `rooz_intrusion_<path>` · `rooz_img_draft:`
+· `rooz-site-prefs` · `rooz-site-notifications`
+
+**السبب**: تغيير المفتاح = قراءة فاشلة للبيانات القديمة ⇒ (أ) تفضيلات المستخدم (خط/تباين/صوت)
+تُصفَّر، (ب) إشعار «زائر جديد» يُرسل مرة ثانية لكل مستخدم، (ج) سجل التشخيص والطرد يُفقد،
+(د) مسودة الصورة تُفقد، (هـ) إعداد الوضع الداكن في غرفة المالك يُفقد.
+**لو أراد المالك الترحيل**: اقرأ المفتاح القديم مرة، اكتب الجديد، احذف القديم — في نفس الإصدار.
+لا تحذف القديم قبل نشر القارئ الجديد.
+
+### بوابة التحقق بعد إعادة التسمية
+`npm run lint`=0 · `npx vitest run`=**54/364** · `npm run build` ✓ ·
+**مقارنة بكسل مقابل الإنتاج: 0 بكسلات مختلفة عند 320 و390** (لا انحدار بصري) ·
+`__ALM_NAV__` موجود و`__ROOZ_NAV__` غائب محلياً.

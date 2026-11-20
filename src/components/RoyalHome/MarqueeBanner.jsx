@@ -126,7 +126,7 @@ const MarqueeBanner = ({
         width: "100%",
         position: sticky ? "sticky" : "relative",
         // رفع أوضح فوق الشريطين الثابتين
-        top: sticky ? "calc(var(--rooz-top-offset, 0px) + 42px)" : "auto",
+        top: sticky ? "calc(var(--alm-top-offset, 0px) + 42px)" : "auto",
         zIndex: sticky ? 40 : 30,
         display: "flex",
         flexDirection: "column",
@@ -141,7 +141,7 @@ const MarqueeBanner = ({
     >
       <style>{`
         /* === حركة دخول هادئة ولمعة فاخرة === */
-        @keyframes roozBadgeEnter {
+        @keyframes almBadgeEnter {
           0% {
             transform: translateX(18px) translateY(-5px) scale(0.97);
             opacity: 0;
@@ -152,35 +152,35 @@ const MarqueeBanner = ({
           }
         }
 
-        @keyframes roozBadgePulse {
+        @keyframes almBadgePulse {
           0%, 100% {
             box-shadow:
               0 7px 18px rgba(var(--rz-ink-rgb), 0.27),
               0 0 0 1px rgba(var(--rz-white-rgb), 0.035) inset,
-              0 0 15px var(--rooz-glow);
+              0 0 15px var(--alm-glow);
           }
           50% {
             box-shadow:
               0 10px 23px rgba(var(--rz-ink-rgb), 0.34),
               0 0 0 1px rgba(var(--rz-white-rgb), 0.055) inset,
-              0 0 24px var(--rooz-glow);
+              0 0 24px var(--alm-glow);
           }
         }
 
         /* الحركة معاكسة للنسخة السابقة: تبدأ من أول الرسالة في اليمين، ثم تتحرك يميناً لإظهار نهايتها. */
-        @keyframes roozTextScrollReverse {
+        @keyframes almTextScrollReverse {
           0%, 24% {
             transform: translateX(0);
           }
           68%, 82% {
-            transform: translateX(var(--rooz-scroll-distance));
+            transform: translateX(var(--alm-scroll-distance));
           }
           100% {
             transform: translateX(0);
           }
         }
 
-        @keyframes roozBadgeShine {
+        @keyframes almBadgeShine {
           0% {
             transform: translateX(-130%) skewX(-18deg);
           }
@@ -189,7 +189,7 @@ const MarqueeBanner = ({
           }
         }
 
-        @keyframes roozGradientFlow {
+        @keyframes almGradientFlow {
           0%, 100% {
             background-position: 0% 50%;
           }
@@ -198,7 +198,7 @@ const MarqueeBanner = ({
           }
         }
 
-        @keyframes roozIconSparkle {
+        @keyframes almIconSparkle {
           0%, 100% {
             transform: scale(0.82) rotate(-8deg);
             opacity: 0.52;
@@ -213,55 +213,55 @@ const MarqueeBanner = ({
           isolation: isolate;
         }
 
-        .rooz-badge {
+        .alm-badge {
           animation:
-            roozBadgeEnter 0.56s cubic-bezier(0.22, 1, 0.36, 1),
-            roozBadgePulse 3.4s ease-in-out infinite 0.56s;
+            almBadgeEnter 0.56s cubic-bezier(0.22, 1, 0.36, 1),
+            almBadgePulse 3.4s ease-in-out infinite 0.56s;
         }
 
-        .rooz-badge-shine {
-          animation: roozBadgeShine 4.8s ease-in-out infinite 0.9s;
+        .alm-badge-shine {
+          animation: almBadgeShine 4.8s ease-in-out infinite 0.9s;
         }
 
-        .rooz-badge-gradient {
+        .alm-badge-gradient {
           background-size: 220% 220%;
-          animation: roozGradientFlow 10s ease-in-out infinite;
+          animation: almGradientFlow 10s ease-in-out infinite;
         }
 
-        .rooz-badge-icon-sparkle {
-          animation: roozIconSparkle 2.6s ease-in-out infinite;
+        .alm-badge-icon-sparkle {
+          animation: almIconSparkle 2.6s ease-in-out infinite;
         }
 
-        .rooz-badge-text-scroll {
+        .alm-badge-text-scroll {
           display: inline-block;
           width: max-content;
           will-change: transform;
         }
 
-        .rooz-badge-text-scroll--active {
-          animation: roozTextScrollReverse 15s cubic-bezier(0.42, 0, 0.18, 1) infinite;
+        .alm-badge-text-scroll--active {
+          animation: almTextScrollReverse 15s cubic-bezier(0.42, 0, 0.18, 1) infinite;
         }
 
         /* الشريط أعلى قليلاً مع بقاء عناصر الهيدر الأعلى منه. */
         .marquee-banner--sticky {
-          top: calc(var(--rooz-top-offset, 0px) + 51px);
+          top: calc(var(--alm-top-offset, 0px) + 51px);
           z-index: 45;
         }
 
         /* احترام تفضيل تقليل الحركة، مع إبقاء بداية الرسالة ظاهرة. */
         @media (prefers-reduced-motion: reduce) {
-          .rooz-badge,
-          .rooz-badge-shine,
-          .rooz-badge-gradient,
-          .rooz-badge-icon-sparkle,
-          .rooz-badge-text-scroll--active {
+          .alm-badge,
+          .alm-badge-shine,
+          .alm-badge-gradient,
+          .alm-badge-icon-sparkle,
+          .alm-badge-text-scroll--active {
             animation: none !important;
           }
         }
 
         @media (max-width: 900px) {
           .marquee-banner--sticky {
-            top: calc(var(--rooz-top-offset, 0px) + 43px);
+            top: calc(var(--alm-top-offset, 0px) + 43px);
           }
         }
 
@@ -271,29 +271,29 @@ const MarqueeBanner = ({
             margin-top: -6px !important;
             transform: translateY(-14px) !important;
           }
-          .rooz-badge {
+          .alm-badge {
             max-width: 94vw !important;
             padding: 8px 11px !important;
             gap: 7px !important;
             border-radius: 13px !important;
           }
-          .rooz-badge-text-scroll {
+          .alm-badge-text-scroll {
             font-size: 0.84rem !important;
             font-weight: 950 !important;
           }
-          .rooz-badge-label {
+          .alm-badge-label {
             font-size: 0.58rem !important;
           }
         }
 
         @media (max-width: 380px) {
-          .rooz-badge {
+          .alm-badge {
             max-width: 96vw !important;
             padding: 7px 9px !important;
             gap: 5px !important;
           }
-          .rooz-badge-label,
-          .rooz-badge-divider {
+          .alm-badge-label,
+          .alm-badge-divider {
             display: none !important;
           }
         }
@@ -301,9 +301,9 @@ const MarqueeBanner = ({
 
       {/* الأيقونة المدمجة — مكبّر حديث مع لمعة فنية، مع الحفاظ على شكل المكبّر نفسه. */}
       <div
-        className="rooz-badge"
+        className="alm-badge"
         style={{
-          "--rooz-glow": palette.glow,
+          "--alm-glow": palette.glow,
           display: "inline-flex",
           alignItems: "center",
           gap: 8,
@@ -321,7 +321,7 @@ const MarqueeBanner = ({
         {/* لمعان ناعم داخل الحافة */}
         <div
           aria-hidden="true"
-          className="rooz-badge-shine"
+          className="alm-badge-shine"
           style={{
             position: "absolute",
             top: "-35%",
@@ -337,7 +337,7 @@ const MarqueeBanner = ({
         {/* طبقة تدرج متحرك بطيء تضيف عمقاً بصرياً دون التأثير على وضوح المحتوى. */}
         <div
           aria-hidden="true"
-          className="rooz-badge-gradient"
+          className="alm-badge-gradient"
           style={{
             position: "absolute",
             inset: 0,
@@ -370,7 +370,7 @@ const MarqueeBanner = ({
         >
           <Megaphone size={14} strokeWidth={2.35} />
           <Sparkles
-            className="rooz-badge-icon-sparkle"
+            className="alm-badge-icon-sparkle"
             size={8}
             strokeWidth={2.5}
             style={{
@@ -385,7 +385,7 @@ const MarqueeBanner = ({
 
         {/* شارة التصنيف */}
         <span
-          className="rooz-badge-label"
+          className="alm-badge-label"
           style={{
             fontFamily: "Tajawal, Tajawal, Arial, sans-serif",
             fontSize: "0.62rem",
@@ -404,7 +404,7 @@ const MarqueeBanner = ({
         {/* فاصل */}
         <span
           aria-hidden="true"
-          className="rooz-badge-divider"
+          className="alm-badge-divider"
           style={{
             width: "1px",
             height: "18px",
@@ -433,11 +433,11 @@ const MarqueeBanner = ({
         >
           <span
             ref={messageTextRef}
-            className={`rooz-badge-text-scroll${
-              shouldScroll ? " rooz-badge-text-scroll--active" : ""
+            className={`alm-badge-text-scroll${
+              shouldScroll ? " alm-badge-text-scroll--active" : ""
             }`}
             style={{
-              "--rooz-scroll-distance": `${scrollDistance}px`,
+              "--alm-scroll-distance": `${scrollDistance}px`,
               fontFamily: "Tajawal, Tajawal, Arial, sans-serif",
             fontSize: "0.78rem",
               fontWeight: 950,

@@ -98,13 +98,13 @@ const Navigation = ({ onOpenWelcome, onOpenAIChat }) => {
   useEffect(() => {
     const hideNavPaths = ['/login', '/register', '/forgot-password', '/unauthorized'];
     if (hideNavPaths.includes(location.pathname)) {
-      document.body.classList.remove('rooz-has-nav');
+      document.body.classList.remove('alm-has-nav');
       return undefined;
     }
-    document.body.classList.add('rooz-has-nav');
+    document.body.classList.add('alm-has-nav');
     document.documentElement.style.setProperty('--nav-height', '52px');
     return () => {
-      document.body.classList.remove('rooz-has-nav');
+      document.body.classList.remove('alm-has-nav');
     };
   }, [location.pathname]);
 

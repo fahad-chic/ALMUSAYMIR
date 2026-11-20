@@ -239,7 +239,7 @@ const AdminDashboard = () => {
     // الخروج من لوحة الإدارة فقط (ليس تسجيل خروج)
     const prev = window.history.state?.prevPath
     const url = prev && prev !== '/admin' ? prev : '/'
-    const nav = window.__ROOZ_NAV__
+    const nav = window.__ALM_NAV__
     if (typeof nav === 'function') {
       nav(url, !prev)
       return

@@ -57,7 +57,7 @@ const CloseButton = ({
       }
     }
 
-    const nav = window.__ROOZ_NAV__;
+    const nav = window.__ALM_NAV__;
     if (typeof nav === 'function') nav(fallback, true);
     else window.location.assign(fallback);
   };
@@ -69,7 +69,7 @@ const CloseButton = ({
 
   const baseStyle = {
     position: 'fixed',
-    top: 'calc(var(--rooz-top-offset, 0px) + 68px)',
+    top: 'calc(var(--alm-top-offset, 0px) + 68px)',
     zIndex,
     width: 44,
     height: 44,

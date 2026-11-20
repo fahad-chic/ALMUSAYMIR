@@ -219,7 +219,7 @@ const OwnerPrivateRoom = () => {
         // محاولة خروج بزر الرجوع ⇒ ثبّت الغرفة على القسم السابق داخلياً
         try {
           window.history.pushState(
-            { roozOwnerRoom: true },
+            { almOwnerRoom: true },
             '',
             `${OWNER_ROOM_PATH}?tab=${activeTabRef.current}`
           )
@@ -1425,7 +1425,7 @@ const OwnerPrivateRoom = () => {
         ? prev
         : fallback
 
-    const nav = window.__ROOZ_NAV__
+    const nav = window.__ALM_NAV__
 
     if (typeof nav === 'function') {
       nav(url, prev ? false : true)

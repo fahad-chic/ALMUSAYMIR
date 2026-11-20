@@ -1,6 +1,6 @@
 /* src/index.css — الأنماط العامة الكاملة للمشروع */
 /* ملاحظة: nova-theme.css يُستورد عبر styles/global.css (المستورد في App.jsx)
-   و rooz-royal.css، لذا لا نكرّره هنا (كان يُحسب مرّتين). */
+   و alm-royal.css، لذا لا نكرّره هنا (كان يُحسب مرّتين). */
 
 /* ═══════════════════ المتغيرات ═══════════════════ */
 /* ═══════════════════ إعادة ضبط ═══════════════════ */
@@ -21,7 +21,7 @@ body {
   overflow-x: clip;
   font-family: 'Tajawal', 'Segoe UI', 'Arial', 'Tahoma', sans-serif;
   font-weight: 400;
-  /* الخلفية البصرية من rooz-site-backdrop.css */
+  /* الخلفية البصرية من alm-site-backdrop.css */
   background: transparent;
   color: var(--text-primary);
   min-height: 100vh;

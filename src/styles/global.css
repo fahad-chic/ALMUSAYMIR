@@ -317,7 +317,7 @@ html.high-contrast button {
 }
 
 /* تعويض الترويسة الثابتة — لا يختفي المحتوى تحتها */
-body.rooz-has-nav {
+body.alm-has-nav {
   padding-top: var(--nav-height, 56px);
 }
 

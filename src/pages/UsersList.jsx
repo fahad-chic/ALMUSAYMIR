@@ -380,7 +380,7 @@ const loadingBox = {
 };
 
 const loadingIcon = {
-  animation: 'roozUsersSpin 800ms linear infinite',
+  animation: 'almUsersSpin 800ms linear infinite',
 };
 
 const emptyBox = {
@@ -540,18 +540,18 @@ const btnCopy = {
 
 if (
   typeof document !== 'undefined' &&
-  !document.getElementById('rooz-users-animation')
+  !document.getElementById('alm-users-animation')
 ) {
   const style = document.createElement('style');
-  style.id = 'rooz-users-animation';
+  style.id = 'alm-users-animation';
   style.textContent = `
-    @keyframes roozUsersSpin {
+    @keyframes almUsersSpin {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
 
     @media (max-width: 560px) {
-      .rooz-users-card-actions {
+      .alm-users-card-actions {
         flex-direction: column;
       }
     }

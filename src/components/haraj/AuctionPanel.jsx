@@ -55,7 +55,7 @@ export default function AuctionPanel({ ad = {}, onBid, disabled = false, current
 
   return (
     <div
-      className="rooz-auction"
+      className="alm-auction"
       style={{
         background: 'var(--rz-white)',
         border: '1px solid var(--rz-ivory)',

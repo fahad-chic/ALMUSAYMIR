@@ -42,23 +42,23 @@
   <link rel="preload" as="image" href="/assets/logo-almusaymir.png" fetchpriority="high"/>
 
   <style>
-    .rooz-boot {
+    .alm-boot {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 16px;
       opacity: 0;
-      animation: roozFadeIn .7s ease .05s forwards;
+      animation: almFadeIn .7s ease .05s forwards;
     }
 
-    .rooz-boot img {
+    .alm-boot img {
       width: 96px;
       height: 96px;
       object-fit: contain;
       filter: drop-shadow(0 8px 22px rgba(15, 23, 42, .22));
     }
 
-    .rooz-boot .rooz-boot-bar {
+    .alm-boot .alm-boot-bar {
       width: 132px;
       height: 3px;
       border-radius: 999px;
@@ -67,14 +67,14 @@
       position: relative;
     }
 
-    .rooz-boot .rooz-boot-bar::after {
+    .alm-boot .alm-boot-bar::after {
       content: "";
       position: absolute;
       inset: 0;
       width: 40%;
       border-radius: 999px;
       background: linear-gradient(90deg, #0F172A, #C9A227);
-      animation: roozSlide 1.15s ease-in-out infinite;
+      animation: almSlide 1.15s ease-in-out infinite;
     }
 
     input,
@@ -84,13 +84,13 @@
       font-size: 16px;
     }
 
-    @keyframes roozFadeIn {
+    @keyframes almFadeIn {
       to {
         opacity: 1;
       }
     }
 
-    @keyframes roozSlide {
+    @keyframes almSlide {
       0% {
         transform: translateX(-120%);
       }
@@ -101,12 +101,12 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .rooz-boot {
+      .alm-boot {
         animation: none;
         opacity: 1;
       }
 
-      .rooz-boot .rooz-boot-bar::after {
+      .alm-boot .alm-boot-bar::after {
         animation: none;
         width: 100%;
       }
@@ -123,14 +123,14 @@
 
 <body>
   <div id="root">
-    <div class="rooz-boot" role="status" aria-label="جاري التحميل">
+    <div class="alm-boot" role="status" aria-label="جاري التحميل">
       <img
         src="/assets/logo-almusaymir.png"
         alt="المسيمير | ALMUSAYMIR"
         width="96"
         height="96"
       />
-      <span class="rooz-boot-bar"></span>
+      <span class="alm-boot-bar"></span>
     </div>
   </div>
 

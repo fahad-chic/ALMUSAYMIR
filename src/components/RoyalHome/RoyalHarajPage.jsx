@@ -1246,7 +1246,7 @@ const RoyalHarajPage = () => {
           borderBottom: `1px solid colorAlpha(C.gold, 0.19)`,
           padding: '1.1rem 1rem 1.25rem',
           position: 'sticky',
-          top: 'var(--rooz-top-offset, 0px)',
+          top: 'var(--alm-top-offset, 0px)',
           zIndex: 100,
           backdropFilter: 'blur(20px)',
           width: '100%',

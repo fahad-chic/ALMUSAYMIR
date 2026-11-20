@@ -542,7 +542,7 @@ const spinner = {
   border: '2px solid rgba(var(--rz-ink-rgb), 0.25)',
   borderTopColor: 'var(--rz-ink)',
   display: 'inline-block',
-  animation: 'roozRegisterSpin 700ms linear infinite',
+  animation: 'almRegisterSpin 700ms linear infinite',
 };
 
 const switchForm = {
@@ -589,12 +589,12 @@ const alertSuccess = {
 
 if (
   typeof document !== 'undefined' &&
-  !document.getElementById('rooz-register-animation')
+  !document.getElementById('alm-register-animation')
 ) {
   const style = document.createElement('style');
-  style.id = 'rooz-register-animation';
+  style.id = 'alm-register-animation';
   style.textContent = `
-    @keyframes roozRegisterSpin {
+    @keyframes almRegisterSpin {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }

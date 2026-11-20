@@ -43,14 +43,14 @@ small, .rz-muted { color: var(--rz-muted) !important; }
 
 /* في وضع الزائر تعلو الشاشةَ لافتةٌ ثابتة (عدّاد الدقيقتين)، فنُزيح الترويسة
    بمقدار ارتفاعها الفعلي كي لا تغطّيها. القيمة يضبطها App.jsx بالقياس. */
-body.rooz-guest-mode .rz-header {
+body.alm-guest-mode .rz-header {
   top: var(--rz-guest-banner-h, 0px);
 }
 
 /* الترويسة sticky وتحتل مساحتها داخل التدفق.
    مهم: يجب ألّا يكون أي سلف (html/body/#root/جذر التطبيق) بحالة
    overflow-x: hidden لأنها تكسر sticky — نستخدم clip في global.css. */
-body.rooz-has-nav { padding-top: 0 !important; }
+body.alm-has-nav { padding-top: 0 !important; }
 
 .rz-topbar {
   /* يحترم Dynamic Island / شريط الحالة على iPhone */

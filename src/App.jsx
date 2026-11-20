@@ -501,11 +501,11 @@ function AppContent() {
   useEffect(() => {
     const root = document.body;
     if (!guestActive) {
-      root.classList.remove('rooz-guest-mode');
+      root.classList.remove('alm-guest-mode');
       root.style.removeProperty('--rz-guest-banner-h');
       return undefined;
     }
-    root.classList.add('rooz-guest-mode');
+    root.classList.add('alm-guest-mode');
     const el = guestBannerRef.current;
     if (!el) return undefined;
     const sync = () => {
@@ -524,7 +524,7 @@ function AppContent() {
     return () => {
       if (observer) observer.disconnect();
       window.removeEventListener('resize', sync);
-      root.classList.remove('rooz-guest-mode');
+      root.classList.remove('alm-guest-mode');
       root.style.removeProperty('--rz-guest-banner-h');
     };
   }, [guestActive]);
@@ -574,11 +574,11 @@ function AppContent() {
   // ربط زر الإغلاق العام (❌) بمُوجّه react-router — فيتنقل خطوة للخلف
   // داخلياً دون إعادة تحميل أو مغادرة الموقع.
   useEffect(() => {
-    window.__ROOZ_NAV__ = (url, replace) => {
+    window.__ALM_NAV__ = (url, replace) => {
       navigate(url, { replace: !!replace });
     };
     return () => {
-      delete window.__ROOZ_NAV__;
+      delete window.__ALM_NAV__;
     };
   }, [navigate]);
 
@@ -1161,7 +1161,7 @@ function AppContent() {
         /* clip (لا hidden) لمنع التمرير الأفقي دون كسر sticky للترويسة.
            الحماية على مستوى الصفحة تبقى من html/body/#root. */
         overflowX: 'clip',
-        /* شفاف ليظهر غلاف الموقع فوق صورة المدينة (الخلفية في rooz-site-backdrop.css) */
+        /* شفاف ليظهر غلاف الموقع فوق صورة المدينة (الخلفية في alm-site-backdrop.css) */
         background: 'transparent',
         color: 'var(--rz-ink)',
         fontFamily: 'Tajawal',
@@ -1196,12 +1196,12 @@ function AppContent() {
       <style>{`
 
         :root {
-          --rooz-header-h: 76px;
+          --alm-header-h: 76px;
         }
 
         @media (max-width: 900px) {
           :root {
-            --rooz-header-h: 60px;
+            --alm-header-h: 60px;
           }
         }
 
@@ -1210,13 +1210,13 @@ function AppContent() {
           100% { transform: translateX(100vw); }
         }
 
-@keyframes roozCrown3D {
+@keyframes almCrown3D {
   0%   { transform: perspective(600px) rotateY(0deg) scale(1); filter: drop-shadow(0 0 4px rgba(var(--rz-primary-rgb), 0.9)); }
   50%  { transform: perspective(600px) rotateY(360deg) scale(1.12); filter: drop-shadow(0 0 14px rgba(var(--rz-primary-rgb), 1)); }
   100% { transform: perspective(600px) rotateY(720deg) scale(1); filter: drop-shadow(0 0 4px rgba(var(--rz-primary-rgb), 0.9)); }
 }
 
-@keyframes roozStar3D {
+@keyframes almStar3D {
   0%   { transform: perspective(400px) rotateX(0deg) scale(0.85); opacity:  0.75; }
   25%  { transform: perspective(400px) rotateX(45deg) scale(1.2); opacity:  1; }
   50%  { transform: perspective(400px) rotateX(-45deg) scale(0.9); opacity:  1; }
@@ -1224,7 +1224,7 @@ function AppContent() {
   100% { transform: perspective(400px) rotateX(0deg) scale(0.85); opacity:  0.75; }
 }
 
-        .rooz-app-main {
+        .alm-app-main {
           width: 100%;
           min-width: 0;
           max-width: 100%;
@@ -1233,7 +1233,7 @@ function AppContent() {
           box-sizing: border-box;
         }
 
-        .rooz-page-content {
+        .alm-page-content {
           width: 100%;
           min-width: 0;
           max-width: 100%;
@@ -1243,7 +1243,7 @@ function AppContent() {
         }
 
         @media (max-width: 768px) {
-          .rooz-page-content {
+          .alm-page-content {
             width: 100%;
             min-width: 0;
             max-width: 100%;
@@ -1361,7 +1361,7 @@ function AppContent() {
           ================================================= */}
 
       <main
-        className="rooz-app-main"
+        className="alm-app-main"
         style={{
           flex: '1 1 auto',
           width: '100%',
@@ -1457,7 +1457,7 @@ function AppContent() {
         )}
 
         <div
-          className="rooz-page-content"
+          className="alm-page-content"
           style={{
             width: '100%',
             minWidth: 0,

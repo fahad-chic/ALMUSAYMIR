@@ -44,7 +44,7 @@ export default function EscrowPanel({
 
   return (
     <div
-      className="rooz-escrow"
+      className="alm-escrow"
       style={{
         background: 'var(--rz-white)',
         border: '1px solid var(--rz-ivory)',

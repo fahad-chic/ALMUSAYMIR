@@ -13,7 +13,7 @@ import { ROYAL_NAV, ROYAL_DRAWER, STORE_HOME_PATH } from '../data/royalMenu';
 import { BRAND } from '../data/brand';
 import Editable from './Editable';
 import useSiteContent from '../store/useSiteContent';
-import '../styles/rooz-royal.css';
+import '../styles/alm-royal.css';
 
 const NAV_ICONS = {
   home: Home,
