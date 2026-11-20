@@ -319,3 +319,22 @@ CI على PR **7/7** · معاينة Cloudflare 200 على `/`, `/login`, `/owne
   **الدرس**: سكربت تدقيق غير مربوط بـ`package.json` + CI = فشل صامت يمرّ بلا ملاحظة.
 - `LoginNova.css`: قيم hex مكرّرة حرفياً صارت متغيّرات — `#000000` → `--rz-black`،
   `#8F6C52` → `--rz-navy-deep`، `#D8B98A` → `--rz-champagne` (القيم مطابقة حرفياً في `theme.css` ⇒ 0 فرق بصري).
+
+## المساعد الذكي «فهد» — المعمارية والسلوك (PR #44) — 2026-11-20
+- الملفات: الخادم `functions/api/ai.js` (Cloudflare Function على `/api/ai`)، والواجهات
+  `src/components/RoyalHome/AIChatWidget.jsx` (النافذة الرئيسية) و`src/components/AIChat.jsx` (مسار `/ai-chat`).
+- النموذج: `openai/gpt-oss-120b` عبر Groq. **نموذج استدلالي**: بلا `max_completion_tokens`
+  قد يستهلك الميزانية كلها في الاستدلال ويعيد `content` فارغاً → 502 → رد احتياطي.
+  السقف `max_completion_tokens: 2048` موجود — **لا تحذفه**.
+- **قاعدة التحية**: تُردّ **فقط** إذا بدأ المستخدم رسالته بتحية. الفرض على طبقتين:
+  (1) الموجّه يأمر بذلك صراحةً، (2) حاجز حتمي `stripUnsolicitedGreeting()` يزيل أي تحية
+  افتتاحية إن لم يسلّم المستخدم. **لا تعتمد على النموذج وحده.**
+- **الإجابة على كل شيء**: الموجّه يأمر بالإجابة على أي سؤال (علم/معرفة/حياة) بلا استثناء.
+  لا تُعِد كلمة «تقريباً» أو «ما أعرف» إلى الموجّه، ولا تجعل الردود الاحتياطية مراوغة.
+- تصنيف الجنس: قائمتا `femaleNames`/`maleNames` تُفحَص الأنثى أولاً، فلا يجوز أن يوجد اسم
+  في القائمتين معاً (كان `'ماجد'` كذلك فيُخاطَب الرجل بصيغة أنثى).
+- **الفرض خادمي**: `checkAiRateLimit` يفشل مغلقاً (fail-closed) — إن غاب ربط D1 (`DB`)
+  تُرفض كل الطلبات. ربط D1 في `wrangler.toml` تحت `[env.production.d1_databases]`.
+- اختبارات: `functions/api/ai.test.js` + `src/components/AIChat.test.jsx` +
+  `src/components/RoyalHome/AIChatWidget.test.jsx`. تستبدل نداء Groq وطبقة D1 فقط،
+  وتختبر منطق `onRequest` الحقيقي.
