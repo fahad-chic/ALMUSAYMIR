@@ -526,7 +526,7 @@ const useStore = create(
   // جلسة الزائر المجانية (دقيقتان)
   startGuestSession: async (phone) => {
     // إنهِ أي جلسة زائر سابقة
-    if (get().guestSession.active) {
+    if (get().guestSession?.active) {
       await get().endGuestSession("restart");
     }
 
@@ -606,51 +606,73 @@ const useStore = create(
     }
 
     const expireTimer = setTimeout(async () => {
-      const cur = get().guestSession;
-      recordKick("guest-timer-expired", { phone: cur?.phone || "" });
-      // المؤقّت خاص بالزائر المجهول فقط — كان signOut بلا شرط يُسقِط جلسة
-      // المالك/العضو إذا دخل أثناء بقاء مؤقّت زائر سابق فيُرمى لـ /login.
-      let liveAuthUser = null;
-      try {
-        liveAuthUser = getAuth()?.currentUser || null;
-      } catch {
-        liveAuthUser = null;
-      }
-      const memberActive = !!liveAuthUser && !liveAuthUser.isAnonymous;
-      if (liveAuthUser?.isAnonymous) {
-        try {
-          await signOut(getAuth());
-        } catch {
-          // ignore
-        }
-      }
-      set({
-        ...(memberActive ? {} : { user: null, userRole: null, isAuthenticated: false }),
-        guestSession: {
-          active: false,
-          phone: cur.phone,
-          startedAt: cur.startedAt,
-          expiresAt: cur.expiresAt,
-          warnedAt: cur.warnedAt,
-        },
-        guestWarning: false,
-        guestExpired: !memberActive,
-        guestTimers: { warn: null, expire: null },
-      });
-      try {
-        await addDoc(collection(db, "guestSessions"), {
-          endedAt: serverTimestamp(),
-          status: "expired",
-        });
-      } catch {
-        // Silently fail - non-critical operation
-      }
-      await get().notifyOwners(`انتهت جلسة زائر: ${phone}`, {
-        action: "GUEST_EXPIRE",
-      });
+      await get().expireGuestSession("timer");
     }, expireMs);
 
     set({ guestTimers: { warn: warnTimer, expire: expireTimer } });
+  },
+
+  // إنهاء جلسة الزائر (من المؤقّت أو من عدّاد الواجهة عند بلوغ الصفر).
+  // لا يمسّ جلسة عضو حقيقي دخل أثناء بقاء جلسة الزائر.
+  expireGuestSession: async (source = "timer") => {
+    const cur = get().guestSession;
+    if (!cur?.active) return { success: false };
+
+    recordKick("guest-timer-expired", { phone: cur?.phone || "", source });
+
+    const { guestTimers } = get();
+    try {
+      if (guestTimers?.warn) clearTimeout(guestTimers.warn);
+      if (guestTimers?.expire) clearTimeout(guestTimers.expire);
+    } catch {
+      // timer cleanup is non-critical
+    }
+
+    let liveAuthUser = null;
+    try {
+      liveAuthUser = getAuth()?.currentUser || null;
+    } catch {
+      liveAuthUser = null;
+    }
+    const memberActive = !!liveAuthUser && !liveAuthUser.isAnonymous;
+    if (liveAuthUser?.isAnonymous) {
+      try {
+        await signOut(getAuth());
+      } catch {
+        // ignore
+      }
+    }
+    set({
+      ...(memberActive ? {} : { user: null, userRole: null, isAuthenticated: false }),
+      guestSession: {
+        active: false,
+        phone: cur.phone,
+        startedAt: cur.startedAt,
+        expiresAt: cur.expiresAt,
+        warnedAt: cur.warnedAt,
+      },
+      guestWarning: false,
+      guestExpired: !memberActive,
+      guestTimers: { warn: null, expire: null },
+    });
+    try {
+      await addDoc(collection(db, "guestSessions"), {
+        endedAt: serverTimestamp(),
+        status: "expired",
+      });
+    } catch {
+      // Silently fail - non-critical operation
+    }
+    await get().notifyOwners(`انتهت جلسة زائر: ${cur.phone}`, {
+      action: "GUEST_EXPIRE",
+    });
+    return { success: true };
+  },
+
+  // استهلاك إشارة «انتهت جلسة الزائر» مرة واحدة (بعد عرض الرسالة/التحويل)
+  // حتى لا تُعيد خطّافات أخرى توجيه المستخدم بعيداً عن /register أو /login.
+  acknowledgeGuestExpired: () => {
+    if (get().guestExpired) set({ guestExpired: false });
   },
 
   endGuestSession: async (reason = "manual") => {

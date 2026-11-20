@@ -23,6 +23,7 @@ import { CITY_GROUPS } from '../../data/saudiCities';
 import { watermarkDataUrl } from '../../utils/watermark';
 import { extractMotionFrames } from '../../utils/motionPreview';
 import { MAX_VIDEO_SECONDS, SIZE_FIELDS } from '../../utils/dressMeta';
+import { clearImageDraft, readImageDraft, saveImageDraft } from '../../utils/imageDraft';
 const HARAJ_SECTIONS = [
   'أجهزة كهربائية',
   'غرف نوم',
@@ -83,6 +84,8 @@ const compressImageToDataUrl = (file) =>
     };
     reader.readAsDataURL(file);
   });
+const draftKeyFor = (index) => `haraj-ad-image-${index}`;
+
 const AdFormPage = () => {
   const navigate = useNavigate();
   const { user: memberUser } = useAuth();
@@ -110,6 +113,18 @@ const AdFormPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  // استعادة صور مسودة الجلسة: الإغلاق بـ❌ ثم العودة لا يطلب رفعها مرة أخرى.
+  useEffect(() => {
+    setFormData((prev) => {
+      if (prev.images.some(Boolean)) return prev;
+      const restored = prev.images.map((_, index) => {
+        const draft = readImageDraft(draftKeyFor(index));
+        return draft ? { file: null, preview: draft, dataUrl: draft } : null;
+      });
+      return restored.some(Boolean) ? { ...prev, images: restored } : prev;
+    });
+  }, []);
   /*
    * التحقق من بيانات مستخدم الحراج.
    *
@@ -195,14 +210,23 @@ const AdFormPage = () => {
       ...prev,
       images: newImages,
     }));
+    // مسودة الجلسة تُحفظ كـ Data URL مضغوط: الملف نفسه لا يُسلسَل، والصورة
+    // تعود بعد ❌ بلا رفع جديد. تعذّر الضغط لا يمنع الاختيار الحالي.
+    compressImageToDataUrl(file)
+      .then((dataUrl) => {
+        newImages[index] = { ...newImages[index], dataUrl };
+        saveImageDraft(draftKeyFor(index), dataUrl);
+      })
+      .catch(() => {});
     setSubmitError('');
     e.target.value = '';
   };
   const removeImage = (index) => {
     const image = formData.images[index];
-    if (image?.preview) {
+    if (image?.preview && String(image.preview).startsWith('blob:')) {
       URL.revokeObjectURL(image.preview);
     }
+    clearImageDraft(draftKeyFor(index));
     const newImages = [...formData.images];
     newImages[index] = null;
     setFormData((prev) => ({
@@ -294,6 +318,18 @@ const AdFormPage = () => {
     const dataUrls = [];
     for (let index = 0; index < formData.images.length; index += 1) {
       const image = formData.images[index];
+      // صورة مستعادة من مسودة الجلسة: مضغوطة أصلاً، تُختم بالعلامة المائية
+      // هنا كما لو رُفعت الآن (المسودة تُحفظ قبل الختم لتوفير المساحة).
+      if (!image?.file && image?.dataUrl) {
+        let finalUrl = image.dataUrl;
+        try {
+          finalUrl = await watermarkDataUrl(image.dataUrl);
+        } catch {
+          finalUrl = image.dataUrl;
+        }
+        dataUrls.push(finalUrl);
+        continue;
+      }
       if (!image?.file) {
         continue;
       }
@@ -454,10 +490,11 @@ const AdFormPage = () => {
       /*
        * تنظيف روابط المعاينة المحلية.
        */
-      formData.images.forEach((image) => {
-        if (image?.preview) {
+      formData.images.forEach((image, index) => {
+        if (image?.preview && String(image.preview).startsWith('blob:')) {
           URL.revokeObjectURL(image.preview);
         }
+        clearImageDraft(draftKeyFor(index));
       });
     } catch (error) {
       console.error('Error publishing haraj ad:', error);

@@ -22,7 +22,6 @@ const C = {
 
 const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أدوات المالك' }) => {
   const [open, setOpen] = useState(false)
-  const [dismissedId, setDismissedId] = useState(null)
   const rootRef = useRef(null)
   const panelRef = useRef(null)
   const titleId = useId()
@@ -32,9 +31,6 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
 
   useEffect(() => {
     if (!open) return undefined
-    // خيار مُستبعد مؤقتاً (بعد ضغط ✕) ثم أُعيد تفعيله — تُرفع علامة الاستبعاد
-    // حتى لا يبقى الزر معطلاً للإغلاق.
-    if (dismissedId && activeId !== dismissedId) setDismissedId(null)
 
     const onPointerDown = (event) => {
       if (rootRef.current?.contains(event.target)) return
@@ -53,12 +49,7 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
       document.removeEventListener('touchstart', onPointerDown)
       document.removeEventListener('keydown', onKeyDown)
     }
-  }, [open, dismissedId, activeId])
-
-  const markDismissed = (id) => {
-    setDismissedId(id)
-    setOpen(false)
-  }
+  }, [open])
 
   return (
     <div className="ocm-root" ref={rootRef}>
@@ -255,7 +246,7 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
         .ocm-item.is-active .ocm-item-label { font-weight: 800; color: var(--rz-slate); }
         .ocm-item.is-active .ocm-item-x { background: var(--rz-white); border-color: var(--rz-gold); color: var(--rz-slate); }
         .ocm-item.is-active .ocm-item-x:hover { background: var(--rz-cream-5); border-color: var(--rz-gold); color: var(--rz-slate); }
-        .ocm-item.is-excluded { opacity: 0.5; }
+
       `}</style>
 
       <button
@@ -323,7 +314,6 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
                     className={[
                       'ocm-item',
                       isActive ? 'is-active' : '',
-                      tab.id === dismissedId ? 'is-excluded' : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
@@ -348,8 +338,9 @@ const OwnerConsoleMenu = ({ tabs = [], activeId, onSelect, triggerLabel = 'أد�
                       type="button"
                       className="ocm-item-x"
                       onClick={(event) => {
+                        // ❌ يغلق القائمة فقط — لا يستبعد القسم ولا يمسّ جلسة الرمز
                         event.stopPropagation()
-                        markDismissed(tab.id)
+                        setOpen(false)
                       }}
                       aria-label={`إغلاق القائمة (${tab.label})`}
                       title="إغلاق"

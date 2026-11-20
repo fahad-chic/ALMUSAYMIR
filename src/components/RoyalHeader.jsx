@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Search, Heart, Bell, User, Menu, X, Plus, Minus, Home, Store,
-  LayoutGrid, Tag, Sparkles, Info, Crown, LogOut, Bot,
+  LayoutGrid, Tag, Sparkles, Info, Crown, LogOut, Bot, Compass, Lock, SlidersHorizontal,
 } from 'lucide-react';
 import { ROYAL_NAV, ROYAL_DRAWER, STORE_HOME_PATH } from '../data/royalMenu';
 import { BRAND } from '../data/brand';
@@ -24,6 +24,7 @@ const NAV_ICONS = {
   info: Info,
   user: User,
   help: Info,
+  compass: Compass,
 };
 const ICON = ({ name, size = 18 }) => {
   const C = NAV_ICONS[name] || Sparkles;
@@ -124,23 +125,25 @@ const RoyalHeader = ({
           <div className="rz-actions">
             <button type="button" className="rz-icon-btn" aria-label="المفضلة" title="المفضلة"
               onClick={() => go('/favorites')}>
-              <Heart size={19} />
+              <Heart size={20} strokeWidth={1.75} />
             </button>
             <button type="button" className="rz-icon-btn" aria-label="الإشعارات" title="الإشعارات"
               onClick={() => go('/notifications')}>
-              <Bell size={19} />
+              <Bell size={20} strokeWidth={1.75} />
               {unreadNotifications > 0 && (
                 <span className="rz-icon-badge">{unreadNotifications > 9 ? '9+' : unreadNotifications}</span>
               )}
             </button>
-            <button type="button" className="rz-icon-btn" aria-label="الحساب والإعدادات" title="الحساب والإعدادات"
+            {/* مدخل واحد واضح للإعدادات — متاح للزائر والعضو معاً.
+                الصفحة نفسها تفصل تفضيلات العرض (للجميع) عن بيانات الحساب (للمسجّل). */}
+            <button type="button" className="rz-icon-btn" aria-label="الحساب والإعدادات" title="الإعدادات — حجم الخط والألوان والتباين والصوت"
               onClick={() => go('/settings')}>
-              <User size={19} />
+              <SlidersHorizontal size={19} strokeWidth={1.75} />
             </button>
             {typeof onOpenAIChat === 'function' && (
               <button type="button" className="rz-icon-btn" aria-label="المساعدة الذكية" title="المساعدة الذكية"
                 onClick={onOpenAIChat}>
-                <Bot size={19} />
+                <Bot size={20} strokeWidth={1.75} />
               </button>
             )}
           </div>
@@ -151,11 +154,11 @@ const RoyalHeader = ({
       <div className="rz-subbar">
         <div className="rz-subbar-inner">
           <button type="button" className="rz-burger" onClick={() => setDrawerOpen(true)} aria-label="فتح القائمة الكاملة">
-            <Menu size={19} />
+            <Menu size={18} strokeWidth={2.25} />
             <span>القائمة</span>
           </button>
 
-          <nav aria-label="التنقل الرئيسي" style={{ display: 'flex', gap: 2, overflowX: 'auto' }}>
+          <nav aria-label="التنقل الرئيسي" className="rz-nav">
             {ROYAL_NAV.map((item) => {
               const isActive =
                 location.pathname === item.path ||
@@ -231,31 +234,20 @@ const RoyalHeader = ({
                 );
               })}
 
-              {isOwnerLoggedIn && (
-                <div className="rz-group">
-                  <button
-                    type="button"
-                    className="rz-group-btn"
-                    aria-expanded={openGroup === 'owner'}
-                    onClick={() => setOpenGroup(openGroup === 'owner' ? null : 'owner')}
-                  >
-                    <span className="rz-group-icon"><Crown size={18} /></span>
-                    <span className="rz-group-label">غرفة القيادة</span>
-                    <span className={`rz-plus ${openGroup === 'owner' ? 'is-open' : ''}`}>{openGroup === 'owner' ? <Minus size={15} /> : <Plus size={15} />}</span>
-                  </button>
-                  {openGroup === 'owner' && (
-                    <div className="rz-sub">
-                      <ul className="rz-sub-list">
-                        <li><button type="button" className="rz-sub-item" onClick={() => go('/owner-private-room')}><span className="rz-sub-dot" /><span>غرفة صاحب الموقع</span></button></li>
-                        <li><button type="button" className="rz-sub-item" onClick={() => go('/admin')}><span className="rz-sub-dot" /><span>لوحة الإدارة</span></button></li>
-                        <li><button type="button" className="rz-sub-item" onClick={() => go('/users')}><span className="rz-sub-dot" /><span>المستخدمون</span></button></li>
-                        <li><button type="button" className="rz-sub-item" onClick={() => go('/employees')}><span className="rz-sub-dot" /><span>الموظفون</span></button></li>
-                        <li><button type="button" className="rz-sub-item" onClick={() => { closeDrawer(); onOpenBroadcast?.(); }}><span className="rz-sub-dot" /><span>رسالة البث</span></button></li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* غرفة القيادة: يراها الجميع، وبالضغط عليها يُطلب الرمز السري أولاً.
+                  لا تُعرض أي قائمة داخلية هنا — المحتوى كله خلف حارس الرمز
+                  داخل /owner-private-room، فلا يتسرّب هيكل الغرفة قبل التحقق. */}
+              <div className="rz-group">
+                <button
+                  type="button"
+                  className="rz-group-btn"
+                  onClick={() => go('/console')}
+                >
+                  <span className="rz-group-icon"><Crown size={18} /></span>
+                  <span className="rz-group-label">غرفة القيادة</span>
+                  <span className="rz-plus"><Lock size={14} /></span>
+                </button>
+              </div>
             </div>
 
             <div className="rz-drawer-foot">

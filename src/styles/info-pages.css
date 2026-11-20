@@ -1,0 +1,160 @@
+/* src/styles/info-pages.css
+   صفحات المحتوى المستقلة: وظائفنا / شركاؤنا / الخصوصية.
+   نص للقراءة فقط — بلا أزرار تنقّل. الإيميل والجوال فقط روابط تواصل.
+   الخط صغير ومضغوط حتى لا تطول الصفحة، والهوية من متغيّرات theme.css. */
+
+.ip-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--rz-ivory) 0%, var(--rz-ivory) 100%);
+  font-family: 'Tajawal', sans-serif;
+  color: var(--rz-ink);
+  padding: 1.1rem 1rem 1.5rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.ip-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* زر الرجوع الوحيد — بقيّة المحتوى نصّي */
+.ip-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--rz-white);
+  border: 1px solid rgba(var(--rz-ink-rgb), 0.12);
+  border-radius: 10px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--rz-ink);
+  margin-bottom: 12px;
+}
+
+.ip-header {
+  background: var(--rz-white);
+  border: 1px solid rgba(var(--rz-ink-rgb), 0.08);
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 4px 16px rgba(var(--rz-ink-rgb), 0.06);
+  text-align: right;
+}
+
+/* عنوان «شركاؤنا» فقط في المنتصف وعريض */
+.ip-header--center {
+  text-align: center;
+}
+
+.ip-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--rz-primary);
+  line-height: 1.35;
+}
+
+.ip-subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--rz-muted);
+  line-height: 1.6;
+}
+
+.ip-cards {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.ip-card {
+  background: var(--rz-white);
+  border: 1px solid rgba(var(--rz-ink-rgb), 0.07);
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+  box-shadow: 0 3px 12px rgba(var(--rz-ink-rgb), 0.04);
+}
+
+.ip-card-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.84rem;
+  font-weight: 900;
+  color: var(--rz-primary);
+  border-inline-start: 3px solid var(--rz-primary);
+  padding-inline-start: 8px;
+  line-height: 1.35;
+}
+
+.ip-text {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.62;
+  color: var(--rz-ink);
+  text-align: right;
+}
+
+.ip-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.22rem;
+}
+
+.ip-list li {
+  position: relative;
+  padding-inline-start: 0.85rem;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: var(--rz-ink);
+}
+
+.ip-list li::before {
+  content: '•';
+  position: absolute;
+  inset-inline-start: 0;
+  color: var(--rz-primary);
+  font-weight: 900;
+}
+
+.ip-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--rz-muted);
+}
+
+/* روابط التواصل الوحيدة (mailto / tel) */
+.ip-contact {
+  display: grid;
+  gap: 0.22rem;
+  margin-top: 0.45rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed rgba(var(--rz-ink-rgb), 0.12);
+}
+
+.ip-contact-line {
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: var(--rz-ink);
+}
+
+.ip-link {
+  color: var(--rz-primary);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ip-link:hover {
+  color: var(--rz-gold);
+}
+
+/* فاصل قسم مرقّم (صفحة الخصوصية) */
+.ip-section {
+  margin-top: 0.7rem;
+}

@@ -52,6 +52,7 @@ import { db } from '../../firebase';
 import { BANK_ACCOUNTS as CONST_BANKS, COMMISSION_RATES } from '../../utils/constants';
 import CommissionAndBanks from '../shared/CommissionAndBanks';
 import { ensureFirebaseSession } from '../../utils/firebaseSession';
+import { toTelHref } from '../../data/infoPages';
 import { useAuth } from '../../context/AuthContext';
 import HarajUserRegistration from '../haraj/HarajUserRegistration';
 import HarajAuth from '../haraj/HarajAuth';
@@ -285,7 +286,7 @@ const AdCard = ({
       ad.sellerPhone;
 
     if (phone) {
-      window.location.href = `tel:${phone}`;
+      window.location.href = toTelHref(phone);
     }
   };
 
@@ -437,6 +438,7 @@ const AdCard = ({
         <div
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
             justifyContent: 'space-between',
             gap: '0.6rem',

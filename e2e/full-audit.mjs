@@ -55,12 +55,14 @@ async function visit(route, mode) {
 }
 
 const matrix = {
-  anonPublic: ['/login', '/register', '/forgot-password'],
+  // /settings عام بالتصميم: إعدادات العرض (خط/ألوان/تباين/صوت) تفضيلات محلية
+  // على جهاز الزائر، لا بيانات إدارية — فلا يصح اعتباره مساراً محمياً.
+  anonPublic: ['/login', '/register', '/forgot-password', '/settings'],
   anonProtected: [
     '/', '/dashboard', '/chat', '/ai-chat', '/contact', '/about', '/faq',
     '/terms', '/wanted-dress', '/branches', '/advertisements', '/employees',
     '/haraj', '/haraj/post', '/notifications', '/inbox', '/otp', '/users',
-    '/settings', '/catalog/wedding-dresses', '/haraj/catalog/wedding-dresses',
+    '/catalog/wedding-dresses', '/haraj/catalog/wedding-dresses',
     '/admin', '/owner-panel', '/owner-private-room', '/complaints',
   ],
 };
@@ -71,7 +73,7 @@ const guestInjectedRoutes = [
   '/', '/dashboard', '/chat', '/ai-chat', '/contact', '/about', '/faq',
   '/terms', '/wanted-dress', '/branches', '/advertisements', '/employees',
   '/haraj', '/haraj/post', '/notifications', '/inbox', '/otp', '/users',
-  '/settings', '/catalog/wedding-dresses', '/haraj/catalog/wedding-dresses',
+  '/catalog/wedding-dresses', '/haraj/catalog/wedding-dresses',
   '/admin', '/owner-panel', '/owner-private-room', '/complaints',
 ];
 
@@ -182,7 +184,7 @@ for (const r of guestInjectedRoutes) {
 
   await page.goto(BASE + '/login', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(500);
-  await page.locator('.rl-haraj-gate').click();
+  await page.getByRole('button', { name: 'موقع حراج أونلاين' }).click();
   await page.waitForTimeout(900);
   const hp = new URL(page.url()).pathname;
   // حراج مسار محمي (يتطلب جلسة). زر الصفحة يوجّه إليه، وغير الموثّق

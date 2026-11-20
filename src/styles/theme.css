@@ -52,6 +52,11 @@
   --rz-gold-ink-rgb: 91, 67, 48;             /* نص على ذهبي فاتح */
   --rz-gold-ink: rgb(var(--rz-gold-ink-rgb));
 
+  /* نغمة أغمق من الأساسي للاستخدام كنص فوق خلفية عاجية (حالة hover):
+     الأساسي #8F6C52 يعطي 4.29:1 على #F8F3EB وهو أقل من 4.5، وهذه تعطي 5.41:1. */
+  --rz-primary-strong-rgb: 122, 94, 70;      /* #7A5E46 */
+  --rz-primary-strong: rgb(var(--rz-primary-strong-rgb));
+
   --rz-silver-rgb: 213, 208, 197;            /* رمادي فضي #D5D0C5 */
   --rz-silver: rgb(var(--rz-silver-rgb));
 
@@ -106,6 +111,7 @@
   --rz-pearl-shadow-rgb: 50, 66, 88;
   --rz-champagne: #D8B98A;
   --rz-champagne-rgb: 216, 185, 138;
+  --rz-gold-deep: rgb(var(--rz-gold-deep-rgb));
   --rz-gold-deep-rgb: 166, 124, 46;
   --rz-gold-shadow-rgb: 150, 138, 108;
   --rz-shadow-warm-rgb: 120, 112, 96;

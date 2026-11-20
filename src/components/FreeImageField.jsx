@@ -1,6 +1,7 @@
 // اختيار صورة من الجهاز (تُضغط وتُحفظ مجاناً) أو لصق رابط مباشر.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { compressImageToDataUrl } from '../utils/compressImage';
+import { clearImageDraft, readImageDraft, saveImageDraft } from '../utils/imageDraft';
 
 const FreeImageField = ({
   label = 'صورة السلعة',
@@ -10,11 +11,28 @@ const FreeImageField = ({
   variant = 'light',
   maxDim = 800,
   quality = 0.72,
+  draftKey = '',
 }) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const dark = variant === 'royal';
   const text = value && !String(value).startsWith('data:image') ? value : '';
+
+  // الصورة المختارة تبقى بعد الإغلاق بـ❌: تُستعاد من مسودة الجلسة إن كان
+  // النموذج فارغاً، فلا يُطالب المالك برفعها مرة أخرى في نفس الجلسة.
+  useEffect(() => {
+    if (!draftKey || value) return;
+    const draft = readImageDraft(draftKey);
+    if (draft) onChange(draft);
+  }, [draftKey]);
+
+  const emit = (next) => {
+    if (draftKey) {
+      if (next && String(next).startsWith('data:image')) saveImageDraft(draftKey, next);
+      else clearImageDraft(draftKey);
+    }
+    onChange(next);
+  };
 
   const pick = async (event) => {
     const file = event.target.files?.[0];
@@ -24,7 +42,7 @@ const FreeImageField = ({
     setError('');
     try {
       const dataUrl = await compressImageToDataUrl(file, { maxDim, quality });
-      onChange(dataUrl);
+      emit(dataUrl);
     } catch (err) {
       setError(err?.message || 'تعذّرت قراءة الصورة.');
     } finally {
@@ -73,7 +91,7 @@ const FreeImageField = ({
         placeholder="رابط مباشر (اختياري) — أو اختر صورة من الجهاز"
         onChange={(event) => {
           setError('');
-          onChange(event.target.value);
+          emit(event.target.value);
         }}
         className={dark ? undefined : lightClass}
         style={box}

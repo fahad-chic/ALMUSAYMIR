@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AdminContext } from '../context/AdminContext';
 import { Plus, Trash2, Eye, EyeOff, X } from 'lucide-react';
 import FreeImageField from '../components/FreeImageField';
+import { clearImageDraft } from '../utils/imageDraft';
 
 export const AdvertisementsPage = () => {
   const ctx = useContext(AdminContext) || {};
@@ -56,6 +57,7 @@ export const AdvertisementsPage = () => {
           : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       });
       setFormData({ title: '', description: '', imageUrl: '', expiryDate: '' });
+      clearImageDraft('advertisement-new');
       setShowForm(false);
     }
   };
@@ -418,6 +420,7 @@ export const AdvertisementsPage = () => {
                   value={formData.imageUrl}
                   onChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
                   label="صورة الإعلان"
+                  draftKey="advertisement-new"
                 />
               </div>
 

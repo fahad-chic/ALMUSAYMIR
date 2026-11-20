@@ -30,7 +30,8 @@ p, li { font-weight: 400; }
 small, .rz-muted { color: var(--rz-muted) !important; }
 
 /* ============================================================
-   الترويسة الملكية
+   الترويسة الملكية — نسخة فاخرة مضغوطة (محسّنة للآيفون)
+   كل المسارات والأزرار والدوال كما هي — تحسين بصري فقط
    ============================================================ */
 .rz-header {
   position: sticky;
@@ -40,86 +41,132 @@ small, .rz-muted { color: var(--rz-muted) !important; }
   isolation: isolate;
 }
 
-/* الترويسة sticky وتحتل مساحتها داخل التدفق، لذا لا حاجة لحشوة تعويضية
-   على body (كانت تُنتج فراغاً مزدوجاً أعلى الصفحة). */
+/* في وضع الزائر تعلو الشاشةَ لافتةٌ ثابتة (عدّاد الدقيقتين)، فنُزيح الترويسة
+   بمقدار ارتفاعها الفعلي كي لا تغطّيها. القيمة يضبطها App.jsx بالقياس. */
+body.rooz-guest-mode .rz-header {
+  top: var(--rz-guest-banner-h, 0px);
+}
+
+/* الترويسة sticky وتحتل مساحتها داخل التدفق.
+   مهم: يجب ألّا يكون أي سلف (html/body/#root/جذر التطبيق) بحالة
+   overflow-x: hidden لأنها تكسر sticky — نستخدم clip في global.css. */
 body.rooz-has-nav { padding-top: 0 !important; }
 
 .rz-topbar {
-  /* يحترم Dynamic Island / شريط الحالة على iPhone دون تغطية الشعار */
+  /* يحترم Dynamic Island / شريط الحالة على iPhone */
   padding-top: env(safe-area-inset-top, 0px);
   padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
-  background: linear-gradient(135deg, #8F6C52 0%, #A98262 52%, #73533F 100%);
+  /* تدرج شوكولاتة ملكي أعمق + لمعة ذهبية فاخرة */
+  background:
+    radial-gradient(130% 150% at 12% 0%, rgba(212, 175, 55, 0.18) 0%, transparent 52%),
+    linear-gradient(135deg, #241810 0%, #3A2719 30%, #503922 56%, #33220F 80%, #1C120B 100%);
   color: var(--rz-white);
-  border-bottom: 1px solid var(--rz-line-gold);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 0 rgba(212, 175, 55, 0.2),
+    0 6px 26px rgba(0, 0, 0, 0.42);
+  position: relative;
 }
+/* خط ذهبي رفيع فاخر تحت الترويسة العلوية */
+.rz-topbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.15) 15%,
+    rgba(212, 175, 55, 0.75) 50%,
+    rgba(212, 175, 55, 0.15) 85%,
+    transparent 100%);
+  pointer-events: none;
+}
+
 .rz-topbar-inner {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 10px 16px;
+  padding: 10px 18px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 16px;
 }
+
 .rz-logo {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
   color: var(--rz-white);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.rz-logo:hover {
+  opacity: 0.94;
+  transform: translateY(-1px);
 }
 .rz-logo img {
   height: 46px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 4px 14px rgba(var(--rz-ink-rgb), 0.35));
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5))
+          drop-shadow(0 0 8px rgba(212, 175, 55, 0.25));
 }
 
-/* البحث الكبير */
+/* شريط البحث الفاخر */
 .rz-search {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 620px;
+  max-width: 640px;
   margin: 0 auto;
-  background: rgba(var(--rz-white-rgb), 0.10);
-  border: 1px solid var(--rz-line-gold);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(212, 175, 55, 0.42);
   border-radius: 999px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .rz-search:focus-within {
-  background: rgba(var(--rz-white-rgb), 0.16);
-  border-color: var(--rz-gold);
-  box-shadow: 0 0 0 3px rgba(var(--rz-gold-rgb), 0.18);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #D4AF37;
+  box-shadow:
+    0 0 0 3px rgba(212, 175, 55, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .rz-search input {
   flex: 1;
   border: 0 !important;
   background: transparent !important;
-  color: var(--rz-white) !important;
-  padding: 11px 18px !important;
-  font-size: 0.92rem;
+  color: #FFFDF9 !important;
+  padding: 11px 16px !important;
+  font-size: 0.93rem;
   font-family: var(--rz-font);
   outline: none;
   border-radius: 999px !important;
+  letter-spacing: 0.01em;
 }
-.rz-search input::placeholder { color: rgba(var(--rz-ivory-rgb), 0.62); }
+.rz-search input::placeholder {
+  color: rgba(248, 243, 235, 0.58);
+}
 .rz-search-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
-  color: var(--rz-gold);
+  padding: 0 14px 0 16px;
+  color: #D4AF37;
+  flex-shrink: 0;
 }
 
 /* أيقونات الإجراءات */
 .rz-actions {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 .rz-icon-btn {
   position: relative;
@@ -131,36 +178,43 @@ body.rooz-has-nav { padding-top: 0 !important; }
   border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--rz-white);
+  color: rgba(255, 253, 249, 0.92);
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+  transition: background 0.18s ease, border-color 0.18s ease,
+              transform 0.14s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 .rz-icon-btn:hover {
-  background: rgba(var(--rz-white-rgb), 0.10);
-  border-color: var(--rz-line-gold);
+  background: rgba(212, 175, 55, 0.16);
+  border-color: rgba(212, 175, 55, 0.55);
+  color: #D4AF37;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.18);
 }
-.rz-icon-btn:active { transform: scale(0.94); }
+.rz-icon-btn:active {
+  transform: scale(0.93);
+}
 .rz-icon-badge {
   position: absolute;
-  top: 4px;
-  inset-inline-start: 4px;
+  top: 2px;
+  inset-inline-start: 2px;
   min-width: 17px;
   height: 17px;
-  padding: 0 4px;
+  padding: 0 5px;
   border-radius: 999px;
-  background: var(--rz-gold);
-  color: var(--rz-burgundy-deep);
-  font-size: 0.62rem;
+  background: linear-gradient(135deg, #D4AF37 0%, #C9A227 100%);
+  color: #1F150F;
+  font-size: 0.6rem;
   font-weight: 800;
   line-height: 17px;
   text-align: center;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* الطبقة الثانية: شريط التنقل المختصر */
+/* الطبقة الثانية: شريط التنقل — فخم داكن بلمسة ذهبية */
 .rz-subbar {
-  background: rgba(255, 253, 249, 0.96);
-  border-bottom: 1px solid var(--rz-line);
-  box-shadow: var(--rz-shadow-sm);
+  background: linear-gradient(180deg, #2E1F14 0%, #1F140C 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.34);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.28);
 }
 .rz-subbar-inner {
   max-width: 1320px;
@@ -174,41 +228,62 @@ body.rooz-has-nav { padding-top: 0 !important; }
 .rz-burger {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: var(--rz-radius-xs);
-  border: 1px solid var(--rz-line);
-  background: var(--rz-ivory);
-  color: var(--rz-burgundy);
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  background: linear-gradient(145deg, #6B4A2C 0%, #4A321C 55%, #33220F 100%);
+  color: #FBF6EC;
   font-family: var(--rz-font);
   font-weight: 700;
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
   flex-shrink: 0;
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .rz-burger:hover {
-  background: var(--rz-white);
-  border-color: var(--rz-line-gold);
+  background: linear-gradient(145deg, #7C5836 0%, #5A3E23 55%, #402A12 100%);
+  border-color: #D4AF37;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(212, 175, 55, 0.24);
+  transform: translateY(-1px);
 }
 .rz-nav-link {
-  padding: 8px 14px;
-  border-radius: var(--rz-radius-xs);
-  color: var(--rz-dark);
+  padding: 8px 15px;
+  border-radius: 8px;
+  color: rgba(251, 246, 236, 0.88);
   text-decoration: none;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 600;
   white-space: nowrap;
-  transition: color 0.16s ease, background 0.16s ease;
+  transition: color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+  letter-spacing: 0.01em;
 }
-.rz-nav-link:hover { color: var(--rz-burgundy); background: var(--rz-ivory); }
+.rz-nav-link:hover {
+  color: #F6E7B8;
+  background: rgba(212, 175, 55, 0.14);
+}
 .rz-nav-link.is-active {
-  color: var(--rz-burgundy);
+  color: #F8E7B0;
   font-weight: 800;
-  box-shadow: inset 0 -2px 0 var(--rz-gold);
-  border-radius: var(--rz-radius-xs) var(--rz-radius-xs) 0 0;
+  background: rgba(212, 175, 55, 0.16);
+  box-shadow: inset 0 -2.5px 0 #D4AF37;
+  border-radius: 8px 8px 0 0;
 }
 .rz-subbar-spacer { flex: 1; }
+
+.rz-nav {
+  display: flex;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rz-nav::-webkit-scrollbar { display: none; }
 
 .rz-footer-links-toggle {
   width: 100%;
@@ -908,7 +983,7 @@ a { color: var(--rz-burgundy); }
 }
 
 /* ============================================================
-   الجوال أولاً
+   الجوال أولاً — ترويسة مضغوطة فاخرة للآيفون
    ============================================================ */
 @media (max-width: 900px) {
   .rz-topbar-inner {
@@ -916,24 +991,77 @@ a { color: var(--rz-burgundy); }
     flex-wrap: nowrap;
     align-items: center;
     gap: 8px;
-    padding: 7px 10px;
+    padding: 7px 12px;
   }
   .rz-logo { flex: 0 0 auto; }
-  .rz-logo img { height: 30px; }
-  .rz-search { flex: 1 1 auto; min-width: 0; max-width: none; margin: 0; }
-  .rz-search input { padding: 8px 10px !important; font-size: 0.82rem; }
+  .rz-logo img {
+    height: 34px;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45))
+            drop-shadow(0 0 6px rgba(212, 175, 55, 0.2));
+  }
+  .rz-search {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+  }
+  .rz-search input {
+    padding: 8px 12px !important;
+    font-size: 0.82rem;
+  }
   .rz-search-icon { display: none; }
-  .rz-actions { flex: 0 0 auto; gap: 0; }
-  .rz-icon-btn { width: 34px; height: 34px; }
-  .rz-subbar-inner { overflow-x: auto; padding: 0 12px; }
-  .rz-nav-link { padding: 8px 11px; font-size: 0.84rem; }
+  .rz-actions {
+    flex: 0 0 auto;
+    gap: 2px;
+  }
+  .rz-icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+  .rz-subbar-inner {
+    overflow-x: auto;
+    padding: 0 12px;
+    min-height: 44px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .rz-subbar-inner::-webkit-scrollbar { display: none; }
+  .rz-burger {
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    gap: 5px;
+  }
+  .rz-nav-link {
+    padding: 7px 11px;
+    font-size: 0.84rem;
+  }
   .rz-footer-cols { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 }
+
+/* الطبقة الأولى على الجوال: شعار وأيقونات أصغر لتبقى كل الأزرار في سطر واحد */
 @media (max-width: 480px) {
   .rz-footer-cols { grid-template-columns: 1fr; }
-  .rz-logo img { height: 30px; }
+  .rz-logo img { height: 26px; }
+  .rz-topbar-inner { padding: 5px 8px; gap: 5px; }
+  .rz-icon-btn { width: 34px; height: 34px; }
+  /* 34px + هامش 5px من كل جهة = هدف لمس 44px */
+  .rz-icon-btn::after { inset: -5px; }
+  .rz-actions { gap: 0; }
+  .rz-search { min-width: 0; }
+  .rz-search input { padding: 7px 8px !important; font-size: 0.76rem; }
 }
 
+/* الجوال الضيق (320–400px): كل الأيقونات الأربع تبقى ظاهرة وكاملة،
+   ونصغّرها قليلاً كي لا تُدفع الرابعة خارج الشاشة ويبقى للبحث عرض مفيد. */
+@media (max-width: 400px) {
+  .rz-topbar-inner { padding: 4px 6px; gap: 4px; }
+  .rz-logo img { height: 24px; }
+  .rz-icon-btn { width: 30px; height: 30px; }
+  .rz-icon-btn::after { inset: -7px; }
+  .rz-icon-btn svg { width: 17px; height: 17px; }
+  .rz-search { min-width: 56px; }
+  .rz-search input { padding: 6px 6px !important; font-size: 0.7rem; }
+}
 
 /* طيّ قسم الأسئلة الشائعة */
 .rz-faq-toggle {
@@ -1022,3 +1150,130 @@ a { color: var(--rz-burgundy); }
     transition: none !important;
   }
 }
+
+/* ============================================================
+   تحسين محافظ للترويسة — مسافات وأهداف لمس ولمسات فاخرة فقط.
+   لا يغيّر أي زر أو مسار أو سلوك؛ فقط مظهر/أبعاد آمنة.
+   ============================================================ */
+/* هدف لمس مريح للأيقونات (≥44px) — على الشاشات الواسعة فقط.
+   كان هذا السطر بلا استعلام وسائط فيُلغي مقاسات الجوال (34/38px) المعرّفة
+   أعلاه، فتصير الأيقونات الأربع 176px وتُدفع الرابعة خارج الشاشة عند 320px.
+   على الجوال نحافظ على هدف اللمس 44px عبر ::after شفاف بدل تكبير الزر نفسه. */
+@media (min-width: 901px) {
+  .rz-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* مساحة تنفّس أفقية أفضل على الجوال + تمرير أفقي سلس لشريط التنقل */
+@media (max-width: 720px) {
+  .rz-topbar-inner {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  .rz-logo img {
+    height: 38px;
+  }
+  .rz-subbar-inner {
+    padding: 0 10px;
+    gap: 4px;
+    scrollbar-width: none;
+  }
+  .rz-subbar-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* أهداف لمس ≥44px على الجوال */
+  .rz-nav-link,
+  .rz-burger {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  /* الأيقونة نفسها تبقى صغيرة (38px) لكن هدف اللمس الفعلي 44px */
+  .rz-icon-btn::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+  }
+  .rz-group-btn {
+    min-height: 48px;
+  }
+  .rz-sub-item {
+    min-height: 44px;
+  }
+  .rz-drawer-close {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* لمسة فاخرة خفيفة: حد ذهبي دقيق أسفل شريط التنقل */
+  .rz-subbar {
+    border-bottom: 1px solid var(--rz-line-gold);
+    box-shadow: var(--rz-shadow-sm);
+  }
+}
+
+/* الجوال الصغير: التنقل كله ظاهر بلا قص ولا تمرير أفقي.
+   كان الشريط يُقتطع أفقيًا (460px داخل 203px) فيختفي نصف الأقسام.
+   الآن: صف علوي (القائمة + أدوات) ثم شبكة 3 أعمدة لبقية الأقسام،
+   فيظهر كل رابط كاملاً بارتفاع مضغوط بلا ازدحام. */
+@media (max-width: 560px) {
+  .rz-subbar-inner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 3px 6px;
+    padding: 4px 6px;
+    min-height: 0;
+    overflow: visible;
+  }
+  .rz-burger {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 4px 9px;
+    font-size: 0.72rem;
+  }
+  .rz-subbar-tools {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    justify-content: flex-end;
+    width: auto;
+  }
+  .rz-subbar-inner nav,
+  .rz-subbar-inner .rz-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px 2px;
+    width: 100%;
+    overflow: visible;
+  }
+  .rz-nav-link,
+  .rz-burger {
+    min-height: 0;
+  }
+  .rz-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 4px 2px;
+    font-size: 0.72rem;
+    line-height: 1.25;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rz-subbar-spacer { display: none; }
+}
+
+@media (max-width: 400px) {
+  .rz-nav-link { font-size: 0.67rem; padding: 4px 1px; }
+}
+

@@ -124,7 +124,9 @@ export const AuthProvider = ({ children }) => {
           // من التطبيق نفسه، فلا يُعتبر لاحقاً "سقوط جلسة" غامض.
           lastMemberRef.current = isAnonymous ? null : firebaseUser;
           setUser(firebaseUser);
-          setUserRole(isAdmin ? 'owner' : isAnonymous ? null : 'user');
+          // الزائر يحمل دور 'guest' (لا صلاحيات عضو) كي تعرض الترويسة اسمه
+          // وتخفي مجموعات القائمة المخصّصة للأعضاء.
+          setUserRole(isAdmin ? 'owner' : isAnonymous ? 'guest' : 'user');
           setIsAuthenticated(true);
           setLoading(false);
 

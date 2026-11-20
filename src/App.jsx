@@ -113,11 +113,15 @@ const AdvertisementsPage = safeLazy(() =>
 );
 const EmployeesPage = safeLazy(() => import('./pages/EmployeesPage'));
 const AdminRoom = safeLazy(() => import('./pages/AdminRoom'));
+const ConsoleRoom = safeLazy(() => import('./components/owner/ConsoleRoom'));
 const AboutPage = safeLazy(() => import('./pages/AboutPage'));
 const AIChat = safeLazy(() => import('./components/AIChat'));
 const AdDetailsPage = safeLazy(() => import('./pages/AdDetailsPage'));
 const ChatPage = safeLazy(() => import('./pages/ChatPage'));
 const TermsPage = safeLazy(() => import('./pages/TermsPage'));
+const CareersPage = safeLazy(() => import('./pages/CareersPage'));
+const PartnersPage = safeLazy(() => import('./pages/PartnersPage'));
+const PrivacyPage = safeLazy(() => import('./pages/PrivacyPage'));
 const WantedDressPage = safeLazy(() => import('./pages/WantedDressPage'));
 const FavoritesPage = safeLazy(() => import('./pages/FavoritesPage'));
 
@@ -463,15 +467,101 @@ function AppContent() {
   } = useAuth();
   const guestSession = useStore((state) => state.guestSession);
   const guestWarning = useStore((state) => state.guestWarning);
+  const guestExpired = useStore((state) => state.guestExpired);
+  const expireGuestSession = useStore((state) => state.expireGuestSession);
+  const acknowledgeGuestExpired = useStore((state) => state.acknowledgeGuestExpired);
+  const [guestSecondsLeft, setGuestSecondsLeft] = useState(0);
+  const guestBannerRef = useRef(null);
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // عدّاد الزائر: يحدّث المتبقي كل ثانية، ويُنهي الجلسة بنفسه عند بلوغ الصفر
+  // (شبكة أمان إن تأخّر مؤقّت المتجر، أو نام التبويب ثم استيقظ).
+  const guestActive = !!guestSession?.active;
+  const guestExpiresAt = Number(guestSession?.expiresAt || 0);
+  useEffect(() => {
+    if (!guestActive || !guestExpiresAt) {
+      setGuestSecondsLeft(0);
+      return undefined;
+    }
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((guestExpiresAt - Date.now()) / 1000));
+      setGuestSecondsLeft(left);
+      if (left <= 0) {
+        void expireGuestSession('countdown');
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [guestActive, guestExpiresAt, expireGuestSession]);
+
+  // قياس ارتفاع لافتة الزائر وضبط إزاحة الترويسة (كي لا تُغطّيها اللافتة).
+  useEffect(() => {
+    const root = document.body;
+    if (!guestActive) {
+      root.classList.remove('rooz-guest-mode');
+      root.style.removeProperty('--rz-guest-banner-h');
+      return undefined;
+    }
+    root.classList.add('rooz-guest-mode');
+    const el = guestBannerRef.current;
+    if (!el) return undefined;
+    const sync = () => {
+      root.style.setProperty(
+        '--rz-guest-banner-h',
+        `${Math.ceil(el.getBoundingClientRect().height) + 16}px`
+      );
+    };
+    sync();
+    let observer = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(sync);
+      observer.observe(el);
+    }
+    window.addEventListener('resize', sync);
+    return () => {
+      if (observer) observer.disconnect();
+      window.removeEventListener('resize', sync);
+      root.classList.remove('rooz-guest-mode');
+      root.style.removeProperty('--rz-guest-banner-h');
+    };
+  }, [guestActive]);
 
   // الشرط الوحيد لفتح الموقع أو تحويل المستخدم بعيداً عن /login:
   // حساب حقيقي (ليس مجهولاً) بريده موثّق. لا جلسة زائر ولا جلسة مجهولة.
   const liveFirebaseUser = auth?.currentUser || user;
   const isVerifiedMember =
     !!liveFirebaseUser?.emailVerified && !liveFirebaseUser?.isAnonymous;
+
+  // زائر نشط: جلسة زائر حيّة على حساب Firebase مجهول.
+  const isActiveGuest =
+    guestActive &&
+    !!liveFirebaseUser?.isAnonymous &&
+    guestExpiresAt > Date.now();
+
+  // انتهاء جلسة الزائر → /login مرة واحدة، مع رسالة تُقرأ هناك (guestExpiredMsg).
+  // لا نُزيح المستخدم عن /register أو /login كي يستطيع إنشاء حساب أو الدخول.
+  useEffect(() => {
+    if (!guestExpired) return;
+    if (isVerifiedMember) {
+      acknowledgeGuestExpired();
+      return;
+    }
+    try {
+      window.sessionStorage.setItem(
+        'guestExpiredMsg',
+        'انتهت مدة الدخول كزائر (دقيقتان). فضلاً أنشئ حساباً جديداً أو سجّل دخولك لتصفح الموقع بشكل كامل.'
+      );
+    } catch {
+      // sessionStorage may be unavailable
+    }
+    if (location.pathname !== '/login' && location.pathname !== '/register') {
+      navigate('/login', { replace: true });
+    }
+    acknowledgeGuestExpired();
+  }, [guestExpired, isVerifiedMember, location.pathname, navigate, acknowledgeGuestExpired]);
 
   // تتبّع الجلسة الحيّة: نبضة دورية إلى sessions/{uid} تُظهر «من متصل الآن»
   // في غرفة المالك (TRACK_EMPLOYEE_LIVE_SESSIONS). مراقبة فقط — بلا أي قدرة.
@@ -1068,7 +1158,9 @@ function AppContent() {
         flexDirection: 'column',
         minHeight: '100vh',
         width: '100%',
-        overflowX: 'hidden',
+        /* clip (لا hidden) لمنع التمرير الأفقي دون كسر sticky للترويسة.
+           الحماية على مستوى الصفحة تبقى من html/body/#root. */
+        overflowX: 'clip',
         /* شفاف ليظهر غلاف الموقع فوق صورة المدينة (الخلفية في rooz-site-backdrop.css) */
         background: 'transparent',
         color: 'var(--rz-ink)',
@@ -1172,7 +1264,9 @@ function AppContent() {
 
       {guestSession?.active && (
         <div
+          ref={guestBannerRef}
           role="status"
+          aria-live="polite"
           style={{
             position: 'fixed',
             top: 'calc(8px + env(safe-area-inset-top))',
@@ -1180,9 +1274,10 @@ function AppContent() {
             right: 12,
             zIndex: 1500,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 8,
+            gap: 2,
             padding: '9px 12px',
             borderRadius: 12,
             background: guestWarning
@@ -1192,12 +1287,22 @@ function AppContent() {
             fontSize: 12,
             fontWeight: 800,
             textAlign: 'center',
+            lineHeight: 1.45,
             boxShadow: '0 8px 22px rgba(0,0,0,.18)',
           }}
         >
-          {guestWarning
-            ? 'تنبيه: تبقى أقل من 15 ثانية على انتهاء دخول الزائر.'
-            : 'دخولك مؤقت لمدة دقيقتين فقط. أنشئ حسابًا أو سجّل الدخول للاستفادة من جميع الخدمات.'}
+          <span>
+            {guestWarning || guestSecondsLeft <= 20
+              ? 'سوف يتم إخراجك من الموقع تلقائياً خلال وقت قصير.'
+              : 'أنت في وضع الزائر — الدخول مؤقت لمدة دقيقتين فقط.'}
+          </span>
+          <span style={{ fontWeight: 600, fontSize: 11, opacity: 0.95 }}>
+            {guestSecondsLeft > 0
+              ? `الوقت المتبقي: ${Math.floor(guestSecondsLeft / 60)}:${String(
+                  guestSecondsLeft % 60
+                ).padStart(2, '0')} — فضلاً أنشئ حساباً جديداً أو سجّل دخولك لتتمكن من التصفح بشكل كامل.`
+              : 'فضلاً أنشئ حساباً جديداً أو سجّل دخولك لتتمكن من التصفح بشكل كامل.'}
+          </span>
         </div>
       )}
 
@@ -1206,7 +1311,7 @@ function AppContent() {
           Navigation
           ================================================= */}
 
-      {isVerifiedMember && (
+      {(isVerifiedMember || isActiveGuest) && (
         <Navigation
           user={user}
           onLogout={handleLogout}
@@ -1566,6 +1671,13 @@ function AppContent() {
                 }
               />
 
+              {/* غرفة القيادة — يراها الجميع في القائمة، ومحتواها خلف بوابة
+                  الرمز داخل المكوّن نفسه. المسار مفتوح للزائر *ليُعرض له
+                  الرمز أولاً* فقط؛ ولا يُعرض أي قسم أو بيانات قبل إثبات
+                  الهوية + اجتياز /api/owner-pin. الحجب الحقيقي للدور
+                  والصلاحية والرمز داخل ConsoleRoom. */}
+              <Route path="/console" element={<ConsoleRoom />} />
+
               {/* غرفة المشرف — لغير المالك ممن يملك صلاحيات فعلية.
                   الفتح مشروط بعضوية موثّقة، والأقسام تُفلتر بالصلاحيات
                   (ومن لا يملك أي صلاحية يُحوَّل إلى /unauthorized). */}
@@ -1578,13 +1690,11 @@ function AppContent() {
                 }
               />
 
+              {/* إعدادات العرض للجميع (زوار وأعضاء) — تفضيلات محلية على
+                  جهاز المستخدم فقط (خط/تباين/حركة/صوت)، لا بيانات إدارية. */}
               <Route
                 path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <SettingsPage />
-                  </ProtectedRoute>
-                }
+                element={<SettingsPage />}
               />
 
               <Route
@@ -1639,6 +1749,34 @@ function AppContent() {
                 element={
                   <ProtectedRoute>
                     <TermsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* صفحات المحتوى المستقلة (قراءة فقط) */}
+              <Route
+                path="/careers"
+                element={
+                  <ProtectedRoute>
+                    <CareersPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/partners"
+                element={
+                  <ProtectedRoute>
+                    <PartnersPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/privacy"
+                element={
+                  <ProtectedRoute>
+                    <PrivacyPage />
                   </ProtectedRoute>
                 }
               />
