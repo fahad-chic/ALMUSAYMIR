@@ -241,3 +241,23 @@ CI على PR **7/7** · معاينة Cloudflare 200 على `/`, `/login`, `/owne
 - `gh api -X PUT .../merge-async` يحتاج **SHA كاملًا** (12 حرفاً يُرجع "head branch was modified").
 - الـPR يُنشأ **مسودة** تلقائياً في هذا المستودع ⇒ `merge-async` يفشل بـ"Pull request is in draft".
   الحل: `markPullRequestReadyForReview` عبر GraphQL (لا يعمل `PATCH {draft:false}` ولا `ready_for_review`).
+
+## جولة غرفة المالك + صفحة الدخول (PR #56) — 2026-11-06
+- **غرفة المالك**: التبويب `center` («المركز الرئيسي») كان مكرراً وفارغاً بجانب `overview`.
+  حُذف `CenterPanel` + كتلة تصييره، وصار `overview` المدخل الوحيد (كل السقوط على `'center'`
+  → `'overview'` في 6 مواضع). إثبات في `dist`: «المركز الرئيسي» = **0**، «نظرة عامة» = 10.
+- **قفل نصوص صفحة الدخول**: اختباران في `src/components/Login.test.jsx` يثبتان حرفياً:
+  الاسم، «بوابتك نحو تجارة ذكية»، «نجمع فيها بين رقي المتاجر الفاخرة ومرونة الأسواق الحرة.»،
+  بطاقتي الدور، «⚜️ دخول صاحب الموقع ⚜️»، «موقع حراج أونلاين»، وغياب «المالك الرئيسي»/«®».
+- **`e2e/full-audit.mjs`**: `/settings` **عام بالتصميم** (إعدادات عرض محلية) → نُقل من
+  `anonProtected`/`guestInjectedRoutes` إلى `anonPublic` (كان يولّد خطأين كاذبين).
+  ومحدّد زر الحراج `.rl-haraj-gate` يطابق عنصرين (زر الحراج + زر الإعدادات يعيد استخدام الصنف)
+  → استُخدم `getByRole('button', { name: 'موقع حراج أونلاين' })`.
+- **مهم — نموذج الخصوصية على `main` هو `hidden`/`status`، لا `publicSafe`**:
+  `scripts/backfill-public-safe.mjs` غير موجود على `main` (فقط في `fix/reviews-privacy` = PR #24
+  **مغلق غير مدموج**). أداة المعاينة الصحيحة: `npm run report:legacy-privacy`
+  (`scripts/legacy-privacy-report.mjs` — قراءة فقط، بلا مسار كتابة).
+- **PR #25 (`fix/login-page-design`) مدموج فعلاً** في `main` (merged_at 2026-11-08).
+- البوابات: LINT 0 · VITEST 45/320 · BUILD ✓ · CONTRAST PASS (1054 عنصر، 0 مخالفة) ·
+  FULL AUDIT 64 فحصاً/0 أخطاء · RULES AUDIT (محاكي) 348 PASS · PRIVACY REPAIR (محاكي) 9/9.
+  **كلها محلية/محاكي — لا شيء منها إنتاج.**
