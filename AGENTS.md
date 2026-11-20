@@ -338,3 +338,51 @@ CI على PR **7/7** · معاينة Cloudflare 200 على `/`, `/login`, `/owne
 - اختبارات: `functions/api/ai.test.js` + `src/components/AIChat.test.jsx` +
   `src/components/RoyalHome/AIChatWidget.test.jsx`. تستبدل نداء Groq وطبقة D1 فقط،
   وتختبر منطق `onRequest` الحقيقي.
+
+## جولة تنظيف الفروع + تحقق الإنتاج الستة — 2026-11-20
+**`main` = `661644a` (PR #44 مدموج) · الإنتاج `almusaymir.pages.dev` مطابق.**
+
+### دمج #55 ثم #44 (كلاهما squash)
+- **#55 `fix/legacy-privacy-proof` → `74fb5e8`**: تدقيق خصوصية قديمة في CI
+  (`.github/workflows/ci.yml` + `e2e/legacy-privacy-audit.mjs` + سكربت `package.json`).
+- **#44 `fix/ai-assistant-fahd` → `661644a`**: `functions/api/ai.js` + `AIChat`/`AIChatWidget`.
+- **حل تعارض `AGENTS.md` المتكرر**: `git checkout --ours AGENTS.md` (نسخة `main` كاملة)
+  ثم `cat >> AGENTS.md` بقسم الـPR وحده. لا دمج نصي يدوي — يُنتج تكراراً وأقساماً مبتورة.
+- **درس squash + إعادة الدفع**: بعد rebase قد يكون الفرع البعيد أُنزل (`reset`) فأُعيد رفعه؛
+  `--force-with-lease` يرفض بـ"stale info" لأن مرجع التتبع المحلي قديم. الحل: `git fetch origin`
+  ثم rebase على الرأس الحقيقي، ثم دفع fast-forward عادي.
+
+### حالة الفروع بعد التنظيف (لا تُعِد فحص القديم)
+- **بقى على البعيد**: `main` + `fix/reviews-privacy` فقط (PR #24 مغلق، فرعه محفوظ عمداً).
+- **حُذف 11 فرعاً مدموجاً**: #44 #45 #46 #47 #48 #49 #50 #51 #52 #55 #57.
+- **حذف مراجع التتبع المحلية**: `remote.origin.fetch` في هذا المستودع **يحصر `main` فقط**
+  (`+refs/heads/main:refs/remotes/origin/main`) ⇒ `git remote prune origin` لا يحذف شيئاً
+  ويعطي نجاحاً كاذباً. احذفها بـ`git branch -dr origin/<name>` بعد التأكد من `git ls-remote --heads origin`.
+- **إثبات الأهلية للحذف**: لكل فرع `gh pr list --head <b> --state all` ⇒ MERGED،
+  ثم `git merge-base --is-ancestor <mergeCommit> origin/main` ⇒ IN-MAIN. لا تحذف بلا الاثنين.
+- **`git cherry` و`merge-tree` غير صالحين هنا**: squash يُنتج بصة مختلفة لكل التزام،
+  فالفرع «يضيف محتوى» وهمياً لأنه **متأخر** عن `main` لا لأنه يحمل جديداً.
+
+### البنود الستة — تحقق إنتاجي فعلي (لا اختبار محلي فقط)
+1. **الترويسة**: في `prod` CSS — `.rz-icon-btn{width:34px}` للجوال، و`44px` **داخل**
+   `@media(min-width:901px)` فقط (كان بلا استعلام فيُلغي مقاسات الجوال ويدفع الأيقونة الرابعة خارج 320px).
+2. **نص الدخول**: مقيس على `prod` عند 390px — الاسم `rgb(0,0,0)` وزن 900، والعبارات الست
+   موجودة حرفياً، ولا «المالك الرئيسي» ولا «®».
+3. **مسودة الصورة**: `rooz_img_draft:` موجود في `index-*.js` على `prod` (sessionStorage لا localStorage).
+4. **أرقام «نظرة عامة»**: «المحظورون»/«الإعلانات النشطة» موجودة في `prod`، و`OwnerPrivateRoom.overview.test.jsx` 10/10.
+5. **الصلاحيات**: `GRANTABLE_PERMISSION_KEYS` (39/61) في `main`، و`access.test.js` 11/11 + `logic.test.js` 17/17.
+6. **رمز واحد للجلسة**: `rooz_owner_gate_ok` في `prod` — البوابة لا تُطلب كل تنقل.
+
+### درس قياس الإنتاج
+- **الجذر `/` محمي** ⇒ Playwright على `/` يهبط على `/login`، و`.rz-header` **غير موجود**.
+  لا تفسّر `found:false` كخطأ في الترويسة. تحقق من CSS المُصدَّر (`assets/index-*.css`) بدلاً من DOM.
+- **الملفات مقسّمة (lazy chunks)**: نص مثل `rooz_img_draft` قد يكون في `index-*.js` لا في
+  `AdFormPage-*.js`. ابحث في الـchunk الرئيسي أولاً قبل الحكم بالغياب.
+- أسماء المكوّنات تُمحى (minified) ⇒ **لا تبحث بأسماء دوال** (`goToTab`, `isBannedUser`)؛
+  ابحث بالنصوص العربية أو بمفاتيح التخزين.
+- `npx playwright install chromium` مطلوب؛ و`waitUntil:'networkidle'` **يتجاوز المهلة** على
+  هذا الموقع (Firebase يبقي اتصالات) ⇒ استخدم `domcontentloaded` + `waitForTimeout(4000)`.
+
+### البوابات (محلي، `661644a`)
+`npm run lint` = 0 · `npx vitest run` = **54 ملفاً/364 اختباراً** · `npm run build` ✓ ·
+CI على `661644a` = `44803355621` **success** (6/6).
