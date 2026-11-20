@@ -67,8 +67,8 @@ beforeEach(() => {
   )
 })
 
-const open = (tab = 'center') => {
-  window.history.replaceState({}, '', `/owner-private-room${tab === 'center' ? '' : `?tab=${tab}`}`)
+const open = (tab = 'overview') => {
+  window.history.replaceState({}, '', `/owner-private-room${tab === 'overview' ? '' : `?tab=${tab}`}`)
   return render(
     <BrowserRouter>
       <OwnerPrivateRoom />
@@ -82,9 +82,23 @@ const gateStillValid = () => {
   return JSON.parse(raw).expiresAt > Date.now()
 }
 
+describe('لا تكرار في المركز الرئيسي', () => {
+  it('«نظرة عامة» هي المدخل الوحيد: لا «المركز الرئيسي» ولا اختصار مكرر', async () => {
+    open('overview')
+    await screen.findAllByRole('heading', { name: /غرفة صاحب الموقع/ })
+
+    const body = document.body.textContent || ''
+    // التبويب الفارغ «المركز الرئيسي» أُدمج في «نظرة عامة» — لا أثر له
+    expect(body).not.toMatch(/المركز الرئيسي/)
+    // الاختصارات المكررة (نظرة عامة/رسالة البث) لم تعد تُصيَّر
+    expect(body).not.toMatch(/نظرة عامة \/ الإحصائيات/)
+    expect(body).not.toMatch(/رسالة البث/)
+  })
+})
+
 describe('زر ❌ في غرفة المالك', () => {
   it('❌ لا يطلب الرمز مرة أخرى ولا يُسقط الجلسة', async () => {
-    open('center')
+    open('overview')
     await screen.findAllByRole('heading', { name: /غرفة صاحب الموقع/ })
 
     const close = document.querySelector('.owner-room-close')
@@ -106,14 +120,14 @@ describe('زر ❌ في غرفة المالك', () => {
     cleanup()
 
     // دخول جديد للغرفة بنفس الجلسة
-    open('center')
+    open('overview')
     await screen.findAllByRole('heading', { name: /غرفة صاحب الموقع/ })
     expect(/الرمز السري/.test(document.body.textContent || '')).toBe(false)
     expect(gateStillValid()).toBe(true)
   })
 
   it('الخروج الصريح وحده يُسقط الجلسة', async () => {
-    open('center')
+    open('overview')
     await screen.findAllByRole('heading', { name: /غرفة صاحب الموقع/ })
 
     const logout = screen.getByRole('button', { name: /تسجيل الخروج/ })

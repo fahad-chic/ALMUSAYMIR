@@ -33,6 +33,7 @@ import ContentManager from './ContentManager'
 import CloseButton from '../components/CloseButton'
 import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
+import { isBannedUser, isStaffRole } from '../permissions/catalog'
 import { writeAuditLog } from '../permissions/audit'
 import { archiveAndDelete } from '../utils/archive'
 import { OWNER_EMAIL_SET } from '../utils/ownerEmails'
@@ -102,9 +103,9 @@ const OwnerPrivateRoom = () => {
     // فتح تبويب محدد من رابط (?tab=ads) — تستخدمه أزرار غرفة القيادة
     // وخريطة الصلاحيات. القيمة غير المعروفة تُصحَّح أدناه بعد تعريف tabs.
     try {
-      return new URLSearchParams(window.location.search).get('tab') || 'center'
+      return new URLSearchParams(window.location.search).get('tab') || 'overview'
     } catch {
-      return 'center'
+      return 'overview'
     }
   })
   const [sidebarOpen, setSidebarOpen] = useState(() =>
@@ -185,12 +186,14 @@ const OwnerPrivateRoom = () => {
   const skipUrlPush = useRef(false)
   activeTabRef.current = activeTab
 
-  // التنقل بين الأقسام: يحدّث القسم فقط، والرابط يُدفَع في أثر منفصل
-  const goToTab = (tabId) => {
-    if (tabId === activeTabRef.current) return
-    setActiveTab(tabId)
+  // التنقل بين الأقسام: يحدّث القسم فقط، والرابط يُدفَع في أثر منفصل.
+  // `filter` يمرّره رقم «نظرة عامة» ليفتح القائمة مصفّاة بنفس ما يعدّه الرقم —
+  // وإلا عرض الرقم ٣ ثم فتح قائمة كاملة، فصار الرقم لا يطابق ما تراه.
+  const goToTab = (tabId, filter) => {
+    if (tabId === activeTabRef.current && !filter) return
+    if (tabId !== activeTabRef.current) setActiveTab(tabId)
     setSearchTerm('')
-    setFilterType('all')
+    setFilterType(filter || 'all')
   }
 
   // زر ❌ = رجوع خطوة واحدة للقسم السابق (لا يمسّ جلسة الرمز)
@@ -224,9 +227,9 @@ const OwnerPrivateRoom = () => {
         return
       }
       const tabFromUrl =
-        new URLSearchParams(window.location.search).get('tab') || 'center'
+        new URLSearchParams(window.location.search).get('tab') || 'overview'
       skipUrlPush.current = true
-      setActiveTab(tabsRef.current.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'center')
+      setActiveTab(tabsRef.current.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'overview')
       setSearchTerm('')
       setFilterType('all')
     }
@@ -272,11 +275,13 @@ const OwnerPrivateRoom = () => {
         isOwnerEmail(currentUser.email)
 
       if (!ownerAccess) {
-        clearOwnerGateSession()
-
         setUser(null)
 
+        // حساب غير مصرّح (مسجّل ببريد آخر) = محاولة دخول: تُسقط جلسة الرمز
+        // وتُسجَّل. أما `null` فهي الحالة العابرة أثناء استعادة Firebase؛
+        // إسقاط الجلسة عندها كان يُطالب المالك بالرمز في كل تحديث للصفحة.
         if (currentUser) {
+          clearOwnerGateSession()
           try {
             await logSecurityEvent(
               'unauthorized_owner_room_attempt',
@@ -1148,11 +1153,11 @@ const OwnerPrivateRoom = () => {
     }
 
     if (filterType === 'banned') {
-      result = result.filter(u => u?.banned)
+      result = result.filter(isBannedUser)
     } else if (filterType === 'admins') {
-      result = result.filter(u => u?.role === 'admin')
+      result = result.filter(u => isStaffRole(u?.role))
     } else if (filterType === 'active') {
-      result = result.filter(u => !u?.banned)
+      result = result.filter(u => !isBannedUser(u))
     }
 
     return result
@@ -1210,12 +1215,10 @@ const OwnerPrivateRoom = () => {
 
     return {
       totalUsers: safeUsers.length,
-      bannedUsers: safeUsers.filter(u => u?.banned).length,
-      adminUsers: safeUsers.filter(
-        u => u?.role === 'admin'
-      ).length,
+      bannedUsers: safeUsers.filter(isBannedUser).length,
+      adminUsers: safeUsers.filter(u => isStaffRole(u?.role)).length,
       activeUsers: safeUsers.filter(
-        u => !u?.banned
+        u => !isBannedUser(u)
       ).length,
       totalAds: safeAds.length,
       pendingAds: safeAds.filter(
@@ -1257,16 +1260,10 @@ const OwnerPrivateRoom = () => {
 
   const tabs = [
     {
-      id: 'center',
-      label: 'المركز الرئيسي',
-      icon: LayoutDashboard,
-      group: 'center'
-    },
-    {
       id: 'overview',
       label: 'نظرة عامة',
       icon: BarChart3,
-      group: 'monitor'
+      group: 'center'
     },
     {
       id: 'live',
@@ -1386,7 +1383,7 @@ const OwnerPrivateRoom = () => {
   // وبعد تعريف tabs كي لا يُقرأ قبل تهيئته (TDZ). `tabs` مصفوفة جديدة كل render
   // فلا تُدرَج في الاعتماديات (وإلا دارت حلقة تحديث لا نهائية).
   useEffect(() => {
-    if (!tabs.some((t) => t.id === activeTab)) setActiveTab('center')
+    if (!tabs.some((t) => t.id === activeTab)) setActiveTab('overview')
   }, [activeTab])
 
   // كل قسم = مُدخل تاريخ حقيقي، فيرجع زر المتصفح خطوة واحدة لنفس القسم السابق.
@@ -1396,10 +1393,10 @@ const OwnerPrivateRoom = () => {
       skipUrlPush.current = false
       return
     }
-    const current = new URLSearchParams(location.search).get('tab') || 'center'
+    const current = new URLSearchParams(location.search).get('tab') || 'overview'
     if (current === activeTab) return
     const next =
-      activeTab === 'center'
+      activeTab === 'overview'
         ? location.pathname
         : `${location.pathname}?tab=${activeTab}`
     navigate(next)
@@ -1457,7 +1454,7 @@ const OwnerPrivateRoom = () => {
   // تبويبات منفصلة — لا صفحة طويلة
   // كل تبويب ينتمي لقسم واحد واضح (group) — لا بعثرة ولا تكرار.
   const GROUP_LABELS = {
-    center: 'المركز الرئيسي',
+    center: 'نظرة عامة',
     users: 'المستخدمون والأمان',
     haraj: 'الحراج',
     content: 'الكتالوج والمحتوى',
@@ -1469,7 +1466,7 @@ const OwnerPrivateRoom = () => {
 
   // الأقسام الثمانية — ترتيب ثابت واضح
   const tabGroups = [
-    { title: 'المركز الرئيسي', icon: LayoutDashboard, items: tabs.filter((t) => t.group === 'center') },
+    { title: 'نظرة عامة', icon: LayoutDashboard, items: tabs.filter((t) => t.group === 'center') },
     { title: 'المستخدمون والأمان', icon: Users, items: tabs.filter((t) => t.group === 'users') },
     { title: 'الحراج', icon: ShoppingBag, items: tabs.filter((t) => t.group === 'haraj') },
     { title: 'الكتالوج والمحتوى', icon: LayoutGrid, items: tabs.filter((t) => t.group === 'content') },
@@ -2005,7 +2002,7 @@ const OwnerPrivateRoom = () => {
                 onClick={goBackOneStep}
                 className="px-3.5 py-2.5 rounded-xl border border-[var(--rz-primary)]/40 bg-[var(--rz-primary)]/10 text-[var(--rz-ink)] hover:bg-[var(--rz-primary)]/20 text-xs font-bold flex items-center gap-2 shadow-sm"
                 aria-label="رجوع خطوة واحدة داخل الغرفة"
-                title={activeTab === 'center' ? 'أنت في المركز الرئيسي' : 'رجوع للقسم السابق'}
+                title={activeTab === 'overview' ? 'أنت في نظرة عامة' : 'رجوع للقسم السابق'}
               >
                 <ArrowRight size={15} className="opacity-80" />
                 رجوع
@@ -2050,13 +2047,6 @@ const OwnerPrivateRoom = () => {
                 </select>
               </div>
             </div>
-          )}
-
-          {activeTab === 'center' && (
-            <CenterPanel
-              onTab={goToTab}
-              onBroadcast={sendBroadcast}
-            />
           )}
 
           {activeTab === 'overview' && (
@@ -2343,52 +2333,6 @@ const StatCard = ({
   )
 }
 
-/* ===== المركز الرئيسي (بدون نظرة عامة أو نشاط لحظي) ===== */
-const CenterPanel = ({ onTab, onBroadcast }) => {
-  // لا نكرر أزرار التبويبات هنا: الشريط الجانبي يعرضها كلها مرة واحدة.
-  // هذه الشاشة ملخص + مدخل واحد لكل وجهة حقيقية غير موجودة في الشريط.
-  const shortcuts = [
-    { id: 'overview', label: 'نظرة عامة / الإحصائيات', icon: BarChart3, action: () => onTab('overview') },
-    { id: 'broadcast', label: 'رسالة البث', icon: Radio, action: onBroadcast },
-  ]
-
-  return (
-    <div className="space-y-4">
-      <div className="text-center mb-1">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--rz-primary)]/25 bg-[var(--rz-primary)]/10 text-[var(--rz-primary)] text-[11px] font-extrabold mb-2">
-          <Shield size={14} aria-hidden="true" />
-          وصول المالك فقط · غرفة محمية
-        </div>
-        <h2 className="text-lg font-bold royal-text">غرفة صاحب الموقع</h2>
-        <p className="text-xs royal-muted mt-1 font-medium">
-          اختر أي قسم من الشريط الجانبي — كل قسم يفتح مكان العمل الفعلي الخاص به
-        </p>
-      </div>
-
-      <div className="royal-surface rounded-xl border royal-border overflow-hidden divide-y divide-[var(--rz-primary)]/12">
-        {shortcuts.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={item.action}
-            className="w-full text-right px-4 py-3 rounded-none text-sm font-bold royal-text hover:bg-[var(--rz-primary)]/10 transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <item.icon size={15} className="text-[var(--rz-primary)]" aria-hidden="true" />
-              {item.label}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <p className="text-[11px] font-semibold royal-muted text-center leading-6">
-        إعدادات العرض (الخط والألوان والتباين والصوت) لم تعد هنا — صارت متاحة للجميع من
-        أيقونة الإعدادات في الترويسة أو صفحة <span dir="ltr">/settings</span>.
-      </p>
-    </div>
-  )
-}
-
 /* ===== نظرة عامة (قسم مستقل) — الإحصائيات تظهر هنا فقط عند الضغط ===== */
 const OverviewPanel = ({ stats, onTab }) => (
   <div className="space-y-6">
@@ -2398,28 +2342,28 @@ const OverviewPanel = ({ stats, onTab }) => (
         value={stats.totalUsers}
         label="إجمالي المستخدمين"
         color="gold"
-        onClick={() => onTab('users')}
+        onClick={() => onTab('users', 'all')}
       />
       <StatCard
         icon={Ban}
         value={stats.bannedUsers}
         label="المحظورون"
         color="red"
-        onClick={() => onTab('users')}
+        onClick={() => onTab('users', 'banned')}
       />
       <StatCard
         icon={Crown}
         value={stats.adminUsers}
         label="المدراء"
         color="yellow"
-        onClick={() => onTab('permissions')}
+        onClick={() => onTab('users', 'admins')}
       />
       <StatCard
         icon={ShoppingBag}
         value={stats.activeAds}
         label="الإعلانات النشطة"
         color="green"
-        onClick={() => onTab('ads')}
+        onClick={() => onTab('ads', 'active')}
       />
       <StatCard
         icon={MessageSquare}
@@ -2453,25 +2397,25 @@ const OverviewPanel = ({ stats, onTab }) => (
           icon={Users}
           value={stats.totalUsers}
           label="المستخدمون"
-          onClick={() => onTab('users')}
+          onClick={() => onTab('users', 'all')}
         />
         <MiniStat
           icon={Crown}
           value={stats.adminUsers}
           label="المدراء"
-          onClick={() => onTab('permissions')}
+          onClick={() => onTab('users', 'admins')}
         />
         <MiniStat
           icon={ShoppingBag}
           value={stats.totalAds}
           label="الإعلانات"
-          onClick={() => onTab('ads')}
+          onClick={() => onTab('ads', 'all')}
         />
         <MiniStat
           icon={Activity}
           value={stats.activeAds}
           label="النشطة"
-          onClick={() => onTab('ads')}
+          onClick={() => onTab('ads', 'active')}
         />
       </div>
     </div>

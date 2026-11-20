@@ -41,8 +41,14 @@ const OWNER_ONLY_PERMISSION_KEYS =
     'FIREBASE_MUTATION_LOGS',
     'RECOVER_DELETED_ITEMS_ARCHIVE',
     'TRACK_FAILED_LOGINS',
-    'MONITOR_USER_TRAFFIC_LIVE'
+    'MONITOR_USER_TRAFFIC_LIVE',
+    'VIEW_USER_IP_HISTORY',
+    'GRANT_SUB_ADMIN_PERMISSIONS'
   ]);
+
+// المقام الصحيح لأي «س من ص»: المفاتيح القابلة للمنح فعلاً (39)، لا 61 —
+// لأن الباقي محجوز للمالك أو مؤجل أو معطّل بقرار، فلا يمكن بلوغه أبداً.
+const GRANTABLE_TOTAL = (permissionCatalog.GRANTABLE_PERMISSION_KEYS || []).length || PERMISSIONS.length;
 
 // أيقونة مميزة لكل صلاحية على حدة — «لغة بصرية» تُميّز كل صندوق في المصفوفة
 const PERMISSION_ICONS = {
@@ -178,14 +184,13 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
   // حسابات المشرفين/الموظفين فقط — المالك يملك كل الصلاحيات ولا يُدار من هنا
   const staffCandidates = useMemo(() => {
     const ownerEmails = new Set(OWNER_ONLY_EMAILS.map((e) => e.toLowerCase()));
-    const staffRoles = new Set(['admin', 'staff', 'employee', 'moderator', 'sub_admin', 'manager', 'editor']);
     return (Array.isArray(users) ? users : [])
       .filter((u) => {
         const email = String(u.email || '').trim().toLowerCase();
         if (!email || ownerEmails.has(email)) return false;
         const role = String(u.role || '').trim().toLowerCase();
         if (role === 'owner') return false;
-        if (staffRoles.has(role)) return true;
+        if (permissionCatalog.isStaffRole?.(role)) return true;
         // أي مستخدم مسجّل يمكن منحه صلاحيات مشرف عند الحاجة
         return Boolean(u.id || u.uid);
       })
@@ -294,7 +299,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
         <h3 className={`font-bold flex items-center gap-2 mb-2 ${textMain} text-base md:text-lg`}>
           <Shield size={20} className="text-[var(--rz-primary)]" />
           مصفوفة الصلاحيات المجهرية{' '}
-          <span className="text-[var(--rz-primary)]">({PERMISSIONS.length} صلاحية)</span>
+          <span className="text-[var(--rz-primary)]">({GRANTABLE_TOTAL} صلاحية قابلة للمنح)</span>
         </h3>
         <p className={`text-sm ${textSub} leading-6 font-medium`}>
           اختر حساب مشرف أو موظف ثم شغّل أو أوقف كل صلاحية مباشرة.
@@ -369,7 +374,7 @@ const PermissionsPanel = ({ users = [], ownerEmail: _ownerEmail, darkMode = fals
               >
                 {suspended
                   ? 'الحساب مجمّد — كل الصلاحيات مسحوبة فعلياً'
-                  : `${grantedCount} من ${PERMISSIONS.length} صلاحية فعّالة`}
+                  : `${grantedCount} من ${GRANTABLE_TOTAL} صلاحية فعّالة`}
               </p>
             </div>
             <button

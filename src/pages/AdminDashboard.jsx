@@ -17,6 +17,7 @@ import {
 } from '../firebase'
 import CloseButton from '../components/CloseButton'
 import FreeImageField from '../components/FreeImageField'
+import { clearImageDraft } from '../utils/imageDraft'
 import { CategoriesManager, BannersManager, NotificationsManager } from '../components/admin/ContentPanels'
 import usePermissions from '../permissions/usePermissions'
 import { requirePerm } from '../permissions/rbacService'
@@ -641,6 +642,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
       } else {
         await addProduct(data)
       }
+      clearImageDraft(product?.id ? `product-${product.id}` : 'product-new')
       onSave()
     } catch {
       toast.error('حدث خطأ')
@@ -664,6 +666,7 @@ const ProductForm = ({ product, onClose, onSave }) => {
             value={form.image}
             onChange={(image) => setForm({ ...form, image })}
             label="صورة المنتج"
+            draftKey={product?.id ? `product-${product.id}` : 'product-new'}
           />
           <label className="flex items-center gap-3">
             <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-5 h-5" />
