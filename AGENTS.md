@@ -305,3 +305,17 @@ CI على PR **7/7** · معاينة Cloudflare 200 على `/`, `/login`, `/owne
 - `src/components/RoyalHome/commentsWrap.test.jsx` — `flexWrap` على DOM حقيقي.
 - `src/components/admin/bannerDraft.test.jsx` — ❌ في نافذة البنر يُبقي مسودة الصورة، الحفظ وحده يمسحها.
 - `src/pages/OwnerPrivateRoom.overview.test.jsx` — «المدراء» يفتح الطاقم وحدهم.
+
+## إثبات قيد Firestore `list` + ربط تدقيق الخصوصية بـCI (PR #55) — 2026-11-20
+**النتيجة الحاسمة (مقيسة على المحاكي، لا مفترضة):** قواعد `list` في Firestore تُقيَّم على
+**الاستعلام** لا على كل مستند، ولا تستطيع إخفاء مستند واحد داخل نتيجة الاستعلام.
+- `get reviews/pii` → `DENIED`، بينما `list reviews where hidden==false` → `["clean","pii"]`.
+- لذلك **إضافة `hasNoPublicPII` إلى `reviews.list` بلا أثر** — وقد أُرجعت بالكامل.
+  الخطر لو نُشرت: شرط PII في `list` قد يرفض الاستعلام كله (كل التعليقات تختفي).
+- **الضمانة الفعلية** = منع الكتابة/التحديث الحامل لهوية + `privacyRepair` + `get` محجوب.
+  لا يُوصف الترشيح عبر `list` كضمانة.
+- `e2e/legacy-privacy-audit.mjs` كان يفشل بفحصين يطلبان سلوكًا **مستحيلًا**؛ صار يسجّل قيد `list`
+  كـ`INFO` ويضيف فحصَي منع كتابة حقيقيين → **10/10 PASS**، ومربوط بـCI عبر `npm run test:legacy-privacy`.
+  **الدرس**: سكربت تدقيق غير مربوط بـ`package.json` + CI = فشل صامت يمرّ بلا ملاحظة.
+- `LoginNova.css`: قيم hex مكرّرة حرفياً صارت متغيّرات — `#000000` → `--rz-black`،
+  `#8F6C52` → `--rz-navy-deep`، `#D8B98A` → `--rz-champagne` (القيم مطابقة حرفياً في `theme.css` ⇒ 0 فرق بصري).

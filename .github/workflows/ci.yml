@@ -80,6 +80,8 @@ jobs:
         run: npm run test:rules
       - name: Run privacy repair tests (emulator)
         run: npm run test:privacy-repair
+      - name: Run legacy privacy audit (emulator)
+        run: npm run test:legacy-privacy
 
   indexes:
     name: Firestore indexes preflight
