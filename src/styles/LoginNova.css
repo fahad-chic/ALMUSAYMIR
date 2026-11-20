@@ -415,8 +415,8 @@
   width: min(100%, 420px) !important;
   min-height: 214px !important;
   padding: 20px 18px 18px !important;
-  background: linear-gradient(145deg, #8F6C52 0%, #A98262 52%, #73533F 100%) !important;
-  border: 2px solid #D8B98A !important;
+  background: linear-gradient(145deg, var(--rz-navy-deep) 0%, #A98262 52%, #73533F 100%) !important;
+  border: 2px solid var(--rz-champagne) !important;
   box-shadow:
     0 0 0 4px rgba(216, 185, 138, 0.18),
     0 20px 42px rgba(91, 67, 48, 0.22) !important;
@@ -664,8 +664,8 @@
   width: min(100%, 420px) !important;
   min-height: 214px !important;
   padding: 20px 18px 18px !important;
-  background: linear-gradient(145deg, #8F6C52 0%, #A98262 52%, #73533F 100%) !important;
-  border: 2px solid #D8B98A !important;
+  background: linear-gradient(145deg, var(--rz-navy-deep) 0%, #A98262 52%, #73533F 100%) !important;
+  border: 2px solid var(--rz-champagne) !important;
   box-shadow:
     0 0 0 4px rgba(216, 185, 138, 0.18),
     0 20px 42px rgba(91, 67, 48, 0.22) !important;
@@ -1301,8 +1301,8 @@
   width: min(100%, 420px) !important;
   min-height: 214px !important;
   padding: 20px 18px 18px !important;
-  background: linear-gradient(145deg, #8F6C52 0%, #A98262 52%, #73533F 100%) !important;
-  border: 2px solid #D8B98A !important;
+  background: linear-gradient(145deg, var(--rz-navy-deep) 0%, #A98262 52%, #73533F 100%) !important;
+  border: 2px solid var(--rz-champagne) !important;
   box-shadow: 0 0 0 4px rgba(216, 185, 138, 0.18), 0 20px 42px rgba(91, 67, 48, 0.22) !important;
 }
 
@@ -1393,7 +1393,7 @@
 
 /* Typography and compact, contained action controls requested for login. */
 .rl-brand-name {
-  color: #000000 !important;
+  color: var(--rz-black) !important;
 }
 
 .rl-root .rl-card--big .rl-card-title.text-royal-gold {
@@ -1407,7 +1407,7 @@
 
 .rl-root .rl-card--big .rl-card-sub,
 .rl-card--admin .rl-card-sub {
-  color: #000000 !important;
+  color: var(--rz-black) !important;
 }
 
 .rl-card--admin {
@@ -1422,7 +1422,7 @@
   overflow: visible !important;
   -webkit-line-clamp: unset !important;
   -webkit-box-orient: initial !important;
-  color: #000000 !important;
+  color: var(--rz-black) !important;
   font-size: .68rem !important;
   font-weight: 300 !important;
   line-height: 1.45 !important;
@@ -1581,7 +1581,7 @@
 }
 
 .rl-root .rl-card--big .rl-card-sub {
-  color: #000000 !important;
+  color: var(--rz-black) !important;
   font-size: .68rem !important;
 }
 
@@ -1606,7 +1606,7 @@
 }
 
 .rl-root .rl-card--admin .rl-card-sub {
-  color: #000000 !important;
+  color: var(--rz-black) !important;
 }
 
 .rl-root .rl-card--admin .rl-card-phrase {
@@ -1615,7 +1615,7 @@
   overflow: visible !important;
   -webkit-line-clamp: unset !important;
   -webkit-box-orient: initial !important;
-  color: #000000 !important;
+  color: var(--rz-black) !important;
   font-size: .68rem !important;
   font-weight: 300 !important;
   line-height: 1.45 !important;

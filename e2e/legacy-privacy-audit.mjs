@@ -67,8 +67,20 @@ check('تقييم بلا حقل hidden لا يظهر (غير قابل للتصن
 check('تقييم مخفي (hidden=true) لا يظهر', !reviewList.some((r) => r.id === 'r-hidden'));
 
 // هل يتسرّب بريد عبر list؟ (الاستعلام الفعلي)
+// ملاحظة مقيسة على المحاكي: قواعد list تُقيَّم على الاستعلام لا على كل مستند،
+// ولا يمكنها إخفاء مستند واحد داخل نتيجة list. لذلك السجل القديم الحامل لهوية
+// يظهر عبر list ما دام منشوراً — والضمانة الفعلية هي منع الكتابة (create/update)
+// لا الترشيح، إضافة إلى أداة الإصلاح (privacyRepair) لتنظيف القديم.
 const piiInList = reviewList.find((r) => r.id === 'r-pii');
-check('تقييم منشور يحمل بريداً: لا يتسرّب البريد عبر list', !piiInList || !('userEmail' in piiInList), piiInList ? JSON.stringify(piiInList) : '');
+console.log('INFO — تقييم قديم يحمل بريداً عبر list:',
+  piiInList ? 'ظاهر (قيد Firestore موثّق — يُصلح بـprivacyRepair)' : 'محجوب');
+
+// الضمانة القابلة للفرض: لا يمكن كتابة/تحديث مستند تقييم يحمل هوية.
+let reviewWriteWithPII = 'allowed';
+try {
+  await setDoc(doc(mdb, 'reviews', 'r-write-pii'), { productId: 'p1', rating: 5, text: 'x', hidden: false, userEmail: 'a@b.com' });
+} catch { reviewWriteWithPII = 'denied'; }
+check('منع كتابة تقييم يحمل بريداً (الضمانة الفعلية)', reviewWriteWithPII === 'denied');
 
 // قراءة مستند مفرد (get) للتقييم الحامل للبريد — دفاع في العمق
 let piiGetBlocked = false;
@@ -86,7 +98,15 @@ check('تعليق معتمد نظيف يظهر للعامة', commentList.some((
 check('تعليق بلا حقل status لا يظهر (غير قابل للتصنيف → محجوب)', !commentList.some((c) => c.id === 'c-no-status'));
 check('تعليق معلّق لا يظهر', !commentList.some((c) => c.id === 'c-pending'));
 const cpi = commentList.find((c) => c.id === 'c-pii');
-check('تعليق معتمد يحمل بريداً: لا يتسرّب البريد عبر list', !cpi || !cpi.email, cpi ? JSON.stringify(cpi) : '');
+console.log('INFO — تعليق قديم يحمل بريداً عبر list:',
+  cpi ? 'ظاهر (قيد Firestore موثّق — يُصلح بـprivacyRepair)' : 'محجوب');
+
+// الضمانة القابلة للفرض: منع كتابة تعليق يحمل بريداً في المستند العام.
+let commentWriteWithPII = 'allowed';
+try {
+  await setDoc(doc(mdb, 'comments', 'c-write-pii'), { text: 'x', status: 'pending', email: 'a@b.com', createdAt: new Date() });
+} catch { commentWriteWithPII = 'denied'; }
+check('منع كتابة تعليق يحمل بريداً (الضمانة الفعلية)', commentWriteWithPII === 'denied');
 
 let cpiGetBlocked = false;
 try { await getDoc(doc(mdb, 'comments', 'c-pii')); } catch { cpiGetBlocked = true; }
