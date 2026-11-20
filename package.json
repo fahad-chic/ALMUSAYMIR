@@ -24,6 +24,7 @@
     "icons": "node scripts/generate-icons.cjs",
     "test:haraj-live": "npx -y firebase-tools@latest emulators:exec --only firestore --config firebase.rules-test.json --project demo-almusaymir \"node e2e/haraj-live-audit.mjs\"",
     "report:legacy-privacy": "node scripts/legacy-privacy-report.mjs",
+    "test:legacy-privacy": "npx -y firebase-tools@latest emulators:exec --only firestore --config firebase.rules-test.json --project demo-almusaymir \"node e2e/legacy-privacy-audit.mjs\"",
     "test:privacy-repair": "npx -y firebase-tools@latest emulators:exec --only firestore --config firebase.rules-test.json --project demo-almusaymir \"npx vitest run --config vitest.emulator.config.mjs\""
   },
   "dependencies": {
