@@ -64,7 +64,7 @@ describe('غرفة صاحب الموقع — لا انهيار TDZ عند الر
       </MemoryRouter>
     );
     // وصل للغرفة كاملة ⇒ لم يُصطدم بـ TDZ في tabs.
-    expect(await screen.findByText(/غرفة صاحب موقع المسيمير/)).toBeTruthy();
+    expect((await screen.findAllByRole('heading', { name: /غرفة صاحب الموقع/ })).length).toBeGreaterThan(0);
   });
 
   it('تبويب غير موجود في الرابط لا يُسقط الصفحة (يُعاد للمركز)', async () => {
@@ -76,6 +76,6 @@ describe('غرفة صاحب الموقع — لا انهيار TDZ عند الر
         <OwnerPrivateRoom />
       </MemoryRouter>
     );
-    expect(await screen.findByText(/غرفة صاحب موقع المسيمير/)).toBeTruthy();
+    expect((await screen.findAllByRole('heading', { name: /غرفة صاحب الموقع/ })).length).toBeGreaterThan(0);
   });
 });
