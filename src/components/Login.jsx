@@ -852,16 +852,17 @@ const Login = () => {
               </span>
             )}
 
+            {/* شارة تزيينية (لا عنصر تفاعلي): كانت <button> داخل بطاقة
+                role="button" ⇒ هدفان متداخلان يُفشلان تدقيق WCAG 2.5.8
+                (touch targets). الإيماءة الثلاثية تبقى على الشارة وحدها. */}
             {r.big && (
-              <button
-                type="button"
+              <span
                 className="rl-owner-badge rl-hidden-trigger"
                 onClick={handleHiddenTrigger}
-                aria-label="⚜️ دخول صاحب الموقع ⚜️ — اضغط ثلاث مرات"
                 title="دخول صاحب الموقع"
               >
                 ⚜️ دخول صاحب الموقع ⚜️
-              </button>
+              </span>
             )}
 
             {r.big && (
