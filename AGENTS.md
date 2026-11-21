@@ -532,3 +532,43 @@ smoke على 13 مساراً: **0 أخطاء runtime**، 0 تجاوز أفقي،
   تمسّ الدخول وغرفة المالك — مؤجّلة بوعي**، لا تُحاول في جولة تجميلية.
   (`firebase/storage` و`firebase/analytics` ديناميكيان بالفعل ولا يدخلان الحزمة الثابتة —
   تجربة استثنائهما من `manualChunks` **لم تُغيّر شيئاً** فأُرجعت.)
+
+## جولة ما بعد PSI #1 (PR #59) — Accessibility 96 → 100 (2026-11-21)
+**نتيجة PSI بعد جولة #58**: Performance **63 → 88** · Accessibility 90 → 96 · BP 96 · SEO 100 ·
+FCP **5.2s → 0.9s** · LCP 7.1 → **4.0s** · TBT 0ms · CLS **0.001** · SI **5.2s → 2.5s**.
+
+### العطب الوحيد المتبقي في Accessibility (أُصلح)
+`Touch targets do not have sufficient size or spacing` على عنصرين في `/login`:
+`.rl-owner-badge` (زر **136×21px**) و`.rl-card--big` (`div role="button"`).
+- **السبب**: `<button>` **متداخل** داخل بطاقة تفاعلية ⇒ هدفان متداخلان، والارتفاع 21px < 24px (WCAG 2.5.8).
+- **الحل**: الشارة `<span>` تزيينية (ليست هدف لمس)، والإيماءة الثلاثية على الشارة وحدها
+  (`onClick` على span يعمل، ولا يُنشئ target). أُضيف `cursor:pointer` + `user-select:none`
+  + `-webkit-touch-callout:none` إلى `.rl-owner-badge`.
+- **بلا تغيير بصري** (136×21 كما كانت) و**بلا تغيير سلوكي** (ثلاث نقرات ⇒ مودال بريد+كلمة مرور+رمز؛
+  مُثبت E2E على الإنتاج). المودال لا يزال يتحقق خادمياً عبر `/api/owner-pin`.
+- **الدرس**: أي `<button>`/`a` داخل عنصر `role="button"` = إفشال `target-size`. اجعل الزخرفة
+  `span` واحتفظ بالإيماءة عليه. محروس باختبارين في `Login.test.jsx` (tagName=SPAN، لا role، لا `closest('button')`).
+
+### preconnect (توصية Lighthouse الصريحة ≈240ms)
+`<link rel="preconnect">` لـ`https://apis.google.com` و`https://anaqa-chic-4e437.firebaseapp.com`
+في `index.html` (يُستخدمان فعلاً: auth iframe + gapi).
+
+### أداة
+`npm run speed:lighthouse` كان **بلا URL** (يفشل دائماً) ⇒ صار يقبل
+`LIGHTHOUSE_URL=` (افتراضي `http://localhost:4173/login`) مع `CHROME_PATH=/usr/bin/chromium`.
+
+### ما تبقّى في PSI (بأرقام، لا يُعاد فتحه بلا قرار)
+| البند | الحجم | لماذا لم يُعالج |
+|---|---|---|
+| Reduce unused JS | 256KB (منها **204KB داخل firebase-vendor**) | Firestore في المسار الحرج: 50 استيراداً لـ`db`؛ فصلها = `await getDb()` في كل مكان ⇒ يمسّ الدخول وغرفة المالك |
+| Efficient cache lifetimes | 81KB | `auth/iframe.js` من **firebaseapp.com** (TTL 30m) — ترويسة Google لا نتحكم بها |
+| Render-blocking | 310ms (PSI) / 647ms (معاينة باردة) | ملف CSS واحد 23.7KB gzip. `alm-luxury-3d`/`alm-site-backdrop` تنسّق `html/body/#root` ⇒ لا يمكن تأجيلها بلا تغيير الخلفية، و`alm-pearl` طبقة عامة |
+| unused CSS 15KB | — | 503 عنصر مخفي + تدرّجات؛ الباقي مستخدم فعلاً |
+| Layout shift | 0.001 | سببها `swap` للخطوط — مقبول (CLS ممتاز) |
+
+### البوابات
+lint 0 · vitest **55/370** · build ✓ · contrast 1054/0 PASS · **Lighthouse محلي وإنتاج: Accessibility 100** ·
+CI على الدمج `e9475ce` **6/6 success** · smoke على 13 مساراً في الإنتاج: 0 أخطاء، 0 تجاوز،
+والمحميّة تُحوّل لـ`/login`.
+- **ملاحظة قياس**: Lighthouse محلي على `/login` يعطي SEO 92 لأن `canonical` يشير إلى الجذر؛
+  PSI يقيس الجذر ⇒ 100. ليست مشكلة.
