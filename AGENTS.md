@@ -513,3 +513,22 @@ smoke على 13 مساراً: **0 أخطاء runtime**، 0 تجاوز أفقي،
   (تبدو فاتحة). القصّ (`clip`) أو قياس `getComputedStyle` هو الحكم، لا اللقطة الكاملة.
 - `/login` وحدها لا تكفي لفحص الترويسة (لا تُعرض قبل المصادقة، وجلسة الزائر تحتاج Firestore
   حقيقياً) ⇒ استخدم harness مؤقتاً (Vite + `RoyalHeader` بـprops وهمية) ثم **احذفه**.
+
+### 10) بعد النشر (الإنتاج `almusaymir.pages.dev`)
+- **PR #58 مدموج** (squash `7b2e76a`، 2026-11-21) و**CI على الدمج 6/6 success**، وCloudflare Pages نشر تلقائياً.
+- الملفات المنشورة: `index-CkBtMBGd.js` (40.9KB gzip) · `index-B7cznRC2.css` (23.4KB gzip) ·
+  `firebase-vendor` 224.9KB · `react-vendor` 73.6KB · `icons-vendor` 12.1KB.
+- **قياس حيّ متكرر (3 مرات، 390px · 4G · CPU×4، أداة المشروع)**:
+  FCP **1.24–1.27s** (كان 1.60) · LCP **3.84–3.90s** (كان 4.31) · CLS 0.007–0.009 ·
+  TBT **229–234ms** (كان 290) · JS **354KB** (كان 419) · صور **27KB** (كان 51).
+  المعاينة (نفس البناء على CDN) أعطت LCP 3.03s ⇒ جزء من الفارق ضجيج شبكة/GA.
+- **تحقق حيّ**: `/` → `/login` · الشعار `logo-almusaymir.avif?v=3` (naturalWidth 480، معروض 195) ·
+  اسم العلامة `rgb(0,0,0)` وزن 900 خط `Tajawal` · تجاوز أفقي **0** · **0** طلب لخطوط Google ·
+  10 ملفات woff2 · **0** أخطاء JS · `/fonts/*` = `immutable` · CSP `style-src 'self'` `font-src 'self'`
+  `frame-ancestors 'none'` · `http://` → **301** https · `/api/owner-pin` بلا جسم = 400 (كما كان).
+- **حدّ LCP المتبقي (موثّق بقرار)**: `firebase-vendor` = **225KB gzip** من أصل 354KB،
+  وهو أكبر مانع لـLCP < 2.5s. Firestore في المسار الحرج لأن `firebase/config.js` يُصدّر `db`
+  جاهزاً و**50** وحدة تستورده. فصله يتطلب تحويلها إلى `await getDb()` ⇒ **إعادة كتابة عريضة
+  تمسّ الدخول وغرفة المالك — مؤجّلة بوعي**، لا تُحاول في جولة تجميلية.
+  (`firebase/storage` و`firebase/analytics` ديناميكيان بالفعل ولا يدخلان الحزمة الثابتة —
+  تجربة استثنائهما من `manualChunks` **لم تُغيّر شيئاً** فأُرجعت.)
