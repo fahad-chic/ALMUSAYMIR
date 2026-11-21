@@ -572,3 +572,51 @@ CI على الدمج `e9475ce` **6/6 success** · smoke على 13 مساراً �
 والمحميّة تُحوّل لـ`/login`.
 - **ملاحظة قياس**: Lighthouse محلي على `/login` يعطي SEO 92 لأن `canonical` يشير إلى الجذر؛
   PSI يقيس الجذر ⇒ 100. ليست مشكلة.
+
+## جولة LCP #2 (PR #60 + #61) — LCP 3.17s → 1.26s على الإنتاج (2026-11-21)
+**تقرير PSI #3 (بعد #59)**: Performance **64** · Accessibility **100** ✅ · BP 96 · SEO 100 ·
+FCP 4.7s · LCP 5.8s · TBT 0 · CLS 0 · SI 6.2s.
+
+### التشخيص: عنصر LCP كان يعتمد على تنفيذ JS
+تقرير PSI: **«Element render delay = 2,150ms»** مع TTFB = 0. عنصر LCP هو شعار **React**
+(`.rl-crown-ic img`) الذي لا يُرسم قبل تحميل وتنفيذ **337KB** من JS. أما الغلاف الثابت في
+`index.html` (يُرسم مع CSS وحده) فكان يعرض الشعار **96×96** — أصغر بكثير من شعار الدخول
+(**176–218px**) ⇒ لم يكن مؤهلاً كعنصر LCP.
+
+### الإصلاح
+1. `.alm-boot img` صار `width: clamp(180px, 51vw, 222px); height:auto; max-height:170px`
+   والأبعاد الصريحة `480×384` — **أعرض قليلاً** من شعار الدخول (176–218) لأن عنصر LCP
+   لا يُستبدل إلا بعنصر **أكبر مساحةً**، والتساوي التام يترك النتيجة رهن تقريب البكسل.
+2. توسيط شاشة الإقلاع (`min-height:100vh`) بدل التصاقها بأعلى الشاشة.
+3. شعار الدخول: `width="206" height="165"` بدل `480×384` (الأبعاد الأصلية تُنتج مرشّح LCP
+   عملاقاً في أي إطار قبل تطبيق CSS).
+4. **حُذف preconnect** لـ`apis.google.com`/`firebaseapp.com`: Lighthouse صنّفهما
+   **«Unused preconnect»** (طلبات CORS تحتاج `crossorigin`) ⇒ مصافحتان مهدرتان.
+
+### القياس (390/412px · 4G 1.6Mbps · RTT 150ms · CPU×4 · 3 جولات لكل حالة)
+| | FCP | **LCP** | CLS |
+|---|---|---|---|
+| إنتاج قبل | 1260ms | **3167ms** | 0 |
+| إنتاج بعد #60 | 1232ms | **1232ms** | 0 |
+| إنتاج بعد #61 | 1259ms | **1259ms** | 0 |
+**LCP = FCP الآن** (مرشّح LCP واحد في PerformanceObserver عند 384ms: شعار الغلاف).
+
+### درس مهم — لا تُحاكم بـLantern وحده
+`npm run speed:lighthouse` (Lantern/simulate) على localhost **لم يُظهر التحسّن** وأصرّ على
+أن شعار React هو عنصر LCP (4.2s) — بينما القياس الحقيقي (CDP throttling + PerformanceObserver)
+أظهر LCP = FCP. السبب: Lantern يُعيد تقدير الشبكة من أثر التشغيل، وشاشة الإقلاع تُستبدل قبل
+اكتمال تحميل الصورة في نموذجه. **اعتمد القياس الحقيقي (throttle فعلي + مراقب LCP)**،
+وخُذ رقم Lantern كمؤشر لا كحكم.
+
+### البوابات
+lint 0 · vitest **55/370** · build ✓ · contrast 1054/0 · CI على `6996f51` و`21e756d` **6/6** ·
+13 مساراً على الإنتاج: 200 · 0 خطأ · 0 تجاوز · المحميّة → `/login` · الشارة SPAN والمودال يفتح · **CLS = 0**.
+
+### المتبقي الوحيد لـLCP < 1s
+**337KB JS** أول تحميل (firebase 223KB منها **158KB غير مستخدمة**). Firestore في المسار
+الحرج لأن **14 وحدة** في شجرة الدخول الثابتة تستورد `db`: `firebase/config.js`، `App.jsx`،
+`context/AuthContext.jsx`، `context/AdminContext.jsx`، `store/useStore.js`، `useSiteTexts.js`،
+`useSiteContent.js`، `useInlineStyles.js`، `useOffers.js`، `useSessionTracking.js`،
+`utils/visitorNotify.js`، `components/ContactOwnerModal.jsx`، `ErrorBoundary.jsx`، `firebase/index.js`.
+فصلها = `await getDb()` في هذه الوحدات + اختبارات كاملة للدخول/غرفة المالك (**جولة مستقلة**).
+`firestore/lite` مرفوض: **99** موضع `onSnapshot`.
