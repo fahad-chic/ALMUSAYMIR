@@ -24,10 +24,10 @@ const renderLogin = () =>
     </MemoryRouter>
   );
 
+// الشارة عنصر تزييني (span) لا زر: الزر المتداخل داخل بطاقة role="button"
+// يُفشل تدقيق WCAG 2.5.8 (touch targets) في Lighthouse.
 const openHiddenModal = () => {
-  const trigger = screen.getByRole('button', {
-    name: /دخول صاحب الموقع.*اضغط ثلاث مرات/,
-  });
+  const trigger = screen.getByText('⚜️ دخول صاحب الموقع ⚜️');
   fireEvent.click(trigger);
   fireEvent.click(trigger);
   fireEvent.click(trigger);
@@ -222,5 +222,24 @@ describe('سجل التشخيص وإصدار الواجهة لا يظهران ف
         'سجل التشخيص — آخر أسباب الرجوع لصفحة الدخول:'
       )
     ).toBeNull();
+  });
+});
+
+describe('أهداف اللمس في بطاقة المالك (WCAG 2.5.8)', () => {
+  it('الشارة ليست زراً حتى لا تتداخل مع بطاقة role="button"', () => {
+    renderLogin();
+    const badge = screen.getByText('⚜️ دخول صاحب الموقع ⚜️');
+    expect(badge.tagName).toBe('SPAN');
+    expect(badge.getAttribute('role')).toBeNull();
+    expect(badge.closest('button')).toBeNull();
+  });
+
+  it('البطاقة نفسها تحمل الدور والاسم ولا تحتوي الشارة كعنصر تفاعلي', () => {
+    renderLogin();
+    const card = screen.getByRole('button', { name: 'دخول صاحب الموقع' });
+    expect(card.className).toContain('rl-card--big');
+    const badge = screen.getByText('⚜️ دخول صاحب الموقع ⚜️');
+    expect(card.contains(badge)).toBe(true);
+    expect(badge.matches('button, a[href], input, select, textarea, [role="button"]')).toBe(false);
   });
 });

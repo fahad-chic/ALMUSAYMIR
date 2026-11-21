@@ -28,7 +28,7 @@
     "test:privacy-repair": "npx -y firebase-tools@latest emulators:exec --only firestore --config firebase.rules-test.json --project demo-almusaymir \"npx vitest run --config vitest.emulator.config.mjs\"",
     "speed:help": "node scripts/speed-help.mjs",
     "speed:audit": "node e2e/speed-audit.mjs",
-    "speed:lighthouse": "npx -y lighthouse@12 --only-categories=performance,accessibility,best-practices,seo --form-factor=mobile --screenEmulation.mobile --throttling-method=simulate --chrome-flags=\"--headless=new --no-sandbox\" --output=html --output-path=./dist/lighthouse-mobile.html",
+    "speed:lighthouse": "npx -y lighthouse@12 ${LIGHTHOUSE_URL:-http://localhost:4173/login} --only-categories=performance,accessibility,best-practices,seo --form-factor=mobile --screenEmulation.mobile --throttling-method=simulate --chrome-flags=\"--headless=new --no-sandbox\" --output=html --output-path=./dist/lighthouse-mobile.html",
     "fonts": "node scripts/fetch-fonts.mjs && node scripts/inline-fonts.mjs",
     "images": "node scripts/optimize-images.mjs"
   },

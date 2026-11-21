@@ -33,6 +33,13 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3"/>
   <link rel="manifest" href="/manifest.json"/>
 
+  <!--
+    preconnect لنطاقَي Firebase Auth/Google Sign-In: يُستخدمان فعلاً على شاشة الدخول
+    (auth/iframe + gapi). Lighthouse رشّح apis.google.com بتوفير ≈240ms على LCP.
+  -->
+  <link rel="preconnect" href="https://apis.google.com"/>
+  <link rel="preconnect" href="https://anaqa-chic-4e437.firebaseapp.com"/>
+
   <title>المسيمير | ALMUSAYMIR | حراج إعلانات ومتجر شامل</title>
 
   <!--
