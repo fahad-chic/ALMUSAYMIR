@@ -16,7 +16,6 @@ import {
 import { db, auth } from './firebase/config';
 import { getAuth } from 'firebase/auth';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Clock } from 'lucide-react';
 
 import { AdminProvider } from './context/AdminContext';
 import { useAuth } from './context/AuthContext';
@@ -38,29 +37,9 @@ import { Login } from './components/Login';
 import VerifyEmailGate from './components/VerifyEmailGate';
 
 import BackButton from './components/BackButton';
-import CloseButton from './components/CloseButton';
 import Navigation from './components/Navigation';
-import AIChatWidget from './components/RoyalHome/AIChatWidget';
-import WhatsAppFloat from './components/WhatsAppFloat';
 
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import OwnerPanel from './pages/OwnerPanel';
-import OwnerPrivateRoom from './pages/OwnerPrivateRoom';
-import ContentManager from './pages/ContentManager';
-import UsersList from './pages/UsersList';
-
-import AdminPage from './components/pages/AdminPage';
-import SettingsPage from './components/pages/SettingsPage';
-import OTPPage from './components/pages/OTPPage';
-import MemberInbox from './components/pages/MemberInbox';
-import NotificationPanel from './components/NotificationPanel';
-
-import ComplaintsPage from './components/pages/ComplaintsPage';
 import './styles/global.css';
-
-// ⭐ إضافة صفحة الأسئلة الشائعة
-import FAQ from './pages/FAQ';
 
 
 /* =========================================================
@@ -124,6 +103,25 @@ const PartnersPage = safeLazy(() => import('./pages/PartnersPage'));
 const PrivacyPage = safeLazy(() => import('./pages/PrivacyPage'));
 const WantedDressPage = safeLazy(() => import('./pages/WantedDressPage'));
 const FavoritesPage = safeLazy(() => import('./pages/FavoritesPage'));
+
+/* صفحات/مكوّنات ثقيلة كانت تُستورد استيراداً ثابتاً فتسحب كودها إلى الحزمة
+   الأولى رغم أنها لا تُعرض في أول تحميل (الدخول هو أول شاشة). تحويلها إلى
+   lazy يُنقص الحزمة الأولى بنحو ثلث حجمها ويُسرّع FCP/LCP على الجوال. */
+const Register = safeLazy(() => import('./pages/Register'));
+const ForgotPassword = safeLazy(() => import('./pages/ForgotPassword'));
+const OwnerPanel = safeLazy(() => import('./pages/OwnerPanel'));
+const OwnerPrivateRoom = safeLazy(() => import('./pages/OwnerPrivateRoom'));
+const ContentManager = safeLazy(() => import('./pages/ContentManager'));
+const UsersList = safeLazy(() => import('./pages/UsersList'));
+const AdminPage = safeLazy(() => import('./components/pages/AdminPage'));
+const SettingsPage = safeLazy(() => import('./components/pages/SettingsPage'));
+const OTPPage = safeLazy(() => import('./components/pages/OTPPage'));
+const MemberInbox = safeLazy(() => import('./components/pages/MemberInbox'));
+const NotificationPanel = safeLazy(() => import('./components/NotificationPanel'));
+const ComplaintsPage = safeLazy(() => import('./components/pages/ComplaintsPage'));
+const FAQ = safeLazy(() => import('./pages/FAQ'));
+const AIChatWidget = safeLazy(() => import('./components/RoyalHome/AIChatWidget'));
+const WhatsAppFloat = safeLazy(() => import('./components/WhatsAppFloat'));
 
 /* =========================================================
    Owner Broadcast
@@ -1338,13 +1336,15 @@ function AppContent() {
           ================================================= */}
 
       {isAuthenticated && (
-        <AIChatWidget
-          topOffset={
-            ownerWelcomeBanner ? OWNER_BANNER_HEIGHT : 0
-          }
-          isOpen={aiChatOpen}
-          onClose={() => setAiChatOpen(false)}
-        />
+        <Suspense fallback={null}>
+          <AIChatWidget
+            topOffset={
+              ownerWelcomeBanner ? OWNER_BANNER_HEIGHT : 0
+            }
+            isOpen={aiChatOpen}
+            onClose={() => setAiChatOpen(false)}
+          />
+        </Suspense>
       )}
 
       {/* =================================================
@@ -1353,7 +1353,9 @@ function AppContent() {
 
       {location.pathname !==
         '/login' && (
-        <WhatsAppFloat />
+        <Suspense fallback={null}>
+          <WhatsAppFloat />
+        </Suspense>
       )}
 
       {/* =================================================

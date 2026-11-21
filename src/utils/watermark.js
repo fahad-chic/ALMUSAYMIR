@@ -3,7 +3,7 @@
 // الإعلانات لحمايتها — تُرسم على Canvas قبل حفظ الصورة.
 
 export const WATERMARK_OPACITY = 0.15;
-export const WATERMARK_SRC = '/assets/emblem.png';
+export const WATERMARK_SRC = '/assets/emblem.png?v=3';
 
 let watermarkImagePromise = null;
 

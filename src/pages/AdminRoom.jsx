@@ -17,6 +17,7 @@ import { auth, db, collection, getDocs } from '../firebase';
 import usePermissions from '../permissions/usePermissions';
 import { ReportsPanel, ReviewsPanel } from '../components/owner/ModerationPanels';
 import { CategoriesManager, BannersManager, NotificationsManager } from '../components/admin/ContentPanels';
+import '../styles/console-shell.css';
 
 const SECTIONS = [
   { id: 'reports', label: 'البلاغات', icon: Flag, perm: 'MANAGE_REPORTS' },

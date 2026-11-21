@@ -9,7 +9,14 @@ import {
   getMetadata,
   updateMetadata
 } from 'firebase/storage';
-import { storage } from './config';
+import { getStorageInstance } from './config';
+
+// تهيئة Storage مؤجّلة (firebase/storage لا يُحمَّل مع الحزمة الأولى).
+const resolveStorage = async () => {
+  const instance = await getStorageInstance();
+  if (!instance) throw new Error('Firebase Storage غير مهيأ (لا يوجد bucket).');
+  return instance;
+};
 
 // ============ IMAGE VALIDATION ============
 // يجب أن تطابق storage.rules: jpeg/png/gif/webp وحد أقصى 5MB.
@@ -36,6 +43,7 @@ const validateImageFile = (file) => {
 
 export const uploadFile = async (path, file, metadata = {}) => {
   try {
+    const storage = await resolveStorage();
     const storageRef = ref(storage, path);
     const snapshot = await uploadBytes(storageRef, file, metadata);
     const downloadURL = await getDownloadURL(snapshot.ref);
@@ -47,33 +55,36 @@ export const uploadFile = async (path, file, metadata = {}) => {
 
 export const uploadFileWithProgress = (path, file, onProgress, metadata = {}) => {
   return new Promise((resolve, reject) => {
-    const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
-    
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        if (onProgress) {
-          onProgress(progress, snapshot);
-        }
-      },
-      (error) => {
-        reject({ success: false, error: error.message });
-      },
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve({
-            success: true,
-            url: downloadURL,
-            path: uploadTask.snapshot.ref.fullPath
-          });
-        } catch (error) {
-          reject({ success: false, error: error.message });
-        }
-      }
-    );
+    resolveStorage()
+      .then((storage) => {
+        const uploadTask = uploadBytesResumable(ref(storage, path), file, metadata);
+
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            if (onProgress) {
+              onProgress(progress, snapshot);
+            }
+          },
+          (error) => {
+            reject({ success: false, error: error.message });
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              resolve({
+                success: true,
+                url: downloadURL,
+                path: uploadTask.snapshot.ref.fullPath
+              });
+            } catch (error) {
+              reject({ success: false, error: error.message });
+            }
+          }
+        );
+      })
+      .catch((error) => reject({ success: false, error: error.message }));
   });
 };
 
@@ -99,6 +110,7 @@ export const uploadMultipleFiles = async (files, basePath, onProgress) => {
 
 export const deleteFile = async (path) => {
   try {
+    const storage = await resolveStorage();
     const storageRef = ref(storage, path);
     await deleteObject(storageRef);
     return { success: true };
@@ -120,6 +132,7 @@ export const deleteFiles = async (paths) => {
 
 export const getFileURL = async (path) => {
   try {
+    const storage = await resolveStorage();
     const storageRef = ref(storage, path);
     const url = await getDownloadURL(storageRef);
     return { success: true, url };
@@ -130,6 +143,7 @@ export const getFileURL = async (path) => {
 
 export const getFileMetadata = async (path) => {
   try {
+    const storage = await resolveStorage();
     const storageRef = ref(storage, path);
     const metadata = await getMetadata(storageRef);
     return { success: true, metadata };
@@ -140,6 +154,7 @@ export const getFileMetadata = async (path) => {
 
 export const updateFileMetadata = async (path, metadata) => {
   try {
+    const storage = await resolveStorage();
     const storageRef = ref(storage, path);
     await updateMetadata(storageRef, metadata);
     return { success: true };
@@ -152,6 +167,7 @@ export const updateFileMetadata = async (path, metadata) => {
 
 export const listFiles = async (path) => {
   try {
+    const storage = await resolveStorage();
     const storageRef = ref(storage, path);
     const result = await listAll(storageRef);
     return {

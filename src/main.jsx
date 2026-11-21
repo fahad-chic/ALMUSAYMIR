@@ -13,9 +13,6 @@ import './styles/alm-pearl.css'
 import './styles/theme.css'
 import './styles/alm-luxury-3d.css'
 import './styles/alm-site-backdrop.css'
-import './styles/home-slim.css'
-import './styles/info-pages.css'
-import './styles/console-shell.css'
 
 /* ── استقرار تحميل المقاطع (chunks) ──
  * عند فشل تحميل أي مقطع ديناميكي (بصمة قديمة بعد نشر جديد، أو خطأ MIME

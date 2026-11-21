@@ -40,6 +40,10 @@ const Editable = ({
   children,
   wrapperStyle,
   controlsOnly = false,
+  /** false = للمالك أيضاً يُعرض النص فقط بلا أزرار تعديل/حذف.
+   *  يُستخدم داخل شريط التنقل كي لا تكسر أزرار التحكم صف الترويسة على الجوال
+   *  (التعديل يبقى متاحاً من «مدير المحتوى»). */
+  withControls = true,
 }) => {
   const isOwner = useIsOwner();
   const texts = useSiteContent((s) => s.texts);
@@ -51,8 +55,8 @@ const Editable = ({
   const isHidden = hidden[contentKey] === true;
   const current = texts[contentKey] ?? defaultValue;
 
-  // للزوار: يُعرض النص فقط (أو لا شيء إن كان محذوفاً). لا أزرار إطلاقاً.
-  if (!isOwner) {
+  // للزوار — وللمالك حين withControls=false: يُعرض النص فقط. لا أزرار إطلاقاً.
+  if (!isOwner || !withControls) {
     if (controlsOnly) return null;
     if (isHidden) return null;
     return (

@@ -11,12 +11,20 @@ export const BRAND = Object.freeze({
   FULL: 'المسيمير | ALMUSAYMIR',
   /** وصف مختصر للعلامة (متجر شامل) */
   TAGLINE: 'متجر المسيمير — كل ما تحتاجه في مكان واحد',
-  /** شعار العلامة الرأسي (PNG بخلفية شفافة) */
-  LOGO: '/assets/logo-almusaymir.png',
+  /**
+   * الشعارات: رقم الإصدار `?v=` ضروري لأن /assets/* يُخزَّن immutable سنة
+   * كاملة (public/_headers). عند تغيير أي صورة: ارفع الرقم هنا وفي index.html
+   * وفي utils/watermark.js — وإلا بقي الشعار القديم في كاش المتصفح.
+   */
+  /** شعار العلامة الرأسي — PNG بديل لكل المتصفحات */
+  LOGO: '/assets/logo-almusaymir.png?v=3',
+  /** شعار العلامة الرأسي — AVIF (أصغر ~52%) يُقدَّم عبر <picture> */
+  LOGO_AVIF: '/assets/logo-almusaymir.avif?v=3',
   /** شعار العلامة الأفقي — للترويسة والأماكن الضيقة */
-  LOGO_WIDE: '/assets/logo-almusaymir-wide.png',
+  LOGO_WIDE: '/assets/logo-almusaymir-wide.png?v=3',
+  LOGO_WIDE_AVIF: '/assets/logo-almusaymir-wide.avif?v=3',
   /** شعار مختصر (الرمز فقط) */
-  EMBLEM: '/assets/emblem.png',
+  EMBLEM: '/assets/emblem.png?v=3',
   /** اسم المساعد الذكي */
   ASSISTANT: 'فهد',
 });

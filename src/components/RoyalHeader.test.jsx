@@ -8,7 +8,12 @@ vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({ userRole: null, isAuthenticated: false, user: null }),
 }));
 
-vi.mock('../hooks/useIsOwner', () => ({ default: () => false, useIsOwner: () => false }));
+// قابل للتبديل داخل الاختبار: افتراضياً زائر، ونرفعه للتحقّق من وضع المالك.
+const ownerState = vi.hoisted(() => ({ isOwner: false }));
+vi.mock('../hooks/useIsOwner', () => ({
+  default: () => ownerState.isOwner,
+  useIsOwner: () => ownerState.isOwner,
+}));
 
 import RoyalHeader from './RoyalHeader';
 import { ROYAL_NAV, ROYAL_DRAWER } from '../data/royalMenu';
@@ -73,5 +78,19 @@ describe('الترويسة الملكية — كل المسارات حقيقية
         expect(item.path.startsWith('/')).toBe(true);
       }
     }
+  });
+});
+
+describe('الترويسة الملكية — وضع المالك لا يكسر صف التنقل', () => {
+  it('لا تُعرض أزرار تعديل/حذف داخل شريط التنقل حتى للمالك (withControls=false)', () => {
+    ownerState.isOwner = true;
+    const { container } = renderHeader({ isOwnerLoggedIn: true, userRole: 'owner' });
+    const nav = container.querySelector('nav[aria-label="التنقل الرئيسي"]');
+    // نصوص الأقسام موجودة كما هي
+    expect(nav.querySelectorAll('a').length).toBe(ROYAL_NAV.length);
+    // لكن بلا أي زر تحكم مضمّن يكسر الصف على الجوال
+    expect(nav.querySelectorAll('.editable-controls').length).toBe(0);
+    expect(nav.querySelectorAll('button').length).toBe(0);
+    ownerState.isOwner = false;
   });
 });

@@ -11,6 +11,7 @@ import {
   INFO_PHONE2_LOCAL,
   INFO_PHONE2_TEL,
 } from '../data/infoPages';
+import '../styles/info-pages.css';
 
 export default function PrivacyPage() {
   const navigate = useNavigate();

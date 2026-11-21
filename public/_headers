@@ -12,7 +12,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Vary: Accept-Encoding
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://apis.google.com https://www.gstatic.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://api.cloudflare.com https://firestore.googleapis.com https://firebasestorage.googleapis.com https://identitytoolkit.googleapis.com https://cloudflareinsights.com; frame-src 'self' https://accounts.google.com https://apis.google.com https://anaqa-chic-4e437.firebaseapp.com; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://apis.google.com https://www.gstatic.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://api.cloudflare.com https://firestore.googleapis.com https://firebasestorage.googleapis.com https://identitytoolkit.googleapis.com https://cloudflareinsights.com; frame-src 'self' https://accounts.google.com https://apis.google.com https://anaqa-chic-4e437.firebaseapp.com; frame-ancestors 'none'
 
 # HTML entry — always revalidate (references change every deploy)
 /*.html
@@ -34,24 +34,25 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# ملفات العلامة بلا بصمة اسم (يُستبدل محتواها بنفس المسار) — إلغاء الكاش
-# الأبدي عنها كي يظهر الشعار الجديد فوراً بعد النشر بلا انتظار سنة.
-# قاعدة "! Header" تحذف ترويسة القاعدة الأكثر شمولاً (/assets/*) أعلاه.
-/assets/logo-almusaymir.png
-  ! Cache-Control
-  Cache-Control: public, max-age=0, must-revalidate
+# خط Tajawal المستضاف محلياً — مسارات ثابتة ونادرة التغيير
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
 
-/assets/logo-almusaymir-wide.png
-  ! Cache-Control
-  Cache-Control: public, max-age=0, must-revalidate
+# أصول العلامة بلا بصمة في الاسم (شعار/رمز) — تُخزَّن سنة كاملة، وتُحدَّث
+# فوراً عند تغيير الصورة عبر رفع رقم الإصدار في المراجع: ?v=3 → ?v=4
+# (brand.js · index.html · utils/watermark.js). لا تُزيل رقم الإصدار.
+# ملاحظة: كانت هذه الملفات must-revalidate فكان Lighthouse يعدّها «كاش غير فعّال».
 
-/assets/emblem.png
-  ! Cache-Control
-  Cache-Control: public, max-age=0, must-revalidate
+# أيقونات التطبيق والملفات العامة الثابتة — 30 يوماً
+/favicon.ico
+/favicon-96x96.png
+/apple-touch-icon.png
+/icons/*
+  Cache-Control: public, max-age=2592000
 
-/assets/og-image.jpg
-  ! Cache-Control
-  Cache-Control: public, max-age=0, must-revalidate
+/robots.txt
+/sitemap.xml
+  Cache-Control: public, max-age=86400
 
 # Sounds - cache but allow revalidation
 /sounds/*

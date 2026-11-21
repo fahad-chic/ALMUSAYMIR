@@ -30,6 +30,7 @@ import {
   INFO_LEGAL_LINES,
 } from '../../data/infoPages';
 import '../../styles/NovHome.css';
+import '../../styles/home-slim.css';
 
 const LOGO_SRC = BRAND.LOGO;
 
@@ -66,12 +67,18 @@ const NovHomePage = () => {
   return (
     <div className="ch-root" dir="rtl">
       <div className="nov-top-logo">
-        <img
-          fetchPriority="high"
-          src={LOGO_SRC}
-          alt={`شعار ${BRAND.FULL}`}
-          className="nov-hero-logo nov-hero-logo--top"
-        />
+        <picture style={{ display: 'contents' }}>
+          <source srcSet={BRAND.LOGO_AVIF} type="image/avif" />
+          <img
+            fetchPriority="high"
+            src={LOGO_SRC}
+            alt={`شعار ${BRAND.FULL}`}
+            className="nov-hero-logo nov-hero-logo--top"
+            width="480"
+            height="384"
+            decoding="async"
+          />
+        </picture>
       </div>
 
       <div className="nov-home">

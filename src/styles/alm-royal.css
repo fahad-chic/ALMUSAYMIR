@@ -607,77 +607,12 @@ body.alm-has-nav { padding-top: 0 !important; }
 /* ============================================================
    الأزرار الملكية
    ============================================================ */
-.rz-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 22px;
-  border-radius: var(--rz-radius-xs);
-  border: 1px solid transparent;
-  font-family: var(--rz-font);
-  font-weight: 800;
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease;
-}
-.rz-btn-gold {
-  background: linear-gradient(180deg, var(--rz-gold-soft), var(--rz-gold));
-  color: var(--rz-burgundy-deep);
-  box-shadow: 0 8px 22px -12px rgba(var(--rz-gold-rgb), 0.9);
-}
-.rz-btn-gold:hover { box-shadow: 0 12px 28px -12px rgba(var(--rz-gold-rgb), 1); }
-.rz-btn-burgundy {
-  background: var(--rz-burgundy);
-  color: var(--rz-white);
-}
-.rz-btn-burgundy:hover { background: var(--rz-burgundy-deep); }
-.rz-btn-ghost {
-  background: transparent;
-  color: var(--rz-burgundy);
-  border-color: var(--rz-line-gold);
-}
-.rz-btn-ghost:hover { background: rgba(var(--rz-gold-rgb), 0.10); }
-.rz-btn:active { transform: scale(0.97); }
 
 /* توحيد أزرار الموقع القديمة على الهوية الجديدة */
-.nv-btn, .btn-royal {
-  background: var(--rz-burgundy) !important;
-  color: var(--rz-white) !important;
-  border-radius: var(--rz-radius-xs) !important;
-  font-weight: 800 !important;
-}
-.btn-glass {
-  background: var(--rz-glass) !important;
-  border: 1px solid var(--rz-line-gold) !important;
-  color: var(--rz-white) !important;
-  backdrop-filter: blur(8px);
-  border-radius: var(--rz-radius-xs) !important;
-}
 
 /* ============================================================
    البطاقات + الزجاج الملكي المحدود
    ============================================================ */
-.rz-card {
-  background: var(--rz-white);
-  border: 1px solid var(--rz-line);
-  border-radius: var(--rz-radius);
-  box-shadow: var(--rz-shadow-sm);
-  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.rz-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--rz-shadow);
-  border-color: var(--rz-line-gold);
-}
-.rz-glass {
-  background: var(--rz-glass-strong);
-  border: 1px solid var(--rz-line-gold);
-  border-radius: var(--rz-radius);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
 
 /* ============================================================
    الفوتر الملكي
@@ -692,47 +627,6 @@ body.alm-has-nav { padding-top: 0 !important; }
   max-width: 1320px;
   margin: 0 auto;
   padding: 18px 14px 12px;
-}
-.rz-footer-top {
-  text-align: center;
-  margin-bottom: 12px;
-}
-.rz-footer-logo {
-  height: 40px;
-  width: auto;
-  margin: 0 auto 6px;
-  display: block;
-  filter: drop-shadow(0 4px 12px rgba(var(--rz-ink-rgb), 0.35));
-}
-.rz-footer-tag {
-  color: var(--rz-gold-soft);
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-.rz-footer-cols {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  text-align: start;
-}
-.rz-footer-col h4 {
-  color: var(--rz-gold) !important;
-  font-size: 0.8rem;
-  font-weight: 800;
-  margin: 0 0 6px;
-}
-.rz-footer-col a {
-  display: block;
-  color: rgba(var(--rz-ivory-rgb), 0.80);
-  text-decoration: none;
-  font-size: 0.72rem;
-  padding: 2px 0;
-  transition: color 0.16s ease, padding-inline-start 0.16s ease;
-  line-height: 1.4;
-}
-.rz-footer-col a:hover {
-  color: var(--rz-gold-soft);
-  padding-inline-start: 4px;
 }
 .rz-footer-bottom {
   margin-top: 12px;
@@ -828,93 +722,8 @@ a { color: var(--rz-burgundy); }
 }
 
 /* اكتشفي المتجر */
-.rz-discover {
-  background: var(--rz-white);
-  border: 1px solid var(--rz-line-gold);
-  border-radius: 14px;
-  padding: 12px 12px;
-  margin: 10px 0;
-  box-shadow: var(--rz-shadow-sm);
-}
-.rz-discover-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.rz-discover-head h2 {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  font-size: 0.92rem;
-  font-weight: 800;
-  color: var(--rz-burgundy) !important;
-}
-.rz-discover-skip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid var(--rz-line);
-  background: var(--rz-ivory);
-  color: var(--rz-muted);
-  cursor: pointer;
-}
-.rz-discover-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-}
-.rz-discover-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 8px;
-  border-radius: 12px;
-  border: 1px solid var(--rz-line);
-  background: var(--rz-ivory);
-  color: var(--rz-burgundy);
-  font-family: var(--rz-font);
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.16s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-}
-.rz-discover-card:hover {
-  background: var(--rz-white);
-  border-color: var(--rz-line-gold);
-  transform: translateY(-2px);
-  box-shadow: var(--rz-shadow-sm);
-}
-.rz-discover-card svg { color: var(--rz-gold); }
 
 /* زر (+) على بطاقات الأقسام */
-.nov-tile { position: relative; }
-.nov-tile-plus {
-  position: absolute;
-  top: 8px;
-  inset-inline-end: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  border: 1px solid var(--rz-line-gold);
-  color: var(--rz-burgundy);
-  background: var(--rz-white);
-  transition: transform 0.22s ease, background 0.22s ease, color 0.22s ease;
-}
-.nov-tile[data-open='true'] .nov-tile-plus {
-  transform: rotate(135deg);
-  background: var(--rz-burgundy);
-  color: var(--rz-gold-soft);
-}
 
 /* الأسئلة الشائعة */
 .rz-faq { margin: 12px 0 4px; }
@@ -967,11 +776,9 @@ a { color: var(--rz-burgundy); }
 
 @media (max-width: 900px) {
   .rz-trust { grid-template-columns: repeat(2, 1fr); }
-  .rz-discover-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 480px) {
   .rz-trust { grid-template-columns: 1fr; }
-  .rz-discover-grid { grid-template-columns: 1fr; }
 }
 
 /* احترام تقليل الحركة */
@@ -1035,12 +842,10 @@ a { color: var(--rz-burgundy); }
     padding: 7px 11px;
     font-size: 0.84rem;
   }
-  .rz-footer-cols { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 }
 
 /* الطبقة الأولى على الجوال: شعار وأيقونات أصغر لتبقى كل الأزرار في سطر واحد */
 @media (max-width: 480px) {
-  .rz-footer-cols { grid-template-columns: 1fr; }
   .rz-logo img { height: 26px; }
   .rz-topbar-inner { padding: 5px 8px; gap: 5px; }
   .rz-icon-btn { width: 34px; height: 34px; }
@@ -1166,8 +971,11 @@ a { color: var(--rz-burgundy); }
   }
 }
 
-/* مساحة تنفّس أفقية أفضل على الجوال + تمرير أفقي سلس لشريط التنقل */
-@media (max-width: 720px) {
+/* مساحة تنفّس أفقية أفضل على الجوال + تمرير أفقي سلس لشريط التنقل.
+   ملاحظة: مقاسات الهوامش/الشعار هنا تخصّ 481–720px فقط؛ لو بقيت بلا حدّ أدنى
+   لألغت (لاحقاً في الملف) مقاسات 480px و400px فيصير الشعار 38px والحشو 8px
+   على شاشة 320px فتُدفع الأيقونة الرابعة خارج الشاشة. */
+@media (min-width: 481px) and (max-width: 720px) {
   .rz-topbar-inner {
     padding: 8px 12px;
     gap: 10px;
@@ -1175,6 +983,9 @@ a { color: var(--rz-burgundy); }
   .rz-logo img {
     height: 38px;
   }
+}
+
+@media (max-width: 720px) {
   .rz-subbar-inner {
     padding: 0 10px;
     gap: 4px;
@@ -1216,64 +1027,82 @@ a { color: var(--rz-burgundy); }
   }
 }
 
-/* الجوال الصغير: التنقل كله ظاهر بلا قص ولا تمرير أفقي.
-   كان الشريط يُقتطع أفقيًا (460px داخل 203px) فيختفي نصف الأقسام.
-   الآن: صف علوي (القائمة + أدوات) ثم شبكة 3 أعمدة لبقية الأقسام،
-   فيظهر كل رابط كاملاً بارتفاع مضغوط بلا ازدحام. */
+/* الجوال الصغير (≤560px): صف تنقّل واحد مضغوط.
+   كان الشريط شبكة 3 أعمدة على سطرين (لفّ مزعج يدفع المحتوى للأسفل)، وصار
+   الآن صفاً واحداً: زر القائمة ثابت + روابط تمرّ أفقياً بسلاسة (بلا شريط
+   تمرير ظاهر) + أدوات المظهر في الطرف. تدرّج تلاشٍ خفيف على الحافة يدلّ
+   على وجود بقية الروابط بلا قصّ حادّ. */
 @media (max-width: 560px) {
   .rz-subbar-inner {
-    display: grid;
-    grid-template-columns: auto 1fr;
+    display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 3px 6px;
+    gap: 4px;
     padding: 4px 6px;
     min-height: 0;
-    overflow: visible;
+    overflow: hidden;
   }
   .rz-burger {
-    grid-column: 1;
-    grid-row: 1;
-    padding: 4px 9px;
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    font-size: 0.7rem;
+    gap: 4px;
+    min-height: 32px;
+  }
+  .rz-subbar-inner nav,
+  .rz-subbar-inner .rz-nav {
+    flex: 1 1 auto;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 2px;
+    width: auto;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7px, #000 calc(100% - 7px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 7px, #000 calc(100% - 7px), transparent 100%);
+  }
+  .rz-subbar-inner nav::-webkit-scrollbar {
+    display: none;
+  }
+  .rz-nav-link {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 4px 8px;
     font-size: 0.72rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    scroll-snap-align: start;
   }
   .rz-subbar-tools {
-    grid-column: 2;
-    grid-row: 1;
+    flex: 0 0 auto;
     display: flex;
     justify-content: flex-end;
     width: auto;
   }
-  .rz-subbar-inner nav,
-  .rz-subbar-inner .rz-nav {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px 2px;
-    width: 100%;
-    overflow: visible;
+  .rz-subbar-tools .alm-appearance-controls {
+    margin: 0;
+    gap: 3px;
   }
-  .rz-nav-link,
-  .rz-burger {
-    min-height: 0;
+  .rz-subbar-tools .alm-appearance-controls button {
+    min-height: 30px;
+    padding: 4px 6px;
   }
-  .rz-nav-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 0;
-    padding: 4px 2px;
-    font-size: 0.72rem;
-    line-height: 1.25;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .rz-subbar-spacer {
+    display: none;
   }
-  .rz-subbar-spacer { display: none; }
 }
 
 @media (max-width: 400px) {
-  .rz-nav-link { font-size: 0.67rem; padding: 4px 1px; }
+  .rz-nav-link { font-size: 0.68rem; padding: 4px 7px; }
+  .rz-burger { font-size: 0.66rem; padding: 4px 6px; }
+  .rz-subbar-inner { gap: 3px; padding: 3px 5px; }
 }
 

@@ -32,9 +32,13 @@ const readDims = (file) => {
 
 describe('index.html icon references resolve to real files', () => {
   it('every static asset href/src in index.html exists in public/', () => {
-    const refs = [...html.matchAll(/(?:href|src)="(\/[^"]+)"/g)]
+    const refs = [...html.matchAll(/(?:href|src|srcset|srcSet)="(\/[^"]+)"/g)]
       .map((m) => m[1])
-      .filter((ref) => !ref.startsWith('/src/') && /\.(png|jpg|jpeg|ico|svg|webp|json|xml|txt|webmanifest)$/i.test(ref));
+      // شرائح srcset قد تحمل عدة مسارات
+      .flatMap((ref) => ref.split(',').map((part) => part.trim().split(/\s+/)[0]))
+      // نتجاهل رقم إصدار الكاش (?v=) عند فحص وجود الملف
+      .map((ref) => ref.split('?')[0])
+      .filter((ref) => !ref.startsWith('/src/') && /\.(png|jpg|jpeg|ico|svg|webp|avif|json|xml|txt|webmanifest)$/i.test(ref));
     const missing = refs.filter(
       (ref) => !existsSync(path.join(rootDir, 'public', ref.replace(/^\//, '')))
     );
