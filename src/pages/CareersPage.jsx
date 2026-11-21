@@ -9,6 +9,7 @@ import {
   INFO_PHONE_LOCAL,
   INFO_PHONE_TEL,
 } from '../data/infoPages';
+import '../styles/info-pages.css';
 
 export default function CareersPage() {
   const navigate = useNavigate();

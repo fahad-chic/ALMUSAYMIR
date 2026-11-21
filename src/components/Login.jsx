@@ -774,10 +774,17 @@ const Login = () => {
       <div className="rl-wrap">
         <header className="rl-head">
         <div className="rl-crown-ic">
-          <img
-            src={BRAND.LOGO}
-            alt="شعار المسيمير | ALMUSAYMIR"
-          />
+          <picture style={{ display: 'contents' }}>
+            <source srcSet={BRAND.LOGO_AVIF} type="image/avif" />
+            <img
+              src={BRAND.LOGO}
+              alt="شعار المسيمير | ALMUSAYMIR"
+              width="480"
+              height="384"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
         </div>
 
         <div className="rl-brand-name" dir="rtl">

@@ -419,3 +419,97 @@ CI على `661644a` = `44803355621` **success** (6/6).
 `npm run lint`=0 · `npx vitest run`=**54/364** · `npm run build` ✓ ·
 **مقارنة بكسل مقابل الإنتاج: 0 بكسلات مختلفة عند 320 و390** (لا انحدار بصري) ·
 `__ALM_NAV__` موجود و`__ROOZ_NAV__` غائب محلياً.
+
+## جولة «موبايل + سرعة» (2026-11-21) — PR #58
+**النطاق**: UX للجوال + بنود PageSpeed. **بلا** ترحيل بيانات، **بلا** نشر قواعد Firebase،
+**بلا** مساس بـprivacy/publicSafe، وبلا تغيير أي مسار أو صلاحية أو سياسة دخول.
+
+### 1) الحزمة الأولى (أكبر مكسب)
+- `src/App.jsx`: 15 صفحة/مكوّن كان **استيراداً ثابتاً** صار `safeLazy`
+  (`OwnerPrivateRoom` 126KB · `AdminDashboard` 31KB · `AdFormPage` · `ComplaintsPage` ·
+  `SettingsPage` · `ContentManager` · `UsersList` · `OwnerPanel` · `Register` ·
+  `ForgotPassword` · `OTPPage` · `MemberInbox` · `NotificationPanel` · `FAQ` ·
+  `AIChatWidget` · `WhatsAppFloat`) + `Suspense` حول عناصر الواجهة العائمة.
+- **النتيجة المقيسة**: حزمة الدخول `index.js` **430KB → 130KB خام** (110 → 37KB gzip).
+  إجمالي JS أول تحميل **446KB → 371KB gzip**.
+- `src/firebase/config.js`: `firebase/storage` صار `import()` عند أول استخدام
+  (`getStorageInstance`)، و`src/firebase/storage.js` يحلّه بـ`await resolveStorage()`.
+  **لا يزال** firebase-vendor يحوي storage لأن `manualChunks` يجمع كل firebase في حزمة
+  واحدة؛ فصلها إلى `firebase-storage` لم يُنقص شيئاً (Vite يُصدر لها `modulepreload`)
+  ⇒ **أُعيد manualChunks كما كان**. لا تُعِد المحاولة بلا قياس.
+- **حدّ معروف**: Firestore في المسار الحرج (يمنع خفضاً أكبر ~90KB gzip) لأن
+  `config.js` يُصدّر `db` جاهزاً و30+ وحدة تستورده. تحويله إلى lazy = إعادة كتابة عريضة
+  تمسّ الدخول ⇒ **مؤجّل بقرار**.
+
+### 2) الخطوط (render-blocking)
+- خط Tajawal **محلي**: `public/fonts/*.woff2` (12 ملفاً، 111.5KB) + 12 `@font-face`
+  مُدرجة داخل `index.html` عبر `scripts/inline-fonts.mjs` (بلا طلب CSS خارجي).
+- `preload` لوزنين فقط (900 عربي/لاتيني = وزن اسم العلامة على أول شاشة).
+- حُذف `preconnect`/`stylesheet` لـ`fonts.googleapis.com` و`fonts.gstatic.com`،
+  و**ضُيّق CSP** في `public/_headers`: `style-src 'self' 'unsafe-inline'` و`font-src 'self'`.
+- `public/_headers`: `/fonts/*` → `max-age=31536000, immutable`.
+
+### 3) الصور
+- `scripts/optimize-images.mjs` (sharp): AVIF للشعارين + ضغط palette للأيقونات.
+  `logo 47.5→22.9KB` · `wide 13.7→10.2KB` · `apple-touch-icon 34.2→10.0KB` ·
+  `favicon-96x96 10.5→3.9KB` · `emblem 39.4→36.0KB`.
+- `<picture>` + `<source type="image/avif">` + PNG fallback في `Login.jsx` ·
+  `RoyalHeader.jsx` · `NovHomePage.jsx`، و`preload as="image" type="image/avif"`
+  بـ`fetchpriority="high"` للشعار (عنصر LCP).
+- **رقم إصدار `?v=3`** على أصول العلامة (لأن `/assets/*` صار immutable سنة):
+  في `src/data/brand.js` + `index.html` + `src/utils/watermark.js`.
+  **عند تغيير أي صورة: ارفع الرقم في المواضع الثلاثة وإلا بقي القديم في الكاش.**
+
+### 4) CSS
+- نُقلت `home-slim.css` → `NovHomePage.jsx`، `info-pages.css` → الصفحات الثلاث،
+  `console-shell.css` → `AdminRoom.jsx` (كانت في `main.jsx` فتُحمَّل لكل زيارة).
+- حُذفت **35 قاعدة ميتة** (29 صنفاً غير مذكور في أي JSX/HTML) من `alm-royal.css`:
+  `.rz-btn*` · `.rz-card` · `.rz-glass` · `.rz-footer-{top,logo,tag,cols,col}` ·
+  `.rz-discover*` · `.nov-tile*` · `.nv-btn` · `.btn-royal/glass` ⇒ 33.9KB → 28.8KB.
+  **مُتحقَّق بالبكسل**: `/login` عند 320 **مطابق تماماً**، وعند 390 فرق 12 بايت (3 بكسل AA).
+
+### 5) الترويسة على الجوال — صف واحد
+- **عطب حقيقي أُصلح**: `@media (max-width: 720px)` كان يضع `.rz-logo img{height:38px}`
+  و`.rz-topbar-inner{padding:8px 12px}` **بعد** قواعد 480px/400px في الملف، فتغلبها
+  بنفس الأولوية ⇒ على 320px الشعار 38px والحشو 8px (والقصد 24px/4px).
+  الحل: تلك القاعدتان في `@media (min-width:481px) and (max-width:720px)`.
+  محروس بـ`src/styles/mobileHeaderCascade.test.js` (3 اختبارات تقرأ CSS).
+- `@media (max-width:560px)`: شريط التنقل **صف واحد** (كان شبكة 3 أعمدة على سطرين):
+  `.rz-burger` ثابت + `<nav>` بتمرير أفقي (`overflow-x:auto`, `scrollbar-width:none`,
+  `scroll-snap`) + `mask-image` تلاشٍ 7px على الحافة (دلالة بلا قصّ حادّ) +
+  `.rz-subbar-tools` (الوضع الليلي/اللغة) في الطرف. **لا تمرير أفقي للصفحة** (0).
+- `.rz-burger`/`.rz-nav-link` ارتفاع 32–40px بلا تضخيم بصري (أمر المالك: أزرار أصغر).
+- **البحث**: `RoyalHeader.jsx` يستخدم `matchMedia('(max-width:480px)')` فيبدّل النص
+  إلى `ابحث…` بدل قطع `ابحث عن أي منتج أو قسم…` (نص المالك المخصّص لا يُلمس).
+- **وضع المالك**: `Editable` صار يقبل `withControls={false}`، وروابط التنقل تستخدمه ⇒
+  لا أزرار تعديل/حذف داخل الصف إطلاقاً (التعديل من «مدير المحتوى»). محروس باختبار
+  في `RoyalHeader.test.jsx` (يفشل فعلاً إن أُعيد `withControls={true}`).
+
+### 6) أدوات القياس داخل المشروع
+- `npm run speed:help` → روابط PSI/GTmetrix/WebPageTest + فحص سريع للترويسات والخطوط.
+- `npm run speed:audit` → Playwright: iPhone 390×844 · 4G (1.6Mbps/150ms) · CPU×4،
+  يقرأ FCP/LCP/CLS/TBT + أحجام JS/CSS/خطوط/صور. `BASE_URL=` للإنتاج، `ROUTES=` لمسارات،
+  `NO_THROTTLE=1` بلا خنق. **يسقط تلقائياً إلى `/usr/bin/chromium`** إن لم تُثبَّت حزم Playwright.
+- `npm run analyze` (موجود) · `npm run fonts` · `npm run images`.
+
+### 7) قياس قبل/بعد (نفس الأداة، /login، 390px، 4G+CPU×4)
+| | FCP | LCP | CLS | TBT | JS |
+|---|---|---|---|---|---|
+| الإنتاج القديم | 1.60s | **4.31s** | 0.007 | 290ms | 419KB |
+| البناء الجديد (محلي) | **1.08s** | **2.98s** | 0.005 | **154ms** | **342KB** |
+> المقارنة ليست مثالية (محلي بلا RTT للـCDN)؛ القياس الحقيقي بعد النشر بـ`BASE_URL=https://almusaymir.pages.dev`.
+
+### 8) البوابات
+`npm run lint`=0 · `npx vitest run`=**55 ملفاً/368 اختباراً** · `npm run build` ✓ ·
+`npm run contrast` (BASE_URL=preview) = **1054 عنصراً/0 مخالفة/PASS** (نفس 5 suspects الكاذبة) ·
+smoke على 13 مساراً: **0 أخطاء runtime**، 0 تجاوز أفقي، والمحميّة تُحوّل لـ`/login`.
+
+### 9) دروس
+- **ترتيب كتل `@media` في نفس الملف يحسم النزاع**: قاعدة عامة لاحقة تلغي قاعدة أضيق سابقة.
+  عند إضافة استعلام أعرض، **قيّده بحدّ أدنى** أو ضعه قبل الأضيق.
+- **Playwright غير مثبَّت هنا**: `npx playwright install` غير متاح ⇒ استخدم
+  `executablePath:'/usr/bin/chromium'` (الأداة تفعلها تلقائياً).
+- **`page.screenshot()` الكامل مع `backdrop-filter`+`sticky` يعطي لقطة خاطئة** للترويسة
+  (تبدو فاتحة). القصّ (`clip`) أو قياس `getComputedStyle` هو الحكم، لا اللقطة الكاملة.
+- `/login` وحدها لا تكفي لفحص الترويسة (لا تُعرض قبل المصادقة، وجلسة الزائر تحتاج Firestore
+  حقيقياً) ⇒ استخدم harness مؤقتاً (Vite + `RoyalHeader` بـprops وهمية) ثم **احذفه**.

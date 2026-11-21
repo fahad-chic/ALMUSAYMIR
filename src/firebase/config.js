@@ -1,7 +1,6 @@
 // src/firebase/config.js - Firebase Configuration
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -31,9 +30,8 @@ if (firebaseConfig.projectId) {
     db = getFirestore(app);
     // Storage is optional. The current free image flow stores compressed
     // data URLs in Firestore, so the app must not depend on a paid bucket.
-    if (firebaseConfig.storageBucket) {
-      storage = getStorage(app);
-    }
+    // يُهيَّأ عند أول استخدام فقط (getStorageInstance) كي لا يُحمَّل
+    // firebase/storage (~12KB) ضمن الحزمة الأولى بصفحة الدخول.
     auth = getAuth(app); // Initialize auth immediately
   } catch (error) {
     console.error('Firebase init error:', error);
@@ -55,6 +53,22 @@ const ensureAnalytics = async () => {
   return analytics;
 };
 
+// Storage with lazy loading — لا يُحمَّل firebase/storage إلا عند الطلب
+let storagePromise = null;
+const getStorageInstance = async () => {
+  if (storage) return storage;
+  if (!app || !firebaseConfig.storageBucket) return null;
+  if (!storagePromise) {
+    storagePromise = import('firebase/storage')
+      .then(({ getStorage }) => {
+        storage = getStorage(app);
+        return storage;
+      })
+      .catch(() => null);
+  }
+  return storagePromise;
+};
+
 // Default export
 export default {
   app,
@@ -63,8 +77,9 @@ export default {
   storage,
   analytics,
   ensureAnalytics,
+  getStorageInstance,
   isConfigured
 };
 
 // Named exports
-export { app, auth, db, storage, analytics, ensureAnalytics, isConfigured };
+export { app, auth, db, storage, analytics, ensureAnalytics, getStorageInstance, isConfigured };

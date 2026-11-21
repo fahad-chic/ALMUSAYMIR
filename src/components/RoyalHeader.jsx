@@ -50,6 +50,17 @@ const RoyalHeader = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState(null);
   const [query, setQuery] = useState('');
+  // على الشاشات الضيقة يُقصّ نص البحث الطويل؛ نستبدله بنص قصير بدل قطع حادّ.
+  const [narrow, setNarrow] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia('(max-width: 480px)');
+    const sync = () => setNarrow(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
@@ -108,7 +119,17 @@ const RoyalHeader = ({
       <div className="rz-topbar">
         <div className="rz-topbar-inner">
           <Link to="/" className="rz-logo" aria-label={`${BRAND.FULL} — الصفحة الرئيسية`}>
-            <img src={BRAND.LOGO_WIDE} alt={BRAND.FULL} className="rz-logo-img" />
+            <picture style={{ display: 'contents' }}>
+              <source srcSet={BRAND.LOGO_WIDE_AVIF} type="image/avif" />
+              <img
+                src={BRAND.LOGO_WIDE}
+                alt={BRAND.FULL}
+                className="rz-logo-img"
+                width="256"
+                height="128"
+                decoding="async"
+              />
+            </picture>
           </Link>
 
           <form className="rz-search" onSubmit={submitSearch} role="search">
@@ -117,7 +138,10 @@ const RoyalHeader = ({
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={siteTexts['header.search_placeholder'] || 'ابحث عن أي منتج أو قسم…'}
+              placeholder={
+                siteTexts['header.search_placeholder'] ||
+                (narrow ? 'ابحث…' : 'ابحث عن أي منتج أو قسم…')
+              }
               aria-label="البحث في الموقع"
             />
           </form>
@@ -177,7 +201,11 @@ const RoyalHeader = ({
                   }
                 }}
               >
-                <Editable contentKey={`header.nav.${item.id}`} defaultValue={item.label} />
+                <Editable
+                  contentKey={`header.nav.${item.id}`}
+                  defaultValue={item.label}
+                  withControls={false}
+                />
               </Link>
               );
             })}
