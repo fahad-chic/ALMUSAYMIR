@@ -18,7 +18,7 @@ body {
   text-align: center;
 }
 
-body.alm-has-nav { padding-top: var(--nav-height); }
+body.alm-has-nav { padding-top: var(--rz-header-h, var(--alm-header-h, var(--nav-height, 112px))); }
 
 h1, h2, h3, h4 {
   font-weight: 900;
