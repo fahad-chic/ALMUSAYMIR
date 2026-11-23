@@ -1194,12 +1194,21 @@ function AppContent() {
       <style>{`
 
         :root {
-          --alm-header-h: 76px;
+          --alm-header-h: 112px;
+          --rz-header-h: 112px;
         }
 
         @media (max-width: 900px) {
           :root {
-            --alm-header-h: 60px;
+            --alm-header-h: 98px;
+            --rz-header-h: 98px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          :root {
+            --alm-header-h: 92px;
+            --rz-header-h: 92px;
           }
         }
 
