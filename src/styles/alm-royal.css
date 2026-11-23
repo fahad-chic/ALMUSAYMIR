@@ -33,25 +33,54 @@ small, .rz-muted { color: var(--rz-muted) !important; }
    الترويسة الملكية — نسخة فاخرة مضغوطة (محسّنة للآيفون)
    كل المسارات والأزرار والدوال كما هي — تحسين بصري فقط
    ============================================================ */
+/* ترويسة ثابتة عالمياً — المحتوى لا يمر من تحتها على أي صفحة */
 .rz-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1200;
   width: 100%;
   isolation: isolate;
+  background: #1C120B;
 }
 
-/* في وضع الزائر تعلو الشاشةَ لافتةٌ ثابتة (عدّاد الدقيقتين)، فنُزيح الترويسة
-   بمقدار ارتفاعها الفعلي كي لا تغطّيها. القيمة يضبطها App.jsx بالقياس. */
+/* ارتفاع الترويسة (علوي + تنقل) — يُستخدم لتعويض المحتوى */
+:root {
+  --rz-header-h: 112px;
+  --alm-header-h: 112px;
+}
+@media (max-width: 900px) {
+  :root {
+    --rz-header-h: 98px;
+    --alm-header-h: 98px;
+  }
+}
+@media (max-width: 480px) {
+  :root {
+    --rz-header-h: 92px;
+    --alm-header-h: 92px;
+  }
+}
+
+/* في وضع الزائر: لافتة العداد فوق الترويسة */
 body.alm-guest-mode .rz-header {
   top: var(--rz-guest-banner-h, 0px);
 }
 
-/* الترويسة sticky وتحتل مساحتها داخل التدفق.
-   مهم: يجب ألّا يكون أي سلف (html/body/#root/جذر التطبيق) بحالة
-   overflow-x: hidden لأنها تكسر sticky — نستخدم clip في global.css. */
-body.alm-has-nav { padding-top: 0 !important; }
+/* مسافة المحتوى = ارتفاع الترويسة — على كل الصفحات */
+body.alm-has-nav {
+  padding-top: var(--rz-header-h, 112px) !important;
+}
+body.alm-guest-mode.alm-has-nav {
+  padding-top: calc(var(--rz-guest-banner-h, 0px) + var(--rz-header-h, 112px)) !important;
+}
 
+/* إخفاء أزرار تعديل المالك داخل شريط التنقل فقط (لا تكسر الصف) */
+.rz-nav .editable-controls,
+.rz-nav-link .editable-controls {
+  display: none !important;
+}
 .rz-topbar {
   /* يحترم Dynamic Island / شريط الحالة على iPhone */
   padding-top: env(safe-area-inset-top, 0px);
@@ -839,21 +868,30 @@ a { color: var(--rz-burgundy); }
     gap: 5px;
   }
   .rz-nav-link {
-    padding: 7px 11px;
-    font-size: 0.84rem;
+    padding: 6px 9px;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+  .rz-burger {
+    font-size: 0.72rem;
+    padding: 6px 10px;
   }
 }
 
 /* الطبقة الأولى على الجوال: شعار وأيقونات أصغر لتبقى كل الأزرار في سطر واحد */
 @media (max-width: 480px) {
-  .rz-logo img { height: 26px; }
+  .rz-logo img { height: 28px; }
   .rz-topbar-inner { padding: 5px 8px; gap: 5px; }
   .rz-icon-btn { width: 34px; height: 34px; }
   /* 34px + هامش 5px من كل جهة = هدف لمس 44px */
   .rz-icon-btn::after { inset: -5px; }
   .rz-actions { gap: 0; }
   .rz-search { min-width: 0; }
-  .rz-search input { padding: 7px 8px !important; font-size: 0.76rem; }
+  .rz-search input { padding: 7px 8px !important; font-size: 0.74rem; }
+  .rz-nav-link {
+    padding: 5px 7px !important;
+    font-size: 0.66rem !important;
+  }
 }
 
 /* الجوال الضيق (320–400px): كل الأيقونات الأربع تبقى ظاهرة وكاملة،
@@ -1034,28 +1072,33 @@ a { color: var(--rz-burgundy); }
    على وجود بقية الروابط بلا قصّ حادّ. */
 @media (max-width: 560px) {
   .rz-subbar-inner {
-    display: flex;
-    flex-wrap: nowrap;
+    display: flex !important;
+    flex-wrap: nowrap !important;
     align-items: center;
-    gap: 4px;
-    padding: 4px 6px;
-    min-height: 0;
-    overflow: hidden;
+    gap: 3px;
+    padding: 3px 6px;
+    min-height: 36px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
+  .rz-subbar-inner::-webkit-scrollbar { display: none; }
   .rz-burger {
     flex: 0 0 auto;
     padding: 5px 8px;
-    font-size: 0.7rem;
-    gap: 4px;
+    font-size: 0.68rem;
+    gap: 3px;
     min-height: 32px;
   }
+  .rz-burger span { font-size: 0.68rem; }
   .rz-subbar-inner nav,
   .rz-subbar-inner .rz-nav {
     flex: 1 1 auto;
-    display: flex;
-    flex-wrap: nowrap;
+    display: flex !important;
+    flex-wrap: nowrap !important;
     align-items: center;
-    gap: 2px;
+    gap: 1px;
     width: auto;
     min-width: 0;
     overflow-x: auto;
@@ -1063,21 +1106,21 @@ a { color: var(--rz-burgundy); }
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7px, #000 calc(100% - 7px), transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 7px, #000 calc(100% - 7px), transparent 100%);
   }
   .rz-subbar-inner nav::-webkit-scrollbar {
     display: none;
   }
   .rz-nav-link {
     flex: 0 0 auto;
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     min-height: 32px;
-    padding: 4px 8px;
-    font-size: 0.72rem;
-    line-height: 1.2;
+    padding: 4px 7px !important;
+    font-size: 0.68rem !important;
+    font-weight: 700;
+    line-height: 1.15;
+    white-space: nowrap !important;
     white-space: nowrap;
     scroll-snap-align: start;
   }
