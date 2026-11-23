@@ -316,9 +316,9 @@ html.high-contrast button {
   font-size: 0.92rem;
 }
 
-/* تعويض الترويسة الثابتة — لا يختفي المحتوى تحتها */
+/* تعويض الترويسة الثابتة — المحتوى لا يمر من تحتها على كل الصفحات */
 body.alm-has-nav {
-  padding-top: var(--nav-height, 56px);
+  padding-top: var(--rz-header-h, var(--alm-header-h, var(--nav-height, 112px)));
 }
 
 /* نصوص أوضح وأصغر قليلاً */
